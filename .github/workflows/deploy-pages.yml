@@ -21,6 +21,9 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
         with:
@@ -34,6 +37,18 @@ jobs:
           mkdir _site
           unzip -q site.zip -d _site
           rm -rf _site/.github
+
+      - name: Generate accounting book
+        run: |
+          cat deploy/accounting-generator.py.gz.b64.part* | base64 --decode > /tmp/accounting-generator.py.gz
+          echo 'e2936ad80e35d8312eec9e0956ec304078557e0f74299f67715640e4d30c138f  /tmp/accounting-generator.py.gz' | sha256sum --check -
+          gzip --decompress --stdout /tmp/accounting-generator.py.gz > /tmp/generate_accounting.py
+          python -m pip install --disable-pip-version-check --quiet beautifulsoup4
+          SITE_ROOT="$GITHUB_WORKSPACE/_site" \
+            OUTPUT_ZIP="/tmp/study-library-with-accounting.zip" \
+            python /tmp/generate_accounting.py
+          test "$(python -c "import json; print(json.load(open('_site/data/library.json'))['version'])")" = '2026.07.27-4'
+          test "$(python -c "import json; print(json.load(open('_site/books/accounting/questions.json'))['count'])")" = '70'
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
