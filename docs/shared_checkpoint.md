@@ -9,7 +9,7 @@
 - 固定入口：`https://sunny20030925-cell.github.io/study-review-library/`
 - 形式：平板直式 PWA 書庫，可持續加入新科目。
 - 使用者操作限制：只使用平板；不得要求終端機、Git、電腦檔案管理、手動部署或多檔案上傳操作。
-- 目前書庫內容版本：`2026.07.27-4`
+- 目前書庫內容版本：`2026.07.27-5`
 
 ## 正式規格
 
@@ -49,13 +49,28 @@
 - 部署回條：`docs/deployment_receipt.json`
 - 狀態：已合併至 `main` 並完成 GitHub Pages 正式部署。
 
+### 經濟學原理
+
+- Book ID：`economics`
+- 正式內容版本：`2026.07.27-1`
+- 定位：一般大學第一門經濟學／經濟學原理，完整涵蓋個體與總體共同核心。
+- 範圍：選擇與機會成本、比較利益、供需與彈性、福利與政策、消費者與企業、市場結構、要素市場、市場失靈、GDP 與失業、成長、金融、AD–AS、乘數、財政貨幣政策與開放經濟。
+- 深度邊界：不延伸至中級個體、中級總體、計量經濟或專門領域課程。
+- 成品：20 章、3 附錄、100 題題庫、144 筆搜尋索引、20 張自製圖解。
+- 第一輪 QA：1,557／1,557 通過。
+- 第二輪 QA：895／895 通過；另完成 52 個靜態 HTTP 路徑、JavaScript、SVG 預覽與 ZIP 完整性檢查。
+- 範圍文件：`docs/books/economics/scope.md`
+- QA 報告：`docs/books/economics/qa_report.md`
+- 狀態：內容與 QA 完成；合併至 `main` 後由 GitHub Pages 自動部署。
+
 ## 部署流程
 
-1. GitHub Actions 下載既有網站部署包。
-2. 從 repo 內的會計學產生器建立新版內容並執行 QA。
-3. 產生器成功且版本、題庫數量檢查通過後，才上傳 Pages artifact。
-4. Pages 部署成功後寫回 `docs/deployment_receipt.json`，失敗時不會產生成功回條。
-5. 使用者不需要在平板上處理 ZIP、Git 或部署。
+1. GitHub Actions 下載固定 ID 的正式網站部署包。
+2. 先核對部署包 SHA-256，再用 Python ZIP 模組解開；部署包可含前置檔頭，不依賴桌面解壓工具。
+3. 驗證三本書的 manifest、題庫數量、章節檔、搜尋索引、經濟學圖解與 PWA 快取。
+4. JavaScript 語法與全部正式檢查通過後，才上傳 Pages artifact。
+5. Pages 部署成功後寫回 `docs/deployment_receipt.json`，失敗時不會產生成功回條。
+6. 使用者不需要在平板上處理 ZIP、Git 或部署。
 
 ## 下一個新科目流程
 
