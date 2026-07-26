@@ -1,15 +1,11 @@
 {
   "status": "success",
-  "library_version": "2026.07.27-5",
-  "calculus_question_count": 73,
-  "accounting_version": "2026.07.27-1",
-  "accounting_question_count": 70,
-  "economics_version": "2026.07.27-1",
-  "economics_question_count": 100,
+  "library_version": "2026.07.27-6",
+  "book_versions_visible": true,
+  "progress_storage_changed": false,
   "book_count": 3,
-  "package_sha256": "12b9e8f2639ac8b27157e456a985c905d91e590f88465ebf8c4b5786846f3774",
-  "source_commit": "f25a3a6fb6aaab6e1d4367e4258c9acbf5a1b0c1",
-  "workflow_run_id": "30225176323",
+  "source_commit": "3abd61cd179e39c714778f92951554b0b59bf307",
+  "workflow_run_id": "30225902664",
   "page_url": "https://sunny20030925-cell.github.io/study-review-library/",
-  "deployed_at": "2026-07-26T23:24:34.514084+00:00"
+  "deployed_at": "2026-07-26T23:45:12.921853+00:00"
 }
