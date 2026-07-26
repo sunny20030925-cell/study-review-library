@@ -29,26 +29,66 @@ jobs:
         with:
           enablement: true
 
-      - name: Download website package
+      - name: Download and verify website package
         run: |
           curl -L --fail --retry 3 \
             'https://drive.usercontent.google.com/download?id=1rgPS62bIZOWC8H3zSrw-RBZ3jkg9SDcs&export=download&confirm=t' \
             -o site.zip
+          echo '12b9e8f2639ac8b27157e456a985c905d91e590f88465ebf8c4b5786846f3774  site.zip' | sha256sum --check -
           mkdir _site
-          unzip -q site.zip -d _site
+          python -m zipfile -e site.zip _site
           rm -rf _site/.github
 
-      - name: Generate accounting book
+      - name: Validate study library
         run: |
-          cat deploy/accounting-generator.py.gz.b64.part* | base64 --decode > /tmp/accounting-generator.py.gz
-          echo 'e2936ad80e35d8312eec9e0956ec304078557e0f74299f67715640e4d30c138f  /tmp/accounting-generator.py.gz' | sha256sum --check -
-          gzip --decompress --stdout /tmp/accounting-generator.py.gz > /tmp/generate_accounting.py
-          python -m pip install --disable-pip-version-check --quiet beautifulsoup4
-          SITE_ROOT="$GITHUB_WORKSPACE/_site" \
-            OUTPUT_ZIP="/tmp/study-library-with-accounting.zip" \
-            python /tmp/generate_accounting.py
-          test "$(python -c "import json; print(json.load(open('_site/data/library.json'))['version'])")" = '2026.07.27-4'
-          test "$(python -c "import json; print(json.load(open('_site/books/accounting/questions.json'))['count'])")" = '70'
+          python - <<'PY'
+          import json
+          from collections import Counter
+          from pathlib import Path
+
+          site = Path("_site")
+          library = json.loads((site / "data/library.json").read_text(encoding="utf-8"))
+          assert library["version"] == "2026.07.27-5"
+          assert [book["id"] for book in library["books"]] == ["calculus", "accounting", "economics"]
+
+          expected = {"calculus": 73, "accounting": 70, "economics": 100}
+          for book_id, count in expected.items():
+              manifest = json.loads((site / f"books/{book_id}/manifest.json").read_text(encoding="utf-8"))
+              questions = json.loads((site / f"books/{book_id}/questions.json").read_text(encoding="utf-8"))
+              search = json.loads((site / f"books/{book_id}/search.json").read_text(encoding="utf-8"))
+              assert manifest["id"] == book_id
+              assert questions["count"] == count == len(questions["items"])
+              assert search["entries"]
+              for chapter in manifest["chapters"]:
+                  path = site / "books" / book_id / chapter["file"]
+                  assert path.is_file() and path.stat().st_size > 100
+
+          economics_manifest = json.loads((site / "books/economics/manifest.json").read_text(encoding="utf-8"))
+          economics_questions = json.loads((site / "books/economics/questions.json").read_text(encoding="utf-8"))
+          assert economics_manifest["version"] == "2026.07.27-1"
+          assert len([x for x in economics_manifest["chapters"] if x["kind"] == "chapter"]) == 20
+          assert len([x for x in economics_manifest["chapters"] if x["kind"] == "appendix"]) == 3
+          assert Counter(q["chapterId"] for q in economics_questions["items"]) == {
+              f"ch{i:02d}": 5 for i in range(20)
+          }
+          figures = sorted((site / "assets/economics-svg").glob("*.svg"))
+          assert len(figures) == 20
+          for figure in figures:
+              text = figure.read_text(encoding="utf-8")
+              assert "<title" in text and "<desc" in text and "viewBox" in text
+
+          sw = (site / "sw.js").read_text(encoding="utf-8")
+          for token in (
+              "study-library-2026-07-27-5",
+              "./books/economics/manifest.json",
+              "./books/economics/chapters/ch19.html",
+              "./assets/economics-svg/open-economy.svg",
+          ):
+              assert token in sw
+          print("LIBRARY_VALIDATION_OK books=3 economics_chapters=20 economics_questions=100 economics_figures=20")
+          PY
+          node --check _site/app.js
+          node --check _site/sw.js
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
@@ -71,9 +111,14 @@ jobs:
 
           receipt = {
               "status": "success",
-              "library_version": "2026.07.27-4",
+              "library_version": "2026.07.27-5",
+              "calculus_question_count": 73,
               "accounting_version": "2026.07.27-1",
-              "question_count": 70,
+              "accounting_question_count": 70,
+              "economics_version": "2026.07.27-1",
+              "economics_question_count": 100,
+              "book_count": 3,
+              "package_sha256": "12b9e8f2639ac8b27157e456a985c905d91e590f88465ebf8c4b5786846f3774",
               "source_commit": os.environ["GITHUB_SHA"],
               "workflow_run_id": os.environ["GITHUB_RUN_ID"],
               "page_url": os.environ.get("DEPLOYED_PAGE_URL", ""),
