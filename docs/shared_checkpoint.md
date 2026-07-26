@@ -61,7 +61,9 @@
 - 第二輪 QA：895／895 通過；另完成 52 個靜態 HTTP 路徑、JavaScript、SVG 預覽與 ZIP 完整性檢查。
 - 範圍文件：`docs/books/economics/scope.md`
 - QA 報告：`docs/books/economics/qa_report.md`
-- 狀態：內容與 QA 完成；合併至 `main` 後由 GitHub Pages 自動部署。
+- 部署回條：`docs/deployment_receipt.json`
+- PR：`#2`，合併提交 `0bc0f09899f7f4eb21e845a580ab09c913cfa8fb`。
+- 狀態：已合併至 `main` 並完成 GitHub Pages 正式部署。
 
 ## 部署流程
 
