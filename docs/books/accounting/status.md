@@ -7,7 +7,8 @@
 - Book ID：`accounting`
 - 書籍版本：`2026.07.27-1`
 - 書庫內容版本：`2026.07.27-4`
-- 分支：`accounting-book-v1`
+- 正式分支：`main`
+- 合併 commit：`58096b1ebadf7012a464caa7fbf8e84bd2b8e653`
 
 ## 已完成
 
@@ -26,13 +27,16 @@
 - 第一輪自動 QA：233／233 通過。
 - 第二輪獨立 QA：版本、檔案、HTML 結構、連結、題庫分布、JSON、JavaScript、快取、範圍詞、貨幣與 ZIP 完整性均通過。
 - 本機靜態網站測試：首頁、書庫資料、會計 manifest、正文、題庫、搜尋索引與 service worker 均回傳 HTTP 200。
+- 正式 GitHub Pages workflow 已重新產生內容並通過版本與 70 題題數檢查。
 
 ## 部署方式
 
-正式網站仍先解開既有部署包，再由 GitHub 內的會計學產生器覆蓋新版內容。這使會計學內容與版本規則由 repo 管理，不再要求使用者從平板手動替換 ZIP。
+正式網站先解開既有部署包，再由 GitHub 內的會計學產生器覆蓋新版內容。這使會計學內容與版本規則由 repo 管理，不要求使用者從平板手動替換 ZIP。
 
 ## 目前狀態
 
 - 內容：完成。
 - QA：完成。
-- 部署：待本分支合併至 `main` 後執行 GitHub Pages 驗證。
+- 部署：完成。
+- 固定入口：`https://sunny20030925-cell.github.io/study-review-library/`
+- 首次成功部署回條：`docs/deployment_receipt.json`
