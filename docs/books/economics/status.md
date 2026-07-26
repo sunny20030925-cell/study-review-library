@@ -7,7 +7,7 @@
 - Book ID：`economics`
 - 書籍版本：`2026.07.27-1`
 - 書庫內容版本：`2026.07.27-5`
-- 分支：`agent/economics-principles-book`
+- 正式分支：`main`
 
 ## 已完成
 
@@ -31,8 +31,17 @@
 - 20 張 SVG 全數成功轉成 PNG 預覽並完成版面抽查。
 - 完整部署 ZIP 通過壓縮檔完整性檢查。
 
+## 部署驗證
+
+- PR：`#2`
+- 合併提交：`0bc0f09899f7f4eb21e845a580ab09c913cfa8fb`
+- GitHub Actions workflow run：`30225055868`
+- 部署回條：`docs/deployment_receipt.json`
+- 正式網站版本：`2026.07.27-5`
+
 ## 目前狀態
 
 - 內容：完成。
 - QA：完成。
-- 正式網站部署包：已更新為書庫版本 `2026.07.27-5`，待本分支合併至 `main` 後由 GitHub Pages 驗證。
+- 合併：完成。
+- GitHub Pages：正式部署完成。
