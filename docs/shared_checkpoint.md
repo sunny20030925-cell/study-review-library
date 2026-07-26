@@ -46,14 +46,16 @@
 - 第二輪 QA：內容邊界、版本、HTML、JSON、JavaScript、連結、題庫分布、快取與靜態載入全數通過。
 - 範圍文件：`docs/books/accounting/scope.md`
 - QA 報告：`docs/books/accounting/qa_report.md`
-- 狀態：內容完成；合併至 `main` 後由 GitHub Pages 自動部署。
+- 部署回條：`docs/deployment_receipt.json`
+- 狀態：已合併至 `main` 並完成 GitHub Pages 正式部署。
 
 ## 部署流程
 
 1. GitHub Actions 下載既有網站部署包。
 2. 從 repo 內的會計學產生器建立新版內容並執行 QA。
 3. 產生器成功且版本、題庫數量檢查通過後，才上傳 Pages artifact。
-4. 使用者不需要在平板上處理 ZIP、Git 或部署。
+4. Pages 部署成功後寫回 `docs/deployment_receipt.json`，失敗時不會產生成功回條。
+5. 使用者不需要在平板上處理 ZIP、Git 或部署。
 
 ## 下一個新科目流程
 
