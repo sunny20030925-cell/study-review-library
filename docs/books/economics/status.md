@@ -7,7 +7,7 @@
 - Book ID：`economics`
 - 書籍版本：`2026.07.27-2`
 - 書庫內容版本：`2026.07.27-8`
-- 修正分支：`agent/economics-content-audit-v2-final`
+- 正式分支：`main`
 
 ## 成品
 
@@ -38,13 +38,22 @@
 
 ## 相容性
 
-- 以目前正式部署的書庫 `2026.07.27-7` 為基礎測試。
+- 以正式部署的書庫 `2026.07.27-7` 與會計學 `2026.07.27-2` 為整合測試基礎。
 - 會計學 `2026.07.27-2`、微積分 `2026.07.27-3` 及其更新紀錄均保留。
 - 經濟學升為 `2026.07.27-2`，書庫升為 `2026.07.27-8`。
+- 部署回條確認 `progress_storage_changed=false`。
+
+## 部署驗證
+
+- PR：`#5`。
+- 合併提交：`9839467820bb0bac261b33ce4fb7671dea60b25b`。
+- GitHub Pages workflow run：`30227689299`。
+- 部署回條：`docs/deployment_receipt.json`。
+- 正式網站：`https://sunny20030925-cell.github.io/study-review-library/`。
 
 ## 目前狀態
 
 - 內容修正：完成。
 - 獨立 QA：完成。
-- 可重現部署流程：完成。
-- 合併與 GitHub Pages 正式部署：待本修正 PR 通過後執行。
+- 合併：完成。
+- GitHub Pages：正式部署完成。
