@@ -8,6 +8,9 @@
 - 書籍版本：`2026.07.27-2`
 - 書庫內容版本：`2026.07.27-7`
 - 正式分支：`main`
+- PR：`#4`
+- 合併 commit：`a74e37726019f48bf8768e9bc9790f53a4cefa90`
+- 成功部署 workflow run：`30227100338`
 
 ## 本次二次複核
 
@@ -31,11 +34,11 @@
 
 ## 發布方式
 
-GitHub Pages 在正式部署前會下載固定來源包、核對 SHA-256，再執行 repo 內的 `deploy/patch_accounting_v2.py`。修正腳本完成內容替換、索引重建與自動驗證後，才可部署新版網站。
+GitHub Pages 下載固定來源包、核對 SHA-256，再執行 repo 內的 `deploy/patch_accounting_v2.py`。修正腳本完成內容替換、索引重建與自動驗證後，才部署新版網站。
 
 ## 目前狀態
 
 - 內容：第二版完成。
 - QA：二次獨立複核完成。
-- 部署：發布流程已建立；以 `docs/deployment_receipt.json` 的新版成功回條作為正式完成依據。
+- 部署：完成；`docs/deployment_receipt.json` 已記錄版本 `2026.07.27-7`／`2026.07.27-2` 與成功回條。
 - 固定入口：`https://sunny20030925-cell.github.io/study-review-library/`
