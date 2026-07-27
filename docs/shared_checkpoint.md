@@ -49,7 +49,9 @@
 - 範圍文件：`docs/books/accounting/scope.md`
 - QA 報告：`docs/books/accounting/qa_report.md`
 - 部署回條：`docs/deployment_receipt.json`
-- 狀態：第二版發布流程已建立；以新版成功部署回條為正式完成依據。
+- PR：`#4`；合併 commit：`a74e37726019f48bf8768e9bc9790f53a4cefa90`。
+- 成功部署 workflow run：`30227100338`。
+- 狀態：已合併至 `main` 並完成 GitHub Pages 正式部署。
 
 ### 經濟學原理
 
