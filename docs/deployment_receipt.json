@@ -1,11 +1,12 @@
 {
   "status": "success",
-  "library_version": "2026.07.27-6",
+  "library_version": "2026.07.27-7",
   "book_versions_visible": true,
   "progress_storage_changed": false,
   "book_count": 3,
-  "source_commit": "d793e91335e307d7596258ca53513b8e33dbe324",
-  "workflow_run_id": "30225922415",
+  "accounting_version": "2026.07.27-2",
+  "source_commit": "a74e37726019f48bf8768e9bc9790f53a4cefa90",
+  "workflow_run_id": "30227100338",
   "page_url": "https://sunny20030925-cell.github.io/study-review-library/",
-  "deployed_at": "2026-07-26T23:45:48.873802+00:00"
+  "deployed_at": "2026-07-27T00:17:31.639580+00:00"
 }
