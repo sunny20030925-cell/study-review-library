@@ -39,122 +39,15 @@ jobs:
           python -m zipfile -e site.zip _site
           rm -rf _site/.github
 
-      - name: Add visible per-book version verification
+      - name: Apply economics correction release
         run: |
-          python - <<'PY'
-          from pathlib import Path
-          import json, re
+          cat deploy/patch-economics-v2.py.gz.b64.part* | base64 --decode > /tmp/patch-economics-v2.py.gz
+          echo '227fc9be243eb7de6a02ae85f80756e79f08f3a8c442cecf6e14c27f52abf167  /tmp/patch-economics-v2.py.gz' | sha256sum --check -
+          gzip --decompress --stdout /tmp/patch-economics-v2.py.gz > /tmp/patch-economics-v2.py
+          python -m pip install --disable-pip-version-check --quiet beautifulsoup4
+          SITE_ROOT="$GITHUB_WORKSPACE/_site" python /tmp/patch-economics-v2.py
 
-          site = Path('_site')
-          release_data = {
-              'calculus': {
-                  'updatedAt': '2026-07-27',
-                  'releaseNotes': [{
-                      'version': '2026.07.27-3',
-                      'date': '2026-07-27',
-                      'title': '改回標準大一微積分本位',
-                      'changes': [
-                          '移除經濟學取向副標題與經濟專屬核心題型',
-                          '新增或強化中值定理、洛必達法則、弧長、旋轉曲面與純數學限制最佳化',
-                          '73 題題庫重新驗算；181 項 QA 全數通過',
-                      ],
-                      'progressImpact': '章節 ID 與章節數未變，既有閱讀進度保留。',
-                  }],
-              },
-              'accounting': {
-                  'updatedAt': '2026-07-27',
-                  'releaseNotes': [{
-                      'version': '2026.07.27-1',
-                      'date': '2026-07-27',
-                      'title': '第一版',
-                      'changes': ['建立基礎財務會計教材、章節題庫與速查內容'],
-                      'progressImpact': '首次發布。',
-                  }],
-              },
-              'economics': {
-                  'updatedAt': '2026-07-27',
-                  'releaseNotes': [{
-                      'version': '2026.07.27-1',
-                      'date': '2026-07-27',
-                      'title': '第一版',
-                      'changes': ['建立經濟學原理教材、章節題庫與圖解內容'],
-                      'progressImpact': '首次發布。',
-                  }],
-              },
-          }
-          for book_id, extra in release_data.items():
-              path = site / f'books/{book_id}/manifest.json'
-              obj = json.loads(path.read_text(encoding='utf-8'))
-              obj.update(extra)
-              path.write_text(json.dumps(obj, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
-
-          library_path = site / 'data/library.json'
-          library = json.loads(library_path.read_text(encoding='utf-8'))
-          library['version'] = '2026.07.27-6'
-          library_path.write_text(json.dumps(library, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
-
-          app_path = site / 'app.js'
-          app = app_path.read_text(encoding='utf-8')
-          helper = '''  function renderReleaseNotes(manifest) {
-            const notes = Array.isArray(manifest.releaseNotes) ? manifest.releaseNotes : [];
-            if (!notes.length) return '';
-            return `<details class="release-notes">
-              <summary>查看版本與更新內容</summary>
-              <div class="release-notes-body">${notes.map(note => `
-                <section class="release-entry">
-                  <div class="release-entry-head"><strong>${escapeHtml(note.version || manifest.version || '')}</strong><span>${escapeHtml(note.date || manifest.updatedAt || '')}</span></div>
-                  <h3>${escapeHtml(note.title || '內容更新')}</h3>
-                  <ul>${(note.changes || []).map(item => `<li>${escapeHtml(item)}</li>`).join('')}</ul>
-                  ${note.progressImpact ? `<p class="progress-impact">閱讀進度：${escapeHtml(note.progressImpact)}</p>` : ''}
-                </section>`).join('')}</div>
-            </details>`;
-          }
-
-          '''
-          if 'function renderReleaseNotes(manifest)' not in app:
-              app = app.replace('  async function renderLibrary() {', helper + '  async function renderLibrary() {')
-              app = app.replace(
-                  '            <h3>${escapeHtml(book.title)}</h3>\n            <p>${escapeHtml(book.subtitle)}</p>\n            <div class="progress-track">',
-                  '            <h3>${escapeHtml(book.title)}</h3>\n            <p>${escapeHtml(book.subtitle)}</p>\n            <div class="version-line">內容版本 ${escapeHtml(manifest.version || \'未標示\')}</div>\n            <div class="progress-track">',
-                  1,
-              )
-              app = app.replace(
-                  '          <h1>${escapeHtml(manifest.title)}</h1>\n          <p class="muted">${escapeHtml(manifest.subtitle)}</p>\n          <div class="progress-track">',
-                  '          <h1>${escapeHtml(manifest.title)}</h1>\n          <p class="muted">${escapeHtml(manifest.subtitle)}</p>\n          <div class="version-line version-line-strong">內容版本 ${escapeHtml(manifest.version || \'未標示\')}・最後更新 ${escapeHtml(manifest.updatedAt || \'未標示\')}</div>\n          <div class="progress-track">',
-                  1,
-              )
-              app = app.replace(
-                  '        </div>\n      </section>\n      <div class="section-title"><h2>搜尋內容</h2></div>',
-                  '        </div>\n        ${renderReleaseNotes(manifest)}\n      </section>\n      <div class="section-title"><h2>搜尋內容</h2></div>',
-                  1,
-              )
-          app_path.write_text(app, encoding='utf-8')
-
-          css_path = site / 'styles.css'
-          css = css_path.read_text(encoding='utf-8')
-          if '.release-notes{' not in css:
-              css += '''\n.version-line{font-size:.86rem;color:var(--muted);margin:.25rem 0 .7rem;font-weight:600}
-          .version-line-strong{display:inline-block;padding:.35rem .65rem;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--text)}
-          .release-notes{grid-column:1/-1;margin-top:.75rem;border:1px solid var(--line);border-radius:14px;background:var(--surface);overflow:hidden}
-          .release-notes summary{cursor:pointer;padding:12px 14px;font-weight:700;color:var(--text)}
-          .release-notes-body{border-top:1px solid var(--line);padding:0 14px}
-          .release-entry{padding:14px 0}
-          .release-entry+.release-entry{border-top:1px solid var(--line)}
-          .release-entry-head{display:flex;gap:12px;justify-content:space-between;color:var(--muted);font-size:.9rem}
-          .release-entry h3{margin:.45rem 0}
-          .release-entry ul{margin:.4rem 0 .6rem;padding-left:1.25rem}
-          .release-entry li{margin:.3rem 0}
-          .progress-impact{margin:.6rem 0 0;padding:.65rem .75rem;border-radius:10px;background:var(--soft);color:var(--text)}
-          '''
-          css_path.write_text(css, encoding='utf-8')
-
-          sw_path = site / 'sw.js'
-          sw = sw_path.read_text(encoding='utf-8')
-          sw = re.sub(r"const VERSION = 'study-library-[^']+';", "const VERSION = 'study-library-2026-07-27-6';", sw, count=1)
-          sw_path.write_text(sw, encoding='utf-8')
-          PY
-
-      - name: Validate study library
+      - name: Validate corrected study library
         run: |
           python - <<'PY'
           import json
@@ -163,35 +56,60 @@ jobs:
 
           site = Path('_site')
           library = json.loads((site / 'data/library.json').read_text(encoding='utf-8'))
-          assert library['version'] == '2026.07.27-6'
+          assert library['version'] == '2026.07.27-7'
           assert [book['id'] for book in library['books']] == ['calculus', 'accounting', 'economics']
 
           expected = {'calculus': 73, 'accounting': 70, 'economics': 100}
           for book_id, count in expected.items():
-              manifest = json.loads((site / f'books/{book_id}/manifest.json').read_text(encoding='utf-8'))
-              questions = json.loads((site / f'books/{book_id}/questions.json').read_text(encoding='utf-8'))
-              search = json.loads((site / f'books/{book_id}/search.json').read_text(encoding='utf-8'))
+              root = site / 'books' / book_id
+              manifest = json.loads((root / 'manifest.json').read_text(encoding='utf-8'))
+              questions = json.loads((root / 'questions.json').read_text(encoding='utf-8'))
+              search = json.loads((root / 'search.json').read_text(encoding='utf-8'))
               assert manifest['id'] == book_id
-              assert manifest['updatedAt']
-              assert manifest['releaseNotes']
+              assert manifest['updatedAt'] and manifest['releaseNotes']
               assert questions['count'] == count == len(questions['items'])
               assert search['entries']
               for chapter in manifest['chapters']:
-                  path = site / 'books' / book_id / chapter['file']
+                  path = root / chapter['file']
                   assert path.is_file() and path.stat().st_size > 100
 
-          economics_manifest = json.loads((site / 'books/economics/manifest.json').read_text(encoding='utf-8'))
-          economics_questions = json.loads((site / 'books/economics/questions.json').read_text(encoding='utf-8'))
-          assert len([x for x in economics_manifest['chapters'] if x['kind'] == 'chapter']) == 20
-          assert len([x for x in economics_manifest['chapters'] if x['kind'] == 'appendix']) == 3
-          assert Counter(q['chapterId'] for q in economics_questions['items']) == {f'ch{i:02d}': 5 for i in range(20)}
+          root = site / 'books/economics'
+          manifest = json.loads((root / 'manifest.json').read_text(encoding='utf-8'))
+          questions = json.loads((root / 'questions.json').read_text(encoding='utf-8'))
+          search = json.loads((root / 'search.json').read_text(encoding='utf-8'))
+          assert manifest['version'] == questions['version'] == '2026.07.27-2'
+          assert len([c for c in manifest['chapters'] if c['kind'] == 'chapter']) == 20
+          assert len([c for c in manifest['chapters'] if c['kind'] == 'appendix']) == 3
+          assert Counter(q['chapterId'] for q in questions['items']) == {f'ch{i:02d}': 5 for i in range(20)}
+          assert len(search['entries']) == 144
+
+          text = '\n'.join((root / c['file']).read_text(encoding='utf-8') for c in manifest['chapters'])
+          for token in (
+              '與租稅相反的價格楔', '兩者不是同一個定義', '資源稟賦',
+              '正生產外部性', 'T 表示淨稅收', '簡單存款乘數',
+              '實質貨幣餘額', '定額淨稅收乘數', '完整國際收支中',
+              '非競爭性且非排他性',
+          ):
+              assert token in text
+          for obsolete in (
+              '補貼降低買賣雙方的有效成本', '平均成本不變為規模報酬不變',
+              '資源禀賦', '非敵對且難排他的財',
+          ):
+              assert obsolete not in text
+
+          figures = sorted((site / 'assets/economics-svg').glob('*.svg'))
+          assert len(figures) == 20
+          for figure in figures:
+              svg = figure.read_text(encoding='utf-8')
+              assert '<title' in svg and '<desc' in svg and 'viewBox' in svg
 
           app = (site / 'app.js').read_text(encoding='utf-8')
-          assert '查看版本與更新內容' in app
-          assert '內容版本 ${escapeHtml(manifest.version' in app
+          css = (site / 'styles.css').read_text(encoding='utf-8')
           sw = (site / 'sw.js').read_text(encoding='utf-8')
-          assert 'study-library-2026-07-27-6' in sw
-          print('LIBRARY_VALIDATION_OK books=3 version_ui=true')
+          assert 'function renderReleaseNotes(manifest)' in app
+          assert '.release-notes{' in css
+          assert 'study-library-2026-07-27-7' in sw
+          print('LIBRARY_VALIDATION_OK version=2026.07.27-7 economics=2026.07.27-2 corrections=14 questions=100')
           PY
           node --check _site/app.js
           node --check _site/sw.js
@@ -210,13 +128,18 @@ jobs:
           DEPLOYED_PAGE_URL: ${{ steps.deployment.outputs.page_url }}
         run: |
           python - <<'PY'
-          import json, os
+          import json
+          import os
           from datetime import datetime, timezone
           from pathlib import Path
+
           receipt = {
               'status': 'success',
-              'library_version': '2026.07.27-6',
-              'book_versions_visible': True,
+              'library_version': '2026.07.27-7',
+              'economics_version': '2026.07.27-2',
+              'economics_question_count': 100,
+              'economics_correction_count': 14,
+              'content_audit': 'passed',
               'progress_storage_changed': False,
               'book_count': 3,
               'source_commit': os.environ['GITHUB_SHA'],
@@ -224,7 +147,10 @@ jobs:
               'page_url': os.environ.get('DEPLOYED_PAGE_URL', ''),
               'deployed_at': datetime.now(timezone.utc).isoformat(),
           }
-          Path('docs/deployment_receipt.json').write_text(json.dumps(receipt, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+          Path('docs/deployment_receipt.json').write_text(
+              json.dumps(receipt, ensure_ascii=False, indent=2) + '\n',
+              encoding='utf-8',
+          )
           PY
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
