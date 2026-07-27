@@ -39,6 +39,11 @@ jobs:
           python -m zipfile -e site.zip _site
           rm -rf _site/.github
 
+      - name: Apply accounting second-audit corrections
+        run: |
+          python -m pip install --disable-pip-version-check beautifulsoup4
+          python deploy/patch_accounting_v2.py _site
+
       - name: Add visible per-book version verification
         run: |
           python - <<'PY'
@@ -64,11 +69,16 @@ jobs:
               'accounting': {
                   'updatedAt': '2026-07-27',
                   'releaseNotes': [{
-                      'version': '2026.07.27-1',
+                      'version': '2026.07.27-2',
                       'date': '2026-07-27',
-                      'title': '第一版',
-                      'changes': ['建立基礎財務會計教材、章節題庫與速查內容'],
-                      'progressImpact': '首次發布。',
+                      'title': '二次內容複核與錯誤修正',
+                      'changes': [
+                          '修正損益表名稱與存貨成本公式',
+                          '區分定期加權平均與永續移動平均',
+                          '補強約當現金、折舊、流動負債與現金流量分類條件',
+                          '70 題題庫重新驗算並同步搜尋索引與圖解',
+                      ],
+                      'progressImpact': '章節與題目 ID 未變，既有閱讀進度與錯題紀錄保留。',
                   }],
               },
               'economics': {
@@ -90,7 +100,7 @@ jobs:
 
           library_path = site / 'data/library.json'
           library = json.loads(library_path.read_text(encoding='utf-8'))
-          library['version'] = '2026.07.27-6'
+          library['version'] = '2026.07.27-7'
           library_path.write_text(json.dumps(library, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
 
           app_path = site / 'app.js'
@@ -133,7 +143,8 @@ jobs:
           css_path = site / 'styles.css'
           css = css_path.read_text(encoding='utf-8')
           if '.release-notes{' not in css:
-              css += '''\n.version-line{font-size:.86rem;color:var(--muted);margin:.25rem 0 .7rem;font-weight:600}
+              css += '''
+          .version-line{font-size:.86rem;color:var(--muted);margin:.25rem 0 .7rem;font-weight:600}
           .version-line-strong{display:inline-block;padding:.35rem .65rem;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--text)}
           .release-notes{grid-column:1/-1;margin-top:.75rem;border:1px solid var(--line);border-radius:14px;background:var(--surface);overflow:hidden}
           .release-notes summary{cursor:pointer;padding:12px 14px;font-weight:700;color:var(--text)}
@@ -150,7 +161,7 @@ jobs:
 
           sw_path = site / 'sw.js'
           sw = sw_path.read_text(encoding='utf-8')
-          sw = re.sub(r"const VERSION = 'study-library-[^']+';", "const VERSION = 'study-library-2026-07-27-6';", sw, count=1)
+          sw = re.sub(r"const VERSION = 'study-library-[^']+';", "const VERSION = 'study-library-2026-07-27-7';", sw, count=1)
           sw_path.write_text(sw, encoding='utf-8')
           PY
 
@@ -163,7 +174,7 @@ jobs:
 
           site = Path('_site')
           library = json.loads((site / 'data/library.json').read_text(encoding='utf-8'))
-          assert library['version'] == '2026.07.27-6'
+          assert library['version'] == '2026.07.27-7'
           assert [book['id'] for book in library['books']] == ['calculus', 'accounting', 'economics']
 
           expected = {'calculus': 73, 'accounting': 70, 'economics': 100}
@@ -180,6 +191,19 @@ jobs:
                   path = site / 'books' / book_id / chapter['file']
                   assert path.is_file() and path.stat().st_size > 100
 
+          accounting_manifest = json.loads((site / 'books/accounting/manifest.json').read_text(encoding='utf-8'))
+          accounting_questions = json.loads((site / 'books/accounting/questions.json').read_text(encoding='utf-8'))
+          accounting_search = json.loads((site / 'books/accounting/search.json').read_text(encoding='utf-8'))
+          assert accounting_manifest['version'] == '2026.07.27-2'
+          assert accounting_questions['version'] == '2026.07.27-2'
+          assert len(accounting_search['entries']) == 111
+          assert Counter(q['chapterId'] for q in accounting_questions['items']) == {f'ch{i:02d}': 5 for i in range(14)}
+          ch06 = (site / 'books/accounting/chapters/ch06.html').read_text(encoding='utf-8')
+          ch08 = (site / 'books/accounting/chapters/ch08.html').read_text(encoding='utf-8')
+          assert '<h2 id="損益表">損益表</h2>' in ch06
+          assert '本期商品淨取得成本' in ch08
+          assert '永續盤存制通常採移動平均法' in ch08
+
           economics_manifest = json.loads((site / 'books/economics/manifest.json').read_text(encoding='utf-8'))
           economics_questions = json.loads((site / 'books/economics/questions.json').read_text(encoding='utf-8'))
           assert len([x for x in economics_manifest['chapters'] if x['kind'] == 'chapter']) == 20
@@ -190,8 +214,8 @@ jobs:
           assert '查看版本與更新內容' in app
           assert '內容版本 ${escapeHtml(manifest.version' in app
           sw = (site / 'sw.js').read_text(encoding='utf-8')
-          assert 'study-library-2026-07-27-6' in sw
-          print('LIBRARY_VALIDATION_OK books=3 version_ui=true')
+          assert 'study-library-2026-07-27-7' in sw
+          print('LIBRARY_VALIDATION_OK books=3 accounting_v2=true')
           PY
           node --check _site/app.js
           node --check _site/sw.js
@@ -215,10 +239,11 @@ jobs:
           from pathlib import Path
           receipt = {
               'status': 'success',
-              'library_version': '2026.07.27-6',
+              'library_version': '2026.07.27-7',
               'book_versions_visible': True,
               'progress_storage_changed': False,
               'book_count': 3,
+              'accounting_version': '2026.07.27-2',
               'source_commit': os.environ['GITHUB_SHA'],
               'workflow_run_id': os.environ['GITHUB_RUN_ID'],
               'page_url': os.environ.get('DEPLOYED_PAGE_URL', ''),
