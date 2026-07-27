@@ -44,6 +44,13 @@ jobs:
           python -m pip install --disable-pip-version-check beautifulsoup4
           python deploy/patch_accounting_v2.py _site
 
+      - name: Apply economics independent-audit corrections
+        run: |
+          cat deploy/patch-economics-v2.py.gz.b64.part* | base64 --decode > /tmp/patch-economics-v2.py.gz
+          echo 'b675b23d8711c75b2d736315b3161d5c2afc608d11e55249ec9ea5bd1e4d97fa  /tmp/patch-economics-v2.py.gz' | sha256sum --check -
+          gzip --decompress --stdout /tmp/patch-economics-v2.py.gz > /tmp/patch-economics-v2.py
+          SITE_ROOT="$GITHUB_WORKSPACE/_site" python /tmp/patch-economics-v2.py
+
       - name: Add visible per-book version verification
         run: |
           python - <<'PY'
@@ -84,11 +91,19 @@ jobs:
               'economics': {
                   'updatedAt': '2026-07-27',
                   'releaseNotes': [{
-                      'version': '2026.07.27-1',
+                      'version': '2026.07.27-2',
                       'date': '2026-07-27',
-                      'title': '第一版',
-                      'changes': ['建立經濟學原理教材、章節題庫與圖解內容'],
-                      'progressImpact': '首次發布。',
+                      'title': '發布後獨立糾錯複核',
+                      'changes': [
+                          '修正補貼價格楔與福利效果的敘述',
+                          '區分規模經濟、規模不經濟與規模報酬',
+                          '補正正消費與正生產外部性的社會曲線關係',
+                          '明定儲蓄與稅乘數公式中的 T 為淨稅收',
+                          '區分簡單存款乘數與現實廣義貨幣乘數',
+                          '補上總合需求與國際收支恆等式的模型條件',
+                          '同步修正 6 道題庫詳解與搜尋索引',
+                      ],
+                      'progressImpact': '章節與題目 ID 未變，既有閱讀進度與錯題紀錄保留。',
                   }],
               },
           }
@@ -100,7 +115,7 @@ jobs:
 
           library_path = site / 'data/library.json'
           library = json.loads(library_path.read_text(encoding='utf-8'))
-          library['version'] = '2026.07.27-7'
+          library['version'] = '2026.07.27-8'
           library_path.write_text(json.dumps(library, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
 
           app_path = site / 'app.js'
@@ -161,7 +176,7 @@ jobs:
 
           sw_path = site / 'sw.js'
           sw = sw_path.read_text(encoding='utf-8')
-          sw = re.sub(r"const VERSION = 'study-library-[^']+';", "const VERSION = 'study-library-2026-07-27-7';", sw, count=1)
+          sw = re.sub(r"const VERSION = 'study-library-[^']+';", "const VERSION = 'study-library-2026-07-27-8';", sw, count=1)
           sw_path.write_text(sw, encoding='utf-8')
           PY
 
@@ -174,48 +189,78 @@ jobs:
 
           site = Path('_site')
           library = json.loads((site / 'data/library.json').read_text(encoding='utf-8'))
-          assert library['version'] == '2026.07.27-7'
+          assert library['version'] == '2026.07.27-8'
           assert [book['id'] for book in library['books']] == ['calculus', 'accounting', 'economics']
 
           expected = {'calculus': 73, 'accounting': 70, 'economics': 100}
           for book_id, count in expected.items():
-              manifest = json.loads((site / f'books/{book_id}/manifest.json').read_text(encoding='utf-8'))
-              questions = json.loads((site / f'books/{book_id}/questions.json').read_text(encoding='utf-8'))
-              search = json.loads((site / f'books/{book_id}/search.json').read_text(encoding='utf-8'))
+              root = site / 'books' / book_id
+              manifest = json.loads((root / 'manifest.json').read_text(encoding='utf-8'))
+              questions = json.loads((root / 'questions.json').read_text(encoding='utf-8'))
+              search = json.loads((root / 'search.json').read_text(encoding='utf-8'))
               assert manifest['id'] == book_id
-              assert manifest['updatedAt']
-              assert manifest['releaseNotes']
+              assert manifest['updatedAt'] and manifest['releaseNotes']
               assert questions['count'] == count == len(questions['items'])
               assert search['entries']
               for chapter in manifest['chapters']:
-                  path = site / 'books' / book_id / chapter['file']
+                  path = root / chapter['file']
                   assert path.is_file() and path.stat().st_size > 100
 
-          accounting_manifest = json.loads((site / 'books/accounting/manifest.json').read_text(encoding='utf-8'))
-          accounting_questions = json.loads((site / 'books/accounting/questions.json').read_text(encoding='utf-8'))
-          accounting_search = json.loads((site / 'books/accounting/search.json').read_text(encoding='utf-8'))
-          assert accounting_manifest['version'] == '2026.07.27-2'
-          assert accounting_questions['version'] == '2026.07.27-2'
+          accounting_root = site / 'books/accounting'
+          accounting_manifest = json.loads((accounting_root / 'manifest.json').read_text(encoding='utf-8'))
+          accounting_questions = json.loads((accounting_root / 'questions.json').read_text(encoding='utf-8'))
+          accounting_search = json.loads((accounting_root / 'search.json').read_text(encoding='utf-8'))
+          assert accounting_manifest['version'] == accounting_questions['version'] == '2026.07.27-2'
           assert len(accounting_search['entries']) == 111
           assert Counter(q['chapterId'] for q in accounting_questions['items']) == {f'ch{i:02d}': 5 for i in range(14)}
-          ch06 = (site / 'books/accounting/chapters/ch06.html').read_text(encoding='utf-8')
-          ch08 = (site / 'books/accounting/chapters/ch08.html').read_text(encoding='utf-8')
-          assert '<h2 id="損益表">損益表</h2>' in ch06
-          assert '本期商品淨取得成本' in ch08
-          assert '永續盤存制通常採移動平均法' in ch08
+          assert '<h2 id="損益表">損益表</h2>' in (accounting_root / 'chapters/ch06.html').read_text(encoding='utf-8')
+          accounting_ch08 = (accounting_root / 'chapters/ch08.html').read_text(encoding='utf-8')
+          assert '本期商品淨取得成本' in accounting_ch08
+          assert '永續盤存制通常採移動平均法' in accounting_ch08
 
-          economics_manifest = json.loads((site / 'books/economics/manifest.json').read_text(encoding='utf-8'))
-          economics_questions = json.loads((site / 'books/economics/questions.json').read_text(encoding='utf-8'))
+          economics_root = site / 'books/economics'
+          economics_manifest = json.loads((economics_root / 'manifest.json').read_text(encoding='utf-8'))
+          economics_questions = json.loads((economics_root / 'questions.json').read_text(encoding='utf-8'))
+          economics_search = json.loads((economics_root / 'search.json').read_text(encoding='utf-8'))
+          assert economics_manifest['version'] == economics_questions['version'] == '2026.07.27-2'
           assert len([x for x in economics_manifest['chapters'] if x['kind'] == 'chapter']) == 20
           assert len([x for x in economics_manifest['chapters'] if x['kind'] == 'appendix']) == 3
+          assert len(economics_search['entries']) == 144
           assert Counter(q['chapterId'] for q in economics_questions['items']) == {f'ch{i:02d}': 5 for i in range(20)}
 
+          economics_text = '\n'.join(
+              (economics_root / chapter['file']).read_text(encoding='utf-8')
+              for chapter in economics_manifest['chapters']
+          )
+          for token in (
+              '與租稅相反的價格楔', '兩者不是同一個定義', '資源稟賦',
+              '正生產外部性', 'T 表示淨稅收', '簡單存款乘數',
+              '實質貨幣餘額', '定額淨稅收乘數', '完整國際收支中',
+              '非競爭性且非排他性',
+          ):
+              assert token in economics_text
+          for obsolete in (
+              '補貼降低買賣雙方的有效成本',
+              '平均成本不變為規模報酬不變',
+              '資源禀賦',
+              '非敵對且難排他的財',
+          ):
+              assert obsolete not in economics_text
+
+          figures = sorted((site / 'assets/economics-svg').glob('*.svg'))
+          assert len(figures) == 20
+          for figure in figures:
+              svg = figure.read_text(encoding='utf-8')
+              assert '<title' in svg and '<desc' in svg and 'viewBox' in svg
+
           app = (site / 'app.js').read_text(encoding='utf-8')
+          css = (site / 'styles.css').read_text(encoding='utf-8')
+          sw = (site / 'sw.js').read_text(encoding='utf-8')
           assert '查看版本與更新內容' in app
           assert '內容版本 ${escapeHtml(manifest.version' in app
-          sw = (site / 'sw.js').read_text(encoding='utf-8')
-          assert 'study-library-2026-07-27-7' in sw
-          print('LIBRARY_VALIDATION_OK books=3 accounting_v2=true')
+          assert '.release-notes{' in css
+          assert 'study-library-2026-07-27-8' in sw
+          print('LIBRARY_VALIDATION_OK books=3 accounting_v2=true economics_v2=true corrections=14')
           PY
           node --check _site/app.js
           node --check _site/sw.js
@@ -237,19 +282,27 @@ jobs:
           import json, os
           from datetime import datetime, timezone
           from pathlib import Path
+
           receipt = {
               'status': 'success',
-              'library_version': '2026.07.27-7',
+              'library_version': '2026.07.27-8',
               'book_versions_visible': True,
               'progress_storage_changed': False,
               'book_count': 3,
               'accounting_version': '2026.07.27-2',
+              'economics_version': '2026.07.27-2',
+              'economics_question_count': 100,
+              'economics_correction_count': 14,
+              'economics_content_audit': 'passed',
               'source_commit': os.environ['GITHUB_SHA'],
               'workflow_run_id': os.environ['GITHUB_RUN_ID'],
               'page_url': os.environ.get('DEPLOYED_PAGE_URL', ''),
               'deployed_at': datetime.now(timezone.utc).isoformat(),
           }
-          Path('docs/deployment_receipt.json').write_text(json.dumps(receipt, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+          Path('docs/deployment_receipt.json').write_text(
+              json.dumps(receipt, ensure_ascii=False, indent=2) + '\n',
+              encoding='utf-8',
+          )
           PY
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
