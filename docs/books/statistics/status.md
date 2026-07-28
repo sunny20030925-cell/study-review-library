@@ -6,8 +6,8 @@
 
 - Book ID：`statistics`
 - 初版：`2026.07.28-1`
-- 二次校錯後內容版本：`2026.07.29-2`
-- 目前書庫正式版本於本輪部署完成後提高。
+- 二次校錯後正式內容版本：`2026.07.29-2`
+- 目前正式書庫版本：`2026.07.29-4`
 
 ## 已完成內容
 
@@ -52,8 +52,15 @@
 - 章節 ID：不變。
 - 題目 ID：不變。
 - 題數：不變。
-- 閱讀進度與錯題紀錄：可保留。
+- 閱讀進度與錯題紀錄：保留。
 - 基礎 Drive 部署包不需重新上傳；正式部署由 repo 內 `deploy/patch_statistics_v2.py` 在建置時套用修正。
+
+## 正式部署
+
+- Canonical integration commit：`5c58228b235c92d60246b50d5b666550d8899a77`。
+- GitHub Pages 成功部署 run：`30393582962`。
+- 部署回條：`docs/deployment_receipt.json`。
+- 回條確認 `statistics_version=2026.07.29-2`、`statistics_content_audit=passed`、`progress_storage_changed=false`。
 
 ## 目前狀態
 
@@ -61,4 +68,4 @@
 - 題庫二次校錯：完成。
 - 獨立 QA：完成。
 - 可重現修正腳本：已加入 repo。
-- 正式部署整合：進行中；完成後以 `docs/deployment_receipt.json` 與本檔後續狀態為準。
+- 正式部署：完成。
