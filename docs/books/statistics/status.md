@@ -6,8 +6,9 @@
 
 - Book ID：`statistics`
 - 書籍版本：`2026.07.28-1`
-- 目標書庫內容版本：`2026.07.29-1`
-- 分支：`agent/statistics-book-20260729`
+- 正式書庫內容版本：`2026.07.29-1`
+- PR：`#9`
+- 合併 commit：`76e26ad3d45e19185f98a101ede24cd24cf004bf`
 
 ## 已完成
 
@@ -30,10 +31,19 @@
 - `app.js` 與 `sw.js` 已通過 JavaScript 語法檢查。
 - 19 張 SVG 均含標題、替代說明與 viewBox。
 
+## 正式部署
+
+- GitHub Pages 實際部署：成功。
+- 部署 workflow run：`30384714915`。
+- 固定入口：`https://sunny20030925-cell.github.io/study-review-library/`。
+- Pages 部署完成後，workflow 最後一步因另一工作線同時更新 `main`，導致成功回條的 `git push` 被非 fast-forward 拒絕；網站部署本身不受影響。
+- `docs/deployment_receipt.json` 已依該次成功 Pages 部署由 GitHub connector 補寫正式回條。
+- 閱讀進度儲存鍵未變，既有書籍閱讀進度不受影響。
+
 ## 目前狀態
 
 - 內容：完成。
 - 兩輪 QA：完成。
 - Drive 基礎部署包：已更新。
-- GitHub 正式文件與部署 workflow：本分支更新中。
-- 正式網站：須待本分支合併、GitHub Pages 實際部署成功並回寫部署回條後，才可標記為已部署。
+- GitHub 文件與部署流程：已更新。
+- 正式網站：已部署。
