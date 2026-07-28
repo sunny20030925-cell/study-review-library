@@ -9,8 +9,8 @@
 - 固定入口：`https://sunny20030925-cell.github.io/study-review-library/`
 - 形式：平板直式 PWA 書庫，可持續加入新科目。
 - 使用者操作限制：只使用平板；不得要求終端機、Git、電腦檔案管理、手動部署或多檔案上傳操作。
-- 正式書庫內容版本：`2026.07.29-6`
-- 正式書籍數：5 本。
+- 正式書庫內容版本：`2026.07.29-7`
+- 正式書籍數：6 本。
 
 ## 正式規格
 
@@ -106,27 +106,46 @@
 - 部署回條：`docs/deployment_receipt.json`。
 - 狀態：已部署。
 
+### 成本會計學
+
+- Book ID：`cost-accounting`
+- 正式內容版本：`2026.07.29-1`
+- 定位：一般大學成本會計／成本與管理會計課程中的成本會計主體。
+- 範圍：成本分類與成本流向、成本習性、基礎 CVP、成本分攤、分批成本制、正常成本制、多分／少分、分步成本制加權平均與 FIFO、損壞品、ABC、服務部門、聯產品／副產品、標準成本、材料／人工／製造費用差異、吸收／變動成本法、產能與整合解題。
+- 深度邊界：完整主預算、責任會計、移轉價格、平衡計分卡、定價與相關成本短期決策、資本預算不進入核心正文與核心題庫。
+- 成品：19 章、3 附錄、95 題題庫、146 筆搜尋索引、19 張自製圖解。
+- 兩輪 QA：內容與結構完成；獨立驗證 655／655 項通過，另有 44 個數值答案由原始輸入重新計算核對。
+- 閱讀進度相容性：新增獨立 Book ID，不變更其他書籍章節或題目 ID；部署回條確認 `progress_storage_changed=false`。
+- 範圍文件：`docs/books/cost-accounting/scope.md`
+- QA 報告：`docs/books/cost-accounting/qa_report.md`
+- GitHub Pages 部署 run：`30408806893`。
+- Source commit：`851630a76bfa18137b9049f7745030750462832b`。
+- 部署回條：`docs/deployment_receipt.json`。
+- 狀態：已部署。
+
 ## 部署流程
 
 1. GitHub Actions 下載固定 ID 的正式網站部署包。
 2. 先核對部署包 SHA-256，再用 Python ZIP 模組解開；使用者不需要在平板處理 ZIP。
 3. 為相容既有會計學修正腳本，先正規化基礎包的 service-worker 版本，再執行會計學與經濟學正式修正流程。
 4. 套用統計學 `deploy/patch_statistics_v2.py` 的發布後獨立二次校錯修正，再生成商事法內容，並套用 `deploy/patch-commercial-law-reaudit.py` 的發布後獨立內容複核與現行法 follow-up 修正。
-5. 同一個 canonical `Deploy study library` 工作流整合並驗證 `calculus`、`accounting`、`economics`、`statistics`、`commercial-law` 五本書。
+5. 同一個 canonical `Deploy study library` 工作流先完成既有五本書驗證，再生成並獨立驗證 `cost-accounting`，最終部署六本書。
 6. 統計學額外驗證 19 章、3 附錄、95 題、169 筆搜尋索引、19 張 SVG，以及二次校錯指定修正詞句與版本。
 7. 商事法額外驗證 18 章、3 附錄、90 題、111 筆搜尋索引、18 張 SVG，以及公司法／證券交易法高風險法律要件與現行第 8 條要件。
 8. 商事法法律文字驗證先移除 HTML 排版標記與空白，再核對條號、比例、期間、人數及禁止誤述；第 8 條明確禁止再出現「只針對公開發行股票之公司」的舊法誤述。
-9. JavaScript、service worker 與全部正式檢查通過後，才上傳 Pages artifact。
-10. Pages 部署成功後寫回 `docs/deployment_receipt.json`。
-11. 最新五本書成功部署 run：`30395844928`；書庫內容版本：`2026.07.29-6`。
-12. 使用者不需要執行 Git、終端機、手動上傳或部署。
+9. 成本會計額外驗證 19 章、3 附錄、95 題、146 筆搜尋索引、19 張 SVG，並執行 655 項獨立檢查與 44 項數值重算。
+10. JavaScript、service worker 與全部正式檢查通過後，才上傳 Pages artifact。
+11. Pages 部署成功後寫回 `docs/deployment_receipt.json`。
+12. 最新六本書成功部署 run：`30408806893`；書庫內容版本：`2026.07.29-7`。
+13. 使用者不需要執行 Git、終端機、手動上傳或部署。
 
 ## 工作線狀態
 
-- 微積分、會計學、經濟學原理、統計學、商事法均已納入同一套正式書庫部署流程。
+- 微積分、會計學、經濟學原理、統計學、商事法、成本會計學均已納入同一套正式書庫部署流程。
 - 統計學發布後獨立二次校錯已完成並正式部署；其章節 ID、題目 ID 與題數均未變。
 - 商事法發布後獨立內容複核、現行法 follow-up 與新版部署已完成；其章節 ID、題目 ID 與題數均未變。
 - `2026.07.29-1` 的第 8 條舊法誤用已在 `2026.07.29-2` 明確回修並保留版本歷史紀錄。
+- 成本會計學初版內容、兩輪 QA、canonical integration 與正式 Pages 部署均已完成。
 - 商事法原先獨立部署工作流已退役；後續只保留 canonical `Deploy study library` 與正式修正層。
 - 後續新增科目不得建立會覆蓋現有書庫的平行 Pages 部署；應直接整合進 canonical `Deploy study library`。
 
