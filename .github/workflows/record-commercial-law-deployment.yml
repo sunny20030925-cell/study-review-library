@@ -1,0 +1,59 @@
+name: Record commercial law deployment
+
+on:
+  workflow_run:
+    workflows: ["Deploy commercial law library"]
+    types: [completed]
+
+permissions:
+  contents: write
+
+jobs:
+  record:
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Record successful four-book deployment
+        env:
+          SOURCE_RUN_ID: ${{ github.event.workflow_run.id }}
+          SOURCE_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          python - <<'PY'
+          import json, os
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          receipt = {
+              'status': 'success',
+              'library_version': '2026.07.28-1',
+              'book_versions_visible': True,
+              'progress_storage_changed': False,
+              'book_count': 4,
+              'accounting_version': '2026.07.27-2',
+              'economics_version': '2026.07.27-2',
+              'commercial_law_version': '2026.07.28-1',
+              'commercial_law_chapter_count': 18,
+              'commercial_law_question_count': 90,
+              'commercial_law_search_count': 111,
+              'commercial_law_figure_count': 18,
+              'commercial_law_content_audit': 'passed',
+              'source_commit': os.environ['SOURCE_HEAD_SHA'],
+              'workflow_run_id': os.environ['SOURCE_RUN_ID'],
+              'page_url': 'https://sunny20030925-cell.github.io/study-review-library/',
+              'deployed_at': datetime.now(timezone.utc).isoformat(),
+          }
+          Path('docs/deployment_receipt.json').write_text(
+              json.dumps(receipt, ensure_ascii=False, indent=2) + '\n',
+              encoding='utf-8',
+          )
+          PY
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add docs/deployment_receipt.json
+          git commit -m "Record commercial law Pages deployment [skip ci]"
+          git push origin HEAD:main
