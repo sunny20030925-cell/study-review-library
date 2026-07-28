@@ -63,6 +63,10 @@ jobs:
           gzip --decompress --stdout /tmp/patch-economics-v2.py.gz > /tmp/patch-economics-v2.py
           SITE_ROOT="$GITHUB_WORKSPACE/_site" python /tmp/patch-economics-v2.py
 
+      - name: Apply statistics post-publication audit corrections
+        run: |
+          python deploy/patch_statistics_v2.py _site
+
       - name: Generate commercial law textbook
         run: |
           cat deploy/generate-commercial-law.py.gz.b64.part* | base64 --decode > /tmp/generate-commercial-law.py.gz
@@ -128,6 +132,17 @@ jobs:
               'statistics': {
                   'updatedAt': '2026-07-29',
                   'releaseNotes': [{
+                      'version': '2026.07.29-2',
+                      'date': '2026-07-29',
+                      'title': '發布後獨立二次校錯',
+                      'changes': [
+                          '修正隨機分派、不等組距直方圖、變異係數與柴比雪夫不等式的成立條件',
+                          '補正變異數加總的 2Cov(X,Y)、比例區間與檢定標準誤，以及 p 值的極端方向定義',
+                          '補強平均數區間、單一比例檢定、非參數方法與含截距簡單迴歸的解讀邊界',
+                          '95 題全數複核；44 個計算／公式判斷獨立重算，169 筆搜尋索引重新建立',
+                      ],
+                      'progressImpact': '章節 ID、題目 ID 與題數不變，既有閱讀進度與錯題紀錄保留。',
+                  }, {
                       'version': '2026.07.28-1',
                       'date': '2026-07-29',
                       'title': '新增大學入門統計學',
@@ -135,7 +150,7 @@ jobs:
                           '新增 19 章正文與 3 份附錄，從資料描述一路到統計推論、ANOVA 與簡單線性迴歸',
                           '新增 95 題題庫，每章 5 題，涵蓋概念、計算、判讀、綜合與常見陷阱',
                           '新增 169 筆搜尋索引與 19 張自製統計圖解',
-                          '完成兩輪 QA，並修正 HTML 小於符號與不等號公式顯示問題',
+                          '完成初版兩輪 QA，並修正 HTML 小於符號與不等號公式顯示問題',
                       ],
                       'progressImpact': '新增獨立書籍，不改動既有書籍的章節、題目 ID 或閱讀進度。',
                   }],
@@ -164,7 +179,7 @@ jobs:
 
           library_path = site / 'data/library.json'
           library = json.loads(library_path.read_text(encoding='utf-8'))
-          library['version'] = '2026.07.29-2'
+          library['version'] = '2026.07.29-4'
           library_path.write_text(json.dumps(library, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
 
           app_path = site / 'app.js'
@@ -225,7 +240,7 @@ jobs:
 
           sw_path = site / 'sw.js'
           sw = sw_path.read_text(encoding='utf-8')
-          sw = re.sub(r"const VERSION = 'study-library-[^']+';", "const VERSION = 'study-library-2026-07-29-2';", sw, count=1)
+          sw = re.sub(r"const VERSION = 'study-library-[^']+';", "const VERSION = 'study-library-2026-07-29-4';", sw, count=1)
           sw_path.write_text(sw, encoding='utf-8')
           PY
 
@@ -238,7 +253,7 @@ jobs:
 
           site = Path('_site')
           library = json.loads((site / 'data/library.json').read_text(encoding='utf-8'))
-          assert library['version'] == '2026.07.29-2'
+          assert library['version'] == '2026.07.29-4'
           assert [book['id'] for book in library['books']] == ['calculus', 'accounting', 'economics', 'statistics', 'commercial-law']
 
           expected = {'calculus': 73, 'accounting': 70, 'economics': 100, 'statistics': 95, 'commercial-law': 90}
@@ -306,7 +321,7 @@ jobs:
           statistics_manifest = json.loads((statistics_root / 'manifest.json').read_text(encoding='utf-8'))
           statistics_questions = json.loads((statistics_root / 'questions.json').read_text(encoding='utf-8'))
           statistics_search = json.loads((statistics_root / 'search.json').read_text(encoding='utf-8'))
-          assert statistics_manifest['version'] == statistics_questions['version'] == '2026.07.28-1'
+          assert statistics_manifest['version'] == statistics_questions['version'] == '2026.07.29-2'
           assert len([x for x in statistics_manifest['chapters'] if x['kind'] == 'chapter']) == 19
           assert len([x for x in statistics_manifest['chapters'] if x['kind'] == 'appendix']) == 3
           assert len(statistics_search['entries']) == 169
@@ -326,6 +341,22 @@ jobs:
               '成對', '卡方', '變異數分析', '簡單線性迴歸', '相關係數',
           ):
               assert token in statistics_text
+
+          # statistics post-publication correction tokens
+          for token in (
+              '單一實驗仍可能偶然不平衡', '次數密度或相對次數密度',
+              'CV 雖然沒有單位，也不能因此直接比較性質完全不同的變數',
+              'Var(X+Y)=Var(X)+Var(Y)+2Cov(X,Y)',
+              '依對立假設方向定義之「同等或更極端」', 'SE_{CI}', 'SE_0',
+              '兩組分布形狀相近、主要差在位置時',
+          ):
+              assert token in statistics_text, token
+          for obsolete in (
+              '分組時組距應一致、邊界不重疊',
+              '不獨立時還要加上協方差項',
+              '得到目前或更極端統計量的機率',
+          ):
+              assert obsolete not in statistics_text, obsolete
 
           law_root = site / 'books/commercial-law'
           law_manifest = json.loads((law_root / 'manifest.json').read_text(encoding='utf-8'))
@@ -381,7 +412,7 @@ jobs:
           assert '內容版本 ${escapeHtml(manifest.version' in app
           assert '.release-notes{' in css
           assert '法條速查' in app
-          assert 'study-library-2026-07-29-2' in sw
+          assert 'study-library-2026-07-29-4' in sw
           assert './books/statistics/manifest.json' in sw
           assert './books/statistics/chapters/ch18.html' in sw
           assert './assets/statistics-svg/anova.svg' in sw
@@ -412,7 +443,7 @@ jobs:
 
           receipt = {
               'status': 'success',
-              'library_version': '2026.07.29-2',
+              'library_version': '2026.07.29-4',
               'book_versions_visible': True,
               'progress_storage_changed': False,
               'book_count': 5,
@@ -421,12 +452,16 @@ jobs:
               'economics_question_count': 100,
               'economics_correction_count': 14,
               'economics_content_audit': 'passed',
-              'statistics_version': '2026.07.28-1',
+              'statistics_version': '2026.07.29-2',
               'statistics_chapter_count': 19,
               'statistics_question_count': 95,
               'statistics_search_count': 169,
               'statistics_figure_count': 19,
               'statistics_content_audit': 'passed',
+              'statistics_content_correction_count': 19,
+              'statistics_question_adjustment_count': 3,
+              'statistics_independent_check_count': 1195,
+              'statistics_quantitative_recheck_count': 44,
               'commercial_law_version': '2026.07.28-1',
               'commercial_law_chapter_count': 18,
               'commercial_law_question_count': 90,
