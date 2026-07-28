@@ -31,7 +31,7 @@ jobs:
 
       - name: Download and verify website package
         run: |
-          curl -L --fail --retry 3 \
+          curl -L --fail --retry 5 --retry-all-errors --connect-timeout 20 \
             'https://drive.usercontent.google.com/download?id=1rgPS62bIZOWC8H3zSrw-RBZ3jkg9SDcs&export=download&confirm=t' \
             -o site.zip
           echo 'ece2a68f5bdaf7fd82c3897bf49a9628121e9775f6b75ee7d7b375c1bbe01600  site.zip' | sha256sum --check -
@@ -62,6 +62,13 @@ jobs:
           echo 'b675b23d8711c75b2d736315b3161d5c2afc608d11e55249ec9ea5bd1e4d97fa  /tmp/patch-economics-v2.py.gz' | sha256sum --check -
           gzip --decompress --stdout /tmp/patch-economics-v2.py.gz > /tmp/patch-economics-v2.py
           SITE_ROOT="$GITHUB_WORKSPACE/_site" python /tmp/patch-economics-v2.py
+
+      - name: Generate commercial law textbook
+        run: |
+          cat deploy/generate-commercial-law.py.gz.b64.part* | base64 --decode > /tmp/generate-commercial-law.py.gz
+          echo '85843044d6fee2f0c5d11208754a4d6b103402392d3a44511745a146874dcdfc  /tmp/generate-commercial-law.py.gz' | sha256sum --check -
+          gzip --decompress --stdout /tmp/generate-commercial-law.py.gz > /tmp/generate-commercial-law.py
+          python /tmp/generate-commercial-law.py _site
 
       - name: Add visible per-book version verification
         run: |
@@ -133,6 +140,21 @@ jobs:
                       'progressImpact': '新增獨立書籍，不改動既有書籍的章節、題目 ID 或閱讀進度。',
                   }],
               },
+              'commercial-law': {
+                  'updatedAt': '2026-07-29',
+                  'releaseNotes': [{
+                      'version': '2026.07.28-1',
+                      'date': '2026-07-29',
+                      'title': '新增商事法重點整理',
+                      'changes': [
+                          '以公司法與證券交易法為核心，新增 18 章正文與 3 份附錄',
+                          '新增 90 題題庫，每章 5 題，涵蓋法條、要件、責任、程序與常見陷阱',
+                          '新增 111 筆搜尋索引、18 張自製圖解與法條速查功能',
+                          '完成兩輪內容與題庫 QA，並複核重要門檻、期間與責任規則',
+                      ],
+                      'progressImpact': '新增獨立書籍，不改動既有書籍的章節、題目 ID 或閱讀進度。',
+                  }],
+              },
           }
           for book_id, extra in release_data.items():
               path = site / f'books/{book_id}/manifest.json'
@@ -142,7 +164,7 @@ jobs:
 
           library_path = site / 'data/library.json'
           library = json.loads(library_path.read_text(encoding='utf-8'))
-          library['version'] = '2026.07.29-1'
+          library['version'] = '2026.07.29-2'
           library_path.write_text(json.dumps(library, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
 
           app_path = site / 'app.js'
@@ -203,11 +225,11 @@ jobs:
 
           sw_path = site / 'sw.js'
           sw = sw_path.read_text(encoding='utf-8')
-          sw = re.sub(r"const VERSION = 'study-library-[^']+';", "const VERSION = 'study-library-2026-07-29-1';", sw, count=1)
+          sw = re.sub(r"const VERSION = 'study-library-[^']+';", "const VERSION = 'study-library-2026-07-29-2';", sw, count=1)
           sw_path.write_text(sw, encoding='utf-8')
           PY
 
-      - name: Validate four-book study library
+      - name: Validate five-book study library
         run: |
           python - <<'PY'
           import json
@@ -216,10 +238,10 @@ jobs:
 
           site = Path('_site')
           library = json.loads((site / 'data/library.json').read_text(encoding='utf-8'))
-          assert library['version'] == '2026.07.29-1'
-          assert [book['id'] for book in library['books']] == ['calculus', 'accounting', 'economics', 'statistics']
+          assert library['version'] == '2026.07.29-2'
+          assert [book['id'] for book in library['books']] == ['calculus', 'accounting', 'economics', 'statistics', 'commercial-law']
 
-          expected = {'calculus': 73, 'accounting': 70, 'economics': 100, 'statistics': 95}
+          expected = {'calculus': 73, 'accounting': 70, 'economics': 100, 'statistics': 95, 'commercial-law': 90}
           for book_id, count in expected.items():
               root = site / 'books' / book_id
               manifest = json.loads((root / 'manifest.json').read_text(encoding='utf-8'))
@@ -305,17 +327,58 @@ jobs:
           ):
               assert token in statistics_text
 
+          law_root = site / 'books/commercial-law'
+          law_manifest = json.loads((law_root / 'manifest.json').read_text(encoding='utf-8'))
+          law_questions = json.loads((law_root / 'questions.json').read_text(encoding='utf-8'))
+          law_search = json.loads((law_root / 'search.json').read_text(encoding='utf-8'))
+          assert law_manifest['version'] == law_questions['version'] == '2026.07.28-1'
+          assert len([x for x in law_manifest['chapters'] if x['kind'] == 'chapter']) == 18
+          assert len([x for x in law_manifest['chapters'] if x['kind'] == 'appendix']) == 3
+          assert len(law_search['entries']) == 111
+          assert Counter(q['chapterId'] for q in law_questions['items']) == {f'ch{i:02d}': 5 for i in range(18)}
+
+          law_text = '\n'.join(
+              (law_root / chapter['file']).read_text(encoding='utf-8')
+              for chapter in law_manifest['chapters']
+          )
+          required_concepts = [
+              ('公司法第 23 條',),
+              ('300 字', '300字'),
+              ('持續 6 個月以上', '持股期間 6 個月以上', '持有 6 個月以上'),
+              ('第 43-6 條第一項第二款、第三款', '第 43-6 條第 1 項第 2 款、第 3 款', '第 43-6 條第一項第二款及第三款'),
+              ('合計不得超過 35 人', '合計不超過 35 人', '合計不得超過35人'),
+              ('超過 5%', '超過 5％'),
+              ('超過 10%', '超過 10％'),
+              ('公開後 18 小時內', '消息公開後 18 小時', '公開後十八小時內'),
+              ('證交法第 62 條', '證券交易法第 62 條'),
+              ('至少 2 人', '至少二人'),
+              ('不得少於董事席次五分之一', '不得少於董事席次 1/5'),
+          ]
+          for variants in required_concepts:
+              assert any(token in law_text for token in variants), f'missing legal concept: {variants}'
+          assert '私募對象一律不得超過 35 人' not in law_text
+          assert '短線交易只適用上市股票' not in law_text
+
+          law_figures = sorted((site / 'assets/commercial-law-svg').glob('*.svg'))
+          assert len(law_figures) == 18
+          for figure in law_figures:
+              svg = figure.read_text(encoding='utf-8')
+              assert '<title' in svg and '<desc' in svg and 'viewBox' in svg
+
           app = (site / 'app.js').read_text(encoding='utf-8')
           css = (site / 'styles.css').read_text(encoding='utf-8')
           sw = (site / 'sw.js').read_text(encoding='utf-8')
           assert '查看版本與更新內容' in app
           assert '內容版本 ${escapeHtml(manifest.version' in app
           assert '.release-notes{' in css
-          assert 'study-library-2026-07-29-1' in sw
+          assert '法條速查' in app
+          assert 'study-library-2026-07-29-2' in sw
           assert './books/statistics/manifest.json' in sw
           assert './books/statistics/chapters/ch18.html' in sw
           assert './assets/statistics-svg/anova.svg' in sw
-          print('LIBRARY_VALIDATION_OK books=4 statistics_chapters=19 statistics_questions=95 statistics_search=169 statistics_figures=19')
+          assert './books/commercial-law/manifest.json' in sw
+          assert './books/commercial-law/chapters/ch17.html' in sw
+          print('LIBRARY_VALIDATION_OK books=5 statistics_chapters=19 statistics_questions=95 commercial_law_chapters=18 commercial_law_questions=90')
           PY
           node --check _site/app.js
           node --check _site/sw.js
@@ -340,10 +403,10 @@ jobs:
 
           receipt = {
               'status': 'success',
-              'library_version': '2026.07.29-1',
+              'library_version': '2026.07.29-2',
               'book_versions_visible': True,
               'progress_storage_changed': False,
-              'book_count': 4,
+              'book_count': 5,
               'accounting_version': '2026.07.27-2',
               'economics_version': '2026.07.27-2',
               'economics_question_count': 100,
@@ -355,6 +418,12 @@ jobs:
               'statistics_search_count': 169,
               'statistics_figure_count': 19,
               'statistics_content_audit': 'passed',
+              'commercial_law_version': '2026.07.28-1',
+              'commercial_law_chapter_count': 18,
+              'commercial_law_question_count': 90,
+              'commercial_law_search_count': 111,
+              'commercial_law_figure_count': 18,
+              'commercial_law_content_audit': 'passed',
               'source_commit': os.environ['GITHUB_SHA'],
               'workflow_run_id': os.environ['GITHUB_RUN_ID'],
               'page_url': os.environ.get('DEPLOYED_PAGE_URL', ''),
@@ -368,5 +437,5 @@ jobs:
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add docs/deployment_receipt.json
-          git commit -m "Record successful Pages deployment [skip ci]"
+          git commit -m "Record successful five-book Pages deployment [skip ci]"
           git push origin HEAD:main
