@@ -1,1 +1,54 @@
-
+deploy	Record successful deployment	﻿2026-07-28T18:00:16.9771426Z ##[group]Run python - <<'PY'
+deploy	Record successful deployment	2026-07-28T18:00:16.9771785Z ^[[36;1mpython - <<'PY'^[[0m
+deploy	Record successful deployment	2026-07-28T18:00:16.9772021Z ^[[36;1mimport json, os^[[0m
+deploy	Record successful deployment	2026-07-28T18:00:16.9772292Z ^[[36;1mfrom datetime import datetime, timezone^[[0m
+deploy	Record successful deployment	2026-07-28T18:00:16.9772604Z ^[[36;1mfrom pathlib import Path^[[0m
+deploy	Record successful deployment	2026-07-28T18:00:16.9772848Z ^[[36;1m^[[0m
+deploy	Record successful deployment	2026-07-28T18:00:16.9773038Z ^[[36;1mreceipt = {^[[0m
+deploy	Record successful deployment	2026-07-28T18:00:16.9773254Z ^[[36;1m    'status': 'success',^[[0m
+deploy	Record successful deployment	2026-07-28T18:00:16.9773524Z ^[[36;1m    'library_version': '2026.07.29-1',^[[0m
+deploy	Record successful deployment	2026-07-28T18:00:16.9773813Z ^[[36;1m    'book_versions_visible': True,^[[0m
+deploy	Record successful deployment	2026-07-28T18:00:16.9774106Z ^[[36;1m    'progress_storage_changed': False,^[[0m
+deploy	Record successful deployment	2026-07-28T18:00:16.9774388Z ^[[36;1m    'book_count': 4,^[[0m
+deploy	Record successful deployment	2026-07-28T18:00:16.9774673Z ^[[36;1m    'accounting_version': '2026.07.27-2',^[[0m
+deploy	Record successful deployment	2026-07-28T18:00:16.9775217Z ^[[36;1m    'economics_version': '2026.07.27-2',^[[0m
+deploy	Record successful deployment	2026-07-28T18:00:16.9775647Z ^[[36;1m    'economics_question_count': 100,^[[0m
+deploy	Record successful deployment	2026-07-28T18:00:16.9775951Z ^[[36;1m    'economics_correction_count': 14,^[[0m
+deploy	Record successful deployment	2026-07-28T18:00:16.9776303Z ^[[36;1m    'economics_content_audit': 'passed',^[[0m
+deploy	Record successful deployment	2026-07-28T18:00:16.9776616Z ^[[36;1m    'statistics_version': '2026.07.28-1',^[[0m
+deploy	Record successful deployment	2026-07-28T18:00:16.9776931Z ^[[36;1m    'statistics_chapter_count': 19,^[[0m
+deploy	Record successful deployment	2026-07-28T18:00:16.9777247Z ^[[36;1m    'statistics_question_count': 95,^[[0m
+deploy	Record successful deployment	2026-07-28T18:00:16.9777544Z ^[[36;1m    'statistics_search_count': 169,^[[0m
+deploy	Record successful deployment	2026-07-28T18:00:16.9777834Z ^[[36;1m    'statistics_figure_count': 19,^[[0m
+deploy	Record successful deployment	2026-07-28T18:00:16.9778135Z ^[[36;1m    'statistics_content_audit': 'passed',^[[0m
+deploy	Record successful deployment	2026-07-28T18:00:16.9778484Z ^[[36;1m    'source_commit': os.environ['GITHUB_SHA'],^[[0m
+deploy	Record successful deployment	2026-07-28T18:00:16.9778847Z ^[[36;1m    'workflow_run_id': os.environ['GITHUB_RUN_ID'],^[[0m
+deploy	Record successful deployment	2026-07-28T18:00:16.9779395Z ^[[36;1m    'page_url': os.environ.get('DEPLOYED_PAGE_URL', ''),^[[0m
+deploy	Record successful deployment	2026-07-28T18:00:16.9779809Z ^[[36;1m    'deployed_at': datetime.now(timezone.utc).isoformat(),^[[0m
+deploy	Record successful deployment	2026-07-28T18:00:16.9780149Z ^[[36;1m}^[[0m
+deploy	Record successful deployment	2026-07-28T18:00:16.9780436Z ^[[36;1mPath('docs/deployment_receipt.json').write_text(^[[0m
+deploy	Record successful deployment	2026-07-28T18:00:16.9780839Z ^[[36;1m    json.dumps(receipt, ensure_ascii=False, indent=2) + '\n',^[[0m
+deploy	Record successful deployment	2026-07-28T18:00:16.9781195Z ^[[36;1m    encoding='utf-8',^[[0m
+deploy	Record successful deployment	2026-07-28T18:00:16.9803179Z ^[[36;1m)^[[0m
+deploy	Record successful deployment	2026-07-28T18:00:16.9803558Z ^[[36;1mPY^[[0m
+deploy	Record successful deployment	2026-07-28T18:00:16.9803909Z ^[[36;1mgit config user.name github-actions[bot]^[[0m
+deploy	Record successful deployment	2026-07-28T18:00:16.9804564Z ^[[36;1mgit config user.email 41898282+github-actions[bot]@users.noreply.github.com^[[0m
+deploy	Record successful deployment	2026-07-28T18:00:16.9805307Z ^[[36;1mgit add docs/deployment_receipt.json^[[0m
+deploy	Record successful deployment	2026-07-28T18:00:16.9806006Z ^[[36;1mgit commit -m "Record successful Pages deployment [skip ci]"^[[0m
+deploy	Record successful deployment	2026-07-28T18:00:16.9806592Z ^[[36;1mgit push origin HEAD:main^[[0m
+deploy	Record successful deployment	2026-07-28T18:00:16.9834640Z shell: /usr/bin/bash -e {0}
+deploy	Record successful deployment	2026-07-28T18:00:16.9835144Z env:
+deploy	Record successful deployment	2026-07-28T18:00:16.9835351Z   GITHUB_PAGES: true
+deploy	Record successful deployment	2026-07-28T18:00:16.9835747Z   DEPLOYED_PAGE_URL: https://sunny20030925-cell.github.io/study-review-library/
+deploy	Record successful deployment	2026-07-28T18:00:16.9836154Z ##[endgroup]
+deploy	Record successful deployment	2026-07-28T18:00:17.0220510Z [main 62285ba] Record successful Pages deployment [skip ci]
+deploy	Record successful deployment	2026-07-28T18:00:17.0221193Z  1 file changed, 3 insertions(+), 6 deletions(-)
+deploy	Record successful deployment	2026-07-28T18:00:17.4700236Z To https://github.com/sunny20030925-cell/study-review-library
+deploy	Record successful deployment	2026-07-28T18:00:17.4700781Z  ! [rejected]        HEAD -> main (fetch first)
+deploy	Record successful deployment	2026-07-28T18:00:17.4701336Z error: failed to push some refs to 'https://github.com/sunny20030925-cell/study-review-library'
+deploy	Record successful deployment	2026-07-28T18:00:17.4711911Z hint: Updates were rejected because the remote contains work that you do not
+deploy	Record successful deployment	2026-07-28T18:00:17.4712605Z hint: have locally. This is usually caused by another repository pushing to
+deploy	Record successful deployment	2026-07-28T18:00:17.4713187Z hint: the same ref. If you want to integrate the remote changes, use
+deploy	Record successful deployment	2026-07-28T18:00:17.4713616Z hint: 'git pull' before pushing again.
+deploy	Record successful deployment	2026-07-28T18:00:17.4714047Z hint: See the 'Note about fast-forwards' in 'git push --help' for details.
+deploy	Record successful deployment	2026-07-28T18:00:17.4728882Z ##[error]Process completed with exit code 1.
