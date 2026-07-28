@@ -34,7 +34,7 @@ jobs:
           curl -L --fail --retry 3 \
             'https://drive.usercontent.google.com/download?id=1rgPS62bIZOWC8H3zSrw-RBZ3jkg9SDcs&export=download&confirm=t' \
             -o site.zip
-          echo '12b9e8f2639ac8b27157e456a985c905d91e590f88465ebf8c4b5786846f3774  site.zip' | sha256sum --check -
+          echo 'ece2a68f5bdaf7fd82c3897bf49a9628121e9775f6b75ee7d7b375c1bbe01600  site.zip' | sha256sum --check -
           mkdir _site
           python -m zipfile -e site.zip _site
           rm -rf _site/.github
@@ -106,6 +106,21 @@ jobs:
                       'progressImpact': '章節與題目 ID 未變，既有閱讀進度與錯題紀錄保留。',
                   }],
               },
+              'statistics': {
+                  'updatedAt': '2026-07-29',
+                  'releaseNotes': [{
+                      'version': '2026.07.28-1',
+                      'date': '2026-07-29',
+                      'title': '新增大學入門統計學',
+                      'changes': [
+                          '新增 19 章正文與 3 份附錄，從資料描述一路到統計推論、ANOVA 與簡單線性迴歸',
+                          '新增 95 題題庫，每章 5 題，涵蓋概念、計算、判讀、綜合與常見陷阱',
+                          '新增 169 筆搜尋索引與 19 張自製統計圖解',
+                          '完成兩輪 QA，並修正 HTML 小於符號與不等號公式顯示問題',
+                      ],
+                      'progressImpact': '新增獨立書籍，不改動既有書籍的章節、題目 ID 或閱讀進度。',
+                  }],
+              },
           }
           for book_id, extra in release_data.items():
               path = site / f'books/{book_id}/manifest.json'
@@ -115,7 +130,7 @@ jobs:
 
           library_path = site / 'data/library.json'
           library = json.loads(library_path.read_text(encoding='utf-8'))
-          library['version'] = '2026.07.27-8'
+          library['version'] = '2026.07.29-1'
           library_path.write_text(json.dumps(library, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
 
           app_path = site / 'app.js'
@@ -176,11 +191,11 @@ jobs:
 
           sw_path = site / 'sw.js'
           sw = sw_path.read_text(encoding='utf-8')
-          sw = re.sub(r"const VERSION = 'study-library-[^']+';", "const VERSION = 'study-library-2026-07-27-8';", sw, count=1)
+          sw = re.sub(r"const VERSION = 'study-library-[^']+';", "const VERSION = 'study-library-2026-07-29-1';", sw, count=1)
           sw_path.write_text(sw, encoding='utf-8')
           PY
 
-      - name: Validate study library
+      - name: Validate four-book study library
         run: |
           python - <<'PY'
           import json
@@ -189,10 +204,10 @@ jobs:
 
           site = Path('_site')
           library = json.loads((site / 'data/library.json').read_text(encoding='utf-8'))
-          assert library['version'] == '2026.07.27-8'
-          assert [book['id'] for book in library['books']] == ['calculus', 'accounting', 'economics']
+          assert library['version'] == '2026.07.29-1'
+          assert [book['id'] for book in library['books']] == ['calculus', 'accounting', 'economics', 'statistics']
 
-          expected = {'calculus': 73, 'accounting': 70, 'economics': 100}
+          expected = {'calculus': 73, 'accounting': 70, 'economics': 100, 'statistics': 95}
           for book_id, count in expected.items():
               root = site / 'books' / book_id
               manifest = json.loads((root / 'manifest.json').read_text(encoding='utf-8'))
@@ -247,11 +262,36 @@ jobs:
           ):
               assert obsolete not in economics_text
 
-          figures = sorted((site / 'assets/economics-svg').glob('*.svg'))
-          assert len(figures) == 20
-          for figure in figures:
+          economics_figures = sorted((site / 'assets/economics-svg').glob('*.svg'))
+          assert len(economics_figures) == 20
+          for figure in economics_figures:
               svg = figure.read_text(encoding='utf-8')
               assert '<title' in svg and '<desc' in svg and 'viewBox' in svg
+
+          statistics_root = site / 'books/statistics'
+          statistics_manifest = json.loads((statistics_root / 'manifest.json').read_text(encoding='utf-8'))
+          statistics_questions = json.loads((statistics_root / 'questions.json').read_text(encoding='utf-8'))
+          statistics_search = json.loads((statistics_root / 'search.json').read_text(encoding='utf-8'))
+          assert statistics_manifest['version'] == statistics_questions['version'] == '2026.07.28-1'
+          assert len([x for x in statistics_manifest['chapters'] if x['kind'] == 'chapter']) == 19
+          assert len([x for x in statistics_manifest['chapters'] if x['kind'] == 'appendix']) == 3
+          assert len(statistics_search['entries']) == 169
+          assert Counter(q['chapterId'] for q in statistics_questions['items']) == {f'ch{i:02d}': 5 for i in range(19)}
+          statistics_figures = sorted((site / 'assets/statistics-svg').glob('*.svg'))
+          assert len(statistics_figures) == 19
+          for figure in statistics_figures:
+              svg = figure.read_text(encoding='utf-8')
+              assert '<title' in svg and '<desc' in svg and 'viewBox' in svg
+
+          statistics_text = '\n'.join(
+              (statistics_root / chapter['file']).read_text(encoding='utf-8')
+              for chapter in statistics_manifest['chapters']
+          )
+          for token in (
+              '中央極限定理', '信賴區間', 'p 值', '第一類錯誤',
+              '成對', '卡方', '變異數分析', '簡單線性迴歸', '相關係數',
+          ):
+              assert token in statistics_text
 
           app = (site / 'app.js').read_text(encoding='utf-8')
           css = (site / 'styles.css').read_text(encoding='utf-8')
@@ -259,8 +299,11 @@ jobs:
           assert '查看版本與更新內容' in app
           assert '內容版本 ${escapeHtml(manifest.version' in app
           assert '.release-notes{' in css
-          assert 'study-library-2026-07-27-8' in sw
-          print('LIBRARY_VALIDATION_OK books=3 accounting_v2=true economics_v2=true corrections=14')
+          assert 'study-library-2026-07-29-1' in sw
+          assert './books/statistics/manifest.json' in sw
+          assert './books/statistics/chapters/ch18.html' in sw
+          assert './assets/statistics-svg/anova.svg' in sw
+          print('LIBRARY_VALIDATION_OK books=4 statistics_chapters=19 statistics_questions=95 statistics_search=169 statistics_figures=19')
           PY
           node --check _site/app.js
           node --check _site/sw.js
@@ -285,15 +328,21 @@ jobs:
 
           receipt = {
               'status': 'success',
-              'library_version': '2026.07.27-8',
+              'library_version': '2026.07.29-1',
               'book_versions_visible': True,
               'progress_storage_changed': False,
-              'book_count': 3,
+              'book_count': 4,
               'accounting_version': '2026.07.27-2',
               'economics_version': '2026.07.27-2',
               'economics_question_count': 100,
               'economics_correction_count': 14,
               'economics_content_audit': 'passed',
+              'statistics_version': '2026.07.28-1',
+              'statistics_chapter_count': 19,
+              'statistics_question_count': 95,
+              'statistics_search_count': 169,
+              'statistics_figure_count': 19,
+              'statistics_content_audit': 'passed',
               'source_commit': os.environ['GITHUB_SHA'],
               'workflow_run_id': os.environ['GITHUB_RUN_ID'],
               'page_url': os.environ.get('DEPLOYED_PAGE_URL', ''),
