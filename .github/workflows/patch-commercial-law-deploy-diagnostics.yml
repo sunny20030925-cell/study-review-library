@@ -40,6 +40,16 @@ jobs:
             git push origin HEAD:main
           fi
 
+      - name: Cancel stale canonical runs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ids=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow deploy-pages.yml --limit 50 --json databaseId,status --jq '.[] | select(.status == "queued" or .status == "in_progress" or .status == "waiting" or .status == "pending") | .databaseId')
+          for id in $ids; do
+            gh run cancel "$id" --repo "$GITHUB_REPOSITORY" || true
+          done
+          sleep 5
+
       - name: Dispatch and wait for canonical deployment
         env:
           GH_TOKEN: ${{ github.token }}
