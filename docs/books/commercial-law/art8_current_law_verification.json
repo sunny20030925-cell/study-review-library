@@ -1,0 +1,17 @@
+{
+  "status": "passed",
+  "checks": {
+    "version": true,
+    "chapters": true,
+    "appendices": true,
+    "questions": true,
+    "five_questions_each": true,
+    "search": true,
+    "art8_subject": true,
+    "art8_execution": true,
+    "art8_control": true,
+    "art8_not_public_only": true,
+    "q05_not_public_only": true
+  },
+  "version": "2026.07.29-2"
+}
