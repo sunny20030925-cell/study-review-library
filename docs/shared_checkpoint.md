@@ -9,7 +9,7 @@
 - 固定入口：`https://sunny20030925-cell.github.io/study-review-library/`
 - 形式：平板直式 PWA 書庫，可持續加入新科目。
 - 使用者操作限制：只使用平板；不得要求終端機、Git、電腦檔案管理、手動部署或多檔案上傳操作。
-- 目標書庫內容版本：`2026.07.29-1`
+- 正式書庫內容版本：`2026.07.29-1`
 
 ## 正式規格
 
@@ -67,7 +67,7 @@
 ### 統計學
 
 - Book ID：`statistics`
-- 內容版本：`2026.07.28-1`
+- 正式內容版本：`2026.07.28-1`
 - 定位：一般大學第一門統計學／基礎統計學，從接近零基礎銜接一般大學課程與考試。
 - 範圍：資料與研究設計、描述統計、機率、隨機變數、常見分配、常態分配、抽樣分配、中央極限定理、估計與信賴區間、假設檢定、單雙樣本與成對資料、卡方、單因子 ANOVA、相關、簡單線性迴歸與基礎非參數方法。
 - 深度邊界：不延伸至數理統計、高等機率、計量經濟、多元迴歸矩陣理論、時間序列或其他專門統計課程。
@@ -77,23 +77,27 @@
 - 49 個必要靜態資源路徑、JavaScript 與 ZIP 結構檢查通過。
 - 範圍文件：`docs/books/statistics/scope.md`
 - QA 報告：`docs/books/statistics/qa_report.md`
-- 狀態：內容與兩輪 QA 完成；本分支合併後由 GitHub Pages 執行正式部署驗證。
+- PR：`#9`；合併 commit：`76e26ad3d45e19185f98a101ede24cd24cf004bf`。
+- GitHub Pages 部署 run：`30384714915`；Pages 部署步驟成功。
+- 部署回條：`docs/deployment_receipt.json`。
+- 狀態：已部署。
 
 ## 部署流程
 
 1. GitHub Actions 下載固定 ID 的正式網站部署包。
 2. 先核對部署包 SHA-256，再用 Python ZIP 模組解開；使用者不需要在平板處理 ZIP。
-3. 執行 repo 內既有會計學與經濟學正式修正流程。
+3. 為相容既有會計學修正腳本，先正規化基礎包的 service-worker 版本，再執行會計學與經濟學正式修正流程。
 4. 驗證四本基礎書籍 `calculus`、`accounting`、`economics`、`statistics` 的 manifest、題庫、章節、搜尋索引、圖解與 PWA 快取。
 5. 統計學額外驗證 19 章、3 附錄、95 題、169 筆搜尋索引與 19 張 SVG。
 6. JavaScript 語法與全部正式檢查通過後，才上傳 Pages artifact。
-7. Pages 部署成功後寫回 `docs/deployment_receipt.json`；失敗時不得標記統計學為已部署。
-8. 使用者不需要執行 Git、終端機、手動上傳或部署。
+7. Pages 部署成功後寫回 `docs/deployment_receipt.json`。
+8. 本次統計學部署的 Pages 步驟成功；最後回條 `git push` 因另一工作線同時更新 `main` 被拒絕，已由 GitHub connector 依成功部署 run 補寫正式回條，網站內容不受影響。
+9. 使用者不需要執行 Git、終端機、手動上傳或部署。
 
 ## 平行工作線
 
-- Repo 內另有商事法產生器與獨立 Pages workflow；其最近一次正式 workflow 回條為 `failure`，因此目前不計入本 checkpoint 的正式已部署書籍數。
-- 統計學任務不修改商事法教材內容；商事法應在自己的對話／工作線依其失敗 log 另行收尾。
+- Repo 內另有商事法產生器與獨立部署工作線；其狀態由商事法自己的文件與 workflow 回條管理，不納入統計學內容或 QA 判定。
+- 統計學任務未修改商事法教材內容。
 
 ## 下一個新科目流程
 
