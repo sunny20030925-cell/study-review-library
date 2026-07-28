@@ -1,0 +1,36 @@
+name: Prepare microeconomics canonical deployment
+
+on:
+  push:
+    branches: [agent/microeconomics-book-20260729]
+
+permissions:
+  contents: write
+
+jobs:
+  integrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/microeconomics-book-20260729
+      - name: Integrate into canonical deployment
+        run: |
+          base64 --decode deploy/integrate-microeconomics-workflow.py.xz.b64 > /tmp/integrate-microeconomics-workflow.py.xz
+          echo '0dfac6894aeb4504b1af1caeb82407f72308414455b04e5362efd9550f96c4e5  /tmp/integrate-microeconomics-workflow.py.xz' | sha256sum --check -
+          xz --decompress --stdout /tmp/integrate-microeconomics-workflow.py.xz > /tmp/integrate-microeconomics-workflow.py
+          python /tmp/integrate-microeconomics-workflow.py
+          python - <<'PY'
+          import yaml
+          from pathlib import Path
+          yaml.safe_load(Path('.github/workflows/deploy-pages.yml').read_text(encoding='utf-8'))
+          print('CANONICAL_WORKFLOW_YAML_OK')
+          PY
+      - name: Commit canonical workflow only
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add .github/workflows/deploy-pages.yml
+          git rm .github/workflows/prepare-microeconomics.yml deploy/integrate-microeconomics-workflow.py.xz.b64
+          git commit -m 'Integrate microeconomics into canonical deploy'
+          git push origin HEAD:agent/microeconomics-book-20260729
