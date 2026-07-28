@@ -1,0 +1,45 @@
+name: Extract original commercial law failure
+
+on:
+  push:
+    paths:
+      - '.github/workflows/extract-commercial-law-original-failure.yml'
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Extract attempt one failed log
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set +e
+          gh run view 30344547335 --attempt 1 --repo "$GITHUB_REPOSITORY" --log-failed > /tmp/original-failure.log 2>&1
+          rc=$?
+          {
+            echo '# Original commercial law deployment failure'
+            echo
+            echo "gh_log_exit=$rc"
+            echo
+            echo '```text'
+            cat /tmp/original-failure.log
+            echo '```'
+          } > docs/commercial_law_original_failure.md
+
+      - name: Commit extracted log
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add docs/commercial_law_original_failure.md
+          git diff --cached --quiet && exit 0
+          git commit -m "Record original commercial law failure [skip ci]"
+          git push origin HEAD:main
