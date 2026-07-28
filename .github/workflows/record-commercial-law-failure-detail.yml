@@ -1,0 +1,50 @@
+name: Record commercial law failure detail
+
+on:
+  workflow_run:
+    workflows: ["Deploy commercial law library"]
+    types: [completed]
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  record-failure-detail:
+    if: github.event.workflow_run.conclusion == 'failure'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Capture failed-step log
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+          RUN_URL: ${{ github.event.workflow_run.html_url }}
+        run: |
+          set +e
+          gh run view "$RUN_ID" --repo "$GITHUB_REPOSITORY" --log-failed > /tmp/commercial-law-failure.log 2>&1
+          rc=$?
+          {
+            echo "# Commercial law deployment failure detail"
+            echo
+            echo "run_id=$RUN_ID"
+            echo "run_url=$RUN_URL"
+            echo "gh_log_exit=$rc"
+            echo
+            echo '```text'
+            tail -n 180 /tmp/commercial-law-failure.log
+            echo '```'
+          } > docs/commercial_law_failure_detail.md
+
+      - name: Commit diagnostic
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add docs/commercial_law_failure_detail.md
+          git diff --cached --quiet && exit 0
+          git commit -m "Record commercial law failure detail [skip ci]"
+          git push origin HEAD:main
