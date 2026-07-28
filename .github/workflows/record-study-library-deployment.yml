@@ -6,6 +6,7 @@ on:
     types: [completed]
 
 permissions:
+  actions: read
   contents: write
 
 jobs:
@@ -17,15 +18,16 @@ jobs:
         with:
           ref: main
 
-      - name: Record workflow result
+      - name: Record workflow result and failure tail
         env:
+          GH_TOKEN: ${{ github.token }}
           SOURCE_RUN_ID: ${{ github.event.workflow_run.id }}
           SOURCE_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
           SOURCE_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
           SOURCE_HTML_URL: ${{ github.event.workflow_run.html_url }}
         run: |
           python - <<'PY'
-          import json, os
+          import json, os, subprocess
           from datetime import datetime, timezone
           from pathlib import Path
 
@@ -41,9 +43,23 @@ jobs:
               json.dumps(receipt, ensure_ascii=False, indent=2) + '\n',
               encoding='utf-8',
           )
+
+          failure_path = Path('docs/study_library_failure_tail.txt')
+          if os.environ['SOURCE_CONCLUSION'] != 'success':
+              cp = subprocess.run(
+                  ['gh', 'run', 'view', os.environ['SOURCE_RUN_ID'], '--repo', os.environ['GITHUB_REPOSITORY'], '--log-failed'],
+                  text=True,
+                  capture_output=True,
+              )
+              text = (cp.stdout or '') + ('\n' + cp.stderr if cp.stderr else '')
+              lines = text.splitlines()
+              failure_path.write_text('\n'.join(lines[-120:]) + '\n', encoding='utf-8')
+          elif failure_path.exists():
+              failure_path.unlink()
           PY
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add docs/study_library_workflow_receipt.json
+          if [ -f docs/study_library_failure_tail.txt ]; then git add docs/study_library_failure_tail.txt; else git rm -f --ignore-unmatch docs/study_library_failure_tail.txt; fi
           git commit -m "Record study library workflow result [skip ci]"
           git push origin HEAD:main
