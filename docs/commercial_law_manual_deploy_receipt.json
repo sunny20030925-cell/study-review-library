@@ -1,0 +1,8 @@
+{
+  "workflow": "Deploy commercial law library",
+  "trigger": "marker-dispatch",
+  "workflow_run_id": "30384727034",
+  "conclusion": "cancelled",
+  "workflow_url": "https://github.com/sunny20030925-cell/study-review-library/actions/runs/30384727034",
+  "watch_exit": 1
+}
