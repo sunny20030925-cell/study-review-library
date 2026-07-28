@@ -1,0 +1,69 @@
+name: Verify commercial law Article 8 current-law correction
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    if: github.event.issue.title == 'RUN_COMMERCIAL_LAW_ART8_PATCH_TEST'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Generate and verify corrected commercial law
+        run: |
+          curl -L --fail --retry 5 --retry-all-errors --connect-timeout 20 \
+            'https://drive.usercontent.google.com/download?id=1rgPS62bIZOWC8H3zSrw-RBZ3jkg9SDcs&export=download&confirm=t' \
+            -o site.zip
+          echo 'ece2a68f5bdaf7fd82c3897bf49a9628121e9775f6b75ee7d7b375c1bbe01600  site.zip' | sha256sum --check -
+          mkdir _site
+          python -m zipfile -e site.zip _site
+          cat deploy/generate-commercial-law.py.gz.b64.part* | base64 --decode > /tmp/generate-commercial-law.py.gz
+          echo '85843044d6fee2f0c5d11208754a4d6b103402392d3a44511745a146874dcdfc  /tmp/generate-commercial-law.py.gz' | sha256sum --check -
+          gzip --decompress --stdout /tmp/generate-commercial-law.py.gz > /tmp/generate-commercial-law.py
+          python /tmp/generate-commercial-law.py _site
+          python deploy/patch-commercial-law-reaudit.py _site | tee /tmp/patch.log
+          python - <<'PY'
+          from pathlib import Path
+          import json, re
+          from collections import Counter
+          root = Path('_site/books/commercial-law')
+          manifest = json.loads((root/'manifest.json').read_text(encoding='utf-8'))
+          questions = json.loads((root/'questions.json').read_text(encoding='utf-8'))
+          search = json.loads((root/'search.json').read_text(encoding='utf-8'))
+          html = '\n'.join((root/ch['file']).read_text(encoding='utf-8') for ch in manifest['chapters'])
+          compact = ''.join(re.sub(r'<[^>]+>', ' ', html).split())
+          q = next(x for x in questions['items'] if x['id'] == 'ch02-q05')
+          checks = {
+              'version': manifest['version'] == questions['version'] == '2026.07.29-2',
+              'chapters': len([x for x in manifest['chapters'] if x['kind']=='chapter']) == 18,
+              'appendices': len([x for x in manifest['chapters'] if x['kind']=='appendix']) == 3,
+              'questions': len(questions['items']) == 90,
+              'five_questions_each': Counter(x['chapterId'] for x in questions['items']) == {f'ch{i:02d}':5 for i in range(18)},
+              'search': len(search['entries']) == 111,
+              'art8_subject': '公司之非董事' in compact,
+              'art8_execution': '實質上執行董事業務' in compact,
+              'art8_control': '實質控制公司之人事' in compact or '實質控制公司人事' in compact,
+              'art8_not_public_only': '只針對公開發行股票之公司' not in compact,
+              'q05_not_public_only': '不限於公開發行股票之公司' in q.get('explanation',''),
+          }
+          if not all(checks.values()):
+              raise AssertionError({k:v for k,v in checks.items() if not v})
+          Path('docs/books/commercial-law/art8_current_law_verification.json').write_text(
+              json.dumps({'status':'passed','checks':checks,'version':'2026.07.29-2'}, ensure_ascii=False, indent=2)+'\n',
+              encoding='utf-8')
+          PY
+      - name: Commit verification receipt
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add docs/books/commercial-law/art8_current_law_verification.json
+          git commit -m "Record Article 8 current-law verification [skip ci]"
+          git fetch origin main
+          git rebase origin/main
+          git push origin HEAD:main
