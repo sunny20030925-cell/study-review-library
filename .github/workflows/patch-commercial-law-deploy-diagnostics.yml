@@ -7,13 +7,69 @@ on:
 
 permissions:
   actions: write
-  contents: read
+  contents: write
 
 jobs:
   dispatch:
     runs-on: ubuntu-latest
     steps:
-      - name: Dispatch commercial law deployment
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Dispatch and wait for commercial law deployment
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh workflow run deploy-commercial-law.yml --repo "$GITHUB_REPOSITORY" --ref main
+        run: |
+          set -u
+          before=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow deploy-commercial-law.yml --event workflow_dispatch --limit 1 --json databaseId --jq '.[0].databaseId // 0')
+          gh workflow run deploy-commercial-law.yml --repo "$GITHUB_REPOSITORY" --ref main
+          run_id=''
+          for i in $(seq 1 30); do
+            candidate=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow deploy-commercial-law.yml --event workflow_dispatch --limit 1 --json databaseId --jq '.[0].databaseId // 0')
+            if [ "$candidate" != "0" ] && [ "$candidate" != "$before" ]; then
+              run_id="$candidate"
+              break
+            fi
+            sleep 2
+          done
+          if [ -z "$run_id" ]; then
+            echo 'Could not locate newly dispatched commercial-law run' >&2
+            exit 1
+          fi
+
+          set +e
+          gh run watch "$run_id" --repo "$GITHUB_REPOSITORY" --exit-status
+          watch_rc=$?
+          set -e
+          conclusion=$(gh run view "$run_id" --repo "$GITHUB_REPOSITORY" --json conclusion --jq '.conclusion')
+          run_url="https://github.com/$GITHUB_REPOSITORY/actions/runs/$run_id"
+          gh run view "$run_id" --repo "$GITHUB_REPOSITORY" --log-failed > /tmp/commercial-law-manual-failure.log 2>&1 || true
+
+          python - "$run_id" "$conclusion" "$run_url" "$watch_rc" <<'PY'
+          import json, sys
+          from pathlib import Path
+          run_id, conclusion, run_url, watch_rc = sys.argv[1:]
+          payload = {
+              'workflow': 'Deploy commercial law library',
+              'trigger': 'marker-dispatch',
+              'workflow_run_id': run_id,
+              'conclusion': conclusion,
+              'workflow_url': run_url,
+              'watch_exit': int(watch_rc),
+          }
+          Path('docs/commercial_law_manual_deploy_receipt.json').write_text(
+              json.dumps(payload, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+          log = Path('/tmp/commercial-law-manual-failure.log').read_text(encoding='utf-8', errors='replace')
+          Path('docs/commercial_law_manual_deploy_failure.md').write_text(
+              '# Commercial law manual deployment failure log\n\n```text\n' + log[-30000:] + '\n```\n', encoding='utf-8')
+          PY
+
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git fetch origin main
+          git rebase origin/main
+          git add docs/commercial_law_manual_deploy_receipt.json docs/commercial_law_manual_deploy_failure.md
+          git commit -m "Record manual commercial law deployment result [skip ci]"
+          git push origin HEAD:main
