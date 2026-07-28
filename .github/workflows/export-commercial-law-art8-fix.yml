@@ -1,0 +1,106 @@
+name: Export commercial law Article 8 follow-up candidate
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+
+jobs:
+  export:
+    if: github.event.issue.title == 'RUN_COMMERCIAL_LAW_ART8_FIX_EXPORT'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Build corrected deployment candidate
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          src = Path('.github/workflows/deploy-pages.yml')
+          text = src.read_text(encoding='utf-8')
+
+          # Library release/version progression.
+          text = text.replace("library['version'] = '2026.07.29-5'", "library['version'] = '2026.07.29-6'")
+          text = text.replace("assert library['version'] == '2026.07.29-5'", "assert library['version'] == '2026.07.29-6'")
+          text = text.replace('study-library-2026-07-29-5', 'study-library-2026-07-29-6')
+          text = text.replace("'library_version': '2026.07.29-5'", "'library_version': '2026.07.29-6'")
+
+          # Commercial-law book version.
+          text = text.replace(
+              "law_manifest['version'] == law_questions['version'] == '2026.07.29-1'",
+              "law_manifest['version'] == law_questions['version'] == '2026.07.29-2'",
+          )
+          text = text.replace("'commercial_law_version': '2026.07.29-1'", "'commercial_law_version': '2026.07.29-2'")
+
+          # Add a transparent follow-up release note before the flawed 2026.07.29-1 note.
+          marker = """                  'releaseNotes': [{\n                      'version': '2026.07.29-1',\n"""
+          replacement = """                  'releaseNotes': [{\n                      'version': '2026.07.29-2',\n                      'date': '2026-07-29',\n                      'title': '公司法第 8 條現行法版本回修',\n                      'changes': [\n                          '最終法規交叉核對發現前版誤採舊法「公開發行股票之公司」限制，立即依現行公司法第 8 條第 3 項回修',\n                          '改回現行法的一般規則：公司之非董事符合實質執行董事業務或實質控制並指揮董事等要件時，原則上與董事同負相應責任',\n                          '同步修正 ch02-q05、法律 gate 與禁止誤述檢查；其餘發布後二次複核修正全部保留',\n                      ],\n                      'progressImpact': '章節 ID、題目 ID 與題數不變，既有閱讀進度與錯題紀錄保留。',\n                  }, {\n                      'version': '2026.07.29-1',\n"""
+          if marker not in text:
+              raise SystemExit('commercial-law release note marker not found')
+          text = text.replace(marker, replacement, 1)
+
+          # Correct the Article 8 validation from old-law public-company-only wording to current law.
+          wrong_gate = "          require_any('公開發行股票公司實質董事範圍', '第8條第3項只針對公開發行股票之公司')\n"
+          current_gates = """          require_any('公司法第8條現行實質董事主體', '公司之非董事')\n          require_any('公司法第8條現行實質執行董事業務', '實質上執行董事業務')\n          require_any('公司法第8條現行實質控制', '實質控制公司之人事', '實質控制公司人事')\n"""
+          if wrong_gate not in text:
+              raise SystemExit('wrong Article 8 gate not found')
+          text = text.replace(wrong_gate, current_gates, 1)
+
+          # Replace the old negative gate with an explicit ban on the superseded wording.
+          old_negative = "          assert '實質控制公司而指揮董事者，也可能負相應責任' not in law_compact\n"
+          new_negative = """          assert '公司法第8條第3項只針對公開發行股票之公司' not in law_compact\n          assert '第8條第3項只針對公開發行股票之公司' not in law_compact\n"""
+          if old_negative not in text:
+              raise SystemExit('Article 8 negative gate marker not found')
+          text = text.replace(old_negative, new_negative, 1)
+
+          # Receipt bookkeeping: 12 original groups + 1 immediate statutory-version follow-up.
+          text = text.replace("'commercial_law_content_correction_count': 12", "'commercial_law_content_correction_count': 13")
+          receipt_marker = "              'commercial_law_question_adjustment_count': 6,\n              'commercial_law_post_publication_reaudit': 'passed',\n"
+          receipt_replacement = """              'commercial_law_question_adjustment_count': 6,\n              'commercial_law_followup_correction_count': 1,\n              'commercial_law_post_publication_reaudit': 'passed-after-current-law-followup',\n"""
+          if receipt_marker not in text:
+              raise SystemExit('commercial-law receipt marker not found')
+          text = text.replace(receipt_marker, receipt_replacement, 1)
+
+          required = [
+              "library['version'] = '2026.07.29-6'",
+              'study-library-2026-07-29-6',
+              "law_manifest['version'] == law_questions['version'] == '2026.07.29-2'",
+              "'commercial_law_version': '2026.07.29-2'",
+              "'version': '2026.07.29-2'",
+              "公司法第8條現行實質董事主體",
+              "passed-after-current-law-followup",
+              "statistics_manifest['version'] == statistics_questions['version'] == '2026.07.29-2'",
+          ]
+          for token in required:
+              if token not in text:
+                  raise SystemExit(f'missing candidate token: {token}')
+          if '第8條第3項只針對公開發行股票之公司' not in text:
+              raise SystemExit('negative guard for superseded Article 8 wording missing')
+
+          out = Path('docs/books/commercial-law/deploy-pages-art8-fix-preview.yml')
+          out.write_text(text, encoding='utf-8')
+          Path('docs/books/commercial-law/art8_fix_candidate.json').write_text(
+              '{\n'
+              '  "source_library_version": "2026.07.29-5",\n'
+              '  "target_library_version": "2026.07.29-6",\n'
+              '  "commercial_law_version": "2026.07.29-2",\n'
+              '  "statistics_version_preserved": "2026.07.29-2",\n'
+              '  "article_8_scope": "current-general-rule",\n'
+              '  "status": "ready"\n'
+              '}\n', encoding='utf-8')
+          PY
+
+      - name: Commit candidate as ordinary files
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add docs/books/commercial-law/deploy-pages-art8-fix-preview.yml docs/books/commercial-law/art8_fix_candidate.json
+          git commit -m "Export Article 8 current-law fix candidate [skip ci]"
+          git fetch origin main
+          git rebase origin/main
+          git push origin HEAD:main
