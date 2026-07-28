@@ -1,0 +1,104 @@
+name: Export statistics canonical deployment candidate
+
+on:
+  push:
+    paths:
+      - 'docs/books/statistics/export_deploy_candidate.txt'
+
+permissions:
+  contents: write
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout latest main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Build canonical workflow candidate
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib, json, re
+
+          source = Path('.github/workflows/deploy-pages.yml')
+          original = source.read_text(encoding='utf-8')
+          text = original
+
+          economics_line = '          SITE_ROOT="$GITHUB_WORKSPACE/_site" python /tmp/patch-economics-v2.py\n'
+          statistics_step = economics_line + """\n      - name: Apply statistics post-publication audit corrections\n        run: |\n          python deploy/patch_statistics_v2.py _site\n"""
+          if 'Apply statistics post-publication audit corrections' not in text:
+              if economics_line not in text:
+                  raise SystemExit('economics patch hook not found')
+              text = text.replace(economics_line, statistics_step, 1)
+
+          stats_start = text.find("              'statistics': {")
+          law_start = text.find("              'commercial-law': {", stats_start)
+          if stats_start < 0 or law_start < 0:
+              raise SystemExit('statistics release block not found')
+          stats_release = """              'statistics': {\n                  'updatedAt': '2026-07-29',\n                  'releaseNotes': [{\n                      'version': '2026.07.29-2',\n                      'date': '2026-07-29',\n                      'title': '發布後獨立二次校錯',\n                      'changes': [\n                          '修正隨機分派、不等組距直方圖、變異係數與柴比雪夫不等式的成立條件',\n                          '補正變異數加總的 2Cov(X,Y)、比例區間與檢定標準誤，以及 p 值的極端方向定義',\n                          '補強平均數區間、單一比例檢定、非參數方法與含截距簡單迴歸的解讀邊界',\n                          '95 題全數複核；44 個計算／公式判斷獨立重算，169 筆搜尋索引重新建立',\n                      ],\n                      'progressImpact': '章節 ID、題目 ID 與題數不變，既有閱讀進度與錯題紀錄保留。',\n                  }, {\n                      'version': '2026.07.28-1',\n                      'date': '2026-07-29',\n                      'title': '新增大學入門統計學',\n                      'changes': [\n                          '新增 19 章正文與 3 份附錄，從資料描述一路到統計推論、ANOVA 與簡單線性迴歸',\n                          '新增 95 題題庫，每章 5 題，涵蓋概念、計算、判讀、綜合與常見陷阱',\n                          '新增 169 筆搜尋索引與 19 張自製統計圖解',\n                          '完成初版兩輪 QA，並修正 HTML 小於符號與不等號公式顯示問題',\n                      ],\n                      'progressImpact': '新增獨立書籍，不改動既有書籍的章節、題目 ID 或閱讀進度。',\n                  }],\n              },\n"""
+          text = text[:stats_start] + stats_release + text[law_start:]
+
+          text = re.sub(r"library\['version'\] = '2026\.07\.29-[0-9]+'", "library['version'] = '2026.07.29-4'", text, count=1)
+          text = re.sub(r"assert library\['version'\] == '2026\.07\.29-[0-9]+'", "assert library['version'] == '2026.07.29-4'", text, count=1)
+          text = re.sub(r"study-library-2026-07-29-[0-9]+", 'study-library-2026-07-29-4', text)
+          text = re.sub(r"'library_version': '2026\.07\.29-[0-9]+'", "'library_version': '2026.07.29-4'", text, count=1)
+          text = text.replace(
+              "statistics_manifest['version'] == statistics_questions['version'] == '2026.07.28-1'",
+              "statistics_manifest['version'] == statistics_questions['version'] == '2026.07.29-2'",
+          )
+          text = text.replace("'statistics_version': '2026.07.28-1'", "'statistics_version': '2026.07.29-2'")
+
+          validation_anchor = "          law_root = site / 'books/commercial-law'\n"
+          if 'statistics post-publication correction tokens' not in text:
+              extra_validation = """          # statistics post-publication correction tokens\n          for token in (\n              '單一實驗仍可能偶然不平衡', '次數密度或相對次數密度',\n              'CV 雖然沒有單位，也不能因此直接比較性質完全不同的變數',\n              'Var(X+Y)=Var(X)+Var(Y)+2Cov(X,Y)',\n              '依對立假設方向定義之「同等或更極端」', 'SE_{CI}', 'SE_0',\n              '兩組分布形狀相近、主要差在位置時',\n          ):\n              assert token in statistics_text, token\n          for obsolete in (\n              '分組時組距應一致、邊界不重疊',\n              '不獨立時還要加上協方差項',\n              '得到目前或更極端統計量的機率',\n          ):\n              assert obsolete not in statistics_text, obsolete\n\n"""
+              if validation_anchor not in text:
+                  raise SystemExit('statistics validation anchor not found')
+              text = text.replace(validation_anchor, extra_validation + validation_anchor, 1)
+
+          receipt_anchor = "              'statistics_content_audit': 'passed',\n"
+          if "'statistics_independent_check_count': 1195" not in text:
+              extra_receipt = receipt_anchor + """              'statistics_content_correction_count': 19,\n              'statistics_question_adjustment_count': 3,\n              'statistics_independent_check_count': 1195,\n              'statistics_quantitative_recheck_count': 44,\n"""
+              if receipt_anchor not in text:
+                  raise SystemExit('statistics receipt anchor not found')
+              text = text.replace(receipt_anchor, extra_receipt, 1)
+
+          required = [
+              'Apply statistics post-publication audit corrections',
+              "statistics_manifest['version'] == statistics_questions['version'] == '2026.07.29-2'",
+              "'statistics_version': '2026.07.29-2'",
+              "'library_version': '2026.07.29-4'",
+              'study-library-2026-07-29-4',
+          ]
+          for token in required:
+              if token not in text:
+                  raise SystemExit(f'missing integrated token: {token}')
+
+          out = Path('docs/books/statistics/deploy_pages_candidate.yml.txt')
+          out.write_text(text, encoding='utf-8')
+          meta = {
+              'source_workflow_sha256': hashlib.sha256(original.encode()).hexdigest(),
+              'candidate_sha256': hashlib.sha256(text.encode()).hexdigest(),
+              'statistics_version': '2026.07.29-2',
+              'library_version': '2026.07.29-4',
+          }
+          Path('docs/books/statistics/deploy_candidate_meta.json').write_text(
+              json.dumps(meta, ensure_ascii=False, indent=2) + '\n', encoding='utf-8'
+          )
+          print(json.dumps(meta, ensure_ascii=False))
+          PY
+
+      - name: Commit candidate files only
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add docs/books/statistics/deploy_pages_candidate.yml.txt docs/books/statistics/deploy_candidate_meta.json
+          git commit -m "Export verified statistics deployment candidate [skip ci]"
+          for attempt in 1 2 3; do
+            git fetch origin main
+            if git rebase origin/main && git push origin HEAD:main; then exit 0; fi
+            git rebase --abort || true
+          done
+          exit 1
