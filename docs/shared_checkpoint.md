@@ -9,7 +9,8 @@
 - 固定入口：`https://sunny20030925-cell.github.io/study-review-library/`
 - 形式：平板直式 PWA 書庫，可持續加入新科目。
 - 使用者操作限制：只使用平板；不得要求終端機、Git、電腦檔案管理、手動部署或多檔案上傳操作。
-- 正式書庫內容版本：`2026.07.29-1`
+- 正式書庫內容版本：`2026.07.29-2`
+- 正式書籍數：5 本。
 
 ## 正式規格
 
@@ -77,8 +78,24 @@
 - 49 個必要靜態資源路徑、JavaScript 與 ZIP 結構檢查通過。
 - 範圍文件：`docs/books/statistics/scope.md`
 - QA 報告：`docs/books/statistics/qa_report.md`
-- PR：`#9`；合併 commit：`76e26ad3d45e19185f98a101ede24cd24cf004bf`。
-- GitHub Pages 部署 run：`30384714915`；Pages 部署步驟成功。
+- 狀態：已部署。
+
+### 商事法
+
+- Book ID：`commercial-law`
+- 正式內容版本：`2026.07.28-1`
+- 定位：一般大學商事法入門與考試重點整理，以公司法＋證券交易法為核心。
+- 公司法範圍：公司基本架構、股份、股東、股東會、董事、監察、財務、重大變動等，以股份有限公司為主並補必要公司類型差異。
+- 證券交易法範圍：募集／發行／私募、資訊揭露、公開發行公司治理、證券詐欺、財報不實、操縱市場、短線交易與內線交易。
+- 深度邊界：票據法、保險法、海商法不進入核心正文與核心題庫；高度技術性的證券申報、公開收購、委託書與其他金融專法只保留必要銜接。
+- 成品：18 章、3 附錄、90 題題庫、111 筆搜尋索引、18 張自製圖解，另有法條速查入口。
+- 第一輪 QA：18／18 章、3／3 附錄、90／90 題、111 筆搜尋索引、18／18 SVG 結構檢查通過。
+- 第二輪獨立複核：90／90 題逐題重查，並複核公司法與證券交易法高風險條號、比例、期間、人數與法律效果。
+- 部署驗證已改為先移除 HTML 排版標記，再核對法律實質要件，避免正確內容因排版切斷而誤判。
+- 範圍文件：`docs/books/commercial-law/scope.md`
+- QA 報告：`docs/books/commercial-law/qa_report.md`
+- GitHub Pages 部署 run：`30388909496`。
+- Source commit：`cda67131fcd887f38dac66b7d3aad02e20c10b9c`。
 - 部署回條：`docs/deployment_receipt.json`。
 - 狀態：已部署。
 
@@ -87,17 +104,20 @@
 1. GitHub Actions 下載固定 ID 的正式網站部署包。
 2. 先核對部署包 SHA-256，再用 Python ZIP 模組解開；使用者不需要在平板處理 ZIP。
 3. 為相容既有會計學修正腳本，先正規化基礎包的 service-worker 版本，再執行會計學與經濟學正式修正流程。
-4. 驗證四本基礎書籍 `calculus`、`accounting`、`economics`、`statistics` 的 manifest、題庫、章節、搜尋索引、圖解與 PWA 快取。
+4. 同一個 canonical `Deploy study library` 工作流生成／整合並驗證 `calculus`、`accounting`、`economics`、`statistics`、`commercial-law` 五本書。
 5. 統計學額外驗證 19 章、3 附錄、95 題、169 筆搜尋索引與 19 張 SVG。
-6. JavaScript 語法與全部正式檢查通過後，才上傳 Pages artifact。
-7. Pages 部署成功後寫回 `docs/deployment_receipt.json`。
-8. 本次統計學部署的 Pages 步驟成功；最後回條 `git push` 因另一工作線同時更新 `main` 被拒絕，已由 GitHub connector 依成功部署 run 補寫正式回條，網站內容不受影響。
-9. 使用者不需要執行 Git、終端機、手動上傳或部署。
+6. 商事法額外驗證 18 章、3 附錄、90 題、111 筆搜尋索引、18 張 SVG，以及公司法／證券交易法高風險法律要件。
+7. 商事法法律文字驗證先移除 HTML 排版標記與空白，再核對條號、比例、期間、人數及禁止誤述；不再要求單一逐字句型。
+8. JavaScript、service worker 與全部正式檢查通過後，才上傳 Pages artifact。
+9. Pages 部署成功後寫回 `docs/deployment_receipt.json`。
+10. 最新五本書成功部署 run：`30388909496`；書庫內容版本：`2026.07.29-2`。
+11. 使用者不需要執行 Git、終端機、手動上傳或部署。
 
-## 平行工作線
+## 工作線狀態
 
-- Repo 內另有商事法產生器與獨立部署工作線；其狀態由商事法自己的文件與 workflow 回條管理，不納入統計學內容或 QA 判定。
-- 統計學任務未修改商事法教材內容。
+- 微積分、會計學、經濟學原理、統計學、商事法均已納入同一套正式書庫部署流程。
+- 商事法原先獨立部署工作流已退役；除錯用 finalizer、trigger 與失敗 log 已清除。
+- 後續新增科目不得建立會覆蓋現有書庫的平行 Pages 部署；應直接整合進 canonical `Deploy study library`。
 
 ## 下一個新科目流程
 
@@ -105,4 +125,4 @@
 2. 使用者只需指定科目，無須重貼歷史規格。
 3. 助理必須先從本 repo 讀取 `AGENTS.md`、knowledge index、content authoring spec 與本 checkpoint。
 4. 先建立該科目的 `scope.md` 與 `status.md`，固定科目邊界後再開始製作。
-5. 完成兩輪 QA 後，加入同一個 PWA 書庫並更新本 checkpoint。
+5. 完成兩輪 QA 後，直接加入同一個 PWA 書庫、更新 canonical 部署 gate，並更新本 checkpoint。
