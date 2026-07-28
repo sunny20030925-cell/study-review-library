@@ -3,7 +3,7 @@ name: Trigger corrected commercial law deployment
 on:
   push:
     paths:
-      - '.github/workflows/patch-commercial-law-deploy-diagnostics.yml'
+      - 'docs/commercial_law_dispatch_trigger.txt'
 
 permissions:
   actions: write
@@ -17,5 +17,3 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh workflow run deploy-commercial-law.yml --repo "$GITHUB_REPOSITORY" --ref main
-
-# retry: 2
