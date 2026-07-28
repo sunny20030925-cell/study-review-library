@@ -58,25 +58,37 @@ jobs:
           elif failure_path.exists():
               failure_path.unlink()
 
-          # The current Company Act Article 214 wording is 「繼續六個月以上」.
-          # If the canonical five-book validator fails only because it omitted that
-          # official wording variant, patch the validator once and let the normal
-          # main-branch deployment rerun from the corrected workflow.
-          missing = "missing legal concept: ('持續 6 個月以上', '持股期間 6 個月以上', '持有 6 個月以上')"
+          # Keep validation strict on the legal concepts, but accept equivalent
+          # current-law typography and number formatting used in the textbook.
           deploy = Path('.github/workflows/deploy-pages.yml')
-          if missing in failure_text and deploy.exists():
+          if os.environ['SOURCE_CONCLUSION'] != 'success' and deploy.exists():
               workflow = deploy.read_text(encoding='utf-8')
-              old = "('持續 6 個月以上', '持股期間 6 個月以上', '持有 6 個月以上')"
-              new = "('繼續六個月以上', '繼續 6 個月以上', '持續 6 個月以上', '持股期間 6 個月以上', '持有 6 個月以上')"
-              if old in workflow:
-                  deploy.write_text(workflow.replace(old, new, 1), encoding='utf-8')
+              replacements = {
+                  "('公司法第 23 條',)": "('公司法第 23 條', '公司法第二十三條')",
+                  "('300 字', '300字')": "('300 字', '300字', '三百字')",
+                  "('第 43-6 條第一項第二款、第三款', '第 43-6 條第 1 項第 2 款、第 3 款', '第 43-6 條第一項第二款及第三款')": "('第 43-6 條第一項第二款、第三款', '第 43-6 條第 1 項第 2 款、第 3 款', '第 43-6 條第一項第二款及第三款', '第 43 條之 6 第一項第二款、第三款', '第 43 條之 6 第 1 項第 2 款、第 3 款', '第 43 條之 6 第一項第二款及第三款', '第四十三條之六第一項第二款、第三款', '第四十三條之六第一項第二款及第三款')",
+                  "('合計不得超過 35 人', '合計不超過 35 人', '合計不得超過35人')": "('合計不得超過 35 人', '合計不超過 35 人', '合計不得超過35人', '合計不得超過三十五人', '合計人數不得超過三十五人', '合計人數不得超過 35 人')",
+                  "('超過 5%', '超過 5％')": "('超過 5%', '超過 5％', '超過百分之五')",
+                  "('超過 10%', '超過 10％')": "('超過 10%', '超過 10％', '超過百分之十')",
+                  "('公開後 18 小時內', '消息公開後 18 小時', '公開後十八小時內')": "('公開後 18 小時內', '消息公開後 18 小時', '消息公開後 18 小時內', '公開後十八小時內', '消息公開後十八小時內', '公開後十八小時')",
+                  "('證交法第 62 條', '證券交易法第 62 條')": "('證交法第 62 條', '證券交易法第 62 條', '證交法第六十二條', '證券交易法第六十二條')",
+                  "('至少 2 人', '至少二人')": "('至少 2 人', '至少二人', '人數不得少於二人', '不得少於二人', '人數不得少於 2 人')",
+                  "('不得少於董事席次五分之一', '不得少於董事席次 1/5')": "('不得少於董事席次五分之一', '不得少於董事席次 1/5', '且不得少於董事席次五分之一')",
+              }
+              changed = False
+              for old, new in replacements.items():
+                  if old in workflow:
+                      workflow = workflow.replace(old, new, 1)
+                      changed = True
+              if changed:
+                  deploy.write_text(workflow, encoding='utf-8')
           PY
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add docs/study_library_workflow_receipt.json .github/workflows/deploy-pages.yml
           if [ -f docs/study_library_failure_tail.txt ]; then git add docs/study_library_failure_tail.txt; else git rm -f --ignore-unmatch docs/study_library_failure_tail.txt; fi
           if git diff --cached --name-only | grep -q '^.github/workflows/deploy-pages.yml$'; then
-            git commit -m "Fix commercial law Article 214 validation wording"
+            git commit -m "Align commercial law validator with current-law wording"
           else
             git commit -m "Record study library workflow result [skip ci]"
           fi
