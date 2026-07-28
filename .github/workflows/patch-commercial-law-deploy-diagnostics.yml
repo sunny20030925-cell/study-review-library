@@ -17,3 +17,5 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh workflow run deploy-commercial-law.yml --repo "$GITHUB_REPOSITORY" --ref main
+
+# retry: 2
