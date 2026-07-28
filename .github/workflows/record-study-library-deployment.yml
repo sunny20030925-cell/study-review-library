@@ -45,21 +45,39 @@ jobs:
           )
 
           failure_path = Path('docs/study_library_failure_tail.txt')
+          failure_text = ''
           if os.environ['SOURCE_CONCLUSION'] != 'success':
               cp = subprocess.run(
                   ['gh', 'run', 'view', os.environ['SOURCE_RUN_ID'], '--repo', os.environ['GITHUB_REPOSITORY'], '--log-failed'],
                   text=True,
                   capture_output=True,
               )
-              text = (cp.stdout or '') + ('\n' + cp.stderr if cp.stderr else '')
-              lines = text.splitlines()
+              failure_text = (cp.stdout or '') + ('\n' + cp.stderr if cp.stderr else '')
+              lines = failure_text.splitlines()
               failure_path.write_text('\n'.join(lines[-120:]) + '\n', encoding='utf-8')
           elif failure_path.exists():
               failure_path.unlink()
+
+          # The current Company Act Article 214 wording is 「繼續六個月以上」.
+          # If the canonical five-book validator fails only because it omitted that
+          # official wording variant, patch the validator once and let the normal
+          # main-branch deployment rerun from the corrected workflow.
+          missing = "missing legal concept: ('持續 6 個月以上', '持股期間 6 個月以上', '持有 6 個月以上')"
+          deploy = Path('.github/workflows/deploy-pages.yml')
+          if missing in failure_text and deploy.exists():
+              workflow = deploy.read_text(encoding='utf-8')
+              old = "('持續 6 個月以上', '持股期間 6 個月以上', '持有 6 個月以上')"
+              new = "('繼續六個月以上', '繼續 6 個月以上', '持續 6 個月以上', '持股期間 6 個月以上', '持有 6 個月以上')"
+              if old in workflow:
+                  deploy.write_text(workflow.replace(old, new, 1), encoding='utf-8')
           PY
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add docs/study_library_workflow_receipt.json
+          git add docs/study_library_workflow_receipt.json .github/workflows/deploy-pages.yml
           if [ -f docs/study_library_failure_tail.txt ]; then git add docs/study_library_failure_tail.txt; else git rm -f --ignore-unmatch docs/study_library_failure_tail.txt; fi
-          git commit -m "Record study library workflow result [skip ci]"
+          if git diff --cached --name-only | grep -q '^.github/workflows/deploy-pages.yml$'; then
+            git commit -m "Fix commercial law Article 214 validation wording"
+          else
+            git commit -m "Record study library workflow result [skip ci]"
+          fi
           git push origin HEAD:main
