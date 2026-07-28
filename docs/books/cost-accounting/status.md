@@ -5,8 +5,8 @@
 ## 版本
 
 - Book ID：`cost-accounting`
-- 初版內容版本：`2026.07.29-1`
-- 目標正式書庫版本：`2026.07.29-7`
+- 正式內容版本：`2026.07.29-1`
+- 目前正式書庫版本：`2026.07.29-7`
 
 ## 已完成內容
 
@@ -43,11 +43,14 @@
 - 新增獨立 Book ID，不變更既有書籍章節或題目 ID。
 - 既有閱讀進度與錯題紀錄不需重設。
 - 沿用同一套平板 PWA 的閱讀、搜尋、題庫與離線機制。
+- 正式部署回條確認 `progress_storage_changed=false`。
 
 ## 正式部署
 
-- 生成器與獨立驗證器已建立。
-- Canonical `Deploy study library` 整合與正式 Pages 部署：進行中。
+- Canonical integration source commit：`851630a76bfa18137b9049f7745030750462832b`。
+- GitHub Pages 成功部署 run：`30408806893`。
+- 部署回條：`docs/deployment_receipt.json`。
+- 回條確認 `cost_accounting_version=2026.07.29-1`、19 章、95 題、146 筆搜尋、19 張圖、`cost_accounting_content_audit=passed`、655 項獨立檢查、44 項數值重算。
 
 ## 目前狀態
 
@@ -56,5 +59,5 @@
 - 題庫：完成。
 - 第一輪 QA：完成。
 - 第二輪獨立 QA：完成。
-- Canonical integration：進行中。
-- 正式部署：進行中。
+- Canonical integration：完成。
+- 正式部署：完成。
