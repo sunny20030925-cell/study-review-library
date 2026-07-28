@@ -1,0 +1,51 @@
+name: Record commercial law integration result
+
+on:
+  workflow_run:
+    workflows: ["Integrate verified commercial law reaudit"]
+    types: [completed]
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  record:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Capture result and failure tail
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+          CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+          SOURCE_SHA: ${{ github.event.workflow_run.head_sha }}
+          RUN_URL: ${{ github.event.workflow_run.html_url }}
+        run: |
+          gh run view "$RUN_ID" --repo "$GITHUB_REPOSITORY" --log-failed > /tmp/failure.log 2>&1 || true
+          python - <<'PY'
+          import json, os
+          from datetime import datetime, timezone
+          from pathlib import Path
+          payload = {
+              'workflow': 'Integrate verified commercial law reaudit',
+              'conclusion': os.environ['CONCLUSION'],
+              'workflow_run_id': os.environ['RUN_ID'],
+              'source_commit': os.environ['SOURCE_SHA'],
+              'workflow_url': os.environ['RUN_URL'],
+              'recorded_at': datetime.now(timezone.utc).isoformat(),
+          }
+          Path('docs/books/commercial-law/integration_workflow_receipt.json').write_text(
+              json.dumps(payload, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+          log = Path('/tmp/failure.log').read_text(encoding='utf-8', errors='replace')
+          Path('docs/books/commercial-law/integration_failure.txt').write_text(log[-30000:] + '\n', encoding='utf-8')
+          PY
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add docs/books/commercial-law/integration_workflow_receipt.json docs/books/commercial-law/integration_failure.txt
+          git commit -m "Record commercial law integration result [skip ci]"
+          git fetch origin main
+          git rebase origin/main
+          git push origin HEAD:main
