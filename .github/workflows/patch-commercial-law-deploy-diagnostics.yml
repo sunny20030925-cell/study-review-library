@@ -18,7 +18,7 @@ jobs:
         with:
           ref: main
 
-      - name: Patch canonical validator and concurrency
+      - name: Add legal-text diagnostic context
         run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
@@ -28,16 +28,15 @@ jobs:
           from pathlib import Path
           p = Path('.github/workflows/deploy-pages.yml')
           text = p.read_text(encoding='utf-8')
-          old = "('持續 6 個月以上', '持股期間 6 個月以上', '持有 6 個月以上')"
-          new = "('繼續六個月以上', '繼續 6 個月以上', '持續 6 個月以上', '持股期間 6 個月以上', '持有 6 個月以上')"
+          old = """          for variants in required_concepts:\n              assert any(token in law_text for token in variants), f'missing legal concept: {variants}'\n"""
+          new = """          for variants in required_concepts:\n              if not any(token in law_text for token in variants):\n                  snippets = [line.strip() for line in law_text.splitlines() if '獨立董事' in line]\n                  raise AssertionError(f'missing legal concept: {variants}; independent_director_snippets={snippets[:40]}')\n"""
           if old in text:
               text = text.replace(old, new, 1)
-          text = text.replace('  cancel-in-progress: true\n', '  cancel-in-progress: false\n', 1)
-          p.write_text(text, encoding='utf-8')
+              p.write_text(text, encoding='utf-8')
           PY
           if ! git diff --quiet -- .github/workflows/deploy-pages.yml; then
             git add .github/workflows/deploy-pages.yml
-            git commit -m "Fix five-book commercial law validation [skip ci]"
+            git commit -m "Expose commercial law legal-text context [skip ci]"
             git push origin HEAD:main
           fi
 
