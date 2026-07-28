@@ -18,6 +18,30 @@ jobs:
         with:
           ref: main
 
+      - name: Disable cross-run cancellation
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git fetch origin main
+          git reset --hard origin/main
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('.github/workflows/deploy-commercial-law.yml')
+          text = p.read_text(encoding='utf-8')
+          old = '  cancel-in-progress: true\n'
+          new = '  cancel-in-progress: false\n'
+          if old in text:
+              text = text.replace(old, new, 1)
+              p.write_text(text, encoding='utf-8')
+          elif new not in text:
+              raise SystemExit('commercial-law concurrency setting not found')
+          PY
+          if ! git diff --quiet -- .github/workflows/deploy-commercial-law.yml; then
+            git add .github/workflows/deploy-commercial-law.yml
+            git commit -m "Prevent commercial law deploy cancellation [skip ci]"
+            git push origin HEAD:main
+          fi
+
       - name: Dispatch and wait for commercial law deployment
         env:
           GH_TOKEN: ${{ github.token }}
@@ -66,8 +90,6 @@ jobs:
               '# Commercial law manual deployment failure log\n\n```text\n' + log[-30000:] + '\n```\n', encoding='utf-8')
           PY
 
-          git config user.name github-actions[bot]
-          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git fetch origin main
           git rebase origin/main
           git add docs/commercial_law_manual_deploy_receipt.json docs/commercial_law_manual_deploy_failure.md
