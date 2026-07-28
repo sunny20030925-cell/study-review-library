@@ -1,0 +1,78 @@
+integrate	Apply to latest main with bounded retries	﻿2026-07-28T19:47:10.6735819Z ##[group]Run git config user.name github-actions[bot]
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:10.6736398Z ^[[36;1mgit config user.name github-actions[bot]^[[0m
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:10.6736998Z ^[[36;1mgit config user.email 41898282+github-actions[bot]@users.noreply.github.com^[[0m
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:10.6737532Z ^[[36;1m^[[0m
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:10.6737881Z ^[[36;1mfor attempt in 1 2 3 4 5; do^[[0m
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:10.6738340Z ^[[36;1m  echo "integration attempt=$attempt"^[[0m
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:10.6738775Z ^[[36;1m  git fetch origin main^[[0m
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:10.6739186Z ^[[36;1m  git reset --hard origin/main^[[0m
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:10.6739645Z ^[[36;1m  python /tmp/integrate_commercial_law.py^[[0m
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:10.6740274Z ^[[36;1m  git add .github/workflows/deploy-pages.yml deploy/patch-commercial-law-reaudit.py^[[0m
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:10.6740899Z ^[[36;1m  if git diff --cached --quiet; then^[[0m
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:10.6741414Z ^[[36;1m    echo 'commercial law integration already present'^[[0m
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:10.6741978Z ^[[36;1m    exit 0^[[0m
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:10.6742572Z ^[[36;1m  fi^[[0m
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:10.6743146Z ^[[36;1m  git commit -m "Correct commercial law after post-publication independent reaudit"^[[0m
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:10.6743758Z ^[[36;1m  if git push origin HEAD:main; then^[[0m
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:10.6744157Z ^[[36;1m    exit 0^[[0m
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:10.6744496Z ^[[36;1m  fi^[[0m
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:10.6744832Z ^[[36;1m  sleep 3^[[0m
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:10.6745195Z ^[[36;1mdone^[[0m
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:10.6745660Z ^[[36;1mecho 'commercial law integration push failed after bounded retries' >&2^[[0m
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:10.6746197Z ^[[36;1mexit 1^[[0m
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:10.6773822Z shell: /usr/bin/bash -e {0}
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:10.6774263Z ##[endgroup]
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:10.6959385Z integration attempt=1
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:11.2301394Z From https://github.com/sunny20030925-cell/study-review-library
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:11.2302260Z  * branch            main       -> FETCH_HEAD
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:11.2703208Z HEAD is now at 963400e Record robust commercial law integration failure detail
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:11.3684367Z COMMERCIAL_LAW_INTEGRATION_READY library_version=2026.07.29-3
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:11.5883842Z [main 280367d] Correct commercial law after post-publication independent reaudit
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:11.5884752Z  1 file changed, 35 insertions(+), 8 deletions(-)
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:12.8343246Z To https://github.com/sunny20030925-cell/study-review-library
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:12.8344661Z  ! [remote rejected] HEAD -> main (refusing to allow a GitHub App to create or update workflow `.github/workflows/deploy-pages.yml` without `workflows` permission)
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:12.8345968Z error: failed to push some refs to 'https://github.com/sunny20030925-cell/study-review-library'
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:15.8374658Z integration attempt=2
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:16.2378115Z From https://github.com/sunny20030925-cell/study-review-library
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:16.2378996Z  * branch            main       -> FETCH_HEAD
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:16.2448414Z HEAD is now at 963400e Record robust commercial law integration failure detail
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:16.2685735Z COMMERCIAL_LAW_INTEGRATION_READY library_version=2026.07.29-3
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:16.3958376Z [main a7387ea] Correct commercial law after post-publication independent reaudit
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:16.3959588Z  1 file changed, 35 insertions(+), 8 deletions(-)
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:17.8566908Z To https://github.com/sunny20030925-cell/study-review-library
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:17.8568333Z  ! [remote rejected] HEAD -> main (refusing to allow a GitHub App to create or update workflow `.github/workflows/deploy-pages.yml` without `workflows` permission)
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:17.8569454Z error: failed to push some refs to 'https://github.com/sunny20030925-cell/study-review-library'
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:20.8593887Z integration attempt=3
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:21.1804399Z From https://github.com/sunny20030925-cell/study-review-library
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:21.1805097Z  * branch            main       -> FETCH_HEAD
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:21.1866606Z HEAD is now at 963400e Record robust commercial law integration failure detail
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:21.2084377Z COMMERCIAL_LAW_INTEGRATION_READY library_version=2026.07.29-3
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:21.2198994Z [main cdf6a54] Correct commercial law after post-publication independent reaudit
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:21.2200241Z  1 file changed, 35 insertions(+), 8 deletions(-)
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:22.3562819Z To https://github.com/sunny20030925-cell/study-review-library
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:22.3567311Z  ! [remote rejected] HEAD -> main (refusing to allow a GitHub App to create or update workflow `.github/workflows/deploy-pages.yml` without `workflows` permission)
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:22.3568495Z error: failed to push some refs to 'https://github.com/sunny20030925-cell/study-review-library'
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:25.3590080Z integration attempt=4
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:25.8265657Z From https://github.com/sunny20030925-cell/study-review-library
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:25.8266272Z  * branch            main       -> FETCH_HEAD
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:25.8266655Z    963400e..e5181bb  main       -> origin/main
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:25.8307620Z HEAD is now at e5181bb Record successful five-book Pages deployment [skip ci]
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:25.8534680Z COMMERCIAL_LAW_INTEGRATION_READY library_version=2026.07.29-3
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:25.8651705Z [main 10cce43] Correct commercial law after post-publication independent reaudit
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:25.8652903Z  1 file changed, 35 insertions(+), 8 deletions(-)
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:26.8653589Z To https://github.com/sunny20030925-cell/study-review-library
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:26.8655482Z  ! [remote rejected] HEAD -> main (refusing to allow a GitHub App to create or update workflow `.github/workflows/deploy-pages.yml` without `workflows` permission)
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:26.8657180Z error: failed to push some refs to 'https://github.com/sunny20030925-cell/study-review-library'
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:29.8678848Z integration attempt=5
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:30.2769480Z From https://github.com/sunny20030925-cell/study-review-library
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:30.2770558Z  * branch            main       -> FETCH_HEAD
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:30.2835665Z HEAD is now at e5181bb Record successful five-book Pages deployment [skip ci]
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:30.3055961Z COMMERCIAL_LAW_INTEGRATION_READY library_version=2026.07.29-3
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:30.3172969Z [main 4402f62] Correct commercial law after post-publication independent reaudit
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:30.3174035Z  1 file changed, 35 insertions(+), 8 deletions(-)
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:31.3629950Z To https://github.com/sunny20030925-cell/study-review-library
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:31.3631219Z  ! [remote rejected] HEAD -> main (refusing to allow a GitHub App to create or update workflow `.github/workflows/deploy-pages.yml` without `workflows` permission)
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:31.3632609Z error: failed to push some refs to 'https://github.com/sunny20030925-cell/study-review-library'
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:34.3656123Z commercial law integration push failed after bounded retries
+integrate	Apply to latest main with bounded retries	2026-07-28T19:47:34.3671853Z ##[error]Process completed with exit code 1.
+
