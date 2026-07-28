@@ -1,0 +1,52 @@
+name: Diagnose commercial law reaudit patch
+
+on:
+  push:
+    paths:
+      - 'docs/books/commercial-law/diagnose_reaudit.txt'
+
+permissions:
+  contents: write
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Generate commercial law and run correction patch
+        run: |
+          set +e
+          {
+            curl -L --fail --retry 5 --retry-all-errors --connect-timeout 20 \
+              'https://drive.usercontent.google.com/download?id=1rgPS62bIZOWC8H3zSrw-RBZ3jkg9SDcs&export=download&confirm=t' \
+              -o site.zip
+            echo 'ece2a68f5bdaf7fd82c3897bf49a9628121e9775f6b75ee7d7b375c1bbe01600  site.zip' | sha256sum --check -
+            mkdir _site
+            python -m zipfile -e site.zip _site
+            cat deploy/generate-commercial-law.py.gz.b64.part* | base64 --decode > /tmp/generate-commercial-law.py.gz
+            echo '85843044d6fee2f0c5d11208754a4d6b103402392d3a44511745a146874dcdfc  /tmp/generate-commercial-law.py.gz' | sha256sum --check -
+            gzip --decompress --stdout /tmp/generate-commercial-law.py.gz > /tmp/generate-commercial-law.py
+            python /tmp/generate-commercial-law.py _site
+            python deploy/patch-commercial-law-reaudit.py _site
+          } > /tmp/reaudit.log 2>&1
+          rc=$?
+          set -e
+          python - "$rc" <<'PY'
+          import sys
+          from pathlib import Path
+          rc = int(sys.argv[1])
+          log = Path('/tmp/reaudit.log').read_text(encoding='utf-8', errors='replace')
+          Path('docs/books/commercial-law/reaudit_patch_diagnostic.txt').write_text(
+              f'exit={rc}\n\n' + log[-30000:] + '\n', encoding='utf-8')
+          PY
+      - name: Commit diagnostic
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add docs/books/commercial-law/reaudit_patch_diagnostic.txt
+          git commit -m "Record commercial law reaudit patch diagnostic [skip ci]"
+          git fetch origin main
+          git rebase origin/main
+          git push origin HEAD:main
