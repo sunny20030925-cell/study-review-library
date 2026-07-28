@@ -1,9 +1,9 @@
 {
   "status": "success",
-  "library_version": "2026.07.29-1",
+  "library_version": "2026.07.29-2",
   "book_versions_visible": true,
   "progress_storage_changed": false,
-  "book_count": 4,
+  "book_count": 5,
   "accounting_version": "2026.07.27-2",
   "economics_version": "2026.07.27-2",
   "economics_question_count": 100,
@@ -15,11 +15,14 @@
   "statistics_search_count": 169,
   "statistics_figure_count": 19,
   "statistics_content_audit": "passed",
-  "source_commit": "623793d72964a33c56d8add62f8c32d70d1a2042",
-  "workflow_run_id": "30384714915",
+  "commercial_law_version": "2026.07.28-1",
+  "commercial_law_chapter_count": 18,
+  "commercial_law_question_count": 90,
+  "commercial_law_search_count": 111,
+  "commercial_law_figure_count": 18,
+  "commercial_law_content_audit": "passed",
+  "source_commit": "cda67131fcd887f38dac66b7d3aad02e20c10b9c",
+  "workflow_run_id": "30388909496",
   "page_url": "https://sunny20030925-cell.github.io/study-review-library/",
-  "deployed_at": "2026-07-28T17:50:54Z",
-  "pages_deployment": "success",
-  "workflow_conclusion": "failure_after_receipt_push_conflict",
-  "receipt_recovered_via_github_connector": true
+  "deployed_at": "2026-07-28T18:46:06.900582+00:00"
 }
