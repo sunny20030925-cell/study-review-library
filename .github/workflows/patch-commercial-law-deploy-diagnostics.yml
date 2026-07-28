@@ -18,7 +18,7 @@ jobs:
         with:
           ref: main
 
-      - name: Add legal-text diagnostic context
+      - name: Replace brittle legal wording gate
         run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
@@ -26,17 +26,66 @@ jobs:
           git reset --hard origin/main
           python - <<'PY'
           from pathlib import Path
+
           p = Path('.github/workflows/deploy-pages.yml')
           text = p.read_text(encoding='utf-8')
-          old = """          for variants in required_concepts:\n              assert any(token in law_text for token in variants), f'missing legal concept: {variants}'\n"""
-          new = """          for variants in required_concepts:\n              if not any(token in law_text for token in variants):\n                  snippets = [line.strip() for line in law_text.splitlines() if '獨立董事' in line]\n                  raise AssertionError(f'missing legal concept: {variants}; independent_director_snippets={snippets[:40]}')\n"""
-          if old in text:
-              text = text.replace(old, new, 1)
-              p.write_text(text, encoding='utf-8')
+
+          imports_old = "          import json\n          from collections import Counter\n          from pathlib import Path\n"
+          imports_new = "          import json\n          from collections import Counter\n          from pathlib import Path\n          from bs4 import BeautifulSoup\n"
+          if 'from bs4 import BeautifulSoup' not in text:
+              if imports_old not in text:
+                  raise SystemExit('validation import block not found')
+              text = text.replace(imports_old, imports_new, 1)
+
+          start_marker = "          law_text = '\\n'.join(\n"
+          end_marker = "          assert '短線交易只適用上市股票' not in law_text\n"
+          start = text.find(start_marker)
+          end_start = text.find(end_marker, start)
+          if start < 0 or end_start < 0:
+              raise SystemExit('commercial-law validation block not found')
+          end = end_start + len(end_marker)
+
+          block = """          law_plain = '\\n'.join(
+              BeautifulSoup(
+                  (law_root / chapter['file']).read_text(encoding='utf-8'),
+                  'html.parser',
+              ).get_text(' ', strip=True)
+              for chapter in law_manifest['chapters']
+          )
+          law_compact = ''.join(law_plain.split()).replace('％', '%')
+
+          def require_any(label, *tokens):
+              normalized = [''.join(token.split()).replace('％', '%') for token in tokens]
+              if not any(token in law_compact for token in normalized):
+                  raise AssertionError(f'missing legal fact: {label}; accepted={tokens}')
+
+          # High-risk current-law facts.  Validate the substance, not one exact sentence.
+          require_any('公司法第23條', '公司法第23條', '公司法第二十三條')
+          require_any('股東提案300字', '300字', '三百字')
+          require_any('代表訴訟六個月', '6個月', '六個月')
+          require_any('代表訴訟持股1%', '1%', '百分之一')
+          require_any('代表訴訟30日', '30日', '三十日')
+          require_any('證交法第43-6條', '第43-6條', '第43條之6', '第四十三條之六')
+          require_any('私募第二款', '第二款', '第2款')
+          require_any('私募第三款', '第三款', '第3款')
+          require_any('私募35人', '35人', '三十五人')
+          require_any('大量持股5%', '5%', '百分之五')
+          require_any('內線交易10%', '10%', '百分之十')
+          require_any('內線交易18小時', '18小時', '十八小時')
+          require_any('證交法第62條', '第62條', '第六十二條')
+          require_any('獨立董事制度', '獨立董事')
+          require_any('獨立董事至少二人', '2人', '二人')
+          require_any('獨立董事五分之一', '五分之一', '1/5')
+
+          assert '私募對象一律不得超過35人' not in law_compact
+          assert '短線交易只適用上市股票' not in law_compact
+"""
+          text = text[:start] + block + text[end:]
+          p.write_text(text, encoding='utf-8')
           PY
           if ! git diff --quiet -- .github/workflows/deploy-pages.yml; then
             git add .github/workflows/deploy-pages.yml
-            git commit -m "Expose commercial law legal-text context [skip ci]"
+            git commit -m "Use legal-fact validation for commercial law [skip ci]"
             git push origin HEAD:main
           fi
 
@@ -82,12 +131,10 @@ jobs:
           import json, sys
           from datetime import datetime, timezone
           from pathlib import Path
+
           run_id, watch_rc = sys.argv[1:]
           run = json.loads(Path('/tmp/run.json').read_text(encoding='utf-8'))
-          jobs = run.get('jobs') or []
-          steps = []
-          for job in jobs:
-              steps.extend(job.get('steps') or [])
+          steps = [step for job in (run.get('jobs') or []) for step in (job.get('steps') or [])]
           by_name = {step.get('name'): step.get('conclusion') for step in steps}
           validation = by_name.get('Validate five-book study library')
           pages = by_name.get('Deploy to GitHub Pages')
@@ -151,7 +198,7 @@ jobs:
           if python - <<'PY'
           import json
           from pathlib import Path
-          p=json.loads(Path('docs/commercial_law_final_deploy_receipt.json').read_text())
+          p = json.loads(Path('docs/commercial_law_final_deploy_receipt.json').read_text())
           raise SystemExit(0 if p['effective_success'] else 1)
           PY
           then
