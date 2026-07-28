@@ -1,1 +1,25 @@
-
+deploy	Apply accounting second-audit corrections	﻿2026-07-28T17:47:56.4974713Z ##[group]Run python -m pip install --disable-pip-version-check beautifulsoup4
+deploy	Apply accounting second-audit corrections	2026-07-28T17:47:56.4975180Z ^[[36;1mpython -m pip install --disable-pip-version-check beautifulsoup4^[[0m
+deploy	Apply accounting second-audit corrections	2026-07-28T17:47:56.4975527Z ^[[36;1mpython deploy/patch_accounting_v2.py _site^[[0m
+deploy	Apply accounting second-audit corrections	2026-07-28T17:47:56.4998587Z shell: /usr/bin/bash -e {0}
+deploy	Apply accounting second-audit corrections	2026-07-28T17:47:56.4998820Z env:
+deploy	Apply accounting second-audit corrections	2026-07-28T17:47:56.4999018Z   GITHUB_PAGES: true
+deploy	Apply accounting second-audit corrections	2026-07-28T17:47:56.4999184Z ##[endgroup]
+deploy	Apply accounting second-audit corrections	2026-07-28T17:48:01.4602383Z Defaulting to user installation because normal site-packages is not writeable
+deploy	Apply accounting second-audit corrections	2026-07-28T17:48:03.5331425Z Collecting beautifulsoup4
+deploy	Apply accounting second-audit corrections	2026-07-28T17:48:03.5871232Z   Downloading beautifulsoup4-4.15.0-py3-none-any.whl.metadata (3.8 kB)
+deploy	Apply accounting second-audit corrections	2026-07-28T17:48:03.7174427Z Collecting soupsieve>=1.6.1 (from beautifulsoup4)
+deploy	Apply accounting second-audit corrections	2026-07-28T17:48:03.7275141Z   Downloading soupsieve-2.9.1-py3-none-any.whl.metadata (4.6 kB)
+deploy	Apply accounting second-audit corrections	2026-07-28T17:48:03.7353956Z Requirement already satisfied: typing-extensions>=4.0.0 in /usr/lib/python3/dist-packages (from beautifulsoup4) (4.10.0)
+deploy	Apply accounting second-audit corrections	2026-07-28T17:48:03.7463807Z Downloading beautifulsoup4-4.15.0-py3-none-any.whl (109 kB)
+deploy	Apply accounting second-audit corrections	2026-07-28T17:48:03.7713190Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 109.9/109.9 kB 4.6 MB/s eta 0:00:00
+deploy	Apply accounting second-audit corrections	2026-07-28T17:48:03.7813880Z Downloading soupsieve-2.9.1-py3-none-any.whl (37 kB)
+deploy	Apply accounting second-audit corrections	2026-07-28T17:48:04.0695801Z Installing collected packages: soupsieve, beautifulsoup4
+deploy	Apply accounting second-audit corrections	2026-07-28T17:48:04.2641852Z Successfully installed beautifulsoup4-4.15.0 soupsieve-2.9.1
+deploy	Apply accounting second-audit corrections	2026-07-28T17:48:04.6450939Z Traceback (most recent call last):
+deploy	Apply accounting second-audit corrections	2026-07-28T17:48:04.6451817Z   File "/home/runner/work/study-review-library/study-review-library/deploy/patch_accounting_v2.py", line 206, in <module>
+deploy	Apply accounting second-audit corrections	2026-07-28T17:48:04.6453259Z     replace(Path('sw.js'),"const VERSION = 'study-library-2026-07-27-5';","const VERSION = 'study-library-2026-07-27-7';",'service worker version')
+deploy	Apply accounting second-audit corrections	2026-07-28T17:48:04.6454991Z   File "/home/runner/work/study-review-library/study-review-library/deploy/patch_accounting_v2.py", line 17, in replace
+deploy	Apply accounting second-audit corrections	2026-07-28T17:48:04.6456113Z     raise AssertionError(f'missing replacement {label} in {path}')
+deploy	Apply accounting second-audit corrections	2026-07-28T17:48:04.6456914Z AssertionError: missing replacement service worker version in sw.js
+deploy	Apply accounting second-audit corrections	2026-07-28T17:48:04.6656969Z ##[error]Process completed with exit code 1.
