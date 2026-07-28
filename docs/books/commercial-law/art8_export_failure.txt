@@ -1,0 +1,16 @@
+export	Commit candidate as ordinary files	﻿2026-07-28T20:15:22.0786882Z ##[group]Run git config user.name github-actions[bot]
+export	Commit candidate as ordinary files	2026-07-28T20:15:22.0788371Z ^[[36;1mgit config user.name github-actions[bot]^[[0m
+export	Commit candidate as ordinary files	2026-07-28T20:15:22.0790118Z ^[[36;1mgit config user.email 41898282+github-actions[bot]@users.noreply.github.com^[[0m
+export	Commit candidate as ordinary files	2026-07-28T20:15:22.0793162Z ^[[36;1mgit add docs/books/commercial-law/deploy-pages-art8-fix-preview.yml docs/books/commercial-law/art8_fix_candidate.json^[[0m
+export	Commit candidate as ordinary files	2026-07-28T20:15:22.0795841Z ^[[36;1mgit commit -m "Export Article 8 current-law fix candidate [skip ci]"^[[0m
+export	Commit candidate as ordinary files	2026-07-28T20:15:22.0797377Z ^[[36;1mgit fetch origin main^[[0m
+export	Commit candidate as ordinary files	2026-07-28T20:15:22.0798392Z ^[[36;1mgit rebase origin/main^[[0m
+export	Commit candidate as ordinary files	2026-07-28T20:15:22.0799431Z ^[[36;1mgit push origin HEAD:main^[[0m
+export	Commit candidate as ordinary files	2026-07-28T20:15:22.0826549Z shell: /usr/bin/bash -e {0}
+export	Commit candidate as ordinary files	2026-07-28T20:15:22.0827577Z ##[endgroup]
+export	Commit candidate as ordinary files	2026-07-28T20:15:22.0955474Z On branch main
+export	Commit candidate as ordinary files	2026-07-28T20:15:22.0956582Z Your branch is up to date with 'origin/main'.
+export	Commit candidate as ordinary files	2026-07-28T20:15:22.0958271Z 
+export	Commit candidate as ordinary files	2026-07-28T20:15:22.0958932Z nothing to commit, working tree clean
+export	Commit candidate as ordinary files	2026-07-28T20:15:22.0972302Z ##[error]Process completed with exit code 1.
+
