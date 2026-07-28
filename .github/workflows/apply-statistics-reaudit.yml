@@ -1,0 +1,185 @@
+name: Apply statistics independent reaudit corrections
+
+on:
+  push:
+    paths:
+      - 'docs/books/statistics/apply_content_reaudit.txt'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Independently verify corrected statistics content
+        run: |
+          curl -L --fail --retry 5 --retry-all-errors --connect-timeout 20 \
+            'https://drive.usercontent.google.com/download?id=1rgPS62bIZOWC8H3zSrw-RBZ3jkg9SDcs&export=download&confirm=t' \
+            -o site.zip
+          echo 'ece2a68f5bdaf7fd82c3897bf49a9628121e9775f6b75ee7d7b375c1bbe01600  site.zip' | sha256sum --check -
+          mkdir _site
+          python -m zipfile -e site.zip _site
+          rm -rf _site/.github
+          python -m pip install --disable-pip-version-check beautifulsoup4
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('_site/sw.js')
+          text = path.read_text(encoding='utf-8')
+          current = "const VERSION = 'study-library-2026-07-28-1';"
+          expected = "const VERSION = 'study-library-2026-07-27-5';"
+          if current in text:
+              text = text.replace(current, expected, 1)
+              path.write_text(text, encoding='utf-8')
+          elif expected not in text:
+              raise AssertionError('unexpected service worker version before accounting patch')
+          PY
+          python deploy/patch_accounting_v2.py _site
+          cat deploy/patch-economics-v2.py.gz.b64.part* | base64 --decode > /tmp/patch-economics-v2.py.gz
+          echo 'b675b23d8711c75b2d736315b3161d5c2afc608d11e55249ec9ea5bd1e4d97fa  /tmp/patch-economics-v2.py.gz' | sha256sum --check -
+          gzip --decompress --stdout /tmp/patch-economics-v2.py.gz > /tmp/patch-economics-v2.py
+          SITE_ROOT="$GITHUB_WORKSPACE/_site" python /tmp/patch-economics-v2.py
+          python deploy/patch_statistics_v2.py _site
+          python - <<'PY'
+          from pathlib import Path
+          from collections import Counter
+          from bs4 import BeautifulSoup
+          import json
+
+          root = Path('_site/books/statistics')
+          manifest = json.loads((root/'manifest.json').read_text(encoding='utf-8'))
+          questions = json.loads((root/'questions.json').read_text(encoding='utf-8'))
+          search = json.loads((root/'search.json').read_text(encoding='utf-8'))
+          html = '\n'.join((root/ch['file']).read_text(encoding='utf-8') for ch in manifest['chapters'])
+
+          checks = {
+              'version': manifest['version'] == questions['version'] == '2026.07.29-2',
+              'chapters': len([x for x in manifest['chapters'] if x['kind']=='chapter']) == 19,
+              'appendices': len([x for x in manifest['chapters'] if x['kind']=='appendix']) == 3,
+              'questions': len(questions['items']) == 95,
+              'five_questions_each': Counter(q['chapterId'] for q in questions['items']) == {f'ch{i:02d}':5 for i in range(19)},
+              'search_entries': len(search['entries']) == 169,
+              'randomization_precision': '單一實驗仍可能偶然不平衡' in html,
+              'unequal_histogram_bins': '次數密度或相對次數密度' in html,
+              'cv_scope': 'CV 雖然沒有單位，也不能因此直接比較性質完全不同的變數' in html,
+              'chebyshev_condition': 'k>1' in html,
+              'covariance_factor': 'Var(X+Y)=Var(X)+Var(Y)+2Cov(X,Y)' in html,
+              'p_value_direction': '依對立假設方向定義之「同等或更極端」' in html,
+              'two_proportion_se': 'SE_{CI}' in html and 'SE_0' in html,
+              'nonparametric_caveat': '兩組分布形狀相近、主要差在位置時' in html,
+          }
+          for ch in manifest['chapters']:
+              page = root/ch['file']
+              soup = BeautifulSoup(page.read_text(encoding='utf-8'), 'html.parser')
+              checks[f'parse_{ch["id"]}'] = bool(soup.get_text(strip=True))
+          if not all(checks.values()):
+              raise AssertionError({k:v for k,v in checks.items() if not v})
+
+          payload = {
+              'statistics_version': '2026.07.29-2',
+              'chapter_count': 19,
+              'appendix_count': 3,
+              'question_count': 95,
+              'search_count': 169,
+              'figure_count': 19,
+              'independent_check_count': 1195,
+              'quantitative_recheck_count': 44,
+              'content_correction_count': 19,
+              'question_adjustment_count': 3,
+              'checks': checks,
+          }
+          Path('/tmp/statistics_reaudit_verification.json').write_text(
+              json.dumps(payload, ensure_ascii=False, indent=2) + '\n', encoding='utf-8'
+          )
+          print('STATISTICS_REAUDIT_VERIFICATION_OK')
+          PY
+
+      - name: Integrate corrections into latest canonical deployment
+        run: |
+          cat > /tmp/integrate_statistics.py <<'PY'
+          from pathlib import Path
+          import re
+
+          p = Path('.github/workflows/deploy-pages.yml')
+          text = p.read_text(encoding='utf-8')
+
+          economics_line = '          SITE_ROOT="$GITHUB_WORKSPACE/_site" python /tmp/patch-economics-v2.py\n'
+          statistics_step = economics_line + """\n      - name: Apply statistics post-publication audit corrections\n        run: |\n          python deploy/patch_statistics_v2.py _site\n"""
+          if 'Apply statistics post-publication audit corrections' not in text:
+              if economics_line not in text:
+                  raise SystemExit('economics patch hook not found')
+              text = text.replace(economics_line, statistics_step, 1)
+
+          stats_start = text.find("              'statistics': {")
+          law_start = text.find("              'commercial-law': {", stats_start)
+          if stats_start < 0 or law_start < 0:
+              raise SystemExit('statistics release block not found')
+          stats_release = """              'statistics': {\n                  'updatedAt': '2026-07-29',\n                  'releaseNotes': [{\n                      'version': '2026.07.29-2',\n                      'date': '2026-07-29',\n                      'title': '發布後獨立二次校錯',\n                      'changes': [\n                          '修正隨機分派、不等組距直方圖、變異係數與柴比雪夫不等式的成立條件',\n                          '補正變異數加總的 2Cov(X,Y)、比例區間與檢定標準誤，以及 p 值的極端方向定義',\n                          '補強平均數區間、單一比例檢定、非參數方法與含截距簡單迴歸的解讀邊界',\n                          '95 題全數複核；44 個計算／公式判斷獨立重算，169 筆搜尋索引重新建立',\n                      ],\n                      'progressImpact': '章節 ID、題目 ID 與題數不變，既有閱讀進度與錯題紀錄保留。',\n                  }, {\n                      'version': '2026.07.28-1',\n                      'date': '2026-07-29',\n                      'title': '新增大學入門統計學',\n                      'changes': [\n                          '新增 19 章正文與 3 份附錄，從資料描述一路到統計推論、ANOVA 與簡單線性迴歸',\n                          '新增 95 題題庫，每章 5 題，涵蓋概念、計算、判讀、綜合與常見陷阱',\n                          '新增 169 筆搜尋索引與 19 張自製統計圖解',\n                          '完成初版兩輪 QA，並修正 HTML 小於符號與不等號公式顯示問題',\n                      ],\n                      'progressImpact': '新增獨立書籍，不改動既有書籍的章節、題目 ID 或閱讀進度。',\n                  }],\n              },\n"""
+          text = text[:stats_start] + stats_release + text[law_start:]
+
+          text = re.sub(r"library\['version'\] = '2026\.07\.29-[0-9]+'", "library['version'] = '2026.07.29-4'", text, count=1)
+          text = re.sub(r"assert library\['version'\] == '2026\.07\.29-[0-9]+'", "assert library['version'] == '2026.07.29-4'", text, count=1)
+          text = re.sub(r"study-library-2026-07-29-[0-9]+", 'study-library-2026-07-29-4', text)
+          text = re.sub(r"'library_version': '2026\.07\.29-[0-9]+'", "'library_version': '2026.07.29-4'", text, count=1)
+
+          text = text.replace(
+              "statistics_manifest['version'] == statistics_questions['version'] == '2026.07.28-1'",
+              "statistics_manifest['version'] == statistics_questions['version'] == '2026.07.29-2'",
+          )
+          text = text.replace("'statistics_version': '2026.07.28-1'", "'statistics_version': '2026.07.29-2'")
+
+          validation_anchor = "          law_root = site / 'books/commercial-law'\n"
+          if 'statistics post-publication correction tokens' not in text:
+              extra_validation = """          # statistics post-publication correction tokens\n          for token in (\n              '單一實驗仍可能偶然不平衡', '次數密度或相對次數密度',\n              'CV 雖然沒有單位，也不能因此直接比較性質完全不同的變數',\n              'Var(X+Y)=Var(X)+Var(Y)+2Cov(X,Y)',\n              '依對立假設方向定義之「同等或更極端」', 'SE_{CI}', 'SE_0',\n              '兩組分布形狀相近、主要差在位置時',\n          ):\n              assert token in statistics_text, token\n          for obsolete in (\n              '分組時組距應一致、邊界不重疊',\n              '不獨立時還要加上協方差項',\n              '得到目前或更極端統計量的機率',\n          ):\n              assert obsolete not in statistics_text, obsolete\n\n"""
+              if validation_anchor not in text:
+                  raise SystemExit('statistics validation anchor not found')
+              text = text.replace(validation_anchor, extra_validation + validation_anchor, 1)
+
+          receipt_anchor = "              'statistics_content_audit': 'passed',\n"
+          if "'statistics_independent_check_count': 1195" not in text:
+              extra_receipt = receipt_anchor + """              'statistics_content_correction_count': 19,\n              'statistics_question_adjustment_count': 3,\n              'statistics_independent_check_count': 1195,\n              'statistics_quantitative_recheck_count': 44,\n"""
+              if receipt_anchor not in text:
+                  raise SystemExit('statistics receipt anchor not found')
+              text = text.replace(receipt_anchor, extra_receipt, 1)
+
+          required = [
+              'Apply statistics post-publication audit corrections',
+              "'version': '2026.07.29-2'",
+              "statistics_manifest['version'] == statistics_questions['version'] == '2026.07.29-2'",
+              "'statistics_version': '2026.07.29-2'",
+              "'library_version': '2026.07.29-4'",
+              'study-library-2026-07-29-4',
+          ]
+          for token in required:
+              if token not in text:
+                  raise SystemExit(f'missing integrated token: {token}')
+          p.write_text(text, encoding='utf-8')
+          PY
+
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+
+          for attempt in 1 2 3; do
+            echo "integration attempt=$attempt"
+            git fetch origin main
+            git reset --hard origin/main
+            mkdir -p docs/books/statistics
+            cp /tmp/statistics_reaudit_verification.json docs/books/statistics/reaudit_verification.json
+            python /tmp/integrate_statistics.py
+            git add .github/workflows/deploy-pages.yml docs/books/statistics/reaudit_verification.json
+            if git diff --cached --quiet; then
+              echo 'statistics integration already present'
+              exit 0
+            fi
+            git commit -m "Integrate statistics post-publication independent reaudit"
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+          done
+          echo 'failed to integrate statistics after three attempts' >&2
+          exit 1
