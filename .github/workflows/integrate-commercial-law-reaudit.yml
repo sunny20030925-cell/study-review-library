@@ -15,13 +15,17 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: main
-      - name: Update canonical five-book deployment
+
+      - name: Prepare idempotent integration patch
         run: |
-          python - <<'PY'
+          cat > /tmp/integrate_commercial_law.py <<'PY'
           from pathlib import Path
+          import re
+
           p = Path('.github/workflows/deploy-pages.yml')
           text = p.read_text(encoding='utf-8')
 
+          # Add the verified correction layer immediately after the commercial-law generator.
           if 'Apply commercial law post-publication corrections' not in text:
               old = "          python /tmp/generate-commercial-law.py _site\n\n      - name: Add visible per-book version verification"
               new = "          python /tmp/generate-commercial-law.py _site\n\n      - name: Apply commercial law post-publication corrections\n        run: |\n          python deploy/patch-commercial-law-reaudit.py _site\n\n      - name: Add visible per-book version verification"
@@ -29,16 +33,33 @@ jobs:
                   raise SystemExit('generator insertion point not found')
               text = text.replace(old, new, 1)
 
+          # Replace only the commercial-law release-note block and keep prior release history.
           start = text.find("              'commercial-law': {\n")
-          end_marker = "              },\n          }\n"
-          end = text.find(end_marker, start)
-          if start < 0 or end < 0:
-              raise SystemExit('commercial release block boundaries not found')
-          end += len("              },\n")
-          new_block = """              'commercial-law': {\n                  'updatedAt': '2026-07-29',\n                  'releaseNotes': [{\n                      'version': '2026.07.29-1',\n                      'date': '2026-07-29',\n                      'title': '發布後獨立內容複核與法律精確化',\n                      'changes': [\n                          '限縮公司法第 8 條實質董事規則至公開發行股票之公司，補正第 194 條繼續持股 1 年門檻',\n                          '補入已依證交法發行股票公司董事至少 5 人、公開發行公司董事會原則 7 日前通知與利害關係董事表決排除',\n                          '補正閉鎖性公司股東人數上限例外，以及技術與勞務出資的同意、章程與比例條件',\n                          '補足短線交易其他股權性質證券、證券商營業處所準用及內線交易非股權公司債路線；90 題同步複核',\n                      ],\n                      'progressImpact': '章節 ID、題目 ID 與題數不變，既有閱讀進度與錯題紀錄保留。',\n                  }],\n              },\n"""
-          text = text[:start] + new_block + text[end:]
+          if start < 0:
+              raise SystemExit('commercial release block start not found')
+          release_end = text.find("          }\n", start)
+          if release_end < 0:
+              raise SystemExit('release_data end not found')
+          block_end = text.rfind("              },\n", start, release_end)
+          if block_end < 0:
+              raise SystemExit('commercial release block end not found')
+          block_end += len("              },\n")
+          new_block = """              'commercial-law': {\n                  'updatedAt': '2026-07-29',\n                  'releaseNotes': [{\n                      'version': '2026.07.29-1',\n                      'date': '2026-07-29',\n                      'title': '發布後獨立內容複核與法律精確化',\n                      'changes': [\n                          '限縮公司法第 8 條實質董事規則至公開發行股票之公司，補正第 194 條繼續持股 1 年門檻',\n                          '補入已依證交法發行股票公司董事至少 5 人、公開發行公司董事會原則 7 日前通知與利害關係董事表決排除',\n                          '補正閉鎖性公司股東人數上限例外，以及技術與勞務出資的同意、章程與比例條件',\n                          '補足短線交易其他股權性質證券、證券商營業處所準用及內線交易非股權公司債路線；90 題全數重新複核',\n                      ],\n                      'progressImpact': '章節 ID、題目 ID 與題數不變，既有閱讀進度與錯題紀錄保留。',\n                  }, {\n                      'version': '2026.07.28-1',\n                      'date': '2026-07-29',\n                      'title': '新增商事法重點整理',\n                      'changes': [\n                          '以公司法與證券交易法為核心，新增 18 章正文與 3 份附錄',\n                          '新增 90 題題庫，每章 5 題，涵蓋法條、要件、責任、程序與常見陷阱',\n                          '新增 111 筆搜尋索引、18 張自製圖解與法條速查功能',\n                          '完成初版兩輪內容與題庫 QA',\n                      ],\n                      'progressImpact': '新增獨立書籍，不改動既有書籍的章節、題目 ID 或閱讀進度。',\n                  }],\n              },\n"""
+          text = text[:start] + new_block + text[block_end:]
 
-          text = text.replace("2026.07.29-2", "2026.07.29-3")
+          # Advance the library release number from whatever is currently canonical.
+          m = re.search(r"library\['version'\] = '2026\.07\.29-(\d+)'", text)
+          if not m:
+              raise SystemExit('current library version not found')
+          current_suffix = int(m.group(1))
+          target_suffix = max(current_suffix + 1, 3)
+          target = f'2026.07.29-{target_suffix}'
+          sw_target = f'study-library-{target}'
+          text = re.sub(r"library\['version'\] = '2026\.07\.29-\d+'", f"library['version'] = '{target}'", text, count=1)
+          text = re.sub(r"assert library\['version'\] == '2026\.07\.29-\d+'", f"assert library['version'] == '{target}'", text, count=1)
+          text = re.sub(r"study-library-2026-07-29-\d+", sw_target, text)
+          text = re.sub(r"'library_version': '2026\.07\.29-\d+'", f"'library_version': '{target}'", text, count=1)
+
           text = text.replace(
               "law_manifest['version'] == law_questions['version'] == '2026.07.28-1'",
               "law_manifest['version'] == law_questions['version'] == '2026.07.29-1'",
@@ -50,19 +71,73 @@ jobs:
 
           anchor = "          require_any('證交法第62條', '第62條', '第六十二條')\n"
           if '公開發行公司董事會七日通知' not in text:
-              extra = anchor + """          require_any('公開發行股票公司實質董事範圍', '第8條第3項只針對公開發行股票之公司')\n          require_any('已依證交法發行股票公司董事至少五人', '董事會不得少於5人', '董事至少5人')\n          require_any('公開發行公司董事會七日通知', '7日前通知', '七日前通知')\n          require_any('公司法第194條一年持有期間', '繼續1年以上', '繼續一年以上')\n          require_any('短線交易其他股權性質證券', '其他具有股權性質之有價證券')\n          require_any('內線交易非股權公司債', '非股權性質公司債')\n"""
               if anchor not in text:
                   raise SystemExit('legal validator anchor not found')
+              extra = anchor + """          require_any('公開發行股票公司實質董事範圍', '第8條第3項只針對公開發行股票之公司')\n          require_any('已依證交法發行股票公司董事至少五人', '董事會不得少於5人', '董事至少5人')\n          require_any('公開發行公司董事會七日通知', '7日前通知', '七日前通知')\n          require_any('利害關係董事表決排除', '不得加入表決', '不算入已出席董事的表決權數')\n          require_any('公司法第194條一年持有期間', '繼續1年以上', '繼續一年以上')\n          require_any('閉鎖公司股東上限例外', '中央主管機關得視社會經濟情況及實際需要增加股東人數上限')\n          require_any('短線交易其他股權性質證券', '其他具有股權性質之有價證券')\n          require_any('內線交易非股權公司債', '非股權性質公司債')\n"""
               text = text.replace(anchor, extra, 1)
 
-          if "'version': '2026.07.29-1'" not in text or "study-library-2026-07-29-3" not in text:
-              raise SystemExit('version integration incomplete')
+          # Guard against regression to the overbroad Art. 8 wording.
+          forbidden_anchor = "          assert '短線交易只適用上市股票' not in law_compact\n"
+          if '實質控制公司而指揮董事者，也可能負相應責任' not in text:
+              if forbidden_anchor not in text:
+                  raise SystemExit('negative validation anchor not found')
+              text = text.replace(
+                  forbidden_anchor,
+                  forbidden_anchor + "          assert '實質控制公司而指揮董事者，也可能負相應責任' not in law_compact\n",
+                  1,
+              )
+
+          receipt_anchor = "              'commercial_law_content_audit': 'passed',\n"
+          if "'commercial_law_question_adjustment_count': 6" not in text:
+              if receipt_anchor not in text:
+                  raise SystemExit('commercial receipt anchor not found')
+              text = text.replace(
+                  receipt_anchor,
+                  receipt_anchor
+                  + "              'commercial_law_content_correction_count': 12,\n"
+                  + "              'commercial_law_question_adjustment_count': 6,\n"
+                  + "              'commercial_law_post_publication_reaudit': 'passed',\n",
+                  1,
+              )
+
+          required = [
+              'Apply commercial law post-publication corrections',
+              "'version': '2026.07.29-1'",
+              "law_manifest['version'] == law_questions['version'] == '2026.07.29-1'",
+              "'commercial_law_version': '2026.07.29-1'",
+              sw_target,
+              f"'library_version': '{target}'",
+              '公開發行公司董事會七日通知',
+              "'commercial_law_question_adjustment_count': 6",
+          ]
+          for token in required:
+              if token not in text:
+                  raise SystemExit(f'missing integrated token: {token}')
+
           p.write_text(text, encoding='utf-8')
+          print(f'COMMERCIAL_LAW_INTEGRATION_READY library_version={target}')
           PY
+
+      - name: Apply to latest main with bounded retries
+        run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add .github/workflows/deploy-pages.yml deploy/patch-commercial-law-reaudit.py
-          git commit -m "Correct commercial law after post-publication independent reaudit"
-          git fetch origin main
-          git rebase origin/main
-          git push origin HEAD:main
+
+          for attempt in 1 2 3 4 5; do
+            echo "integration attempt=$attempt"
+            git fetch origin main
+            git reset --hard origin/main
+            python /tmp/integrate_commercial_law.py
+            git add .github/workflows/deploy-pages.yml deploy/patch-commercial-law-reaudit.py
+            if git diff --cached --quiet; then
+              echo 'commercial law integration already present'
+              exit 0
+            fi
+            git commit -m "Correct commercial law after post-publication independent reaudit"
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep 3
+          done
+          echo 'commercial law integration push failed after bounded retries' >&2
+          exit 1
