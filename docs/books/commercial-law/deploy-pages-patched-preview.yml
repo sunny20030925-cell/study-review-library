@@ -255,7 +255,7 @@ jobs:
 
           sw_path = site / 'sw.js'
           sw = sw_path.read_text(encoding='utf-8')
-          sw = re.sub(r"const VERSION = 'study-library-[^']+';", "const VERSION = 'study-library-2026.07.29-5';", sw, count=1)
+          sw = re.sub(r"const VERSION = 'study-library-[^']+';", "const VERSION = 'study-library-2026-07-29-5';", sw, count=1)
           sw_path.write_text(sw, encoding='utf-8')
           PY
 
@@ -436,7 +436,7 @@ jobs:
           assert '內容版本 ${escapeHtml(manifest.version' in app
           assert '.release-notes{' in css
           assert '法條速查' in app
-          assert 'study-library-2026.07.29-5' in sw
+          assert 'study-library-2026-07-29-5' in sw
           assert './books/statistics/manifest.json' in sw
           assert './books/statistics/chapters/ch18.html' in sw
           assert './assets/statistics-svg/anova.svg' in sw
