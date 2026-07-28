@@ -74,6 +74,10 @@ jobs:
           gzip --decompress --stdout /tmp/generate-commercial-law.py.gz > /tmp/generate-commercial-law.py
           python /tmp/generate-commercial-law.py _site
 
+      - name: Apply commercial law post-publication corrections
+        run: |
+          python deploy/patch-commercial-law-reaudit.py _site
+
       - name: Add visible per-book version verification
         run: |
           python - <<'PY'
@@ -158,6 +162,17 @@ jobs:
               'commercial-law': {
                   'updatedAt': '2026-07-29',
                   'releaseNotes': [{
+                      'version': '2026.07.29-1',
+                      'date': '2026-07-29',
+                      'title': '發布後獨立內容複核與法律精確化',
+                      'changes': [
+                          '限縮公司法第 8 條實質董事規則至公開發行股票之公司，補正第 194 條繼續持股 1 年門檻',
+                          '補入已依證交法發行股票公司董事至少 5 人、公開發行公司董事會原則 7 日前通知與利害關係董事表決排除',
+                          '補正閉鎖性公司股東人數上限例外，以及技術與勞務出資的同意、章程與比例條件',
+                          '補足短線交易其他股權性質證券、證券商營業處所準用及內線交易非股權公司債路線；90 題全數重新複核',
+                      ],
+                      'progressImpact': '章節 ID、題目 ID 與題數不變，既有閱讀進度與錯題紀錄保留。',
+                  }, {
                       'version': '2026.07.28-1',
                       'date': '2026-07-29',
                       'title': '新增商事法重點整理',
@@ -165,7 +180,7 @@ jobs:
                           '以公司法與證券交易法為核心，新增 18 章正文與 3 份附錄',
                           '新增 90 題題庫，每章 5 題，涵蓋法條、要件、責任、程序與常見陷阱',
                           '新增 111 筆搜尋索引、18 張自製圖解與法條速查功能',
-                          '完成兩輪內容與題庫 QA，並複核重要門檻、期間與責任規則',
+                          '完成初版兩輪內容與題庫 QA',
                       ],
                       'progressImpact': '新增獨立書籍，不改動既有書籍的章節、題目 ID 或閱讀進度。',
                   }],
@@ -179,7 +194,7 @@ jobs:
 
           library_path = site / 'data/library.json'
           library = json.loads(library_path.read_text(encoding='utf-8'))
-          library['version'] = '2026.07.29-4'
+          library['version'] = '2026.07.29-5'
           library_path.write_text(json.dumps(library, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
 
           app_path = site / 'app.js'
@@ -240,7 +255,7 @@ jobs:
 
           sw_path = site / 'sw.js'
           sw = sw_path.read_text(encoding='utf-8')
-          sw = re.sub(r"const VERSION = 'study-library-[^']+';", "const VERSION = 'study-library-2026-07-29-4';", sw, count=1)
+          sw = re.sub(r"const VERSION = 'study-library-[^']+';", "const VERSION = 'study-library-2026-07-29-5';", sw, count=1)
           sw_path.write_text(sw, encoding='utf-8')
           PY
 
@@ -253,7 +268,7 @@ jobs:
 
           site = Path('_site')
           library = json.loads((site / 'data/library.json').read_text(encoding='utf-8'))
-          assert library['version'] == '2026.07.29-4'
+          assert library['version'] == '2026.07.29-5'
           assert [book['id'] for book in library['books']] == ['calculus', 'accounting', 'economics', 'statistics', 'commercial-law']
 
           expected = {'calculus': 73, 'accounting': 70, 'economics': 100, 'statistics': 95, 'commercial-law': 90}
@@ -362,7 +377,7 @@ jobs:
           law_manifest = json.loads((law_root / 'manifest.json').read_text(encoding='utf-8'))
           law_questions = json.loads((law_root / 'questions.json').read_text(encoding='utf-8'))
           law_search = json.loads((law_root / 'search.json').read_text(encoding='utf-8'))
-          assert law_manifest['version'] == law_questions['version'] == '2026.07.28-1'
+          assert law_manifest['version'] == law_questions['version'] == '2026.07.29-1'
           assert len([x for x in law_manifest['chapters'] if x['kind'] == 'chapter']) == 18
           assert len([x for x in law_manifest['chapters'] if x['kind'] == 'appendix']) == 3
           assert len(law_search['entries']) == 111
@@ -393,11 +408,20 @@ jobs:
           require_any('內線交易10%', '10%', '百分之十')
           require_any('內線交易18小時', '18小時', '十八小時')
           require_any('證交法第62條', '第62條', '第六十二條')
+          require_any('公開發行股票公司實質董事範圍', '第8條第3項只針對公開發行股票之公司')
+          require_any('已依證交法發行股票公司董事至少五人', '董事會不得少於5人', '董事至少5人')
+          require_any('公開發行公司董事會七日通知', '7日前通知', '七日前通知')
+          require_any('利害關係董事表決排除', '不得加入表決', '不算入已出席董事的表決權數')
+          require_any('公司法第194條一年持有期間', '繼續1年以上', '繼續一年以上')
+          require_any('閉鎖公司股東上限例外', '中央主管機關得視社會經濟情況及實際需要增加股東人數上限')
+          require_any('短線交易其他股權性質證券', '其他具有股權性質之有價證券')
+          require_any('內線交易非股權公司債', '非股權性質公司債')
           require_any('獨立董事制度', '獨立董事')
           require_any('獨立董事至少二人', '2人', '二人')
           require_any('獨立董事五分之一', '五分之一', '1/5')
           assert '私募對象一律不得超過35人' not in law_compact
           assert '短線交易只適用上市股票' not in law_compact
+          assert '實質控制公司而指揮董事者，也可能負相應責任' not in law_compact
 
           law_figures = sorted((site / 'assets/commercial-law-svg').glob('*.svg'))
           assert len(law_figures) == 18
@@ -412,7 +436,7 @@ jobs:
           assert '內容版本 ${escapeHtml(manifest.version' in app
           assert '.release-notes{' in css
           assert '法條速查' in app
-          assert 'study-library-2026-07-29-4' in sw
+          assert 'study-library-2026-07-29-5' in sw
           assert './books/statistics/manifest.json' in sw
           assert './books/statistics/chapters/ch18.html' in sw
           assert './assets/statistics-svg/anova.svg' in sw
@@ -443,7 +467,7 @@ jobs:
 
           receipt = {
               'status': 'success',
-              'library_version': '2026.07.29-4',
+              'library_version': '2026.07.29-5',
               'book_versions_visible': True,
               'progress_storage_changed': False,
               'book_count': 5,
@@ -462,12 +486,15 @@ jobs:
               'statistics_question_adjustment_count': 3,
               'statistics_independent_check_count': 1195,
               'statistics_quantitative_recheck_count': 44,
-              'commercial_law_version': '2026.07.28-1',
+              'commercial_law_version': '2026.07.29-1',
               'commercial_law_chapter_count': 18,
               'commercial_law_question_count': 90,
               'commercial_law_search_count': 111,
               'commercial_law_figure_count': 18,
               'commercial_law_content_audit': 'passed',
+              'commercial_law_content_correction_count': 12,
+              'commercial_law_question_adjustment_count': 6,
+              'commercial_law_post_publication_reaudit': 'passed',
               'source_commit': os.environ['GITHUB_SHA'],
               'workflow_run_id': os.environ['GITHUB_RUN_ID'],
               'page_url': os.environ.get('DEPLOYED_PAGE_URL', ''),
