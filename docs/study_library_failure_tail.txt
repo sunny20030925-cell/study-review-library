@@ -1,54 +1,120 @@
-deploy	Record successful deployment	﻿2026-07-28T18:00:16.9771426Z ##[group]Run python - <<'PY'
-deploy	Record successful deployment	2026-07-28T18:00:16.9771785Z ^[[36;1mpython - <<'PY'^[[0m
-deploy	Record successful deployment	2026-07-28T18:00:16.9772021Z ^[[36;1mimport json, os^[[0m
-deploy	Record successful deployment	2026-07-28T18:00:16.9772292Z ^[[36;1mfrom datetime import datetime, timezone^[[0m
-deploy	Record successful deployment	2026-07-28T18:00:16.9772604Z ^[[36;1mfrom pathlib import Path^[[0m
-deploy	Record successful deployment	2026-07-28T18:00:16.9772848Z ^[[36;1m^[[0m
-deploy	Record successful deployment	2026-07-28T18:00:16.9773038Z ^[[36;1mreceipt = {^[[0m
-deploy	Record successful deployment	2026-07-28T18:00:16.9773254Z ^[[36;1m    'status': 'success',^[[0m
-deploy	Record successful deployment	2026-07-28T18:00:16.9773524Z ^[[36;1m    'library_version': '2026.07.29-1',^[[0m
-deploy	Record successful deployment	2026-07-28T18:00:16.9773813Z ^[[36;1m    'book_versions_visible': True,^[[0m
-deploy	Record successful deployment	2026-07-28T18:00:16.9774106Z ^[[36;1m    'progress_storage_changed': False,^[[0m
-deploy	Record successful deployment	2026-07-28T18:00:16.9774388Z ^[[36;1m    'book_count': 4,^[[0m
-deploy	Record successful deployment	2026-07-28T18:00:16.9774673Z ^[[36;1m    'accounting_version': '2026.07.27-2',^[[0m
-deploy	Record successful deployment	2026-07-28T18:00:16.9775217Z ^[[36;1m    'economics_version': '2026.07.27-2',^[[0m
-deploy	Record successful deployment	2026-07-28T18:00:16.9775647Z ^[[36;1m    'economics_question_count': 100,^[[0m
-deploy	Record successful deployment	2026-07-28T18:00:16.9775951Z ^[[36;1m    'economics_correction_count': 14,^[[0m
-deploy	Record successful deployment	2026-07-28T18:00:16.9776303Z ^[[36;1m    'economics_content_audit': 'passed',^[[0m
-deploy	Record successful deployment	2026-07-28T18:00:16.9776616Z ^[[36;1m    'statistics_version': '2026.07.28-1',^[[0m
-deploy	Record successful deployment	2026-07-28T18:00:16.9776931Z ^[[36;1m    'statistics_chapter_count': 19,^[[0m
-deploy	Record successful deployment	2026-07-28T18:00:16.9777247Z ^[[36;1m    'statistics_question_count': 95,^[[0m
-deploy	Record successful deployment	2026-07-28T18:00:16.9777544Z ^[[36;1m    'statistics_search_count': 169,^[[0m
-deploy	Record successful deployment	2026-07-28T18:00:16.9777834Z ^[[36;1m    'statistics_figure_count': 19,^[[0m
-deploy	Record successful deployment	2026-07-28T18:00:16.9778135Z ^[[36;1m    'statistics_content_audit': 'passed',^[[0m
-deploy	Record successful deployment	2026-07-28T18:00:16.9778484Z ^[[36;1m    'source_commit': os.environ['GITHUB_SHA'],^[[0m
-deploy	Record successful deployment	2026-07-28T18:00:16.9778847Z ^[[36;1m    'workflow_run_id': os.environ['GITHUB_RUN_ID'],^[[0m
-deploy	Record successful deployment	2026-07-28T18:00:16.9779395Z ^[[36;1m    'page_url': os.environ.get('DEPLOYED_PAGE_URL', ''),^[[0m
-deploy	Record successful deployment	2026-07-28T18:00:16.9779809Z ^[[36;1m    'deployed_at': datetime.now(timezone.utc).isoformat(),^[[0m
-deploy	Record successful deployment	2026-07-28T18:00:16.9780149Z ^[[36;1m}^[[0m
-deploy	Record successful deployment	2026-07-28T18:00:16.9780436Z ^[[36;1mPath('docs/deployment_receipt.json').write_text(^[[0m
-deploy	Record successful deployment	2026-07-28T18:00:16.9780839Z ^[[36;1m    json.dumps(receipt, ensure_ascii=False, indent=2) + '\n',^[[0m
-deploy	Record successful deployment	2026-07-28T18:00:16.9781195Z ^[[36;1m    encoding='utf-8',^[[0m
-deploy	Record successful deployment	2026-07-28T18:00:16.9803179Z ^[[36;1m)^[[0m
-deploy	Record successful deployment	2026-07-28T18:00:16.9803558Z ^[[36;1mPY^[[0m
-deploy	Record successful deployment	2026-07-28T18:00:16.9803909Z ^[[36;1mgit config user.name github-actions[bot]^[[0m
-deploy	Record successful deployment	2026-07-28T18:00:16.9804564Z ^[[36;1mgit config user.email 41898282+github-actions[bot]@users.noreply.github.com^[[0m
-deploy	Record successful deployment	2026-07-28T18:00:16.9805307Z ^[[36;1mgit add docs/deployment_receipt.json^[[0m
-deploy	Record successful deployment	2026-07-28T18:00:16.9806006Z ^[[36;1mgit commit -m "Record successful Pages deployment [skip ci]"^[[0m
-deploy	Record successful deployment	2026-07-28T18:00:16.9806592Z ^[[36;1mgit push origin HEAD:main^[[0m
-deploy	Record successful deployment	2026-07-28T18:00:16.9834640Z shell: /usr/bin/bash -e {0}
-deploy	Record successful deployment	2026-07-28T18:00:16.9835144Z env:
-deploy	Record successful deployment	2026-07-28T18:00:16.9835351Z   GITHUB_PAGES: true
-deploy	Record successful deployment	2026-07-28T18:00:16.9835747Z   DEPLOYED_PAGE_URL: https://sunny20030925-cell.github.io/study-review-library/
-deploy	Record successful deployment	2026-07-28T18:00:16.9836154Z ##[endgroup]
-deploy	Record successful deployment	2026-07-28T18:00:17.0220510Z [main 62285ba] Record successful Pages deployment [skip ci]
-deploy	Record successful deployment	2026-07-28T18:00:17.0221193Z  1 file changed, 3 insertions(+), 6 deletions(-)
-deploy	Record successful deployment	2026-07-28T18:00:17.4700236Z To https://github.com/sunny20030925-cell/study-review-library
-deploy	Record successful deployment	2026-07-28T18:00:17.4700781Z  ! [rejected]        HEAD -> main (fetch first)
-deploy	Record successful deployment	2026-07-28T18:00:17.4701336Z error: failed to push some refs to 'https://github.com/sunny20030925-cell/study-review-library'
-deploy	Record successful deployment	2026-07-28T18:00:17.4711911Z hint: Updates were rejected because the remote contains work that you do not
-deploy	Record successful deployment	2026-07-28T18:00:17.4712605Z hint: have locally. This is usually caused by another repository pushing to
-deploy	Record successful deployment	2026-07-28T18:00:17.4713187Z hint: the same ref. If you want to integrate the remote changes, use
-deploy	Record successful deployment	2026-07-28T18:00:17.4713616Z hint: 'git pull' before pushing again.
-deploy	Record successful deployment	2026-07-28T18:00:17.4714047Z hint: See the 'Note about fast-forwards' in 'git push --help' for details.
-deploy	Record successful deployment	2026-07-28T18:00:17.4728882Z ##[error]Process completed with exit code 1.
+deploy	Validate five-book study library	2026-07-28T18:03:15.8648915Z ^[[36;1meconomics_search = json.loads((economics_root / 'search.json').read_text(encoding='utf-8'))^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8649524Z ^[[36;1massert economics_manifest['version'] == economics_questions['version'] == '2026.07.27-2'^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8650109Z ^[[36;1massert len([x for x in economics_manifest['chapters'] if x['kind'] == 'chapter']) == 20^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8650934Z ^[[36;1massert len([x for x in economics_manifest['chapters'] if x['kind'] == 'appendix']) == 3^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8651518Z ^[[36;1massert len(economics_search['entries']) == 144^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8652036Z ^[[36;1massert Counter(q['chapterId'] for q in economics_questions['items']) == {f'ch{i:02d}': 5 for i in range(20)}^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8652503Z ^[[36;1m^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8652692Z ^[[36;1meconomics_text = '\n'.join(^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8653041Z ^[[36;1m    (economics_root / chapter['file']).read_text(encoding='utf-8')^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8653441Z ^[[36;1m    for chapter in economics_manifest['chapters']^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8653730Z ^[[36;1m)^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8653914Z ^[[36;1mfor token in (^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8654145Z ^[[36;1m    '與租稅相反的價格楔', '兩者不是同一個定義', '資源稟賦',^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8654414Z ^[[36;1m    '正生產外部性', 'T 表示淨稅收', '簡單存款乘數',^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8654686Z ^[[36;1m    '實質貨幣餘額', '定額淨稅收乘數', '完整國際收支中',^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8654934Z ^[[36;1m    '非競爭性且非排他性',^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8655136Z ^[[36;1m):^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8655328Z ^[[36;1m    assert token in economics_text^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8655598Z ^[[36;1mfor obsolete in (^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8655816Z ^[[36;1m    '補貼降低買賣雙方的有效成本',^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8656031Z ^[[36;1m    '平均成本不變為規模報酬不變',^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8656239Z ^[[36;1m    '資源禀賦',^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8656432Z ^[[36;1m    '非敵對且難排他的財',^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8656633Z ^[[36;1m):^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8656847Z ^[[36;1m    assert obsolete not in economics_text^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8657118Z ^[[36;1m^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8657421Z ^[[36;1meconomics_figures = sorted((site / 'assets/economics-svg').glob('*.svg'))^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8657826Z ^[[36;1massert len(economics_figures) == 20^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8658109Z ^[[36;1mfor figure in economics_figures:^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8658630Z ^[[36;1m    svg = figure.read_text(encoding='utf-8')^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8659010Z ^[[36;1m    assert '<title' in svg and '<desc' in svg and 'viewBox' in svg^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8659341Z ^[[36;1m^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8659561Z ^[[36;1mstatistics_root = site / 'books/statistics'^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8660064Z ^[[36;1mstatistics_manifest = json.loads((statistics_root / 'manifest.json').read_text(encoding='utf-8'))^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8660740Z ^[[36;1mstatistics_questions = json.loads((statistics_root / 'questions.json').read_text(encoding='utf-8'))^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8661393Z ^[[36;1mstatistics_search = json.loads((statistics_root / 'search.json').read_text(encoding='utf-8'))^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8662011Z ^[[36;1massert statistics_manifest['version'] == statistics_questions['version'] == '2026.07.28-1'^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8662598Z ^[[36;1massert len([x for x in statistics_manifest['chapters'] if x['kind'] == 'chapter']) == 19^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8663172Z ^[[36;1massert len([x for x in statistics_manifest['chapters'] if x['kind'] == 'appendix']) == 3^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8663642Z ^[[36;1massert len(statistics_search['entries']) == 169^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8664166Z ^[[36;1massert Counter(q['chapterId'] for q in statistics_questions['items']) == {f'ch{i:02d}': 5 for i in range(19)}^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8664783Z ^[[36;1mstatistics_figures = sorted((site / 'assets/statistics-svg').glob('*.svg'))^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8665197Z ^[[36;1massert len(statistics_figures) == 19^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8665492Z ^[[36;1mfor figure in statistics_figures:^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8665791Z ^[[36;1m    svg = figure.read_text(encoding='utf-8')^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8666154Z ^[[36;1m    assert '<title' in svg and '<desc' in svg and 'viewBox' in svg^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8666488Z ^[[36;1m^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8666678Z ^[[36;1mstatistics_text = '\n'.join(^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8667025Z ^[[36;1m    (statistics_root / chapter['file']).read_text(encoding='utf-8')^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8667435Z ^[[36;1m    for chapter in statistics_manifest['chapters']^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8667887Z ^[[36;1m)^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8668086Z ^[[36;1mfor token in (^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8668535Z ^[[36;1m    '中央極限定理', '信賴區間', 'p 值', '第一類錯誤',^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8668829Z ^[[36;1m    '成對', '卡方', '變異數分析', '簡單線性迴歸', '相關係數',^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8669221Z ^[[36;1m):^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8669426Z ^[[36;1m    assert token in statistics_text^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8669682Z ^[[36;1m^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8669893Z ^[[36;1mlaw_root = site / 'books/commercial-law'^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8670334Z ^[[36;1mlaw_manifest = json.loads((law_root / 'manifest.json').read_text(encoding='utf-8'))^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8670908Z ^[[36;1mlaw_questions = json.loads((law_root / 'questions.json').read_text(encoding='utf-8'))^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8671456Z ^[[36;1mlaw_search = json.loads((law_root / 'search.json').read_text(encoding='utf-8'))^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8671987Z ^[[36;1massert law_manifest['version'] == law_questions['version'] == '2026.07.28-1'^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8672656Z ^[[36;1massert len([x for x in law_manifest['chapters'] if x['kind'] == 'chapter']) == 18^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8673200Z ^[[36;1massert len([x for x in law_manifest['chapters'] if x['kind'] == 'appendix']) == 3^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8673630Z ^[[36;1massert len(law_search['entries']) == 111^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8674113Z ^[[36;1massert Counter(q['chapterId'] for q in law_questions['items']) == {f'ch{i:02d}': 5 for i in range(18)}^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8674560Z ^[[36;1m^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8674742Z ^[[36;1mlaw_text = '\n'.join(^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8675045Z ^[[36;1m    (law_root / chapter['file']).read_text(encoding='utf-8')^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8675409Z ^[[36;1m    for chapter in law_manifest['chapters']^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8675677Z ^[[36;1m)^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8675863Z ^[[36;1mrequired_concepts = [^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8676091Z ^[[36;1m    ('公司法第 23 條',),^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8676307Z ^[[36;1m    ('300 字', '300字'),^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8676558Z ^[[36;1m    ('持續 6 個月以上', '持股期間 6 個月以上', '持有 6 個月以上'),^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8676911Z ^[[36;1m    ('第 43-6 條第一項第二款、第三款', '第 43-6 條第 1 項第 2 款、第 3 款', '第 43-6 條第一項第二款及第三款'),^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8677260Z ^[[36;1m    ('合計不得超過 35 人', '合計不超過 35 人', '合計不得超過35人'),^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8677544Z ^[[36;1m    ('超過 5%', '超過 5％'),^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8677770Z ^[[36;1m    ('超過 10%', '超過 10％'),^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8678022Z ^[[36;1m    ('公開後 18 小時內', '消息公開後 18 小時', '公開後十八小時內'),^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8678543Z ^[[36;1m    ('證交法第 62 條', '證券交易法第 62 條'),^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8678801Z ^[[36;1m    ('至少 2 人', '至少二人'),^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8679043Z ^[[36;1m    ('不得少於董事席次五分之一', '不得少於董事席次 1/5'),^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8679293Z ^[[36;1m]^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8679494Z ^[[36;1mfor variants in required_concepts:^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8679931Z ^[[36;1m    assert any(token in law_text for token in variants), f'missing legal concept: {variants}'^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8680383Z ^[[36;1massert '私募對象一律不得超過 35 人' not in law_text^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8680676Z ^[[36;1massert '短線交易只適用上市股票' not in law_text^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8680950Z ^[[36;1m^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8681247Z ^[[36;1mlaw_figures = sorted((site / 'assets/commercial-law-svg').glob('*.svg'))^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8681642Z ^[[36;1massert len(law_figures) == 18^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8682072Z ^[[36;1mfor figure in law_figures:^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8682359Z ^[[36;1m    svg = figure.read_text(encoding='utf-8')^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8682734Z ^[[36;1m    assert '<title' in svg and '<desc' in svg and 'viewBox' in svg^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8683068Z ^[[36;1m^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8683303Z ^[[36;1mapp = (site / 'app.js').read_text(encoding='utf-8')^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8683673Z ^[[36;1mcss = (site / 'styles.css').read_text(encoding='utf-8')^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8684038Z ^[[36;1msw = (site / 'sw.js').read_text(encoding='utf-8')^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8684350Z ^[[36;1massert '查看版本與更新內容' in app^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8684653Z ^[[36;1massert '內容版本 ${escapeHtml(manifest.version' in app^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8684977Z ^[[36;1massert '.release-notes{' in css^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8685359Z ^[[36;1massert '法條速查' in app^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8685628Z ^[[36;1massert 'study-library-2026-07-29-2' in sw^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8685963Z ^[[36;1massert './books/statistics/manifest.json' in sw^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8686338Z ^[[36;1massert './books/statistics/chapters/ch18.html' in sw^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8686713Z ^[[36;1massert './assets/statistics-svg/anova.svg' in sw^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8687074Z ^[[36;1massert './books/commercial-law/manifest.json' in sw^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8687458Z ^[[36;1massert './books/commercial-law/chapters/ch17.html' in sw^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8688143Z ^[[36;1mprint('LIBRARY_VALIDATION_OK books=5 statistics_chapters=19 statistics_questions=95 commercial_law_chapters=18 commercial_law_questions=90')^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8689093Z ^[[36;1mPY^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8689296Z ^[[36;1mnode --check _site/app.js^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8689550Z ^[[36;1mnode --check _site/sw.js^[[0m
+deploy	Validate five-book study library	2026-07-28T18:03:15.8732033Z shell: /usr/bin/bash -e {0}
+deploy	Validate five-book study library	2026-07-28T18:03:15.8732298Z env:
+deploy	Validate five-book study library	2026-07-28T18:03:15.8732482Z   GITHUB_PAGES: true
+deploy	Validate five-book study library	2026-07-28T18:03:15.8732691Z ##[endgroup]
+deploy	Validate five-book study library	2026-07-28T18:03:15.9911770Z Traceback (most recent call last):
+deploy	Validate five-book study library	2026-07-28T18:03:15.9912431Z   File "<stdin>", line 124, in <module>
+deploy	Validate five-book study library	2026-07-28T18:03:15.9913417Z AssertionError: missing legal concept: ('持續 6 個月以上', '持股期間 6 個月以上', '持有 6 個月以上')
+deploy	Validate five-book study library	2026-07-28T18:03:16.0067759Z ##[error]Process completed with exit code 1.
