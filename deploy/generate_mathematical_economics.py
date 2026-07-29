@@ -104,7 +104,7 @@ def append_sw_assets(sw,old_id,paths):
 def main(site_root):
     site=Path(site_root); lp=site/'data/library.json'; library=json.loads(lp.read_text(encoding='utf-8')); pre_ids=[b['id'] for b in library['books']]
     if BOOK in pre_ids: raise AssertionError(f'{BOOK} already exists')
-    if len(pre_ids)!=12 or pre_ids[-1]!='money-banking': raise AssertionError(f'mathematical economics expects twelve-book money-banking tail: {pre_ids}')
+    if len(pre_ids)!=13 or pre_ids[-1]!='computer-fundamentals': raise AssertionError(f'mathematical economics expects thirteen-book computer-fundamentals tail: {pre_ids}')
     template=copy.deepcopy(library['books'][-1]); old_id=template['id']; template=deep_replace(template,old_id,BOOK)
     template.update({'id':BOOK,'title':TITLE,'subtitle':SUBTITLE,'cover':COVER,'accent':ACCENT,'status':'available'})
     if 'version' in template: template['version']=VERSION
@@ -127,7 +127,7 @@ def main(site_root):
     qtop['count']=len(qitems); qtop['items']=qitems; (root/'questions.json').write_text(jdump(qtop),encoding='utf-8'); entries=search_entries(); (root/'search.json').write_text(jdump({'entries':entries}),encoding='utf-8')
     cache=[f'./books/{BOOK}/manifest.json',f'./books/{BOOK}/questions.json',f'./books/{BOOK}/search.json']+[f'./books/{BOOK}/{x["file"]}' for x in meta]+[f'./assets/mathematical-economics-svg/{ch["slug"]}.svg' for ch in CHAPTERS]
     swp=site/'sw.js'; swp.write_text(append_sw_assets(swp.read_text(encoding='utf-8'),old_id,cache),encoding='utf-8')
-    print(json.dumps({'book':BOOK,'version':VERSION,'chapters':20,'appendices':3,'questions':len(qitems),'search':len(entries),'figures':20,'pre_books':12,'post_books':13},ensure_ascii=False))
+    print(json.dumps({'book':BOOK,'version':VERSION,'chapters':20,'appendices':3,'questions':len(qitems),'search':len(entries),'figures':20,'pre_books':13,'post_books':14},ensure_ascii=False))
 
 if __name__=='__main__':
     if len(sys.argv)!=2: raise SystemExit('usage: python deploy/generate_mathematical_economics.py SITE_ROOT')
