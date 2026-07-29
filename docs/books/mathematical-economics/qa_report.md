@@ -1,58 +1,65 @@
 # 《數理經濟學》QA 報告
 
-更新日期：2026-07-29
+更新日期：2026-07-30
 
 ## 版本與成品目標
 
 - Book ID：`mathematical-economics`
-- 內容版本：`2026.07.29-1`
+- 修正版內容版本：`2026.07.30-2`
 - 正文：20 章。
 - 附錄：3 份。
 - 題庫：100 題，每章 5 題。
 - 搜尋索引：150 筆。
 - 自製 SVG：20 張。
+- 本輪性質：第二次獨立內容審計；不以初版 QA 通過作為正確前提。
 
-## 第一輪：結構與內容完整性
+## 本輪查出的主要問題
 
-自動 gate 驗證：
+1. KKT 被描述成無條件的一階必要條件，缺少 constraint qualification 前提。
+2. homothetic 的定義只寫「單調轉換」，應收斂為「齊次函數的嚴格遞增轉換」。
+3. 彈性章放入 `y=Ax^ay^b` 這條刻意自相矛盾的式子，不應把錯誤式本身當核心公式展示。
+4. 特徵向量「方向不變」的說法忽略負特徵值會反向、零特徵值會映到零向量；應改成不變的一維子空間／span。
+5. 全微分與有限變動近似混在一起，需分清 `dz` 與 `Δz≈...`。
+6. 基礎微分工具缺鏈鎖律、乘法與商數法則，對一般數理經濟學課程不完整。
+7. 多元最佳化只講 Hessian 定號，欠缺凹性、擬凹性與全域最適判斷的基本連結。
+8. 等式限制範例以模糊的「凹化條件」支持最大值，未沿可行切方向說明受限制二階條件。
+9. KKT sufficient condition 需要把「凹目標＋凸不等式可行結構」講清楚，並與必要性的 CQ 分開。
+10. constrained envelope theorem 只剩影子價格片段，欠缺 `dV/dθ=∂L/∂θ` 的通用寫法。
+11. 隱函數定理需要明確指出是「對欲解出的內生變數」的 Jacobian 非奇異。
+12. 差分方程的 `|b|=1` 邊界與 `b=-1` 二期循環未交代。
+13. 一維連續動態在 `F′(x*)=0` 時線性化不下結論，初版未明示。
 
-- 20 章與 3 附錄檔案完整，每章均包含問題、白話直覺、正式定義、核心公式與成立條件、完整例題、常見錯誤、考試判斷方法與理解檢查。
-- 線性代數、微積分、隱函數比較靜態、彈性、Hessian、Lagrange、KKT、包絡定理、Euler 定理、積分與一階離散／連續動態均有正式覆蓋。
-- 100 題題庫 ID 唯一且每章固定 5 題；150 筆搜尋資料全部指向有效章節／附錄。
-- 20 張 SVG 必須具備 `title`、`desc`、`viewBox`，不得依賴遠端圖片。
-- Service Worker 必須包含本書 manifest、questions、search、章節與 SVG 路徑。
-- 導數 prime 的 MathJax 輸出不得殘留 `\\'` 形式，避免被誤判成重音命令。
+## 修正內容
 
-## 第二輪：獨立重算與高風險邏輯
+- `ch04`：補 Cramer 法則 `det(A)≠0` 前提。
+- `ch05`：重寫特徵方向與二次型曲率的精確敘述。
+- `ch06`：補乘法法則、商數法則、鏈鎖律與 Taylor 誤差語意。
+- `ch07`：分離 differential 與 finite-change approximation；限定梯度最快上升的 Euclidean 條件。
+- `ch08`：精確化 implicit function theorem 的 Jacobian 條件。
+- `ch09`：移除矛盾公式，改成 Cobb–Douglas 對數微分與 1.7% 標準例題。
+- `ch11`：補 concavity、strict concavity、quasi-concavity 與 Hessian 全域判讀。
+- `ch12`：補切空間二階條件／bordered Hessian 定位；重寫 `xy, x+y=10` 的最大值理由。
+- `ch13`：補 LICQ／Slater、necessary vs sufficient conditions、完整 stationarity。
+- `ch14`：補 constrained envelope theorem 與限制右側影子價格條件。
+- `ch15`：homothetic 改為 strictly increasing transformation。
+- `ch18`：補 `b=-1`、`|b|=1` 邊界情形。
+- `ch19`：補 `F′(x*)=0` 線性化失效情形。
+- 題庫：調整 11 題，新增鏈鎖律、對數微分、受限 SOC、KKT CQ、constrained envelope、homothetic、動態邊界等直接測試。
 
-獨立重算涵蓋：
+## 第二次獨立 QA gate
 
-- 聯立均衡、矩陣乘法、determinant 與反矩陣解。
-- 導數、Taylor 近似、偏導數、全微分與隱函數比較靜態。
-- 彈性、一元／多元最佳化、Hessian 定號。
-- 等式限制 Lagrange、KKT 邊界與互補鬆弛。
-- 包絡定理、齊次函數與 Euler 定理。
-- 邊際量積分回總量、離散複利與連續成長率轉換。
-- 一階差分與微分方程的穩態、震盪與穩定性。
+修正版 QA 不只比對固定答案，另要求：
 
-高風險負面 gate：
-
-- `FOC=0` 不得被寫成自動充分的最大值條件。
-- Hessian 不得只憑主對角元素符號就判定正／負定。
-- 比較靜態不得誤寫成時間動態。
-- Lagrange multiplier 的符號解讀必須與 Lagrangian 慣例一致。
-- KKT 不得在缺乏凹凸性等條件時被宣稱自動充分。
-- 定積分不得無條件等同幾何面積。
-- 差分方程穩定性必須檢查 `|b|<1`，不能只檢查 `b<1`。
-- 微分方程穩態令 `ẋ=0`，不是令狀態變數本身等於 0。
-
-## 整合 gate
-
-- 數理經濟學只接受 14 本且尾端為 `advanced-statistics → computer-fundamentals` 的正式 artifact。
-- 整合完成後必須形成 15 本書庫，尾端為 `advanced-statistics → computer-fundamentals → mathematical-economics`。
-- 整合前後逐本計算既有 14 本教材內容 SHA-256；任何既有教材內容變動都直接失敗。
-- 正式發布成功仍以 canonical `Deploy study library`、Pages artifact、重新下載驗證與 deployment receipt 為準。
+- 20 章、3 附錄、100 題、150 搜尋與 20 SVG 結構完整。
+- 13 個修正區域的新概念／前提必須實際出現在生成後 HTML。
+- 4 組已知舊錯誤文字不得殘留。
+- 11 題調整題目逐題核對答案與解析。
+- 23 個代表性數值／公式節點重新計算。
+- 10 個高風險邏輯 gate 獨立重判。
+- 搜尋索引必須同步修正版概念，不能只改正文。
+- 導數 prime 的 MathJax 輸出不得殘留 `\\'`。
+- 整合前後所有既有教材及既有 assets 的 hash 不得改變。
 
 ## 正式發布結果
 
-尚未執行。不得把 source merge 或候選 QA 當成正式部署成功；正式 run 完成後再回寫此節。
+目前為 v2 候選。完成實際 formal Pages artifact 生成、第二次獨立 QA、Pages deployment、artifact 重新下載與 receipt 回寫前，不宣稱正式部署成功。
