@@ -1,6 +1,5 @@
 # One-shot stager: patch the latest canonical Pages workflow after pulling current main.
-# Triggered after the workflow already exists on main so GitHub can execute it reliably.
-# Retry after concurrent textbook workflow updates settled.
+# Re-applies the semantic patch to the newest main if a concurrent push wins the race.
 name: Stage computer fundamentals v2 deployment
 
 on:
@@ -31,10 +30,9 @@ jobs:
           ref: main
           fetch-depth: 0
 
-      - name: Patch latest canonical deployment workflow
+      - name: Validate staging sources
         run: |
           set -euo pipefail
-          git pull --ff-only origin main
           python -m py_compile \
             deploy/patch_computer_fundamentals_v2.py \
             deploy/finalize_computer_fundamentals_v2_library.py \
@@ -42,20 +40,35 @@ jobs:
             deploy/apply_computer_fundamentals_v2.py \
             deploy/record_computer_fundamentals_v2_deployment.py \
             deploy/patch_computer_v2_deploy_workflow.py
-          python deploy/patch_computer_v2_deploy_workflow.py
-          ruby -e "require 'yaml'; YAML.load_file('.github/workflows/deploy-pages.yml'); puts 'DEPLOY_YAML_OK'"
-          grep -F 'Apply or validate computer fundamentals post-publication v2 reaudit' .github/workflows/deploy-pages.yml
-          grep -F 'COMPUTER_V2_QA_CHECKS' .github/workflows/deploy-pages.yml
-          grep -F 'record_computer_fundamentals_v2_deployment.py' .github/workflows/deploy-pages.yml
-          grep -F 'computer-fundamentals=2026.07.30-2' .github/workflows/deploy-pages.yml
 
-      - name: Commit canonical workflow patch and remove one-shot stager
+      - name: Patch newest main and push safely
         run: |
           set -euo pipefail
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          rm .github/workflows/stage-computer-fundamentals-v2-deploy.yml
-          git add .github/workflows/deploy-pages.yml .github/workflows/stage-computer-fundamentals-v2-deploy.yml
-          git commit -m "Stage computer fundamentals v2 deployment"
-          git pull --rebase origin main
-          git push origin HEAD:main
+
+          for attempt in 1 2 3 4 5; do
+            echo "STAGE_ATTEMPT=$attempt"
+            git fetch origin main
+            git reset --hard origin/main
+
+            python deploy/patch_computer_v2_deploy_workflow.py
+            ruby -e "require 'yaml'; YAML.load_file('.github/workflows/deploy-pages.yml'); puts 'DEPLOY_YAML_OK'"
+            grep -F 'Apply or validate computer fundamentals post-publication v2 reaudit' .github/workflows/deploy-pages.yml
+            grep -F 'COMPUTER_V2_QA_CHECKS' .github/workflows/deploy-pages.yml
+            grep -F 'record_computer_fundamentals_v2_deployment.py' .github/workflows/deploy-pages.yml
+            grep -F 'computer-fundamentals=2026.07.30-2' .github/workflows/deploy-pages.yml
+
+            rm .github/workflows/stage-computer-fundamentals-v2-deploy.yml
+            git add .github/workflows/deploy-pages.yml .github/workflows/stage-computer-fundamentals-v2-deploy.yml
+            git commit -m "Stage computer fundamentals v2 deployment"
+
+            if git push origin HEAD:main; then
+              echo "COMPUTER_FUNDAMENTALS_V2_STAGER_PUSH_OK attempt=$attempt"
+              exit 0
+            fi
+            echo "Concurrent main push detected; rebuilding from newest main."
+          done
+
+          echo "Unable to stage after five conflict-safe attempts." >&2
+          exit 1
