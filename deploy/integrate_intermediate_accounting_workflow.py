@@ -45,56 +45,49 @@ if "'intermediate_accounting_version':" not in text:
         raise AssertionError('receipt metric marker not found')
     text = text.replace(metric_marker, metrics + metric_marker, 1)
 
-ia_status = """          ia_status = f'''# 《中級會計學》製作狀態
-
-更新日期：2026-07-29
-
-## 版本
-
-- Book ID：`intermediate-accounting`
-- 正式內容版本：`2026.07.29-1`
-- 正式書庫版本：`{final_version}`
-- 狀態：已部署。
-
-## 成品與 QA
-
-- 正文 22 章、附錄 3 份、題庫 110 題、搜尋索引 145 筆、自製 SVG 22 張。
-- 第一輪 QA：135 項通過；獨立數值與公式重算 23 項通過。
-- 第二輪 QA：485 項通過；110 題逐題複核。
-- 閱讀進度相容性：新增獨立 book ID，不改既有教材章節、題目 ID、儲存鍵或錯題紀錄。
-
-## 部署
-
-- canonical workflow：`Deploy study library`
-- workflow run：`{os.environ['GITHUB_RUN_ID']}`
-- source commit：`{os.environ['GITHUB_SHA']}`
-- 正式書庫書籍數：{book_count} 本。
-- GitHub Pages 部署成功並已寫回 deployment receipt。
-'''
+ia_status = """          ia_status = (
+              '# 《中級會計學》製作狀態\\n\\n'
+              '更新日期：2026-07-29\\n\\n'
+              '## 版本\\n\\n'
+              '- Book ID：`intermediate-accounting`\\n'
+              '- 正式內容版本：`2026.07.29-1`\\n'
+              f'- 正式書庫版本：`{final_version}`\\n'
+              '- 狀態：已部署。\\n\\n'
+              '## 成品與 QA\\n\\n'
+              '- 正文 22 章、附錄 3 份、題庫 110 題、搜尋索引 145 筆、自製 SVG 22 張。\\n'
+              '- 第一輪 QA：135 項通過；獨立數值與公式重算 23 項通過。\\n'
+              '- 第二輪 QA：485 項通過；110 題逐題複核。\\n'
+              '- 閱讀進度相容性：新增獨立 book ID，不改既有教材章節、題目 ID、儲存鍵或錯題紀錄。\\n\\n'
+              '## 部署\\n\\n'
+              '- canonical workflow：`Deploy study library`\\n'
+              f'- workflow run：`{os.environ["GITHUB_RUN_ID"]}`\\n'
+              f'- source commit：`{os.environ["GITHUB_SHA"]}`\\n'
+              f'- 正式書庫書籍數：{book_count} 本。\\n'
+              '- GitHub Pages 部署成功並已寫回 deployment receipt。\\n'
+          )
           Path('docs/books/intermediate-accounting/status.md').write_text(ia_status, encoding='utf-8')
 
 """
 status_marker = "          cp = Path('docs/shared_checkpoint.md')\n"
-if "ia_status = f'''# 《中級會計學》製作狀態" not in text:
+if "ia_status = (" not in text:
     if status_marker not in text:
         raise AssertionError('status marker not found')
     text = text.replace(status_marker, ia_status + status_marker, 1)
 
 checkpoint = """          if '### 中級會計學' not in c:
-              section = f'''### 中級會計學
-
-- Book ID：`intermediate-accounting`
-- 正式內容版本：`2026.07.29-1`
-- 定位：一般大學中級會計學，銜接基礎會計，核心聚焦 IFRS／TIFRS 的認列、衡量、現值、金融工具、收入、租賃、所得稅、EPS 與現金流量。
-- 成品：22 章、3 附錄、110 題題庫、145 筆搜尋索引、22 張自製圖解。
-- QA：第一輪 135 項、數值與公式獨立重算 23 項、第二輪 485 項，全數通過。
-- 範圍文件：`docs/books/intermediate-accounting/scope.md`
-- QA 報告：`docs/books/intermediate-accounting/qa_report.md`
-- GitHub Pages 部署 run：`{os.environ['GITHUB_RUN_ID']}`。
-- Source commit：`{os.environ['GITHUB_SHA']}`。
-- 狀態：已部署。
-
-              '''
+              section = (
+                  '### 中級會計學\\n\\n'
+                  '- Book ID：`intermediate-accounting`\\n'
+                  '- 正式內容版本：`2026.07.29-1`\\n'
+                  '- 定位：一般大學中級會計學，銜接基礎會計，核心聚焦 IFRS／TIFRS 的認列、衡量、現值、金融工具、收入、租賃、所得稅、EPS 與現金流量。\\n'
+                  '- 成品：22 章、3 附錄、110 題題庫、145 筆搜尋索引、22 張自製圖解。\\n'
+                  '- QA：第一輪 135 項、數值與公式獨立重算 23 項、第二輪 485 項，全數通過。\\n'
+                  '- 範圍文件：`docs/books/intermediate-accounting/scope.md`\\n'
+                  '- QA 報告：`docs/books/intermediate-accounting/qa_report.md`\\n'
+                  f'- GitHub Pages 部署 run：`{os.environ["GITHUB_RUN_ID"]}`。\\n'
+                  f'- Source commit：`{os.environ["GITHUB_SHA"]}`。\\n'
+                  '- 狀態：已部署。\\n\\n'
+              )
               c = c.replace('## 部署流程\\n', section + '## 部署流程\\n', 1)
 """
 checkpoint_marker = "          c = c.replace('同一個 canonical `Deploy study library` 工作流先完成既有五本書驗證，再生成並獨立驗證 `cost-accounting`，最終部署六本書。',\n"
@@ -105,7 +98,7 @@ if "if '### 中級會計學' not in c:" not in text:
 
 old = "          if '個體經濟學均已納入同一套正式書庫部署流程。' not in c:\n              c = c.replace('成本會計學均已納入同一套正式書庫部署流程。', '成本會計學、個體經濟學均已納入同一套正式書庫部署流程。')\n"
 new = old + "          if '中級會計學均已納入同一套正式書庫部署流程。' not in c:\n              c = c.replace('成本會計學、個體經濟學均已納入同一套正式書庫部署流程。', '成本會計學、個體經濟學、中級會計學均已納入同一套正式書庫部署流程。')\n"
-if "中級會計學均已納入同一套正式書庫部署流程" not in text:
+if '中級會計學均已納入同一套正式書庫部署流程' not in text:
     if old not in text:
         raise AssertionError('checkpoint process summary marker not found')
     text = text.replace(old, new, 1)
