@@ -5,16 +5,15 @@
 ## 版本
 
 - Book ID：`cost-accounting`
-- 目前正式內容版本：`2026.07.29-1`
-- 二次內容審計候選版本：`2026.07.29-2`
-- 正式書庫版本：以最新 deployment receipt 為準。
+- 正式內容版本：`2026.07.29-2`
+- 正式書庫版本：`2026.07.29-10`
 
 ## 成品結構
 
 - 19 個正文章節。
 - 3 個附錄。
 - 95 題題庫，每章 5 題。
-- 二次審計後搜尋索引：150 筆。
+- 150 筆全文搜尋索引。
 - 19 張自製成本會計圖解。
 
 ## 發布後獨立二次內容審計
@@ -55,11 +54,19 @@
 - 搜尋索引新增 4 筆，不改變閱讀進度儲存鍵。
 - 沿用同一套平板 PWA 與 canonical Pages 部署流程。
 
+## 正式部署
+
+- 修正與驗證 source commit：`914331452581fb7b8441dc46bfa4d3019a34c412`。
+- GitHub Pages 成功部署 run：`30416637787`。
+- 正式 job log 已確認 `COST_ACCOUNTING_V2_PATCH_OK search=150`。
+- 正式 job log 已確認 `COST_ACCOUNTING_V2_QA_OK checks=857 chapters=19 appendices=3 questions=95 search=150 figures=19 numeric_rechecks=44`。
+- 本次內容版本已實際部署；後續書庫整體建置若因其他科目失敗，不影響本次成本會計 v2 成品與上述成功部署證據。
+
 ## 目前狀態
 
 - 正文二次審計：完成。
 - 題庫二次審計：完成。
-- 修正層：完成。
+- 糾錯修正：完成。
 - 新版獨立 QA：完成。
-- Canonical integration：待 PR 審查與正式部署。
-- 正式版本仍維持 `2026.07.29-1`，直到 deployment receipt 證實新版成功上線。
+- Canonical integration：完成。
+- 正式部署：完成。
