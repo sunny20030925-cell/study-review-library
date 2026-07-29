@@ -12,7 +12,7 @@ jobs:
   stage:
     if: >-
       github.event.pull_request.head.repo.full_name == github.repository &&
-      github.event.pull_request.head.ref == 'stage-micro-v2-canonical'
+      github.event.pull_request.head.ref == 'stage-micro-v2-canonical-v2'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout controlled staging branch
@@ -23,9 +23,9 @@ jobs:
           token: ${{ github.token }}
           fetch-depth: 0
 
-      - name: Stage exact audited files and a non-workflow canonical candidate
+      - name: Stage exact audited files and a validated canonical candidate
         run: |
-          AUDITED_SHA='bb5761e1d80948916b97d37d3208d1aeea8b46a3'
+          AUDITED_SHA='9188061773d242a5abb8797888e251305b4a8b47'
           git fetch origin agent/microeconomics-post-publication-reaudit-v2
           test "$(git rev-parse FETCH_HEAD)" = "$AUDITED_SHA"
           git checkout "$AUDITED_SHA" -- \
@@ -42,7 +42,7 @@ jobs:
           if ! grep -Fq "'microeconomics_version': '2026.07.29-2'" deploy/staged-micro-v2-deploy-pages.yml; then
             python deploy/integrate_microeconomics_v2.py deploy/staged-micro-v2-deploy-pages.yml
           fi
-          ruby -e "require 'yaml'; YAML.parse_file('deploy/staged-micro-v2-deploy-pages.yml'); puts 'STAGED_YAML_PARSE_OK'" || echo 'STAGED_YAML_INVALID_FOR_INSPECTION'
+          ruby -e "require 'yaml'; YAML.parse_file('deploy/staged-micro-v2-deploy-pages.yml'); puts 'STAGED_YAML_PARSE_OK'"
           grep -F 'python deploy/patch_microeconomics_v2.py _site' deploy/staged-micro-v2-deploy-pages.yml
           grep -F "'microeconomics_post_publication_correction_count': 16" deploy/staged-micro-v2-deploy-pages.yml
           grep -F "'microeconomics_question_adjustment_count': 4" deploy/staged-micro-v2-deploy-pages.yml
