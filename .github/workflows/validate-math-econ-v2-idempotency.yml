@@ -52,3 +52,5 @@ jobs:
             git commit -m 'Store validated math economics idempotent workflow blob'
             git push origin HEAD:finalize-math-econ-v2-idempotency
           fi
+
+# trigger validation
