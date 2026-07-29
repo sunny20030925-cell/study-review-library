@@ -1,0 +1,61 @@
+name: Stage industrial economics v2 deployment
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'deploy/industrial_economics_content_v2.py'
+      - 'deploy/industrial_economics_questions_v2.py'
+      - 'deploy/patch_industrial_economics_v2.py'
+      - 'deploy/validate_industrial_economics_v2.py'
+      - 'deploy/qa_industrial_economics_v2.py'
+      - 'deploy/integrate_industrial_economics_v2.py'
+      - 'deploy/record_industrial_economics_v2_deployment.py'
+      - 'deploy/patch_industrial_v2_deploy_workflow.py'
+      - '.github/workflows/stage-industrial-economics-v2-deploy.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: industrial-economics-v2-stager
+  cancel-in-progress: false
+
+jobs:
+  stage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Patch canonical deploy workflow
+        run: |
+          set -euo pipefail
+          git pull --ff-only origin main
+          python deploy/patch_industrial_v2_deploy_workflow.py
+          python -m py_compile \
+            deploy/industrial_economics_content_v2.py \
+            deploy/industrial_economics_questions_v2.py \
+            deploy/patch_industrial_economics_v2.py \
+            deploy/validate_industrial_economics_v2.py \
+            deploy/qa_industrial_economics_v2.py \
+            deploy/integrate_industrial_economics_v2.py \
+            deploy/record_industrial_economics_v2_deployment.py \
+            deploy/patch_industrial_v2_deploy_workflow.py
+          ruby -e "require 'yaml'; YAML.load_file('.github/workflows/deploy-pages.yml'); puts 'DEPLOY_YAML_OK'"
+          grep -F 'Apply or validate industrial economics v2 independent audit' .github/workflows/deploy-pages.yml
+          grep -F 'record_industrial_economics_v2_deployment.py' .github/workflows/deploy-pages.yml
+          grep -F "'2026.07.30-2'" .github/workflows/deploy-pages.yml
+
+      - name: Commit canonical workflow patch and remove one-shot stager
+        run: |
+          set -euo pipefail
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          rm .github/workflows/stage-industrial-economics-v2-deploy.yml
+          git add .github/workflows/deploy-pages.yml .github/workflows/stage-industrial-economics-v2-deploy.yml
+          git commit -m "Stage industrial economics v2 deployment"
+          git pull --rebase origin main
+          git push origin HEAD:main
