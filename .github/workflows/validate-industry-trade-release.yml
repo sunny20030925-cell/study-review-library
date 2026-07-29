@@ -1,0 +1,91 @@
+name: Validate industry trade formal release
+
+on:
+  pull_request:
+    paths:
+      - 'deploy/integrate_industry_trade.py'
+      - 'deploy/record_industry_trade_deployment.py'
+      - '.github/workflows/deploy-pages.yml'
+      - '.github/workflows/validate-industry-trade-release.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compile release helpers
+        run: |
+          python -m py_compile \
+            deploy/integrate_industry_trade.py \
+            deploy/record_industry_trade_deployment.py \
+            deploy/generate_industry_trade.py \
+            deploy/validate_industry_trade.py \
+            deploy/qa_industry_trade_independent.py
+
+      - name: Download current formal Pages artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          ARTIFACT_ID="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['pages_artifact_id'])")"
+          DIGEST="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['pages_artifact_digest'])")"
+          EXPECTED_VERSION="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['library_version'])")"
+          EXPECTED_COUNT="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['book_count'])")"
+          gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" > /tmp/formal.zip
+          echo "${DIGEST#sha256:}  /tmp/formal.zip" | sha256sum --check -
+          mkdir /tmp/formal-unpack _site
+          unzip -q /tmp/formal.zip -d /tmp/formal-unpack
+          if [ -f /tmp/formal-unpack/artifact.tar ]; then
+            tar -xf /tmp/formal-unpack/artifact.tar -C _site
+          elif [ -f /tmp/formal-unpack/artifact.tar.gz ]; then
+            tar -xzf /tmp/formal-unpack/artifact.tar.gz -C _site
+          else
+            cp -a /tmp/formal-unpack/. _site/
+          fi
+          EXPECTED_VERSION="$EXPECTED_VERSION" EXPECTED_COUNT="$EXPECTED_COUNT" python - <<'PY'
+          import json,os
+          from pathlib import Path
+          site=Path('_site')
+          lib=json.load(open(site/'data/library.json'))
+          ids=[b['id'] for b in lib['books']]
+          assert lib['version']==os.environ['EXPECTED_VERSION']
+          assert len(ids)==int(os.environ['EXPECTED_COUNT'])
+          assert ids[-1]=='industrial-economics'
+          assert 'industry-trade' not in ids
+          print('FORMAL_RELEASE_BASE_OK',lib['version'],len(ids))
+          PY
+
+      - name: Simulate formal tail integration
+        run: |
+          set -euo pipefail
+          BEFORE="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"
+          BEFORE_COUNT="$(python -c "import json;print(len(json.load(open('_site/data/library.json'))['books']))")"
+          FINAL="$(PYTHONPATH=deploy python deploy/integrate_industry_trade.py _site "$BEFORE")"
+          QA1="$(EXPECTED_LIBRARY_VERSION="$FINAL" PYTHONPATH=deploy python deploy/validate_industry_trade.py _site | tee /tmp/it-qa1.log | grep -oE '(^| )checks=[0-9]+' | head -n 1 | cut -d= -f2)"
+          QA2="$(PYTHONPATH=deploy python deploy/qa_industry_trade_independent.py _site | tee /tmp/it-qa2.log | grep -oE '(^| )checks=[0-9]+' | head -n 1 | cut -d= -f2)"
+          test "$QA1" = "1495"
+          test "$QA2" = "545"
+          FINAL="$FINAL" BEFORE_COUNT="$BEFORE_COUNT" python - <<'PY'
+          import json,os
+          from pathlib import Path
+          site=Path('_site')
+          lib=json.load(open(site/'data/library.json'))
+          ids=[b['id'] for b in lib['books']]
+          assert lib['version']==os.environ['FINAL']
+          assert len(ids)==int(os.environ['BEFORE_COUNT'])+1
+          assert ids[-2:] == ['industrial-economics','industry-trade']
+          root=site/'books/industry-trade'
+          assert len(json.load(open(root/'manifest.json'))['chapters'])==23
+          assert json.load(open(root/'questions.json'))['count']==100
+          assert len(json.load(open(root/'search.json'))['entries'])==160
+          assert len(list((site/'assets/industry-trade-svg').glob('*.svg')))==20
+          print('INDUSTRY_TRADE_FORMAL_PREFLIGHT_OK',lib['version'],len(ids))
+          PY
+          node --check _site/app.js
+          node --check _site/sw.js
