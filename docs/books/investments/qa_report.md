@@ -113,7 +113,7 @@
 ### 相容性與正式部署
 
 - Book version：`2026.07.30-1`。
-- Shared library：`2026.07.30-8`，20 本。
-- Pages run：`30493970959`。
-- Pages artifact：`8740844265`；digest `sha256:a0d6b573084f870eb4fbd6416d46585ecca5b980f5e35534f2ab676e0c847cf7`。
+- Shared library：`2026.07.30-9`，21 本。
+- Pages run：`30494922034`。
+- Pages artifact：`8741187091`；digest `sha256:576f046c2f6e98f1cab56ca7136042e1dfb66a4af1ad21e74552ce16b2db1eeb`。
 - 部署後重新下載 artifact，再核對 25 份 HTML、110 題、165 搜尋與 22 SVG；所有非 Investments 教材 hash 均保持不變。

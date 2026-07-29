@@ -68,6 +68,6 @@
 - 高風險主題重新判讀：page fault／virtual memory、interrupt／exception、HTTP/3／QUIC／TLS、Big-O／Θ、binary search、foreign key／ACID、cryptographic hash／password KDF、NIST cloud／edge。
 - Book ID、章節 ID、題目 ID、題數與進度儲存鍵均未變。
 - 所有非目標教材內容 hash 在修正前後完全一致。
-- 正式書庫：20 本，版本 `2026.07.30-8`。
-- Pages run：`30493970959`；artifact：`8740844265`；digest `sha256:a0d6b573084f870eb4fbd6416d46585ecca5b980f5e35534f2ab676e0c847cf7`。
+- 正式書庫：21 本，版本 `2026.07.30-9`。
+- Pages run：`30494922034`；artifact：`8741187091`；digest `sha256:576f046c2f6e98f1cab56ca7136042e1dfb66a4af1ad21e74552ce16b2db1eeb`。
 - 部署後重新下載 artifact：23 份本書 HTML、100 題、150 搜尋、20 SVG 與 v2 QA 全數重驗通過。

@@ -6,7 +6,7 @@
 
 - Book ID：`investments`
 - 正式內容版本：`2026.07.30-1`
-- 正式書庫版本：`2026.07.30-8`
+- 正式書庫版本：`2026.07.30-9`
 - 狀態：已部署。
 - 範圍文件：`docs/books/investments/scope.md`
 - QA 報告：`docs/books/investments/qa_report.md`
@@ -29,9 +29,9 @@
 ## 正式發布證據
 
 - canonical workflow：`Deploy study library`
-- workflow run：`30493970959`
-- source commit：`2ee913df4b55a55ddc9adcb36ef116a86426da77`
-- Pages artifact：`8740844265`
-- Artifact digest：`sha256:a0d6b573084f870eb4fbd6416d46585ecca5b980f5e35534f2ab676e0c847cf7`
-- 正式書庫：20 本，版本 `2026.07.30-8`。
+- workflow run：`30494922034`
+- source commit：`d502e3db8be674c030c5b13db88f1b33dfdedb28`
+- Pages artifact：`8741187091`
+- Artifact digest：`sha256:576f046c2f6e98f1cab56ca7136042e1dfb66a4af1ad21e74552ce16b2db1eeb`
+- 正式書庫：21 本，版本 `2026.07.30-9`。
 - Pages deployment、artifact 下載後重驗與結構化 deployment receipt 均成功。
