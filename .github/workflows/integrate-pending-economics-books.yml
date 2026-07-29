@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - .github/workflows/integrate-pending-economics-books.yml
+      - deploy/integrate_intermediate_accounting_workflow.py
       - deploy/integrate_macroeconomics_workflow.py
       - deploy/finalize_macroeconomics_library.py
       - deploy/validate_macroeconomics.py
@@ -14,6 +15,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 jobs:
   integrate:
@@ -36,7 +38,9 @@ jobs:
           grep -F "'intermediate_accounting_version': '2026.07.29-1'" .github/workflows/deploy-pages.yml
           grep -F "'macroeconomics_version': '2026.07.29-1'" .github/workflows/deploy-pages.yml
 
-      - name: Commit canonical workflow and remove temporary gates
+      - name: Commit canonical workflow with race-safe push
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
@@ -44,6 +48,28 @@ jobs:
           git rm --ignore-unmatch .github/workflows/integrate-pending-economics-books.yml
           git rm --ignore-unmatch .github/workflows/validate-macroeconomics-integration.yml
           git rm --ignore-unmatch .github/workflows/stage-intermediate-accounting-workflow.yml
+          git rm --ignore-unmatch .github/workflows/apply-intermediate-accounting-canonical-once.yml
           rm -f deploy/generated-deploy-pages.intermediate-accounting.yml
           git commit -m "Integrate intermediate accounting and macroeconomics deployment"
-          git push origin HEAD:main
+
+          pushed=false
+          for attempt in 1 2 3 4 5; do
+            git fetch origin main
+            git rebase origin/main
+            if git push origin HEAD:main; then
+              pushed=true
+              break
+            fi
+            sleep $((attempt * 3))
+          done
+          test "$pushed" = true
+
+          for attempt in 1 2 3; do
+            if gh workflow run deploy-pages.yml --ref main; then
+              echo "Canonical nine-book deployment dispatched"
+              exit 0
+            fi
+            sleep $((attempt * 3))
+          done
+          echo "Failed to dispatch canonical deployment" >&2
+          exit 1
