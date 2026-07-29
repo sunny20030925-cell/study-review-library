@@ -15,6 +15,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 jobs:
   validate:
@@ -45,34 +46,58 @@ jobs:
           print('SOURCE_COMPILE_OK chapters=20 questions=100')
           PY
 
-      - name: Run synthetic thirteen-book integration and two-round QA
+      - name: Download latest formal Pages artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          python - <<'PY'
+          set -euo pipefail
+          RUN_ID="$(python - <<'PY'
           import json
-          from pathlib import Path
-          site=Path('/tmp/math-econ-site')
-          (site/'data').mkdir(parents=True)
-          ids=['calculus','accounting','economics','statistics','commercial-law','cost-accounting','microeconomics','intermediate-accounting','macroeconomics','international-economics','public-finance','money-banking']
-          books=[]
-          for bid in ids:
-              root=site/'books'/bid; root.mkdir(parents=True)
-              (root/'preserved.txt').write_text('preserve '+bid,encoding='utf-8')
-              books.append({'id':bid,'title':bid,'subtitle':'existing','cover':'書','accent':'#334155','status':'available'})
-          money=site/'books/money-banking'
-          (money/'manifest.json').write_text(json.dumps({'id':'money-banking','title':'貨幣銀行學','subtitle':'existing','version':'2026.07.29-2','cover':'貨','accent':'#0f766e','updatedAt':'2026-07-29','chapters':[],'features':{'reader':True,'quiz':True,'formula':True},'releaseNotes':[]},ensure_ascii=False),encoding='utf-8')
-          (money/'questions.json').write_text(json.dumps({'bookId':'money-banking','version':'2026.07.29-2','count':0,'items':[]},ensure_ascii=False),encoding='utf-8')
-          (site/'data/library.json').write_text(json.dumps({'version':'2026.07.29-17','books':books},ensure_ascii=False,indent=2),encoding='utf-8')
-          (site/'sw.js').write_text("const VERSION = 'study-library-2026.07.29-17';\nconst ASSETS = [\n  './books/money-banking/manifest.json',\n];\n",encoding='utf-8')
+          print(json.load(open('docs/deployment_receipt.json',encoding='utf-8'))['workflow_run_id'])
           PY
-          PYTHONPATH=deploy python deploy/integrate_mathematical_economics.py /tmp/math-econ-site 2026.07.29-17
+          )"
+          test -n "$RUN_ID"
+          ARTIFACT_ID="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}/artifacts" --jq '.artifacts[] | select(.name == "github-pages") | .id' | head -n 1)"
+          test -n "$ARTIFACT_ID"
+          echo "BASE_DEPLOY_RUN=$RUN_ID"
+          echo "BASE_ARTIFACT_ID=$ARTIFACT_ID"
+          gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" > /tmp/pages.zip
+          mkdir /tmp/pages-artifact _site
+          unzip -q /tmp/pages.zip -d /tmp/pages-artifact
+          if [ -f /tmp/pages-artifact/artifact.tar ]; then
+            tar -xf /tmp/pages-artifact/artifact.tar -C _site
+          elif [ -f /tmp/pages-artifact/artifact.tar.gz ]; then
+            tar -xzf /tmp/pages-artifact/artifact.tar.gz -C _site
+          else
+            cp -a /tmp/pages-artifact/. _site/
+          fi
+          test -f _site/data/library.json
+          test -f _site/sw.js
+          python - <<'PY'
+          import json
+          d=json.load(open('_site/data/library.json',encoding='utf-8'))
+          assert len(d['books'])==12, d
+          assert d['books'][-1]['id']=='money-banking', d['books'][-1]
+          print('FORMAL_BASE_OK library='+d['version']+' books='+str(len(d['books'])))
+          PY
+
+      - name: Integrate candidate and run two-round QA
+        run: |
+          set -euo pipefail
+          find _site/books -type f -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-existing-books.sha256
+          BASE_VERSION="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"
+          FINAL_VERSION="$(PYTHONPATH=deploy python deploy/integrate_mathematical_economics.py _site "$BASE_VERSION")"
+          echo "FINAL_VERSION=$FINAL_VERSION"
+          find _site/books -type f ! -path '*/mathematical-economics/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-existing-books.sha256
+          diff -u /tmp/pre-existing-books.sha256 /tmp/post-existing-books.sha256
           python - <<'PY'
           import json
           from pathlib import Path
-          site=Path('/tmp/math-econ-site')
-          lib=json.loads((site/'data/library.json').read_text())
-          assert lib['version']=='2026.07.29-18'
+          site=Path('_site'); lib=json.loads((site/'data/library.json').read_text())
           assert len(lib['books'])==13 and lib['books'][-1]['id']=='mathematical-economics'
           assert len(list((site/'assets/mathematical-economics-svg').glob('*.svg')))==20
-          assert '.github/workflows/deploy-pages.yml' in __import__('subprocess').check_output(['git','diff','--cached','--name-only'],text=True)
-          print('SYNTHETIC_INTEGRATION_OK books=13 library=2026.07.29-18')
+          print('FORMAL_ARTIFACT_CANDIDATE_OK books=13 library='+lib['version'])
           PY
+          node --check _site/app.js
+          node --check _site/sw.js
+          git diff --cached --name-only | grep -Fx '.github/workflows/deploy-pages.yml'
