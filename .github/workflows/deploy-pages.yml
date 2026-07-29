@@ -30,6 +30,18 @@ jobs:
         with:
           enablement: true
 
+      - name: Compile mathematical economics release sources
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            deploy/mathematical_economics_content.py \
+            deploy/mathematical_economics_questions.py \
+            deploy/generate_mathematical_economics.py \
+            deploy/qa_mathematical_economics.py \
+            deploy/integrate_mathematical_economics.py \
+            deploy/record_mathematical_economics_deployment.py
+          echo "MATHEMATICAL_ECONOMICS_SOURCE_COMPILE_OK"
+
       - name: Download and verify latest formal Pages artifact
         env:
           GH_TOKEN: ${{ github.token }}
@@ -56,51 +68,50 @@ jobs:
           receipt=json.load(open('docs/deployment_receipt.json'))
           library=json.load(open(site/'data/library.json'))
           assert library['version']==receipt['library_version'], (library['version'],receipt['library_version'])
-          assert len(library['books'])==receipt['book_count']
+          assert len(library['books'])==receipt['book_count']==15
+          assert receipt.get('game_theory_two_round_qa')=='passed'
+          assert receipt.get('game_theory_existing_book_hashes_preserved') is True
           assert (site/'app.js').is_file() and (site/'sw.js').is_file()
           print('FORMAL_ARTIFACT_BASE_OK',library['version'],len(library['books']))
           PY
 
-      - name: Validate formal computer fundamentals tail
+      - name: Validate formal game theory tail
         run: |
           set -euo pipefail
-          BEFORE="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"
-          python deploy/validate_computer_fundamentals_release.py _site "$BEFORE"
-          python deploy/qa_computer_fundamentals_release.py _site "$BEFORE"
           python - <<'PY'
-          import json
-          d=json.load(open('_site/data/library.json'))
-          ids=[b['id'] for b in d['books']]
-          assert len(ids)==14 and ids[-2:]==['advanced-statistics','computer-fundamentals'], ids
-          print('COMPUTER_FUNDAMENTALS_FORMAL_BASE_OK',d['version'],len(ids))
-          PY
-
-      - name: Integrate or validate game theory
-        run: |
-          set -euo pipefail
-          if python - <<'PY'
-          import json,sys
-          d=json.load(open('_site/data/library.json'))
-          sys.exit(0 if any(b['id']=='game-theory' for b in d['books']) else 1)
-          PY
-          then
-            FINAL_LIBRARY_VERSION="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"
-            python - <<'PY'
           import json
           from pathlib import Path
           site=Path('_site')
           d=json.load(open(site/'data/library.json'))
           ids=[b['id'] for b in d['books']]
-          assert len(ids)==15 and ids[-1]=='game-theory', ids
+          assert len(ids)==15 and ids[-2:]==['computer-fundamentals','game-theory'], ids
           root=site/'books/game-theory'
-          m=json.load(open(root/'manifest.json')); q=json.load(open(root/'questions.json')); s=json.load(open(root/'search.json'))
-          assert len(m['chapters'])==23 and q['count']==100 and len(s['entries'])==189
+          m=json.load(open(root/'manifest.json'))
+          q=json.load(open(root/'questions.json'))
+          s=json.load(open(root/'search.json'))
+          assert len(m['chapters'])==23
+          assert q['count']==100
+          assert len(s['entries'])==189
           assert len(list((site/'assets/game-theory-svg').glob('*.svg')))==20
-          print('GAME_THEORY_ALREADY_FORMAL_OK',d['version'])
+          print('GAME_THEORY_FORMAL_BASE_OK',d['version'],len(ids))
           PY
+          node --check _site/app.js
+          node --check _site/sw.js
+
+      - name: Integrate or validate mathematical economics
+        run: |
+          set -euo pipefail
+          if python - <<'PY'
+          import json,sys
+          d=json.load(open('_site/data/library.json'))
+          sys.exit(0 if any(b['id']=='mathematical-economics' for b in d['books']) else 1)
+          PY
+          then
+            FINAL_LIBRARY_VERSION="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"
+            python deploy/qa_mathematical_economics.py _site "$FINAL_LIBRARY_VERSION"
           else
             BEFORE="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"
-            FINAL_LIBRARY_VERSION="$(python deploy/integrate_game_theory.py _site "$BEFORE")"
+            FINAL_LIBRARY_VERSION="$(python deploy/integrate_mathematical_economics.py _site "$BEFORE")"
           fi
           export FINAL_LIBRARY_VERSION
           echo "FINAL_LIBRARY_VERSION=$FINAL_LIBRARY_VERSION" >> "$GITHUB_ENV"
@@ -113,16 +124,16 @@ jobs:
           library=json.load(open(site/'data/library.json'))
           assert library['version']==os.environ['FINAL_LIBRARY_VERSION']
           ids=[b['id'] for b in library['books']]
-          assert len(ids)==15 and ids[-2:]==['computer-fundamentals','game-theory'], ids
-          root=site/'books/game-theory'
+          assert len(ids)==16 and ids[-3:]==['computer-fundamentals','game-theory','mathematical-economics'], ids
+          root=site/'books/mathematical-economics'
           manifest=json.load(open(root/'manifest.json'))
           questions=json.load(open(root/'questions.json'))
           search=json.load(open(root/'search.json'))
           assert len(manifest['chapters'])==23
           assert questions['count']==100
-          assert len(search['entries'])==189
-          assert len(list((site/'assets/game-theory-svg').glob('*.svg')))==20
-          print('FINAL_LIBRARY_READY',library['version'],len(ids))
+          assert len(search['entries'])==150
+          assert len(list((site/'assets/mathematical-economics-svg').glob('*.svg')))==20
+          print('MATHEMATICAL_ECONOMICS_FINAL_LIBRARY_READY',library['version'],len(ids))
           PY
 
       - name: Upload Pages artifact
@@ -165,40 +176,53 @@ jobs:
           library=json.load(open(site/'data/library.json'))
           assert library['version']==os.environ['FINAL_LIBRARY_VERSION']
           ids=[b['id'] for b in library['books']]
-          assert len(ids)==15 and ids[-2:]==['computer-fundamentals','game-theory'], ids
-          computer=site/'books/computer-fundamentals'
-          assert len(json.load(open(computer/'manifest.json'))['chapters'])==23
-          assert json.load(open(computer/'questions.json'))['count']==100
-          assert len(json.load(open(computer/'search.json'))['entries'])==150
-          assert len(list((site/'assets/computer-fundamentals-svg').glob('*.svg')))==20
-          root=site/'books/game-theory'
+          assert len(ids)==16 and ids[-2:]==['game-theory','mathematical-economics'], ids
+          game=site/'books/game-theory'
+          assert len(json.load(open(game/'manifest.json'))['chapters'])==23
+          assert json.load(open(game/'questions.json'))['count']==100
+          assert len(json.load(open(game/'search.json'))['entries'])==189
+          assert len(list((site/'assets/game-theory-svg').glob('*.svg')))==20
+          root=site/'books/mathematical-economics'
           manifest=json.load(open(root/'manifest.json'))
           questions=json.load(open(root/'questions.json'))
           search=json.load(open(root/'search.json'))
           assert len(manifest['chapters'])==23
           assert questions['count']==100
-          assert len(search['entries'])==189
-          assert len(list((site/'assets/game-theory-svg').glob('*.svg')))==20
-          print('DEPLOYED_ARTIFACT_RECHECK_OK',library['version'],len(ids))
+          assert len(search['entries'])==150
+          assert len(list((site/'assets/mathematical-economics-svg').glob('*.svg')))==20
+          for ch in manifest['chapters']:
+              text=(root/ch['file']).read_text(encoding='utf-8')
+              assert "\\'" not in text, ch['id']
+          print('DEPLOYED_MATHEMATICAL_ECONOMICS_RECHECK_OK',library['version'],len(ids))
           PY
           echo "PAGES_ARTIFACT_ID=$ARTIFACT_ID" >> "$GITHUB_ENV"
           echo "PAGES_ARTIFACT_DIGEST=$ARTIFACT_DIGEST" >> "$GITHUB_ENV"
           echo "PAGES_ARTIFACT_SHA256=$ACTUAL_SHA" >> "$GITHUB_ENV"
           echo "DEPLOYED_PAGE_URL=$DEPLOYED_PAGE_URL" >> "$GITHUB_ENV"
 
-      - name: Record successful deployment structurally
+      - name: Record successful mathematical economics deployment
         run: |
           set -euo pipefail
-          python deploy/record_game_theory_deployment.py _site
+          python deploy/record_mathematical_economics_deployment.py _site
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add \
             docs/deployment_receipt.json \
             README.md \
             docs/shared_checkpoint.md \
-            docs/books/game-theory/status.md \
-            docs/books/game-theory/qa_report.md
+            docs/books/mathematical-economics/status.md \
+            docs/books/mathematical-economics/qa_report.md
           if ! git diff --cached --quiet; then
-            git commit -m "Record game theory deployment [skip ci]"
-            git push origin HEAD:main
+            git commit -m "Record mathematical economics deployment [skip ci]"
+            pushed=false
+            for attempt in 1 2 3 4 5; do
+              git fetch origin main
+              if git rebase origin/main && git push origin HEAD:main; then
+                pushed=true
+                break
+              fi
+              git rebase --abort || true
+              sleep $((attempt * 3))
+            done
+            test "$pushed" = true
           fi
