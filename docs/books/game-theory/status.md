@@ -6,7 +6,7 @@
 
 - Book ID：`game-theory`
 - 候選內容版本：`2026.07.29-1`
-- 狀態：內容候選版製作完成，等待獨立候選 QA 與第二輪內容複核；尚未部署。
+- 狀態：兩輪候選 QA 已完成，來源版可進入合併；尚未部署到正式共同書庫。
 - 範圍文件：`docs/books/game-theory/scope.md`
 - QA 報告：`docs/books/game-theory/qa_report.md`
 
@@ -29,8 +29,19 @@
 - Bayesian game、拍賣、PBE、訊號、篩選與 cheap talk。
 - 機制設計入門、合作賽局、擁擠／網路應用與綜合解概念選擇。
 
+## QA
+
+- 第一輪候選驗證：PASS。
+- GitHub Actions run：`30468164830`。
+- 主 validator：`GAME_THEORY_QA_OK checks=2385`。
+- 第二輪獨立複核：`GAME_THEORY_SECOND_PASS_OK checks=360`。
+- 第二輪獨立重算 24 個數值節點、另做 19 個高風險概念 gate。
+- 第二輪實際抓到 5 題詳解過短，已補足推導、模型條件或經濟含意後重新通過。
+- 候選生成前後，既有正式書籍逐檔 SHA-256 無差異；平板端章節、圖解、搜尋與題庫資產路徑全部通過。
+
 ## 尚未完成
 
-- 候選 workflow 必須先通過 Python 編譯、結構／內容驗證、既有書籍 hash preservation 與平板資產路徑驗證。
-- 第二輪獨立內容複核尚未完成，因此不得宣稱正式校對完成。
-- 尚未進行共同書庫整合或 GitHub Pages 部署；發布前必須重新讀最新 `main`、shared checkpoint、registry 與 deployment receipt。
+- 合併來源 PR #78。
+- 正式發布前必須重新讀最新 `main`、`docs/shared_checkpoint.md`、registry 與 `docs/deployment_receipt.json`。
+- 共同書庫整合與 GitHub Pages 部署必須依最新正式 artifact 序列進行，避免與其他並行教材互相覆蓋。
+- 部署後仍需以正式 Pages artifact／deployment receipt 驗證書籍數量、library version 與 `game-theory` 實際存在。
