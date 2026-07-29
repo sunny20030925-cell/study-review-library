@@ -1,5 +1,5 @@
 name: Stage money banking workflow
-# refreshed after latest main synchronization
+# generate a normal-file candidate; canonical workflow is applied separately
 
 on:
   push:
@@ -43,15 +43,14 @@ jobs:
           assert 'docs/books/money-banking/status.md' in s
           print('MONEY_BANKING_WORKFLOW_CANDIDATE_OK', p.stat().st_size)
           PY
-      - name: Commit canonical candidate to work branch
+      - name: Commit candidate
         run: |
-          cp deploy/generated-deploy-pages.money-banking.yml .github/workflows/deploy-pages.yml
-          if git diff --quiet -- deploy/generated-deploy-pages.money-banking.yml .github/workflows/deploy-pages.yml; then
+          if git diff --quiet -- deploy/generated-deploy-pages.money-banking.yml; then
             echo 'Candidate unchanged.'
             exit 0
           fi
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add deploy/generated-deploy-pages.money-banking.yml .github/workflows/deploy-pages.yml
+          git add deploy/generated-deploy-pages.money-banking.yml
           git commit -m 'Stage money and banking deployment workflow [skip ci]'
           git push origin HEAD:agent/money-banking-textbook-20260729
