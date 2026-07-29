@@ -420,7 +420,7 @@ jobs:
           FINAL_LIBRARY_VERSION="$(PYTHONPATH=deploy python deploy/apply_computer_fundamentals_v2.py _site "$BEFORE")"
           QA_LINE="$(PYTHONPATH=deploy python deploy/qa_computer_fundamentals_v2.py _site "$FINAL_LIBRARY_VERSION" | tee /tmp/computer-v2-qa.log | tail -n 1)"
           echo "$QA_LINE"
-          COMPUTER_V2_QA_CHECKS="$(printf '%s\n' "$QA_LINE" | grep -oE 'checks=[0-9]+' | cut -d= -f2)"
+          COMPUTER_V2_QA_CHECKS="$(printf '%s\n' "$QA_LINE" | sed -n 's/^COMPUTER_FUNDAMENTALS_V2_QA_OK checks=\([0-9][0-9]*\).*/\1/p')"
           COMPUTER_V2_NUMERIC_RECHECKS="$(printf '%s\n' "$QA_LINE" | grep -oE 'numeric_rechecks=[0-9]+' | cut -d= -f2)"
           test "$COMPUTER_V2_QA_CHECKS" = "128"
           test "$COMPUTER_V2_NUMERIC_RECHECKS" = "36"
