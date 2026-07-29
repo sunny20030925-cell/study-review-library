@@ -11,11 +11,11 @@
 - 使用者操作限制：只使用平板；不得要求終端機、Git、電腦檔案管理、手動部署或多檔案上傳操作。
 - 正式書庫內容版本：`2026.07.29-24`
 - 正式書籍數：19 本。
-- 最新正式 Pages run：`30472210701`。
-- 最新正式部署 source commit：`0e39ce65a89070708e3c79fda44e4b785c9d8d59`。
-- 最新 Pages artifact：`8732126409`。
-- Artifact digest：`sha256:deccb98be2dc719876c235ba8166264cc883dedc366a476cdbcefe9ea367ac0b`。
-- Pages 狀態：正式 artifact 上傳、Pages deployment 與下載後 artifact recheck 均成功；`2026-07-29T16:46:29.124477+00:00`。
+- 最新正式 Pages run：`30472469702`。
+- 最新正式部署 source commit：`00d76c2167c0132f7284e4e13e4106828d1647fc`。
+- 最新 Pages artifact：`8732231529`。
+- Artifact digest：`sha256:885891d570e82aa33dda22cb249584eca1733231f5fbda31cb7789b2dbc97a33`。
+- Pages 狀態：正式 artifact 上傳、Pages deployment 與下載後 artifact recheck 均成功；`2026-07-29T16:49:21.676281+00:00`。
 - 部署回條：`docs/deployment_receipt.json`；`status=success`、`book_count=19`、`library_version=2026.07.29-24`、`progress_storage_changed=false`。
 - 實際下載正式 Pages artifact 後再次核對：19 本 registry；產業經濟學 23 份章節／附錄 HTML、100 題、150 搜尋、20 SVG 均存在；下載檔 SHA-256 與 GitHub artifact digest 一致。
 - workflow overall conclusion：`success`；post-deploy recorder 採結構化 Book ID／receipt 更新。
@@ -193,7 +193,7 @@
 - 成品：20 章、3 附錄、100 題、150 搜尋、20 圖解。
 - QA：兩輪通過；17 個量化節點、18 組高風險概念／條件複核。
 - 既有 18 本教材 hash 在整合前後完全一致。
-- 正式 Pages run：`30472210701`；Source commit：`0e39ce65a89070708e3c79fda44e4b785c9d8d59`。
+- 正式 Pages run：`30472469702`；Source commit：`00d76c2167c0132f7284e4e13e4106828d1647fc`。
 - 狀態：已部署。
 
 ## Canonical 部署流程
@@ -204,7 +204,7 @@
 4. 各書內容／題庫／搜尋／SVG 與高風險公式／法律要件驗證通過後，再檢查 `app.js` 與 `sw.js`。
 5. 全部正式檢查通過後才上傳單一完整 Pages artifact。
 6. Pages deployment 成功後重新下載本次 artifact 驗證，再由結構化 recorder 寫回 deployment receipt、目標書 status／QA、README 與本 checkpoint。
-7. 最新正式書庫：19 本，`2026.07.29-24`；Pages run `30472210701`，artifact `8732126409`。
+7. 最新正式書庫：19 本，`2026.07.29-24`；Pages run `30472469702`，artifact `8732231529`。
 8. 使用者不需要執行 Git、終端機、手動上傳或部署。
 
 ## 多書並行／發布規則

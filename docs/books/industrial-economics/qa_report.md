@@ -25,7 +25,7 @@ HHI 3,000；Delta HHI 1,500 與 1,200；平均成本 NT$300；範疇經濟 NT$20
 - 兩輪 QA：通過；17 個量化節點與 18 組高風險概念／條件重新驗證。
 - 既有 18 本內容 hash：整合前後完全一致。
 - 正式書庫：19 本，版本 `2026.07.29-24`。
-- Pages run：`30472210701`。
-- Pages artifact：`8732126409`；digest `sha256:deccb98be2dc719876c235ba8166264cc883dedc366a476cdbcefe9ea367ac0b`。
+- Pages run：`30472469702`。
+- Pages artifact：`8732231529`；digest `sha256:885891d570e82aa33dda22cb249584eca1733231f5fbda31cb7789b2dbc97a33`。
 - 部署後 artifact 重抓：23 份本書 HTML、100 題、150 搜尋、20 SVG 全數核對通過。
 - post-deploy recorder：`passed-structured-recorder`。
