@@ -1,0 +1,27 @@
+name: Trigger econometrics deployment once
+
+on:
+  pull_request:
+    types: [closed]
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  dispatch:
+    if: >-
+      github.event.pull_request.merged == true &&
+      github.event.pull_request.head.ref == 'econometrics-deploy-kick'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispatch canonical Pages workflow
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh api \
+            --method POST \
+            "repos/${GITHUB_REPOSITORY}/actions/workflows/deploy-pages.yml/dispatches" \
+            -f ref=main
+          echo "ECONOMETRICS_CANONICAL_DEPLOY_DISPATCHED"
