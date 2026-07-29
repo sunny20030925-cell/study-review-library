@@ -97,16 +97,12 @@ def main() -> None:
         idx = text.find(marker)
         if idx < 0:
             raise AssertionError('cannot locate deployed-artifact recheck print')
-        line_end = text.find('\n', idx)
+        text = text[:idx] + POST_DEPLOY_BLOCK + text[idx:]
+        line_end = text.find('\n', idx + len(POST_DEPLOY_BLOCK))
         if line_end < 0:
             raise AssertionError('unterminated deployed-artifact recheck print')
-        original_line = text[idx:line_end]
-        replacement = POST_DEPLOY_BLOCK + original_line.replace(
-            ")",
-            ",'computer-fundamentals=2026.07.30-2')",
-            1,
-        )
-        text = text[:idx] + replacement + text[line_end:]
+        marker_line = "          print('COMPUTER_FUNDAMENTALS_DEPLOYED_V2_OK','computer-fundamentals=2026.07.30-2')\n"
+        text = text[:line_end+1] + marker_line + text[line_end+1:]
 
     if POST_QA not in text:
         qa_anchor = '          echo "PAGES_ARTIFACT_ID=$ARTIFACT_ID" >> "$GITHUB_ENV"\n'
