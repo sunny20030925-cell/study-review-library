@@ -25,12 +25,12 @@
 11. 二元依變數：Linear Probability Model、logit／probit 的基本直覺、機率預測與邊際效果；重點放在本科常見解讀。
 12. 時間序列基礎：時間索引、趨勢、季節性、落後值、弱定態直覺、隨機漫步與虛假迴歸風險。
 13. 時間序列迴歸與序列相關：動態迴歸、AR(1) 誤差直覺、serial correlation、HAC／Newey–West 標準誤與預測評估。
-14. 縱橫資料：pooled OLS、first differences、fixed effects、random effects 的假設差異與時間不變特徵。
-15. 工具變數與 2SLS：relevance、exogeneity／exclusion restriction、first stage、reduced form、Wald estimator、weak instruments 與同時性。
-16. 隨機實驗與潛在結果：treatment、control、ATE、selection bias、random assignment、compliance 與意向治療 ITT 的基本概念。
-17. Difference-in-Differences：parallel trends、2×2 DiD、固定效果表示、event-study 圖的用途與限制、clustered standard errors。
-18. Regression Discontinuity Design：cutoff、running variable、continuity assumption、local treatment effect、帶寬與操弄檢查。
-19. 預測、模型選擇與樣本外評估：training／test、RMSE／MAE、overfitting、預測目標與因果目標的差別。
+14. 縱橫資料：pooled OLS、first differences、fixed effects、random effects 的假設差異、strict exogeneity 與時間不變特徵。
+15. 工具變數與 2SLS：relevance、exogeneity／exclusion restriction、first stage、reduced form、Wald estimator、weak instruments；二元 IV 在效果異質時補充 complier、monotonicity 與 LATE／CACE 的本科核心解讀。
+16. 隨機實驗與潛在結果：treatment、control、SATE／PATE、random assignment、compliance、ITT，以及 noncompliance 下 assignment-as-IV 與 complier LATE 的界線。
+17. Difference-in-Differences：parallel trends、no anticipation、2×2 DiD、固定效果表示、event-study 圖的用途與限制、clustered standard errors。
+18. Regression Discontinuity Design：cutoff、running variable、continuity assumption、local treatment effect、帶寬與操弄檢查；fuzzy RDD 補充 cutoff 處 local complier LATE 的條件式解讀。
+19. 預測、模型選擇與樣本外評估：training、validation／cross-validation、final test、RMSE／MAE、overfitting、test leakage，以及預測目標與因果目標的差別。
 20. 完整實證工作流程：研究問題、estimand、識別假設、資料清理、估計、穩健性檢查、表格／圖形、可重現性與結果解讀。
 
 ## 深度邊界
@@ -56,12 +56,14 @@
 - 多重共線性在外生性成立時不會使 OLS 係數本身產生系統性偏誤；它主要使個別係數難以精確估計，完全共線性則使模型無法估計。
 - 對數模型的百分比解釋必須分清近似與精確變化；dummy 進入 log(y) 時，必要時使用 `100(exp(beta)-1)%` 的精確效果。
 - 2SLS／IV 必須同時討論 instrument relevance 與 exogeneity／exclusion；強 first stage 不能證明工具變數外生。
+- treatment effects 異質時，標準二元 IV 的 Wald ratio 在相應外生性、exclusion、relevance、monotonicity 等條件下典型識別 compliers 的 LATE／CACE；不得無條件改稱全母體 ATE、ATT 或所有 treatment takers 的效果。
 - weak instrument 不能只看「第一階段有顯著」；教材會說明常見 first-stage F 診斷只是實務指標，不是萬用保證。
-- fixed effects 依賴個體內變化；時間不變變數在個體固定效果模型中無法單獨識別。random effects 需要比 FE 更強的效果與解釋變數不相關假設。
-- DiD 的核心是未受處置時趨勢可比較的 parallel-trends 假設；看到處置前係數不顯著不能證明假設必然成立。
-- RDD 的因果效果通常是 cutoff 附近的 local effect；不得無條件外推到所有樣本。
+- fixed effects 依賴個體內變化；時間不變變數在個體固定效果模型中無法單獨識別。標準靜態 FE／FD 仍需要合適的 idiosyncratic-error 外生性條件；random effects 需要比 FE 更強的效果與解釋變數不相關假設。
+- Random assignment 主要建立實驗樣本內的因果可比性；不得把它和代表性抽樣混為一談。Noncompliance 下若以 assignment 作 IV，必須另寫 IV／LATE 條件與 complier estimand。
+- DiD 的核心是未受處置時趨勢可比較的 parallel-trends 假設；看到處置前係數不顯著不能證明假設必然成立，且 pre-treatment 期間若已受政策預期影響，必須處理 no-anticipation／anticipation window 問題。
+- RDD 的因果效果通常是 cutoff 附近的 local effect；不得無條件外推到所有樣本。Fuzzy RDD 的局部 Wald ratio 在相應條件下典型解讀為 cutoff 處 local compliers 的 LATE。
 - time-series regression 必須檢查趨勢、定態與序列依賴；高 R² 與顯著 t 值不能排除 spurious regression。
-- 預測與因果是不同目標：樣本外預測較準的模型，不代表每個係數都有因果意義。
+- 預測與因果是不同目標：樣本外預測較準的模型，不代表每個係數都有因果意義。模型／超參數選擇應使用 validation 或 cross-validation；final test set 應保留到選模完成後再做最後評估，避免 test leakage。
 
 ## 成品結構
 
@@ -76,4 +78,4 @@
 
 - 一般大學 introductory econometrics 共同課程架構；核心交集以 OLS、多元迴歸、推論、heteroskedasticity、IV、panel data 與 time series 為主。
 - 現代本科常見的 program evaluation／causal inference 內容納入 random experiments、DiD 與 RDD，但不擴張成研究所因果推論專題課。
-- 外部課程交叉核對包括 UC Berkeley ECON 140／141 與 MIT OpenCourseWare 14.32；只用來確認主題覆蓋，不照搬教材文字或受版權限制題目。
+- 外部課程交叉核對包括 UC Berkeley ECON 140／141、MIT OpenCourseWare 14.32，以及經典 IV／RDD／DiD 方法論來源；只用來確認主題覆蓋與精確性，不照搬教材文字或受版權限制題目。
