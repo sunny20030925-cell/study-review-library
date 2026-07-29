@@ -1,0 +1,112 @@
+name: Validate econometrics candidate
+
+on:
+  pull_request:
+    paths:
+      - 'deploy/econometrics_*.py'
+      - 'deploy/generate_econometrics.py'
+      - 'deploy/finalize_econometrics_library.py'
+      - 'deploy/validate_econometrics.py'
+      - 'docs/books/econometrics/**'
+      - '.github/workflows/validate-econometrics-candidate.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout candidate
+        uses: actions/checkout@v4
+
+      - name: Compile econometrics sources
+        run: |
+          python -m py_compile \
+            deploy/econometrics_content_a.py \
+            deploy/econometrics_content_b.py \
+            deploy/econometrics_questions_a.py \
+            deploy/econometrics_questions_b.py \
+            deploy/generate_econometrics.py \
+            deploy/finalize_econometrics_library.py \
+            deploy/validate_econometrics.py
+
+      - name: Download latest successfully deployed Pages artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          RUN_ID="$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/deploy-pages.yml/runs?branch=main&status=success&per_page=1" --jq '.workflow_runs[0].id')"
+          test -n "$RUN_ID" && test "$RUN_ID" != "null"
+          ARTIFACT_ID="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}/artifacts" --jq '.artifacts[] | select(.name == "github-pages") | .id' | head -n 1)"
+          test -n "$ARTIFACT_ID"
+          echo "BASE_DEPLOY_RUN=$RUN_ID"
+          echo "BASE_ARTIFACT_ID=$ARTIFACT_ID"
+          gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" > /tmp/pages.zip
+          mkdir /tmp/pages-artifact _site
+          unzip -q /tmp/pages.zip -d /tmp/pages-artifact
+          if [ -f /tmp/pages-artifact/artifact.tar ]; then
+            tar -xf /tmp/pages-artifact/artifact.tar -C _site
+          elif [ -f /tmp/pages-artifact/artifact.tar.gz ]; then
+            tar -xzf /tmp/pages-artifact/artifact.tar.gz -C _site
+          else
+            cp -a /tmp/pages-artifact/. _site/
+          fi
+          test -f _site/data/library.json
+          test -f _site/sw.js
+          test -f _site/app.js
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          lib=json.loads(Path('_site/data/library.json').read_text(encoding='utf-8'))
+          ids=[b['id'] for b in lib['books']]
+          assert 'econometrics' not in ids, ids
+          assert len(ids)>=12, ids
+          print(f"ECONOMETRICS_DYNAMIC_BASE_OK books={len(ids)} library={lib['version']} tail={ids[-3:]}")
+          PY
+
+      - name: Generate candidate on deployed library copy
+        run: |
+          set -euo pipefail
+          cp _site/data/library.json /tmp/pre-econometrics-library.json
+          find _site/books -type f -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-existing-books.sha256
+          python deploy/generate_econometrics.py _site
+          FINAL_LIBRARY_VERSION="$(python deploy/finalize_econometrics_library.py _site /tmp/pre-econometrics-library.json)"
+          echo "FINAL_LIBRARY_VERSION=$FINAL_LIBRARY_VERSION" >> "$GITHUB_ENV"
+          echo "ECONOMETRICS_FINAL_LIBRARY=$FINAL_LIBRARY_VERSION"
+
+      - name: Independent content and preservation validation
+        env:
+          PRE_LIBRARY_JSON: /tmp/pre-econometrics-library.json
+        run: |
+          set -euo pipefail
+          EXPECTED_LIBRARY_VERSION="$FINAL_LIBRARY_VERSION" PRE_LIBRARY_JSON="$PRE_LIBRARY_JSON" python deploy/validate_econometrics.py _site
+          find _site/books -type f ! -path '*/econometrics/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-existing-books.sha256
+          diff -u /tmp/pre-existing-books.sha256 /tmp/post-existing-books.sha256
+          node --check _site/app.js
+          node --check _site/sw.js
+
+      - name: Verify tablet-facing asset paths exist
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          site=Path('_site')
+          m=json.loads((site/'books/econometrics/manifest.json').read_text(encoding='utf-8'))
+          q=json.loads((site/'books/econometrics/questions.json').read_text(encoding='utf-8'))
+          s=json.loads((site/'books/econometrics/search.json').read_text(encoding='utf-8'))
+          assert len([x for x in m['chapters'] if x['kind']=='chapter'])==20
+          assert len([x for x in m['chapters'] if x['kind']=='appendix'])==3
+          assert len(q['items'])==100
+          assert len(s['entries'])==189
+          for ch in m['chapters']:
+              p=site/'books/econometrics'/ch['file']
+              assert p.is_file() and p.stat().st_size>700, ch
+          figs=list((site/'assets/econometrics-svg').glob('*.svg'))
+          assert len(figs)==20
+          for p in figs: assert p.stat().st_size>550, p
+          print('ECONOMETRICS_TABLET_ASSET_PATHS_OK chapters=20 appendices=3 questions=100 search=189 figures=20')
+          PY
