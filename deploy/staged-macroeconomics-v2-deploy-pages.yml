@@ -1,0 +1,846 @@
+name: Deploy study library
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - name: Download and verify website package
+        run: |
+          curl -L --fail --retry 5 --retry-all-errors --connect-timeout 20 \
+            'https://drive.usercontent.google.com/download?id=1rgPS62bIZOWC8H3zSrw-RBZ3jkg9SDcs&export=download&confirm=t' \
+            -o site.zip
+          echo 'ece2a68f5bdaf7fd82c3897bf49a9628121e9775f6b75ee7d7b375c1bbe01600  site.zip' | sha256sum --check -
+          mkdir _site
+          python -m zipfile -e site.zip _site
+          rm -rf _site/.github
+
+      - name: Apply accounting second-audit corrections
+        run: |
+          python -m pip install --disable-pip-version-check beautifulsoup4
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('_site/sw.js')
+          text = path.read_text(encoding='utf-8')
+          current = "const VERSION = 'study-library-2026-07-28-1';"
+          expected = "const VERSION = 'study-library-2026-07-27-5';"
+          if current in text:
+              text = text.replace(current, expected, 1)
+              path.write_text(text, encoding='utf-8')
+          elif expected not in text:
+              raise AssertionError('unexpected service worker version before accounting patch')
+          PY
+          python deploy/patch_accounting_v2.py _site
+
+      - name: Apply economics independent-audit corrections
+        run: |
+          cat deploy/patch-economics-v2.py.gz.b64.part* | base64 --decode > /tmp/patch-economics-v2.py.gz
+          echo 'b675b23d8711c75b2d736315b3161d5c2afc608d11e55249ec9ea5bd1e4d97fa  /tmp/patch-economics-v2.py.gz' | sha256sum --check -
+          gzip --decompress --stdout /tmp/patch-economics-v2.py.gz > /tmp/patch-economics-v2.py
+          SITE_ROOT="$GITHUB_WORKSPACE/_site" python /tmp/patch-economics-v2.py
+
+      - name: Apply statistics post-publication audit corrections
+        run: |
+          python deploy/patch_statistics_v2.py _site
+
+      - name: Generate commercial law textbook
+        run: |
+          cat deploy/generate-commercial-law.py.gz.b64.part* | base64 --decode > /tmp/generate-commercial-law.py.gz
+          echo '85843044d6fee2f0c5d11208754a4d6b103402392d3a44511745a146874dcdfc  /tmp/generate-commercial-law.py.gz' | sha256sum --check -
+          gzip --decompress --stdout /tmp/generate-commercial-law.py.gz > /tmp/generate-commercial-law.py
+          python /tmp/generate-commercial-law.py _site
+
+      - name: Apply commercial law post-publication corrections
+        run: |
+          python deploy/patch-commercial-law-reaudit.py _site
+
+      - name: Add visible per-book version verification
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json, re
+
+          site = Path('_site')
+          release_data = {
+              'calculus': {
+                  'updatedAt': '2026-07-27',
+                  'releaseNotes': [{
+                      'version': '2026.07.27-3',
+                      'date': '2026-07-27',
+                      'title': '改回標準大一微積分本位',
+                      'changes': [
+                          '移除經濟學取向副標題與經濟專屬核心題型',
+                          '新增或強化中值定理、洛必達法則、弧長、旋轉曲面與純數學限制最佳化',
+                          '73 題題庫重新驗算；181 項 QA 全數通過',
+                      ],
+                      'progressImpact': '章節 ID 與章節數未變，既有閱讀進度保留。',
+                  }],
+              },
+              'accounting': {
+                  'updatedAt': '2026-07-27',
+                  'releaseNotes': [{
+                      'version': '2026.07.27-2',
+                      'date': '2026-07-27',
+                      'title': '二次內容複核與錯誤修正',
+                      'changes': [
+                          '修正損益表名稱與存貨成本公式',
+                          '區分定期加權平均與永續移動平均',
+                          '補強約當現金、折舊、流動負債與現金流量分類條件',
+                          '70 題題庫重新驗算並同步搜尋索引與圖解',
+                      ],
+                      'progressImpact': '章節與題目 ID 未變，既有閱讀進度與錯題紀錄保留。',
+                  }],
+              },
+              'economics': {
+                  'updatedAt': '2026-07-27',
+                  'releaseNotes': [{
+                      'version': '2026.07.27-2',
+                      'date': '2026-07-27',
+                      'title': '發布後獨立糾錯複核',
+                      'changes': [
+                          '修正補貼價格楔與福利效果的敘述',
+                          '區分規模經濟、規模不經濟與規模報酬',
+                          '補正正消費與正生產外部性的社會曲線關係',
+                          '明定儲蓄與稅乘數公式中的 T 為淨稅收',
+                          '區分簡單存款乘數與現實廣義貨幣乘數',
+                          '補上總合需求與國際收支恆等式的模型條件',
+                          '同步修正 6 道題庫詳解與搜尋索引',
+                      ],
+                      'progressImpact': '章節與題目 ID 未變，既有閱讀進度與錯題紀錄保留。',
+                  }],
+              },
+              'statistics': {
+                  'updatedAt': '2026-07-29',
+                  'releaseNotes': [{
+                      'version': '2026.07.29-2',
+                      'date': '2026-07-29',
+                      'title': '發布後獨立二次校錯',
+                      'changes': [
+                          '修正隨機分派、不等組距直方圖、變異係數與柴比雪夫不等式的成立條件',
+                          '補正變異數加總的 2Cov(X,Y)、比例區間與檢定標準誤，以及 p 值的極端方向定義',
+                          '補強平均數區間、單一比例檢定、非參數方法與含截距簡單迴歸的解讀邊界',
+                          '95 題全數複核；44 個計算／公式判斷獨立重算，169 筆搜尋索引重新建立',
+                      ],
+                      'progressImpact': '章節 ID、題目 ID 與題數不變，既有閱讀進度與錯題紀錄保留。',
+                  }, {
+                      'version': '2026.07.28-1',
+                      'date': '2026-07-29',
+                      'title': '新增大學入門統計學',
+                      'changes': [
+                          '新增 19 章正文與 3 份附錄，從資料描述一路到統計推論、ANOVA 與簡單線性迴歸',
+                          '新增 95 題題庫，每章 5 題，涵蓋概念、計算、判讀、綜合與常見陷阱',
+                          '新增 169 筆搜尋索引與 19 張自製統計圖解',
+                          '完成初版兩輪 QA，並修正 HTML 小於符號與不等號公式顯示問題',
+                      ],
+                      'progressImpact': '新增獨立書籍，不改動既有書籍的章節、題目 ID 或閱讀進度。',
+                  }],
+              },
+              'commercial-law': {
+                  'updatedAt': '2026-07-29',
+                  'releaseNotes': [{
+                      'version': '2026.07.29-2',
+                      'date': '2026-07-29',
+                      'title': '公司法第 8 條現行法版本回修',
+                      'changes': [
+                          '最終法規交叉核對發現前版誤採舊法「公開發行股票之公司」限制，立即依現行公司法第 8 條第 3 項回修',
+                          '改回現行法的一般規則：公司之非董事符合實質執行董事業務或實質控制並指揮董事等要件時，原則上與董事同負相應責任',
+                          '同步修正 ch02-q05、法律 gate 與禁止誤述檢查；其餘發布後二次複核修正全部保留',
+                      ],
+                      'progressImpact': '章節 ID、題目 ID 與題數不變，既有閱讀進度與錯題紀錄保留。',
+                  }, {
+                      'version': '2026.07.29-1',
+                      'date': '2026-07-29',
+                      'title': '發布後獨立內容複核與法律精確化',
+                      'changes': [
+                          '限縮公司法第 8 條實質董事規則至公開發行股票之公司，補正第 194 條繼續持股 1 年門檻',
+                          '補入已依證交法發行股票公司董事至少 5 人、公開發行公司董事會原則 7 日前通知與利害關係董事表決排除',
+                          '補正閉鎖性公司股東人數上限例外，以及技術與勞務出資的同意、章程與比例條件',
+                          '補足短線交易其他股權性質證券、證券商營業處所準用及內線交易非股權公司債路線；90 題全數重新複核',
+                      ],
+                      'progressImpact': '章節 ID、題目 ID 與題數不變，既有閱讀進度與錯題紀錄保留。',
+                  }, {
+                      'version': '2026.07.28-1',
+                      'date': '2026-07-29',
+                      'title': '新增商事法重點整理',
+                      'changes': [
+                          '以公司法與證券交易法為核心，新增 18 章正文與 3 份附錄',
+                          '新增 90 題題庫，每章 5 題，涵蓋法條、要件、責任、程序與常見陷阱',
+                          '新增 111 筆搜尋索引、18 張自製圖解與法條速查功能',
+                          '完成初版兩輪內容與題庫 QA',
+                      ],
+                      'progressImpact': '新增獨立書籍，不改動既有書籍的章節、題目 ID 或閱讀進度。',
+                  }],
+              },
+          }
+          for book_id, extra in release_data.items():
+              path = site / f'books/{book_id}/manifest.json'
+              obj = json.loads(path.read_text(encoding='utf-8'))
+              obj.update(extra)
+              path.write_text(json.dumps(obj, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+
+          library_path = site / 'data/library.json'
+          library = json.loads(library_path.read_text(encoding='utf-8'))
+          library['version'] = '2026.07.29-6'
+          library_path.write_text(json.dumps(library, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+
+          app_path = site / 'app.js'
+          app = app_path.read_text(encoding='utf-8')
+          helper = '''  function renderReleaseNotes(manifest) {
+            const notes = Array.isArray(manifest.releaseNotes) ? manifest.releaseNotes : [];
+            if (!notes.length) return '';
+            return `<details class="release-notes">
+              <summary>查看版本與更新內容</summary>
+              <div class="release-notes-body">${notes.map(note => `
+                <section class="release-entry">
+                  <div class="release-entry-head"><strong>${escapeHtml(note.version || manifest.version || '')}</strong><span>${escapeHtml(note.date || manifest.updatedAt || '')}</span></div>
+                  <h3>${escapeHtml(note.title || '內容更新')}</h3>
+                  <ul>${(note.changes || []).map(item => `<li>${escapeHtml(item)}</li>`).join('')}</ul>
+                  ${note.progressImpact ? `<p class="progress-impact">閱讀進度：${escapeHtml(note.progressImpact)}</p>` : ''}
+                </section>`).join('')}</div>
+            </details>`;
+          }
+
+          '''
+          if 'function renderReleaseNotes(manifest)' not in app:
+              app = app.replace('  async function renderLibrary() {', helper + '  async function renderLibrary() {')
+              app = app.replace(
+                  '            <h3>${escapeHtml(book.title)}</h3>\n            <p>${escapeHtml(book.subtitle)}</p>\n            <div class="progress-track">',
+                  '            <h3>${escapeHtml(book.title)}</h3>\n            <p>${escapeHtml(book.subtitle)}</p>\n            <div class="version-line">內容版本 ${escapeHtml(manifest.version || \'未標示\')}</div>\n            <div class="progress-track">',
+                  1,
+              )
+              app = app.replace(
+                  '          <h1>${escapeHtml(manifest.title)}</h1>\n          <p class="muted">${escapeHtml(manifest.subtitle)}</p>\n          <div class="progress-track">',
+                  '          <h1>${escapeHtml(manifest.title)}</h1>\n          <p class="muted">${escapeHtml(manifest.subtitle)}</p>\n          <div class="version-line version-line-strong">內容版本 ${escapeHtml(manifest.version || \'未標示\')}・最後更新 ${escapeHtml(manifest.updatedAt || \'未標示\')}</div>\n          <div class="progress-track">',
+                  1,
+              )
+              app = app.replace(
+                  '        </div>\n      </section>\n      <div class="section-title"><h2>搜尋內容</h2></div>',
+                  '        </div>\n        ${renderReleaseNotes(manifest)}\n      </section>\n      <div class="section-title"><h2>搜尋內容</h2></div>',
+                  1,
+              )
+          app_path.write_text(app, encoding='utf-8')
+
+          css_path = site / 'styles.css'
+          css = css_path.read_text(encoding='utf-8')
+          if '.release-notes{' not in css:
+              css += '''
+          .version-line{font-size:.86rem;color:var(--muted);margin:.25rem 0 .7rem;font-weight:600}
+          .version-line-strong{display:inline-block;padding:.35rem .65rem;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--text)}
+          .release-notes{grid-column:1/-1;margin-top:.75rem;border:1px solid var(--line);border-radius:14px;background:var(--surface);overflow:hidden}
+          .release-notes summary{cursor:pointer;padding:12px 14px;font-weight:700;color:var(--text)}
+          .release-notes-body{border-top:1px solid var(--line);padding:0 14px}
+          .release-entry{padding:14px 0}
+          .release-entry+.release-entry{border-top:1px solid var(--line)}
+          .release-entry-head{display:flex;gap:12px;justify-content:space-between;color:var(--muted);font-size:.9rem}
+          .release-entry h3{margin:.45rem 0}
+          .release-entry ul{margin:.4rem 0 .6rem;padding-left:1.25rem}
+          .release-entry li{margin:.3rem 0}
+          .progress-impact{margin:.6rem 0 0;padding:.65rem .75rem;border-radius:10px;background:var(--soft);color:var(--text)}
+          '''
+          css_path.write_text(css, encoding='utf-8')
+
+          sw_path = site / 'sw.js'
+          sw = sw_path.read_text(encoding='utf-8')
+          sw = re.sub(r"const VERSION = 'study-library-[^']+';", "const VERSION = 'study-library-2026-07-29-6';", sw, count=1)
+          sw_path.write_text(sw, encoding='utf-8')
+          PY
+
+      - name: Validate five-book study library
+        run: |
+          python - <<'PY'
+          import json, re
+          from collections import Counter
+          from pathlib import Path
+
+          site = Path('_site')
+          library = json.loads((site / 'data/library.json').read_text(encoding='utf-8'))
+          assert library['version'] == '2026.07.29-6'
+          assert [book['id'] for book in library['books']] == ['calculus', 'accounting', 'economics', 'statistics', 'commercial-law']
+
+          expected = {'calculus': 73, 'accounting': 70, 'economics': 100, 'statistics': 95, 'commercial-law': 90}
+          for book_id, count in expected.items():
+              root = site / 'books' / book_id
+              manifest = json.loads((root / 'manifest.json').read_text(encoding='utf-8'))
+              questions = json.loads((root / 'questions.json').read_text(encoding='utf-8'))
+              search = json.loads((root / 'search.json').read_text(encoding='utf-8'))
+              assert manifest['id'] == book_id
+              assert manifest['updatedAt'] and manifest['releaseNotes']
+              assert questions['count'] == count == len(questions['items'])
+              assert search['entries']
+              for chapter in manifest['chapters']:
+                  path = root / chapter['file']
+                  assert path.is_file() and path.stat().st_size > 100
+
+          accounting_root = site / 'books/accounting'
+          accounting_manifest = json.loads((accounting_root / 'manifest.json').read_text(encoding='utf-8'))
+          accounting_questions = json.loads((accounting_root / 'questions.json').read_text(encoding='utf-8'))
+          accounting_search = json.loads((accounting_root / 'search.json').read_text(encoding='utf-8'))
+          assert accounting_manifest['version'] == accounting_questions['version'] == '2026.07.27-2'
+          assert len(accounting_search['entries']) == 111
+          assert Counter(q['chapterId'] for q in accounting_questions['items']) == {f'ch{i:02d}': 5 for i in range(14)}
+          assert '<h2 id="損益表">損益表</h2>' in (accounting_root / 'chapters/ch06.html').read_text(encoding='utf-8')
+          accounting_ch08 = (accounting_root / 'chapters/ch08.html').read_text(encoding='utf-8')
+          assert '本期商品淨取得成本' in accounting_ch08
+          assert '永續盤存制通常採移動平均法' in accounting_ch08
+
+          economics_root = site / 'books/economics'
+          economics_manifest = json.loads((economics_root / 'manifest.json').read_text(encoding='utf-8'))
+          economics_questions = json.loads((economics_root / 'questions.json').read_text(encoding='utf-8'))
+          economics_search = json.loads((economics_root / 'search.json').read_text(encoding='utf-8'))
+          assert economics_manifest['version'] == economics_questions['version'] == '2026.07.27-2'
+          assert len([x for x in economics_manifest['chapters'] if x['kind'] == 'chapter']) == 20
+          assert len([x for x in economics_manifest['chapters'] if x['kind'] == 'appendix']) == 3
+          assert len(economics_search['entries']) == 144
+          assert Counter(q['chapterId'] for q in economics_questions['items']) == {f'ch{i:02d}': 5 for i in range(20)}
+
+          economics_text = '\n'.join(
+              (economics_root / chapter['file']).read_text(encoding='utf-8')
+              for chapter in economics_manifest['chapters']
+          )
+          for token in (
+              '與租稅相反的價格楔', '兩者不是同一個定義', '資源稟賦',
+              '正生產外部性', 'T 表示淨稅收', '簡單存款乘數',
+              '實質貨幣餘額', '定額淨稅收乘數', '完整國際收支中',
+              '非競爭性且非排他性',
+          ):
+              assert token in economics_text
+          for obsolete in (
+              '補貼降低買賣雙方的有效成本',
+              '平均成本不變為規模報酬不變',
+              '資源禀賦',
+              '非敵對且難排他的財',
+          ):
+              assert obsolete not in economics_text
+
+          economics_figures = sorted((site / 'assets/economics-svg').glob('*.svg'))
+          assert len(economics_figures) == 20
+          for figure in economics_figures:
+              svg = figure.read_text(encoding='utf-8')
+              assert '<title' in svg and '<desc' in svg and 'viewBox' in svg
+
+          statistics_root = site / 'books/statistics'
+          statistics_manifest = json.loads((statistics_root / 'manifest.json').read_text(encoding='utf-8'))
+          statistics_questions = json.loads((statistics_root / 'questions.json').read_text(encoding='utf-8'))
+          statistics_search = json.loads((statistics_root / 'search.json').read_text(encoding='utf-8'))
+          assert statistics_manifest['version'] == statistics_questions['version'] == '2026.07.29-2'
+          assert len([x for x in statistics_manifest['chapters'] if x['kind'] == 'chapter']) == 19
+          assert len([x for x in statistics_manifest['chapters'] if x['kind'] == 'appendix']) == 3
+          assert len(statistics_search['entries']) == 169
+          assert Counter(q['chapterId'] for q in statistics_questions['items']) == {f'ch{i:02d}': 5 for i in range(19)}
+          statistics_figures = sorted((site / 'assets/statistics-svg').glob('*.svg'))
+          assert len(statistics_figures) == 19
+          for figure in statistics_figures:
+              svg = figure.read_text(encoding='utf-8')
+              assert '<title' in svg and '<desc' in svg and 'viewBox' in svg
+
+          statistics_text = '\n'.join(
+              (statistics_root / chapter['file']).read_text(encoding='utf-8')
+              for chapter in statistics_manifest['chapters']
+          )
+          for token in (
+              '中央極限定理', '信賴區間', 'p 值', '第一類錯誤',
+              '成對', '卡方', '變異數分析', '簡單線性迴歸', '相關係數',
+          ):
+              assert token in statistics_text
+
+          # statistics post-publication correction tokens
+          for token in (
+              '單一實驗仍可能偶然不平衡', '次數密度或相對次數密度',
+              'CV 雖然沒有單位，也不能因此直接比較性質完全不同的變數',
+              'Var(X+Y)=Var(X)+Var(Y)+2Cov(X,Y)',
+              '依對立假設方向定義之「同等或更極端」', 'SE_{CI}', 'SE_0',
+              '兩組分布形狀相近、主要差在位置時',
+          ):
+              assert token in statistics_text, token
+          for obsolete in (
+              '分組時組距應一致、邊界不重疊',
+              '不獨立時還要加上協方差項',
+              '得到目前或更極端統計量的機率',
+          ):
+              assert obsolete not in statistics_text, obsolete
+
+          law_root = site / 'books/commercial-law'
+          law_manifest = json.loads((law_root / 'manifest.json').read_text(encoding='utf-8'))
+          law_questions = json.loads((law_root / 'questions.json').read_text(encoding='utf-8'))
+          law_search = json.loads((law_root / 'search.json').read_text(encoding='utf-8'))
+          assert law_manifest['version'] == law_questions['version'] == '2026.07.29-2'
+          assert len([x for x in law_manifest['chapters'] if x['kind'] == 'chapter']) == 18
+          assert len([x for x in law_manifest['chapters'] if x['kind'] == 'appendix']) == 3
+          assert len(law_search['entries']) == 111
+          assert Counter(q['chapterId'] for q in law_questions['items']) == {f'ch{i:02d}': 5 for i in range(18)}
+
+          law_html = '\n'.join(
+              (law_root / chapter['file']).read_text(encoding='utf-8')
+              for chapter in law_manifest['chapters']
+          )
+          law_plain = re.sub(r'<[^>]+>', ' ', law_html)
+          law_compact = ''.join(law_plain.split()).replace('％', '%')
+
+          def require_any(label, *tokens):
+              normalized = [''.join(token.split()).replace('％', '%') for token in tokens]
+              if not any(token in law_compact for token in normalized):
+                  raise AssertionError(f'missing legal fact: {label}; accepted={tokens}')
+
+          require_any('公司法第23條', '公司法第23條', '公司法第二十三條')
+          require_any('股東提案300字', '300字', '三百字')
+          require_any('代表訴訟六個月', '6個月', '六個月')
+          require_any('代表訴訟持股1%', '1%', '百分之一')
+          require_any('代表訴訟30日', '30日', '三十日')
+          require_any('證交法第43-6條', '第43-6條', '第43條之6', '第四十三條之六')
+          require_any('私募第二款', '第二款', '第2款')
+          require_any('私募第三款', '第三款', '第3款')
+          require_any('私募35人', '35人', '三十五人')
+          require_any('大量持股5%', '5%', '百分之五')
+          require_any('內線交易10%', '10%', '百分之十')
+          require_any('內線交易18小時', '18小時', '十八小時')
+          require_any('證交法第62條', '第62條', '第六十二條')
+          require_any('公司法第8條現行實質董事主體', '公司之非董事')
+          require_any('公司法第8條現行實質執行董事業務', '實質上執行董事業務')
+          require_any('公司法第8條現行實質控制', '實質控制公司之人事', '實質控制公司人事')
+          require_any('已依證交法發行股票公司董事至少五人', '董事會不得少於5人', '董事至少5人')
+          require_any('公開發行公司董事會七日通知', '7日前通知', '七日前通知')
+          require_any('利害關係董事表決排除', '不得加入表決', '不算入已出席董事的表決權數')
+          require_any('公司法第194條一年持有期間', '繼續1年以上', '繼續一年以上')
+          require_any('閉鎖公司股東上限例外', '中央主管機關得視社會經濟情況及實際需要增加股東人數上限')
+          require_any('短線交易其他股權性質證券', '其他具有股權性質之有價證券')
+          require_any('內線交易非股權公司債', '非股權性質公司債')
+          require_any('獨立董事制度', '獨立董事')
+          require_any('獨立董事至少二人', '2人', '二人')
+          require_any('獨立董事五分之一', '五分之一', '1/5')
+          assert '私募對象一律不得超過35人' not in law_compact
+          assert '短線交易只適用上市股票' not in law_compact
+          assert '公司法第8條第3項只針對公開發行股票之公司' not in law_compact
+          assert '第8條第3項只針對公開發行股票之公司' not in law_compact
+
+          law_figures = sorted((site / 'assets/commercial-law-svg').glob('*.svg'))
+          assert len(law_figures) == 18
+          for figure in law_figures:
+              svg = figure.read_text(encoding='utf-8')
+              assert '<title' in svg and '<desc' in svg and 'viewBox' in svg
+
+          app = (site / 'app.js').read_text(encoding='utf-8')
+          css = (site / 'styles.css').read_text(encoding='utf-8')
+          sw = (site / 'sw.js').read_text(encoding='utf-8')
+          assert '查看版本與更新內容' in app
+          assert '內容版本 ${escapeHtml(manifest.version' in app
+          assert '.release-notes{' in css
+          assert '法條速查' in app
+          assert 'study-library-2026-07-29-6' in sw
+          assert './books/statistics/manifest.json' in sw
+          assert './books/statistics/chapters/ch18.html' in sw
+          assert './assets/statistics-svg/anova.svg' in sw
+          assert './books/commercial-law/manifest.json' in sw
+          assert './books/commercial-law/chapters/ch17.html' in sw
+          print('LIBRARY_VALIDATION_OK books=5 statistics_chapters=19 statistics_questions=95 commercial_law_chapters=18 commercial_law_questions=90')
+          PY
+          node --check _site/app.js
+          node --check _site/sw.js
+
+      - name: Generate and independently validate cost accounting textbook
+        run: |
+          cat deploy/generate-cost-accounting.py.gz.b64.part* | base64 --decode > /tmp/generate-cost-accounting.py.gz
+          echo 'b2c8d9e66d5233fbd20e4adb09b5c6144b38895b0e8b14b21b8ac476eca3029e  /tmp/generate-cost-accounting.py.gz' | sha256sum --check -
+          gzip --decompress --stdout /tmp/generate-cost-accounting.py.gz > /tmp/generate-cost-accounting.py
+          python /tmp/generate-cost-accounting.py _site
+          python deploy/validate_cost_accounting.py _site
+          node --check _site/app.js
+          node --check _site/sw.js
+
+      - name: Generate and independently validate microeconomics textbook
+        run: |
+          cp _site/data/library.json /tmp/pre-micro-library.json
+          cat deploy/generate-microeconomics.py.xz.b64.part* | tr -d '\n' | base64 --decode > /tmp/generate-microeconomics.py.xz
+          echo 'bab46d4c7a573d6568d36e308bd713712c7bd91fef82eca7738a578862609cb4  /tmp/generate-microeconomics.py.xz' | sha256sum --check -
+          xz --decompress --stdout /tmp/generate-microeconomics.py.xz > /tmp/generate-microeconomics.py
+          python /tmp/generate-microeconomics.py _site
+          FINAL_LIBRARY_VERSION="$(python deploy/finalize_microeconomics_library.py _site /tmp/pre-micro-library.json)"
+          EXPECTED_LIBRARY_VERSION="$FINAL_LIBRARY_VERSION" python deploy/qa_microeconomics.py _site
+          python deploy/patch_microeconomics_v2.py _site
+          python deploy/qa_microeconomics_v2.py _site
+          node --check _site/app.js
+          node --check _site/sw.js
+          echo "MICRO_FINAL_LIBRARY_VERSION=$FINAL_LIBRARY_VERSION"
+
+      - name: Generate, independently validate, and apply macroeconomics v2 reaudit
+        run: |
+          cp _site/data/library.json /tmp/pre-macroeconomics-library.json
+          cat deploy/generate-macroeconomics.py.gz.b64.part* | tr -d '\n\r\t ' | base64 --decode > /tmp/generate-macroeconomics.py.gz
+          echo 'c3643675f863883a429d492334b291d430ebfa87bf0b1cbf49806dfe790b6b34  /tmp/generate-macroeconomics.py.gz' | sha256sum --check -
+          gzip --test /tmp/generate-macroeconomics.py.gz
+          gzip --decompress --stdout /tmp/generate-macroeconomics.py.gz > /tmp/generate-macroeconomics.py
+          python -m py_compile /tmp/generate-macroeconomics.py
+          python /tmp/generate-macroeconomics.py _site
+          INITIAL_MACRO_LIBRARY_VERSION="$(python deploy/finalize_macroeconomics_library.py _site /tmp/pre-macroeconomics-library.json)"
+          EXPECTED_LIBRARY_VERSION="$INITIAL_MACRO_LIBRARY_VERSION" PRE_LIBRARY_JSON=/tmp/pre-macroeconomics-library.json python deploy/validate_macroeconomics.py _site
+          python -m py_compile deploy/patch_macroeconomics_v2.py deploy/finalize_macroeconomics_v2_library.py deploy/qa_macroeconomics_v2.py
+          python deploy/patch_macroeconomics_v2.py _site
+          FINAL_LIBRARY_VERSION="$(python deploy/finalize_macroeconomics_v2_library.py _site "$INITIAL_MACRO_LIBRARY_VERSION")"
+          python deploy/qa_macroeconomics_v2.py _site "$FINAL_LIBRARY_VERSION"
+          node --check _site/app.js
+          node --check _site/sw.js
+          echo "MACROECONOMICS_V2_QA library=$FINAL_LIBRARY_VERSION checks=201 corrections=14 question_adjustments=7 quantitative_rechecks=20"
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Record successful deployment
+        env:
+          DEPLOYED_PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          python - <<'PY'
+          import json, os
+          from datetime import datetime, timezone
+          from pathlib import Path
+          import re
+
+          final_library = json.loads(Path('_site/data/library.json').read_text(encoding='utf-8'))
+          receipt = {
+              'status': 'success',
+              'library_version': final_library['version'],
+              'book_versions_visible': True,
+              'progress_storage_changed': False,
+              'book_count': len(final_library['books']),
+              'accounting_version': '2026.07.27-2',
+              'economics_version': '2026.07.27-2',
+              'economics_question_count': 100,
+              'economics_correction_count': 14,
+              'economics_content_audit': 'passed',
+              'statistics_version': '2026.07.29-2',
+              'statistics_chapter_count': 19,
+              'statistics_question_count': 95,
+              'statistics_search_count': 169,
+              'statistics_figure_count': 19,
+              'statistics_content_audit': 'passed',
+              'statistics_content_correction_count': 19,
+              'statistics_question_adjustment_count': 3,
+              'statistics_independent_check_count': 1195,
+              'statistics_quantitative_recheck_count': 44,
+              'commercial_law_version': '2026.07.29-2',
+              'commercial_law_chapter_count': 18,
+              'commercial_law_question_count': 90,
+              'commercial_law_search_count': 111,
+              'commercial_law_figure_count': 18,
+              'commercial_law_content_audit': 'passed',
+              'commercial_law_content_correction_count': 13,
+              'commercial_law_question_adjustment_count': 6,
+              'commercial_law_followup_correction_count': 1,
+              'commercial_law_post_publication_reaudit': 'passed-after-current-law-followup',
+              'cost_accounting_version': '2026.07.29-1',
+              'cost_accounting_chapter_count': 19,
+              'cost_accounting_question_count': 95,
+              'cost_accounting_search_count': 146,
+              'cost_accounting_figure_count': 19,
+              'cost_accounting_content_audit': 'passed',
+              'cost_accounting_independent_check_count': 655,
+              'cost_accounting_quantitative_recheck_count': 44,
+              'microeconomics_version': '2026.07.29-2',
+              'microeconomics_chapter_count': 20,
+              'microeconomics_appendix_count': 3,
+              'microeconomics_question_count': 100,
+              'microeconomics_search_count': 154,
+              'microeconomics_figure_count': 20,
+              'microeconomics_content_audit': 'passed-after-post-publication-reaudit',
+              'microeconomics_initial_round1_check_count': 1321,
+              'microeconomics_initial_round2_check_count': 87,
+              'microeconomics_post_publication_correction_count': 16,
+              'microeconomics_question_adjustment_count': 4,
+              'microeconomics_independent_check_count': 1616,
+              'microeconomics_quantitative_recheck_count': 15,
+              'microeconomics_logic_recheck_count': 20,
+              'intermediate_accounting_version': '2026.07.29-1',
+              'intermediate_accounting_chapter_count': 22,
+              'intermediate_accounting_appendix_count': 3,
+              'intermediate_accounting_question_count': 110,
+              'intermediate_accounting_search_count': 145,
+              'intermediate_accounting_figure_count': 22,
+              'intermediate_accounting_content_audit': 'passed',
+              'intermediate_accounting_round1_check_count': 135,
+              'intermediate_accounting_quantitative_recheck_count': 23,
+              'intermediate_accounting_round2_check_count': 485,
+              'macroeconomics_version': '2026.07.29-2',
+              'macroeconomics_chapter_count': 20,
+              'macroeconomics_appendix_count': 3,
+              'macroeconomics_question_count': 100,
+              'macroeconomics_search_count': 143,
+              'macroeconomics_figure_count': 20,
+              'macroeconomics_content_audit': 'passed-after-post-publication-reaudit',
+              'macroeconomics_initial_numeric_recheck_count': 18,
+              'macroeconomics_post_publication_correction_count': 14,
+              'macroeconomics_question_adjustment_count': 7,
+              'macroeconomics_independent_check_count': 201,
+              'macroeconomics_quantitative_recheck_count': 20,
+              'macroeconomics_two_round_qa': 'passed',
+              'source_commit': os.environ['GITHUB_SHA'],
+              'workflow_run_id': os.environ['GITHUB_RUN_ID'],
+              'page_url': os.environ.get('DEPLOYED_PAGE_URL', ''),
+              'deployed_at': datetime.now(timezone.utc).isoformat(),
+          }
+          Path('docs/deployment_receipt.json').write_text(
+              json.dumps(receipt, ensure_ascii=False, indent=2) + '\n',
+              encoding='utf-8',
+          )
+
+          final_version = receipt['library_version']
+          book_count = receipt['book_count']
+          status = f'''# 《個體經濟學》狀態
+          
+          更新日期：2026-07-29
+          
+          ## 正式定位
+          
+          - Book ID：`microeconomics`
+          - 正式內容版本：`2026.07.29-2`
+          - 正式書庫版本：`{final_version}`
+          - 狀態：已部署。
+          - 範圍文件：`docs/books/microeconomics/scope.md`
+          - QA 報告：`docs/books/microeconomics/qa_report.md`
+          
+          ## 成品與 QA
+          
+          - 正文 20 章、附錄 3 份、題庫 100 題、搜尋索引 154 筆、自製 SVG 20 張。
+          - 初版 QA：第一輪 1321／1321、第二輪 87／87 通過。
+          - 發布後獨立二次複核：1,616 項檢查通過；修正 16 個內容點，4 題題幹或詳解同步精確化，另重算 15 題量化題、重判 20 題高風險觀念題。
+          - 閱讀進度相容性：新增獨立 book ID，不改既有教材章節、題目 ID、儲存鍵或錯題紀錄。
+          
+          ## 部署
+          
+          - canonical workflow：`Deploy study library`
+          - workflow run：`{os.environ['GITHUB_RUN_ID']}`
+          - source commit：`{os.environ['GITHUB_SHA']}`
+          - 正式書庫書籍數：{book_count} 本。
+          - GitHub Pages 部署成功並已寫回 deployment receipt。
+          '''
+          Path('docs/books/microeconomics/status.md').write_text(status, encoding='utf-8')
+
+          ia_status = (
+              '# 《中級會計學》製作狀態\n\n'
+              '更新日期：2026-07-29\n\n'
+              '## 版本\n\n'
+              '- Book ID：`intermediate-accounting`\n'
+              '- 正式內容版本：`2026.07.29-1`\n'
+              f'- 正式書庫版本：`{final_version}`\n'
+              '- 狀態：已部署。\n\n'
+              '## 成品與 QA\n\n'
+              '- 正文 22 章、附錄 3 份、題庫 110 題、搜尋索引 145 筆、自製 SVG 22 張。\n'
+              '- 第一輪 QA：135 項通過；獨立數值與公式重算 23 項通過。\n'
+              '- 第二輪 QA：485 項通過；110 題逐題複核。\n'
+              '- 閱讀進度相容性：新增獨立 book ID，不改既有教材章節、題目 ID、儲存鍵或錯題紀錄。\n\n'
+              '## 部署\n\n'
+              '- canonical workflow：`Deploy study library`\n'
+              f'- workflow run：`{os.environ["GITHUB_RUN_ID"]}`\n'
+              f'- source commit：`{os.environ["GITHUB_SHA"]}`\n'
+              f'- 正式書庫書籍數：{book_count} 本。\n'
+              '- GitHub Pages 部署成功並已寫回 deployment receipt。\n'
+          )
+          Path('docs/books/intermediate-accounting/status.md').write_text(ia_status, encoding='utf-8')
+
+          macro_status = (
+              '# 《總體經濟學》製作狀態\n\n'
+              '更新日期：2026-07-29\n\n'
+              '## 版本\n\n'
+              '- Book ID：`macroeconomics`\n'
+              '- 正式內容版本：`2026.07.29-2`\n'
+              f'- 正式書庫版本：`{final_version}`\n'
+              '- 狀態：已部署。\n\n'
+              '## 成品與 QA\n\n'
+              '- 正文 20 章、附錄 3 份、題庫 100 題、搜尋索引 143 筆、自製 SVG 20 張。\n'
+              '- 初版 QA：兩輪內容與題庫複核通過；100 題逐題複核，18 題具體數值題獨立重算一致。\n'
+              '- 發布後第二次獨立內容複核：201／201 項通過；完成 14 個實質內容修正事件、7 題題幹／答案／詳解調整，20 題量化題重新驗算。\n'
+              '- 主要修正：百分點單位、自然失業搜尋流量變數、IS 儲蓄投資推導、SRAS 機制、Taylor principle、完整經常帳 CA=S-I、相對 PPP 匯率方向與 Mundell–Fleming 標準模型政策結論。\n'
+              '- 閱讀進度相容性：章節 ID、題目 ID 與題數均未變；既有閱讀進度與錯題紀錄保留。\n\n'
+              '## 部署\n\n'
+              '- canonical workflow：`Deploy study library`\n'
+              f'- workflow run：`{os.environ["GITHUB_RUN_ID"]}`\n'
+              f'- source commit：`{os.environ["GITHUB_SHA"]}`\n'
+              f'- 正式書庫書籍數：{book_count} 本。\n'
+              '- GitHub Pages 部署成功並已寫回 deployment receipt。\n'
+          )
+          Path('docs/books/macroeconomics/status.md').write_text(macro_status, encoding='utf-8')
+
+          cp = Path('docs/shared_checkpoint.md')
+          c = cp.read_text(encoding='utf-8')
+          c = re.sub(r'- 正式書庫內容版本：`[^`]+`', f'- 正式書庫內容版本：`{final_version}`', c, count=1)
+          c = re.sub(r'- 正式書籍數：\d+ 本。', f'- 正式書籍數：{book_count} 本。', c, count=1)
+          if '### 個體經濟學' not in c:
+              section = f'''### 個體經濟學
+          
+          - Book ID：`microeconomics`
+          - 正式內容版本：`2026.07.29-1`
+          - 定位：一般大學中級個體經濟學，從近零基礎銜接消費者對偶、Slutsky、生產與成本、競爭／獨占、賽局、一般均衡、福利與資訊不對稱。
+          - 成品：20 章、3 附錄、100 題題庫、154 筆搜尋索引、20 張自製圖解。
+          - QA：第一輪 1,321／1,321、第二輪 87／87；100 題逐題複核，15 題量化題獨立重算、15 題高風險觀念題獨立重判。
+          - 範圍文件：`docs/books/microeconomics/scope.md`
+          - QA 報告：`docs/books/microeconomics/qa_report.md`
+          - GitHub Pages 部署 run：`{os.environ['GITHUB_RUN_ID']}`。
+          - Source commit：`{os.environ['GITHUB_SHA']}`。
+          - 狀態：已部署。
+          
+              '''
+              c = c.replace('## 部署流程\n', section + '## 部署流程\n', 1)
+          if '### 中級會計學' not in c:
+              section = (
+                  '### 中級會計學\n\n'
+                  '- Book ID：`intermediate-accounting`\n'
+                  '- 正式內容版本：`2026.07.29-1`\n'
+                  '- 定位：一般大學中級會計學，銜接基礎會計，核心聚焦 IFRS／TIFRS 的認列、衡量、現值、金融工具、收入、租賃、所得稅、EPS 與現金流量。\n'
+                  '- 成品：22 章、3 附錄、110 題題庫、145 筆搜尋索引、22 張自製圖解。\n'
+                  '- QA：第一輪 135 項、數值與公式獨立重算 23 項、第二輪 485 項，全數通過。\n'
+                  '- 範圍文件：`docs/books/intermediate-accounting/scope.md`\n'
+                  '- QA 報告：`docs/books/intermediate-accounting/qa_report.md`\n'
+                  f'- GitHub Pages 部署 run：`{os.environ["GITHUB_RUN_ID"]}`。\n'
+                  f'- Source commit：`{os.environ["GITHUB_SHA"]}`。\n'
+                  '- 狀態：已部署。\n\n'
+              )
+              c = c.replace('## 部署流程\n', section + '## 部署流程\n', 1)
+          c = c.replace('同一個 canonical `Deploy study library` 工作流先完成既有五本書驗證，再生成並獨立驗證 `cost-accounting`，最終部署六本書。',
+                        '同一個 canonical `Deploy study library` 工作流先完成既有核心驗證，再依序生成並獨立驗證新增教材；最後只部署一份完整書庫 artifact。')
+          c = re.sub(r'(\d+\. )最新.*本書成功部署 run：`[^`]+`；書庫內容版本：`[^`]+`。',
+                     lambda m: f"{m.group(1)}最新{book_count}本書成功部署 run：`{os.environ['GITHUB_RUN_ID']}`；書庫內容版本：`{final_version}`。", c, count=1)
+          if '個體經濟學均已納入同一套正式書庫部署流程。' not in c:
+              c = c.replace('成本會計學均已納入同一套正式書庫部署流程。', '成本會計學、個體經濟學均已納入同一套正式書庫部署流程。')
+          if '中級會計學均已納入同一套正式書庫部署流程。' not in c:
+              c = c.replace('成本會計學、個體經濟學均已納入同一套正式書庫部署流程。', '成本會計學、個體經濟學、中級會計學均已納入同一套正式書庫部署流程。')
+          micro_section = (
+              '### 個體經濟學\n\n'
+              '- Book ID：`microeconomics`\n'
+              '- 正式內容版本：`2026.07.29-2`\n'
+              '- 定位：一般大學中級個體經濟學，從近零基礎銜接消費者對偶、Slutsky、生產與成本、競爭／獨占、賽局、一般均衡、福利與資訊不對稱。\n'
+              '- 成品：20 章、3 附錄、100 題題庫、154 筆搜尋索引、20 張自製圖解。\n'
+              '- 初版 QA：第一輪 1,321／1,321、第二輪 87／87。\n'
+              '- 發布後獨立二次複核：1,616 項檢查通過；修正 16 個內容點，4 題題幹或詳解同步精確化；15 題量化題獨立重算、20 題高風險觀念題獨立重判。\n'
+              '- 閱讀進度相容性：章節 ID、題目 ID 與題數未變；部署回條確認 `progress_storage_changed=false`。\n'
+              '- 範圍文件：`docs/books/microeconomics/scope.md`\n'
+              '- QA 報告：`docs/books/microeconomics/qa_report.md`\n'
+              f'- GitHub Pages 部署 run：`{os.environ["GITHUB_RUN_ID"]}`。\n'
+              f'- Source commit：`{os.environ["GITHUB_SHA"]}`。\n'
+              '- 部署回條：`docs/deployment_receipt.json`。\n'
+              '- 狀態：已部署。\n\n'
+          )
+          c, micro_section_count = re.subn(
+              r'(?ms)^### 個體經濟學\n.*?(?=^### |^## 部署流程)',
+              micro_section,
+              c,
+              count=1,
+          )
+          if micro_section_count != 1:
+              raise AssertionError('microeconomics checkpoint section not found')
+          old_flow = '10. 個體經濟學額外驗證 20 章、3 附錄、100 題、154 筆搜尋索引、20 張 SVG，並執行 1,321 項第一輪檢查、87 項第二輪內容 gate、15 題量化重算與 15 題高風險觀念重判。'
+          new_flow = '10. 個體經濟學先通過初版兩輪 QA，再套用發布後獨立二次複核修正；額外驗證 20 章、3 附錄、100 題、154 筆搜尋索引、20 張 SVG、1,616 項二次檢查、15 題量化重算與 20 題高風險觀念重判。'
+          if old_flow in c:
+              c = c.replace(old_flow, new_flow, 1)
+          elif new_flow not in c:
+              raise AssertionError('microeconomics deployment-flow line not found')
+          old_workline = '- 個體經濟學初版內容、兩輪 QA、canonical integration 與正式 Pages 部署均已完成。'
+          new_workline = '- 個體經濟學初版、發布後獨立二次複核、糾錯修正與新版 Pages 部署均已完成；章節 ID、題目 ID 與題數未變。'
+          if old_workline in c:
+              c = c.replace(old_workline, new_workline, 1)
+          elif new_workline not in c:
+              raise AssertionError('microeconomics workline status not found')
+          macro_section = (
+              '### 總體經濟學\n\n'
+              '- Book ID：`macroeconomics`\n'
+              '- 正式內容版本：`2026.07.29-2`\n'
+              '- 定位：一般大學總體經濟學，聚焦總體衡量、長期成長、短期景氣、財政貨幣政策與開放經濟。\n'
+              '- 成品：20 章、3 附錄、100 題題庫、143 筆搜尋索引、20 張自製圖解。\n'
+              '- 初版 QA：兩輪內容與題庫複核通過；18 題數值題獨立重算一致。\n'
+              '- 發布後第二次獨立內容複核：201／201 項通過；14 個實質內容修正事件、7 題題庫調整、20 題量化題重新驗算。\n'
+              '- 閱讀進度相容性：章節 ID、題目 ID 與題數均未變；部署回條確認 `progress_storage_changed=false`。\n'
+              '- 範圍文件：`docs/books/macroeconomics/scope.md`\n'
+              '- QA 報告：`docs/books/macroeconomics/qa_report.md`\n'
+              f'- GitHub Pages 部署 run：`{os.environ["GITHUB_RUN_ID"]}`。\n'
+              f'- Source commit：`{os.environ["GITHUB_SHA"]}`。\n'
+              '- 部署回條：`docs/deployment_receipt.json`。\n'
+              '- 狀態：已部署。\n\n'
+          )
+          c, macro_section_count = re.subn(
+              r'(?ms)^### 總體經濟學\n.*?(?=^### |^## 部署流程)',
+              macro_section,
+              c,
+              count=1,
+          )
+          if macro_section_count != 1:
+              raise AssertionError('macroeconomics checkpoint section not found')
+          cp.write_text(c, encoding='utf-8')
+
+          rp = Path('README.md')
+          r = rp.read_text(encoding='utf-8')
+          r = re.sub(r'目前內容版本：`[^`]+`', f'目前內容版本：`{final_version}`', r, count=1)
+          cost = '- 《成本會計學》：一般大學成本會計，19 章、3 附錄、95 題題庫、146 筆搜尋索引與 19 張圖解；內容版本 `2026.07.29-1`。\n'
+          micro = '- 《個體經濟學》：一般大學中級個體經濟學，20 章、3 附錄、100 題題庫、154 筆搜尋索引與 20 張圖解；內容版本 `2026.07.29-1`。\n'
+          intermediate = '- 《中級會計學》：一般大學中級會計學，22 章、3 附錄、110 題題庫、145 筆搜尋索引與 22 張圖解；內容版本 `2026.07.29-1`。\n'
+          if cost not in r:
+              r = r.replace('- 《商事法》：以公司法與證券交易法為核心，18 章、3 附錄、90 題題庫、111 筆搜尋索引與 18 張圖解；發布後獨立內容複核與公司法第 8 條現行法 follow-up 版本 `2026.07.29-2`。\n',
+                            '- 《商事法》：以公司法與證券交易法為核心，18 章、3 附錄、90 題題庫、111 筆搜尋索引與 18 張圖解；發布後獨立內容複核與公司法第 8 條現行法 follow-up 版本 `2026.07.29-2`。\n' + cost)
+          if micro not in r:
+              anchor = cost if cost in r else '- 《商事法》：'
+              if anchor == cost:
+                  r = r.replace(cost, cost + micro, 1)
+              else:
+                  lines=r.splitlines(True); idx=max(i for i,x in enumerate(lines) if x.startswith('- 《'))+1; lines.insert(idx,micro); r=''.join(lines)
+          if intermediate not in r:
+              lines = r.splitlines(True)
+              idx = max(i for i, x in enumerate(lines) if x.startswith('- 《')) + 1
+              lines.insert(idx, intermediate)
+              r = ''.join(lines)
+          macro_v2_line = '- 《總體經濟學》：一般大學總體經濟學，20 章、3 附錄、100 題題庫、143 筆搜尋索引與 20 張圖解；發布後第二次獨立內容複核版本 `2026.07.29-2`。'
+          r_lines = r.splitlines()
+          macro_indexes = [i for i, line in enumerate(r_lines) if line.startswith('- 《總體經濟學》：')]
+          if macro_indexes:
+              first = macro_indexes[0]
+              r_lines[first] = macro_v2_line
+              for i in reversed(macro_indexes[1:]):
+                  del r_lines[i]
+          else:
+              insert_at = max(i for i, line in enumerate(r_lines) if line.startswith('- 《')) + 1
+              r_lines.insert(insert_at, macro_v2_line)
+          r = '\n'.join(r_lines) + ('\n' if r.endswith('\n') else '')
+          r = re.sub(r'五本書均由同一個 canonical GitHub Pages 工作流部署。', '全部正式教材均由同一個 canonical GitHub Pages 工作流部署。', r)
+          micro_v2_line = '- 《個體經濟學》：一般大學中級個體經濟學，20 章、3 附錄、100 題題庫、154 筆搜尋索引與 20 張圖解；發布後獨立二次複核版本 `2026.07.29-2`。'
+          r_lines = r.splitlines()
+          micro_indexes = [i for i, line in enumerate(r_lines) if line.startswith('- 《個體經濟學》：')]
+          if micro_indexes:
+              first = micro_indexes[0]
+              r_lines[first] = micro_v2_line
+              for i in reversed(micro_indexes[1:]):
+                  del r_lines[i]
+          else:
+              insert_at = max(i for i, line in enumerate(r_lines) if line.startswith('- 《')) + 1
+              r_lines.insert(insert_at, micro_v2_line)
+          r = '\n'.join(r_lines) + ('\n' if r.endswith('\n') else '')
+          rp.write_text(r, encoding='utf-8')
+          PY
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add docs/deployment_receipt.json README.md docs/shared_checkpoint.md docs/books/microeconomics/status.md docs/books/intermediate-accounting/status.md docs/books/macroeconomics/status.md
+          git commit -m "Record successful study library deployment [skip ci]"
+          git push origin HEAD:main
