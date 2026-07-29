@@ -1,0 +1,129 @@
+name: Validate econometrics v3 second content audit
+
+on:
+  pull_request:
+    paths:
+      - 'deploy/econometrics_v3_corrections.py'
+      - 'deploy/patch_econometrics_v3.py'
+      - 'deploy/qa_econometrics_reaudit_v3.py'
+      - 'deploy/record_econometrics_v3_deployment.py'
+      - 'docs/books/econometrics/**'
+      - '.github/workflows/deploy-pages.yml'
+      - '.github/workflows/validate-econometrics-v3.yml'
+
+permissions:
+  contents: write
+  actions: read
+  pull-requests: write
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Enforce exact PR file boundary
+        run: |
+          set -euo pipefail
+          git fetch origin "${{ github.base_ref }}" --depth=50
+          cat > /tmp/expected.txt <<'EOF'
+          .github/workflows/deploy-pages.yml
+          .github/workflows/validate-econometrics-v3.yml
+          deploy/econometrics_v3_corrections.py
+          deploy/patch_econometrics_v3.py
+          deploy/qa_econometrics_reaudit_v3.py
+          deploy/record_econometrics_v3_deployment.py
+          docs/books/econometrics/scope.md
+          EOF
+          git diff --name-only "origin/${{ github.base_ref }}...HEAD" | sort > /tmp/actual.txt
+          sort -o /tmp/expected.txt /tmp/expected.txt
+          diff -u /tmp/expected.txt /tmp/actual.txt
+
+      - name: Dry-run econometrics v3 on latest formal artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            deploy/econometrics_v3_corrections.py \
+            deploy/patch_econometrics_v3.py \
+            deploy/qa_econometrics_reaudit_v3.py \
+            deploy/record_econometrics_v3_deployment.py
+
+          ARTIFACT_ID="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['pages_artifact_id'])")"
+          DIGEST="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['pages_artifact_digest'])")"
+          BASE_VERSION="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['library_version'])")"
+          BASE_COUNT="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['book_count'])")"
+
+          gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" > /tmp/base.zip
+          echo "${DIGEST#sha256:}  /tmp/base.zip" | sha256sum --check -
+          rm -rf /tmp/unpack _site
+          mkdir -p /tmp/unpack _site
+          unzip -q /tmp/base.zip -d /tmp/unpack
+          if [ -f /tmp/unpack/artifact.tar ]; then
+            tar -xf /tmp/unpack/artifact.tar -C _site
+          elif [ -f /tmp/unpack/artifact.tar.gz ]; then
+            tar -xzf /tmp/unpack/artifact.tar.gz -C _site
+          else
+            cp -a /tmp/unpack/. _site/
+          fi
+
+          BASE_VERSION="$BASE_VERSION" BASE_COUNT="$BASE_COUNT" python - <<'PY'
+          import json,os
+          from pathlib import Path
+          site=Path('_site')
+          lib=json.load(open(site/'data/library.json'))
+          ids=[b['id'] for b in lib['books']]
+          assert lib['version']==os.environ['BASE_VERSION']
+          assert len(ids)==int(os.environ['BASE_COUNT'])==20
+          assert ids.count('econometrics')==1
+          assert ids.index('investments') < ids.index('econometrics') < ids.index('industrial-economics') < ids.index('industry-trade')
+          assert json.load(open(site/'books/econometrics/manifest.json'))['version']=='2026.07.30-1'
+          Path('/tmp/base_ids.json').write_text(json.dumps(ids))
+          print('FORMAL_ECONOMETRICS_V2_BASE_OK',lib['version'],len(ids))
+          PY
+
+          PYTHONPATH=deploy python deploy/validate_econometrics_v2.py _site
+          PYTHONPATH=deploy python deploy/qa_econometrics_reaudit_v2.py _site "$BASE_VERSION"
+          find _site/books -type f ! -path '*/econometrics/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-other-books.sha256
+          find _site/assets -type f ! -path '*/econometrics-svg/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-other-assets.sha256
+          V3_LIBRARY_VERSION="$(PYTHONPATH=deploy python deploy/patch_econometrics_v3.py _site | tail -n 1)"
+          test -n "$V3_LIBRARY_VERSION"
+          PYTHONPATH=deploy python deploy/validate_econometrics_v2.py _site
+          V3_OUT="$(PYTHONPATH=deploy python deploy/qa_econometrics_reaudit_v3.py _site "$V3_LIBRARY_VERSION")"
+          echo "$V3_OUT"
+          CHECKS="$(echo "$V3_OUT" | grep -oE '(^| )checks=[0-9]+' | head -n1 | cut -d= -f2)"
+          test "$CHECKS" -ge 500
+          echo "$V3_OUT" | grep -q 'numeric_rechecks=29'
+          echo "$V3_OUT" | grep -q 'correction_areas=5'
+          echo "$V3_OUT" | grep -q 'question_adjustments=4'
+          echo "$V3_OUT" | grep -q 'ids_preserved=true'
+          find _site/books -type f ! -path '*/econometrics/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-other-books.sha256
+          find _site/assets -type f ! -path '*/econometrics-svg/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-other-assets.sha256
+          diff -u /tmp/pre-other-books.sha256 /tmp/post-other-books.sha256
+          diff -u /tmp/pre-other-assets.sha256 /tmp/post-other-assets.sha256
+          V3_LIBRARY_VERSION="$V3_LIBRARY_VERSION" python - <<'PY'
+          import json,os
+          from pathlib import Path
+          site=Path('_site')
+          lib=json.load(open(site/'data/library.json'))
+          ids=[b['id'] for b in lib['books']]
+          assert ids==json.load(open('/tmp/base_ids.json'))
+          assert lib['version']==os.environ['V3_LIBRARY_VERSION']
+          root=site/'books/econometrics'
+          m=json.load(open(root/'manifest.json')); q=json.load(open(root/'questions.json')); s=json.load(open(root/'search.json'))
+          assert m['version']==q['version']=='2026.07.30-2'
+          assert len(m['chapters'])==23 and q['count']==100 and len(s['entries'])==189
+          assert len(list((site/'assets/econometrics-svg').glob('*.svg')))==20
+          print('ECONOMETRICS_V3_PR_VALIDATION_OK',lib['version'],len(ids))
+          PY
+          node --check _site/app.js
+          node --check _site/sw.js
+
+      - name: Enable squash auto-merge after validation
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: gh pr merge "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --squash --auto
