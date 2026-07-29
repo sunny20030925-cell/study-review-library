@@ -1,26 +1,32 @@
 # 《總體經濟學》製作狀態
 
-更新日期：2026-07-29
+更新日期：2026-07-30
 
-## 版本
+## 正式識別
 
 - Book ID：`macroeconomics`
 - 正式內容版本：`2026.07.29-2`
-- 正式書庫版本：`2026.07.29-13`
-- 狀態：已部署。
+- 正式書庫版本：`2026.07.30-9`
+- 目前 stage：`VP`
+- Task ID：`macroeconomics:VP`
+- 下一階段：`PUB`
+- Published：workflow v2 前既有正式版本維持 `passed`。
+- Internal QA：原兩輪 QA 與發布後第二次獨立內容複核。
+- External Audit：`docs/books/macroeconomics/external_audit.md`
 
-## 成品與 QA
+## Internal QA 證據
 
-- 正文 20 章、附錄 3 份、題庫 100 題、搜尋索引 143 筆、自製 SVG 20 張。
-- 初版 QA：兩輪內容與題庫複核通過；100 題逐題複核，18 題具體數值題獨立重算一致。
-- 發布後第二次獨立內容複核：201／201 項通過；完成 14 個實質內容修正事件、7 題題幹／答案／詳解調整，20 題量化題重新驗算。
-- 主要修正：百分點單位、自然失業搜尋流量變數、IS 儲蓄投資推導、SRAS 機制、Taylor principle、完整經常帳 CA=S-I、相對 PPP 匯率方向與 Mundell–Fleming 標準模型政策結論。
-- 閱讀進度相容性：章節 ID、題目 ID 與題數均未變；既有閱讀進度與錯題紀錄保留。
+- 正文 20 章、附錄 3 份、題庫 100 題、搜尋索引 143 筆、SVG 20 張。
+- 發布後第二次獨立內容複核：201／201；14 個內容修正事件、7 題調整、20 題量化題重算。
+- 已補自然失業流量、growth accounting、Taylor principle、CA、PPP 方向與 Mundell–Fleming 模型邊界。
 
-## 部署
+## External Audit
 
-- canonical workflow：`Deploy study library`
-- workflow run：`30442682452`
-- source commit：`00cf9286eb7bbe3b2d8e2b6165cc163fd64a4e72`
-- 正式書庫書籍數：10 本。
-- GitHub Pages 部署成功並已寫回 deployment receipt。
+- 結果：`passed`
+- 路由：Wolfram + Consensus。
+- 抽查 national accounts、unemployment/growth、Solow、saving、multipliers、money/Fisher、debt、Taylor、CA/PPP 與 open-economy assumptions。
+- 核心答案錯誤：0；需要升版：否；unresolved blocker：0。
+
+## 相容性
+
+章節／題目 ID、題數、PWA、閱讀進度與錯題資料均未變；正式 21 本 artifact 維持 `2026.07.30-9`。

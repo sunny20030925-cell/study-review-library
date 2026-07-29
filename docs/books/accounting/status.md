@@ -1,44 +1,32 @@
 # 《會計學》製作狀態
 
-更新日期：2026-07-27
+更新日期：2026-07-30
 
-## 版本
+## 正式識別
 
 - Book ID：`accounting`
-- 書籍版本：`2026.07.27-2`
-- 書庫內容版本：`2026.07.27-7`
-- 正式分支：`main`
-- PR：`#4`
-- 合併 commit：`a74e37726019f48bf8768e9bc9790f53a4cefa90`
-- 成功部署 workflow run：`30227100338`
+- 正式內容版本：`2026.07.27-2`
+- 正式書庫版本：`2026.07.30-9`
+- 目前 stage：`VP`
+- Task ID：`accounting:VP`
+- 下一階段：`PUB`
+- Published：workflow v2 前既有正式版本維持 `passed`。
+- Internal QA：既有第二版獨立複核；詳細證據保留於本書 QA 文件與部署紀錄。
+- External Audit：`docs/books/accounting/external_audit.md`
 
-## 本次二次複核
+## Internal QA 證據
 
-- 重新檢查 14 個正文章節、3 個附錄、70 題題庫、111 筆搜尋索引與 13 張圖解。
-- 找到並修正 29 個內容點。
-- 主要修正：損益表名稱、五大要素定義、商品淨取得成本、定期加權平均與永續移動平均、約當現金、折舊起點、土地、流動負債與現金流量分類。
-- 70 題數值答案重新驗算後均正確；4 題補正題意、條件或詳解。
-- 章節 ID、題目 ID 與題數未改動，既有閱讀進度與錯題紀錄可保留。
+- 正文 14 章、附錄 3 份、題庫 70 題、搜尋索引 111 筆、SVG 13 張。
+- 70／70 題數值答案重新驗算；29 個內容點修正；4 題補正題意／條件／詳解。
+- 科目邊界維持基礎財務會計，不納入中級會計、成本會計或管理會計。
 
-## QA
+## External Audit
 
-- 內容複核：完成。
-- 題庫獨立驗算：70／70 通過。
-- 章節與題庫結構：通過。
-- 搜尋索引：111／111 通過。
-- SVG 圖解與內部連結：通過。
-- JSON、HTML、JavaScript 與 service worker：通過。
-- 本機靜態 HTTP 載入：通過。
-- ZIP 完整性與 SHA-256：通過。
-- 科目邊界：維持基礎財務會計，不納入中級會計學以上、成本會計或管理會計。
+- 結果：`passed`
+- 路由：正式財務報導準則／臺灣正式規範；Wolfram 僅計算驗證。
+- 抽查 financial statement elements、inventory、depreciation、cash-flow classification、基礎認列與 IFRS 18 臺灣過渡時程。
+- 核心答案錯誤：0；需要升版：否；unresolved blocker：0。
 
-## 發布方式
+## 相容性
 
-GitHub Pages 下載固定來源包、核對 SHA-256，再執行 repo 內的 `deploy/patch_accounting_v2.py`。修正腳本完成內容替換、索引重建與自動驗證後，才部署新版網站。
-
-## 目前狀態
-
-- 內容：第二版完成。
-- QA：二次獨立複核完成。
-- 部署：完成；`docs/deployment_receipt.json` 已記錄版本 `2026.07.27-7`／`2026.07.27-2` 與成功回條。
-- 固定入口：`https://sunny20030925-cell.github.io/study-review-library/`
+章節／題目 ID、題數、PWA、閱讀進度與錯題資料均不變；正式 21 本 artifact 維持 `2026.07.30-9`。

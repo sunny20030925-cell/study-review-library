@@ -7,34 +7,29 @@
 - Book ID：`econometrics`
 - 正式內容版本：`2026.07.30-1`
 - 正式書庫版本：`2026.07.30-9`
-- 狀態：已部署。
-- 範圍文件：`docs/books/econometrics/scope.md`
-- QA 報告：`docs/books/econometrics/qa_report.md`
+- 目前 stage：`VP`
+- Task ID：`econometrics:VP`
+- 下一階段：`PUB`
+- Published：workflow v2 前既有正式版本維持 `passed`。
+- 範圍：`docs/books/econometrics/scope.md`
+- Internal QA：`docs/books/econometrics/qa_report.md`
+- External Audit：`docs/books/econometrics/external_audit.md`
 
-## 正式成品
+## Internal QA 證據
 
-- 正文：20 章（ch00–ch19）。
-- 附錄：3 份。
-- 題庫：100 題，每章 5 題。
-- 搜尋索引：189 筆。
-- 自製 SVG：20 張。
-- 章節 ID、題目 ID、題數與儲存鍵均未改動；既有閱讀進度與錯題紀錄相容。
+- 初版第一輪 QA：384 項；29 個數值節點獨立重算。
+- 初版第二輪 QA：675 項；32 題高風險答案 gate。
+- 發布後獨立內容審計 validator：57 項通過；已補 strict exogeneity 與 SATE/PATE 邊界。
+- 正文 20 章、附錄 3 份、題庫 100 題、搜尋索引與 20 張 SVG 均已正式部署。
 
-## QA 與發布後獨立審計
+## External Audit
 
-- 初版第一輪 QA：384 項，29 個數值節點獨立重算。
-- 初版第二輪 QA：675 項，32 題高風險答案 gate。
-- 2026-07-30 發布後獨立內容審計：修正 2 個精確性缺口，reaudit validator 共 57 項通過。
-- 修正一：Panel FE／FD 明列標準靜態模型的 strict-exogeneity 條件；不再讓「消掉 alpha_i」被誤讀成已充分解決所有時間變動內生性。
-- 修正二：隨機實驗明確區分 SATE 與 PATE；random assignment 建立實驗單位內部因果識別，但外推更大母體仍需要 sampling／external-validity 條件。
-- 其他高風險章節與既有 100 題 ID 全部保持相容。
+- 結果：`passed`
+- 路由：Wolfram + Consensus。
+- 高風險抽查：OLS／robust SE／OVB、time series、IV、RCT、DiD、RDD、prediction 與因果識別條件。
+- 核心答案錯誤：0；需要升版：否；unresolved blocker：0。
 
-## 正式發布證據
+## 相容性與部署
 
-- canonical workflow：`Deploy study library`
-- workflow run：`30494922034`
-- source commit：`d502e3db8be674c030c5b13db88f1b33dfdedb28`
-- Pages artifact：`8741187091`
-- Artifact digest：`sha256:576f046c2f6e98f1cab56ca7136042e1dfb66a4af1ad21e74552ce16b2db1eeb`
-- 正式書庫：21 本，版本 `2026.07.30-9`。
-- Pages deployment、artifact 下載後重驗與 deployment receipt 均成功。
+- Book ID、chapter ID、question ID、題數、閱讀進度與錯題資料均不變。
+- 正式 21 本 Pages artifact 維持 `2026.07.30-9`；本輪純狀態寫回不重新部署教材。

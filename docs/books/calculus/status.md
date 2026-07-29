@@ -1,40 +1,33 @@
 # 大一微積分 Status
 
-更新日期：2026-07-27
+更新日期：2026-07-30
 
-## 目前正式版本
+## 正式識別
 
-- 內容版本：`2026.07.27-3`
-- 定位：標準大一微積分；從零重建、圖形理解、考試可用。
-- 功能：可閱讀、搜尋、翻頁、章節題庫、錯題複習與公式速查。
-- 題庫：73 題，核心題型皆為微積分本位。
-- 搜尋索引：150 筆。
+- Book ID：`calculus`
+- 正式內容版本：`2026.07.27-3`
+- 正式書庫版本：`2026.07.30-9`
+- 目前 stage：`VP`
+- Task ID：`calculus:VP`
+- 下一階段：`PUB`
+- Published：workflow v2 前既有正式版本維持 `passed`。
+- Internal QA：`docs/books/calculus/qa_report.md`
+- External Audit：`docs/books/calculus/external_audit.md`
 
-## 科目本位重整
+## Internal QA 證據
 
-已完成：
+- 標準大一微積分正文 14 章；題庫 73 題；搜尋索引 150 筆。
+- 本版 QA：181／181；公式、章節、題庫、圖片、JSON、JavaScript、內容版本與 PWA cache 一致性均通過。
+- 經濟學取向內容已移除，維持純微積分科目本位。
 
-- 移除「經濟學取向」副標題與主線。
-- 移除成本、收益、彈性、消費者剩餘、效用、現值等經濟專屬核心內容。
-- 以中值定理、洛必達法則、積分幾何應用、弧長、旋轉曲面、多變數微積分與純數學限制最佳化取代。
-- 改寫所有經濟學專屬題目並重新驗算。
-- 重建搜尋索引、圖表清單與 PWA 快取版本。
+## External Audit
 
-## QA
+- 結果：`passed`
+- 路由：Wolfram。
+- 抽查 domain、limits、derivatives、implicit differentiation、MVT/L'Hôpital、integrals、geometry applications、exp/log、series、multivariable calculus、constrained optimization 與 ODE。
+- 代表性 73 題掃描與形式化重算未發現核心錯誤。
+- 核心答案錯誤：0；需要升版：否；unresolved blocker：0。
 
-- 本版 QA：181 項檢查，181 項通過。
-- 已檢查公式、章節、題庫、圖片連結、JSON、JavaScript、內容版本與 PWA 快取一致性。
-- 所有新增或改寫題目均完成獨立驗算。
-- 正式報告：`docs/books/calculus/qa_report.md`。
+## 相容性
 
-## 發布狀態
-
-- 正式部署包已更新為 `2026.07.27-3`。
-- GitHub Pages 部署已由 main 分支更新觸發。
-- 固定入口不變：`https://sunny20030925-cell.github.io/study-review-library/`
-- 平板端以書庫首頁顯示的內容版本確認是否已載入新版；若仍是舊版，完全關閉書庫後重新開啟。
-
-## 後續維護
-
-- 個別內容糾錯、補充或題庫擴充留在微積分對話處理。
-- 任何正式修正都必須提高內容版本、重新執行相關 QA，並同步更新本文件與 shared checkpoint。
+章節／題目 ID、題數、PWA、閱讀進度與錯題資料均不變；正式 21 本 artifact 維持 `2026.07.30-9`。

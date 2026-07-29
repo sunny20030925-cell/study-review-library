@@ -7,26 +7,26 @@
 - Book ID：`game-theory`
 - 正式內容版本：`2026.07.30-2`
 - 正式書庫版本：`2026.07.30-9`
-- 正式書庫書籍數：21 本。
-- 狀態：v2 已部署。
-- 範圍文件：`docs/books/game-theory/scope.md`
-- 初版 QA：`docs/books/game-theory/qa_report.md`
-- v2 重審報告：`docs/books/game-theory/v2_audit_report.md`
+- 目前 stage：`VP`
+- Task ID：`game-theory:VP`
+- 下一階段：`PUB`
+- Published：workflow v2 前既有正式版本維持 `passed`。
+- Internal QA：`docs/books/game-theory/qa_report.md`、`docs/books/game-theory/v2_audit_report.md`
+- External Audit：`docs/books/game-theory/external_audit.md`
 
-## v2 內容重審
+## Internal QA 證據
 
-- 正文 20 章、附錄 3 份、題庫 100 題、搜尋索引 189 筆、自製 SVG 20 張。
-- v2 artifact audit：504 項；21 個數值節點獨立重算、19 個高風險概念重判。
-- v2 source second pass：375 項；24 個數值節點獨立重算、23 個概念重判。
-- 修正 complete／perfect information、混合策略例題、rationalizability、Bertrand、subgame、Bayesian dynamic boundary、second-price assumptions、PBE／signaling、Rubinstein、VCG 與 strategic complements 等精度問題。
-- Book ID、章節 ID、附錄 ID 與 100 個題目 ID 全部保留；閱讀進度與錯題紀錄相容。
-- 正式 release helper 已驗證除 game-theory 外所有書籍、其他 assets 與 shared `app.js` 未被修改。
+- 正文 20 章、附錄 3 份、題庫 100 題、搜尋索引 189 筆、SVG 20 張。
+- v2 artifact audit：504 項；21 個數值節點、19 個高風險概念。
+- v2 source second pass：375 項；24 個數值節點、23 個概念重判。
 
-## 部署
+## External Audit
 
-- canonical workflow：`Deploy study library`
-- workflow run：`30494922034`
-- source commit：`d502e3db8be674c030c5b13db88f1b33dfdedb28`
-- Pages artifact：`8741187091`
-- Artifact digest：`sha256:576f046c2f6e98f1cab56ca7136042e1dfb66a4af1ad21e74552ce16b2db1eeb`
-- 部署後重新下載 artifact 並再次執行 v2 artifact QA：PASS。
+- 結果：`passed`
+- 路由：Wolfram。
+- 抽查 mixed/zero-sum Nash、Cournot、sequential/commitment、Rubinstein、repeated games、Bayesian games、auctions、PBE/signaling、VCG、core/Shapley。
+- 核心答案錯誤：0；需要升版：否；unresolved blocker：0。
+
+## 相容性
+
+Book／chapter／question IDs、題數、閱讀進度、錯題資料與 PWA 均不變；正式 21 本 artifact 維持 `2026.07.30-9`。

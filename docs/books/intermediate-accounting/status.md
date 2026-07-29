@@ -1,26 +1,31 @@
 # 《中級會計學》製作狀態
 
-更新日期：2026-07-29
+更新日期：2026-07-30
 
-## 版本
+## 正式識別
 
 - Book ID：`intermediate-accounting`
 - 正式內容版本：`2026.07.29-2`
-- 正式書庫版本：`2026.07.29-13`
-- 狀態：已部署。
+- 正式書庫版本：`2026.07.30-9`
+- 目前 stage：`VP`
+- Task ID：`intermediate-accounting:VP`
+- 下一階段：`PUB`
+- Published：workflow v2 前既有正式版本維持 `passed`。
+- Internal QA：`docs/books/intermediate-accounting/qa_report.md`
+- External Audit：`docs/books/intermediate-accounting/external_audit.md`
 
-## 成品與 QA
+## Internal QA 證據
 
-- 正文 22 章、附錄 3 份、題庫 110 題、搜尋索引 145 筆、自製 SVG 22 張。
-- 初版 QA：第一輪 135 項、獨立數值與公式重算 23 項、第二輪 485 項，全數通過。
-- 發布後獨立二次內容審計：修正 12 個內容節點，分布於 10 份章節／附錄；4 題題幹或詳解精確化。
-- v2 獨立部署驗證：1,110 項檢查與 28 項量化重算通過。
-- 閱讀進度相容性：章節 ID、題目 ID 與題數不變；既有閱讀進度與錯題紀錄可沿用。
+- 正文 22 章、附錄 3 份、題庫 110 題、搜尋索引 145 筆、SVG 22 張。
+- 初版 QA：135 項、23 項數值／公式重算、第二輪 485 項；v2 部署驗證 1,110 項＋28 項量化重算。
 
-## 部署
+## External Audit
 
-- canonical workflow：`Deploy study library`
-- workflow run：`30442682452`
-- source commit：`00cf9286eb7bbe3b2d8e2b6165cc163fd64a4e72`
-- 正式書庫書籍數：10 本。
-- GitHub Pages 部署成功並已寫回 deployment receipt。
+- 結果：`passed`
+- 路由：IFRS／IAS 正式準則與臺灣正式規範；Wolfram 僅計算驗證。
+- 抽查 ECL、inventory/NRV、PPE、impairment、provisions、EPS、revenue、leases、deferred tax、employee benefits、cash flows 與 IFRS 18 過渡時程。
+- 核心答案錯誤：0；需要升版：否；unresolved blocker：0。
+
+## 相容性
+
+章節／題目 ID、題數、PWA、閱讀進度與錯題資料均不變；正式 21 本 artifact 維持 `2026.07.30-9`。
