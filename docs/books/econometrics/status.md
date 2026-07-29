@@ -6,7 +6,7 @@
 
 - Book ID：`econometrics`
 - 目標初版內容版本：`2026.07.29-1`
-- 目前狀態：候選內容完成，兩輪 QA 已通過；PR #81 已同步最新 `main` 並進入正式審查，尚未正式發布。
+- 目前狀態：候選內容與兩輪 QA 已完成；正式部署流程 PR #97 已併入 `main`，正以當下 deployment receipt 指定的 Pages artifact 進行最終發布驗證。
 - 範圍文件：`docs/books/econometrics/scope.md`
 - QA 報告：`docs/books/econometrics/qa_report.md`
 
@@ -32,17 +32,17 @@
 3. 第一輪 `validate_econometrics.py`：384 項檢查通過，另有 29 個數值節點從原始輸入重新計算。
 4. 第二輪 `validate_econometrics_v2.py`：675 項獨立檢查通過，含 32 題高風險答案 gate。
 5. 高風險概念已覆核：因果與相關、外生性、OVB、Gauss–Markov、robust SE、多重共線性、log 解釋、IV 條件、FE／RE、parallel trends、RDD local effect、spurious regression、prediction vs causality。
-6. 候選以正式 deployment receipt 指定的 12 本 Pages artifact 為基底生成；加入 `econometrics` 後為 13 本，候選共享版本由 `2026.07.29-17` 動態順增為 `2026.07.29-18`。
-7. 既有 12 本 `books/**` 檔案 hash 在候選生成前後完全相同。
-8. `app.js`、`sw.js` 語法檢查通過；chapter／SVG／search／questions／offline cache 路徑全部存在。
+6. 正式整合已改為動態讀取最新 deployment receipt，不硬編碼既有書數或 shared library 版本；只在正式 artifact 尾端追加 `econometrics`。
+7. 整合 QA 會在追加前後對所有既有 `books/**` 做 hash 比對，確認既有教材不變。
+8. `app.js`、`sw.js` 語法、chapter／SVG／search／questions／offline cache 路徑都納入正式部署前與部署後重驗。
 
 ## 發布前剩餘 gate
 
-- 重新同步當下最新 `main`、`docs/shared_checkpoint.md`、registry 與 `docs/deployment_receipt.json`。
-- 修正／驗證目前 Pages workflow 的 post-deploy recorder，避免「Pages 已部署成功但歷史字串 recorder 失敗」再次出現。
-- 在最新共同書庫基底上重新執行兩輪 QA 與既有書籍 hash 保護。
-- 核實 canonical Pages artifact、Pages deployment 與新的 deployment receipt。
+- 從當下 deployment receipt 指定的正式 Pages artifact 生成新候選。
+- 在該正式基底重跑兩輪 QA 與既有教材 hash 保護。
+- Pages 部署後重新下載該 run 的 artifact，核對 digest／SHA-256 與本書 23 份 HTML、100 題、189 搜尋、20 SVG。
+- 核實正式 Pages 與 deployment receipt 後，才把本狀態改為「已部署」。
 
 ## 發布狀態
 
-目前不宣稱已部署。正式 Pages run、artifact、deployment receipt 與當下全站書庫版本全部核實後，才改為「已部署」。
+目前不提前宣稱已部署；以實際 Pages artifact 與部署證據為準。
