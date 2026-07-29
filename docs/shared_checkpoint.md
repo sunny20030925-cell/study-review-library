@@ -13,15 +13,13 @@
 - 使用者操作限制：只使用平板；不得要求終端機、Git、電腦檔案管理、手動部署或多檔案上傳操作。
 - 正式書庫內容版本：`2026.07.30-9`
 - 正式書籍數：**21 本**。
-- 最新正式 Pages run：`30494922034`
-- 最新正式部署 source commit：`d502e3db8be674c030c5b13db88f1b33dfdedb28`
-- 最新 Pages artifact：`8741187091`
+- 最新成功正式 Pages run：`30494922034`
+- 最新成功正式部署 source commit：`d502e3db8be674c030c5b13db88f1b33dfdedb28`
+- 最新成功 Pages artifact：`8741187091`
 - Artifact digest：`sha256:576f046c2f6e98f1cab56ca7136042e1dfb66a4af1ad21e74552ce16b2db1eeb`
 - 部署回條：`docs/deployment_receipt.json`；`status=success`、`book_count=21`、`library_version=2026.07.30-9`、`progress_storage_changed=false`。
 
 ## 正式工作流
-
-新制固定為：
 
 `Draft → Internal QA → External Audit → Visual Polish → Published`
 
@@ -33,7 +31,7 @@
 
 Task ID：`<book-id>:<stage-code>`。
 
-正式規則：
+正式讀取順序：
 
 1. `AGENTS.md`
 2. `docs/project_knowledge_index.md`
@@ -44,32 +42,44 @@ Task ID：`<book-id>:<stage-code>`。
 7. 目標書籍 status／QA／audit record
 8. 涉及共同發布時再讀 `docs/concurrent_book_workflow.md`
 
-## Workflow Upgrade 遷移結果
-
-- 既有 21 本正式教材全部保留，沒有重新製作、刪除、重新編號或搬離 PWA。
-- 21 本 `DR=passed`、`IQ=passed`、`PUB=passed`；既有發布標記為 workflow v2 建立前的 legacy publication，不因此下架。
-- 《商事法》與《民法概要》已有以正式現行法規、官方資料／正式判決為核心的獨立法律複核證據，遷移為 `EA=passed_migrated`。
-- 其餘 **19 本**為 `EA=pending`，進入正式 External Audit queue。
-- External Audit 通過後才進入 Visual Polish；Canva 只處理封面、章末重點、比較圖、流程圖、公式／考前速查表等高價值資產，不搬移整本教材。
-
 ## 目前總進度
 
 - 正式書籍：21／21 已發布。
 - Internal QA：21／21 已完成既有兩輪 QA。
-- External Audit：2／21 已有足夠正式證據遷移通過；19／21 待執行。
-- Visual Polish：0／21 依新制正式完成；《商事法》、《民法概要》已具備進入 VP 的前置條件。
+- External Audit：**3／21 已通過**；18／21 待執行。
+  - `commercial-law`：`passed_migrated`
+  - `civil-law-overview`：`passed_migrated`
+  - `advanced-statistics`：`passed`（2026-07-30，Wolfram 風險式外部驗算）
+- Visual Polish：0／21 依新制正式完成；`advanced-statistics`、`commercial-law`、`civil-law-overview` 已具備進入 VP 的前置條件。
 - Published：21／21 保持既有正式發布與 PWA 相容性。
 
-## 下一個正式任務
+## 最新 External Audit 結果
 
-- Task ID：`advanced-statistics:EA`
-- 書籍：《高等統計學》
-- 階段：External Audit
-- 主路由：Wolfram
-- 次路由：只有涉及實證研究／文獻主張時才使用 Consensus／Scite。
-- 原則：先抽查高風險分配、估計、likelihood、檢定條件、漸近結果與推導；不對普通基礎敘述做無差別第三輪全量查核。
+### `advanced-statistics:EA`
+
+- 結果：`passed`
+- 內容版本：維持 `2026.07.30-1`，不需升版。
+- Wolfram：獨立重算既有 v2 validator 20 個數值節點；另驗算 Bernoulli Fisher information／CRLB 與 Exponential MLE invariance，全部一致。
+- 高風險定理條件：條件常態、Slutsky、Delta、MLE invariance、完備／充分、Rao–Blackwell、精確 z/t、size／level、NP、UMP／MLR／Wilks、Gauss–Markov／F-test 均未留下核心 blocker。
+- Consensus／Scite：本輪無需使用，沒有抽到必須以實證研究或論文引用脈絡才能判斷的核心主張。
+- Audit record：`docs/books/advanced-statistics/external_audit.md`
+- Book ID、chapter ID、question ID、閱讀進度、錯題資料與 PWA 內容包均未修改。
+
+## 下一個正式 External Audit
+
+- Task ID：`mathematical-economics:EA`
+- 書籍：《數理經濟學》
+- 主路由：Wolfram。
+- 次路由：只有涉及實證研究／學術主張或重要論文引用脈絡時才使用 Consensus／Scite。
+- 原則：優先抽查最佳化、矩陣代數、比較靜態、差分／微分方程與高風險推導，不對普通基礎敘述做無差別第三輪全量查核。
 
 新對話不得要求使用者自己記得下一本。必須重新讀最新 `main` 與 `docs/audit_progress_manifest.json`，由 `external_audit_queue[0]` 自動判定。
+
+## 基礎設施注意事項
+
+- Workflow Upgrade 合併後的 run `30496283761` 失敗於舊的 industry-trade inline gate：它仍假設 `industry-trade` 必須是 registry 最後一本；正式 21 本中其後已有 `mathematical-economics`。
+- 此失敗沒有形成新的 Pages artifact，也沒有取代上述成功正式 artifact／deployment receipt；目前正式網站仍以 run `30494922034` 為準。
+- 在下一次需要正常觸發共同 PWA／Pages 部署前，應先修正此過時的 20 本尾端假設。External Audit 的純狀態寫回可用 `[skip ci]`，不需要重跑已成功的正式 Pages artifact。
 
 ## 不可破壞的正式邊界
 
