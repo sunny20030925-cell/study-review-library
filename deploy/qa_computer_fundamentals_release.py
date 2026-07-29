@@ -20,25 +20,14 @@ def main(site_root: str, expected_library_version: str) -> int:
     by_id = {q['id']: q for q in qdoc['items']}
     checks = 0
 
-    # Independent numerical reconstruction; these expressions do not reuse generator constants.
     recalculated = {
-        'ch01-q02': 0b11010,
-        'ch01-q03': int('FF', 16),
-        'ch01-q04': 2 ** 12,
-        'ch02-q01': 2 ** 8 - 1,
-        'ch02-q04': 1920 * 1080 * 24,
-        'ch04-q02': 1 / (2e9) / 1e-9,
-        'ch04-q03': 1e9 * 2 * (1 / 2e9),
-        'ch05-q03': 1 + 0.05 * 80,
-        'ch06-q02': 500 / 250,
-        'ch07-q04': 4 + 2,
-        'ch08-q02': 16 / 4,
-        'ch09-q02': 100 / 8,
-        'ch09-q03': 1 / 20,
-        'ch12-q02': math.log2(1024),
-        'ch13-q03': 80 / 100,
-        'ch17-q03': 90 / 100 * 100,
-        'ch18-q02': (43200 - 43.2) / 43200 * 100,
+        'ch01-q02': 0b11010, 'ch01-q03': int('FF', 16), 'ch01-q04': 2 ** 12,
+        'ch02-q01': 2 ** 8 - 1, 'ch02-q04': 1920 * 1080 * 24,
+        'ch04-q02': 1 / (2e9) / 1e-9, 'ch04-q03': 1e9 * 2 * (1 / 2e9),
+        'ch05-q03': 1 + 0.05 * 80, 'ch06-q02': 500 / 250, 'ch07-q04': 4 + 2,
+        'ch08-q02': 16 / 4, 'ch09-q02': 100 / 8, 'ch09-q03': 1 / 20,
+        'ch12-q02': math.log2(1024), 'ch13-q03': 80 / 100,
+        'ch17-q03': 90 / 100 * 100, 'ch18-q02': (43200 - 43.2) / 43200 * 100,
     }
     expectations = {
         'ch01-q02': (26, '26'), 'ch01-q03': (255, '255'), 'ch01-q04': (4096, '4096'),
@@ -55,32 +44,19 @@ def main(site_root: str, expected_library_version: str) -> int:
         checks += 2
 
     high_risk = {
-        'ch01-q05': ('4096', 'KiB'),
-        'ch02-q05': ('不正確', '近似'),
-        'ch04-q04': ('不可以', 'CPI'),
-        'ch07-q02': ('可以', '並行'),
-        'ch07-q05': ('不正確', 'parallelism'),
-        'ch08-q03': ('不一定', '缺頁'),
-        'ch08-q05': ('不完整', '映射'),
-        'ch09-q05': ('不正確', '不同'),
-        'ch10-q02': ('DNS', '名稱'),
-        'ch10-q03': ('可靠', 'UDP'),
-        'ch10-q05': ('不代表', '傳輸'),
-        'ch11-q05': ('是', '實作'),
-        'ch12-q03': ('不可以', '有序'),
-        'ch12-q04': ('不能', '漸近'),
-        'ch13-q05': ('不能', '碰撞'),
-        'ch14-q02': ('不一定', '外鍵'),
-        'ch15-q05': ('不能', '覆蓋'),
-        'ch16-q02': ('Authentication', '認證'),
-        'ch16-q03': ('Authorization', '權限'),
-        'ch16-q04': ('可逆', '單向'),
-        'ch17-q01': ('AI', '更廣'),
-        'ch17-q04': ('可能', '多數類'),
-        'ch17-q05': ('不足', '驗證'),
-        'ch18-q04': ('不是', '一致性'),
-        'ch19-q01': ('不等於', '授權'),
-        'ch19-q03': ('不必然', '重新識別'),
+        'ch01-q05': ('4096', 'KiB'), 'ch02-q05': ('不正確', '近似'),
+        'ch04-q04': ('不可以', 'CPI'), 'ch07-q02': ('可以', '並行'),
+        'ch07-q05': ('不正確', 'parallelism'), 'ch08-q03': ('不一定', '缺頁'),
+        'ch08-q05': ('不完整', '映射'), 'ch09-q05': ('不正確', '不同'),
+        'ch10-q02': ('DNS', '名稱'), 'ch10-q03': ('可靠', 'UDP'),
+        'ch10-q05': ('不代表', '傳輸'), 'ch11-q05': ('是', '實作'),
+        'ch12-q03': ('不可以', '有序'), 'ch12-q04': ('不能', '漸近'),
+        'ch13-q05': ('不能', '碰撞'), 'ch14-q02': ('不一定', '外鍵'),
+        'ch15-q05': ('不能', '覆蓋'), 'ch16-q02': ('Authentication', '認證'),
+        'ch16-q03': ('Authorization', '權限'), 'ch16-q04': ('可逆', '單向'),
+        'ch17-q01': ('AI', '更廣'), 'ch17-q04': ('可能', '多數類'),
+        'ch17-q05': ('不足', '驗證'), 'ch18-q04': ('不是', '一致性'),
+        'ch19-q01': ('不等於', '授權'), 'ch19-q03': ('不必然', '重新識別'),
     }
     for qid, tokens in high_risk.items():
         text = by_id[qid]['answer'] + ' ' + by_id[qid]['explanation']
@@ -88,10 +64,7 @@ def main(site_root: str, expected_library_version: str) -> int:
             assert token in text, (qid, token, text)
             checks += 1
 
-    # All questions must remain reusable study items with a substantive explanation.
-    # A compact worked expression such as 16/4=4 is valid; padding it to an arbitrary
-    # character count would reduce clarity, while the independent numeric checks above
-    # still verify the answer itself.
+    # Favor substantive, inspectable study items over arbitrary padding length.
     assert len(qdoc['items']) == 100; checks += 1
     for q in qdoc['items']:
         assert len(q['question'].strip()) >= 8, q['id']; checks += 1
@@ -100,12 +73,19 @@ def main(site_root: str, expected_library_version: str) -> int:
         assert q['answer'].strip() != q['explanation'].strip(), q['id']; checks += 1
 
     chapters = {}
+    required_sections = (
+        '本章要解決的問題', '白話直覺', '正式定義與核心概念',
+        '核心公式與成立條件', '完整標準例題', '常見錯誤', '考試判斷方法', '理解檢查',
+    )
     for entry in manifest['chapters']:
         if entry['id'].startswith('ch'):
             text = (root / entry['file']).read_text(encoding='utf-8')
             chapters[entry['id']] = text
-            plain = re.sub(r'<[^>]+>', '', text)
-            assert len(plain) >= 900, entry['id']; checks += 1
+            for section in required_sections:
+                assert section in text, (entry['id'], section); checks += 1
+            assert text.count('<dt>') >= 4, entry['id']; checks += 1
+            assert text.count('formula-card') >= 1, entry['id']; checks += 1
+            assert 'worked-example' in text, entry['id']; checks += 1
             assert text.count('<p>') >= 8, entry['id']; checks += 1
             assert text.count('<li>') >= 6, entry['id']; checks += 1
     assert len(chapters) == 20; checks += 1
@@ -113,6 +93,7 @@ def main(site_root: str, expected_library_version: str) -> int:
     concept_map = {
         'ch01': ('bit（位元）', 'byte（位元組）', 'Hexadecimal'),
         'ch02': ('Two’s Complement', 'Floating Point', 'Unicode'),
+        'ch03': ('Boolean Value', 'XOR', 'half-adder'),
         'ch04': ('ALU', 'Register', 'Instruction Set Architecture'),
         'ch07': ('Process', 'Thread', 'Context Switch'),
         'ch08': ('Virtual Memory', 'Page Fault', 'File System'),
@@ -138,7 +119,6 @@ def main(site_root: str, expected_library_version: str) -> int:
         '雜湊（hashing）與加密（encryption）不是同一件事',
         'AI 模型輸出是推論結果，不保證真實、完整或無偏',
     ]
-    # Some boundary wording lives in scope rather than rendered chapters; verify the source scope independently.
     scope = Path('docs/books/computer-fundamentals/scope.md').read_text(encoding='utf-8')
     for token in explicit_boundaries:
         assert token in scope, token
