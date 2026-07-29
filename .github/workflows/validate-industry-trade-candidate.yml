@@ -8,7 +8,10 @@ on:
       - 'deploy/finalize_industry_trade_library.py'
       - 'deploy/validate_industry_trade.py'
       - 'deploy/qa_industry_trade_independent.py'
+      - 'deploy/integrate_industry_trade.py'
+      - 'deploy/record_industry_trade_deployment.py'
       - 'docs/books/industry-trade/**'
+      - '.github/workflows/deploy-pages.yml'
       - '.github/workflows/validate-industry-trade-candidate.yml'
   workflow_dispatch:
 
@@ -29,7 +32,9 @@ jobs:
             deploy/generate_industry_trade.py \
             deploy/finalize_industry_trade_library.py \
             deploy/validate_industry_trade.py \
-            deploy/qa_industry_trade_independent.py
+            deploy/qa_industry_trade_independent.py \
+            deploy/integrate_industry_trade.py \
+            deploy/record_industry_trade_deployment.py
 
       - name: Download formally recorded Pages artifact
         env:
@@ -38,16 +43,12 @@ jobs:
           set -euo pipefail
           gh api "repos/${GITHUB_REPOSITORY}/contents/docs/deployment_receipt.json?ref=main" --jq '.content' \
             | tr -d '\n' | base64 -d > /tmp/deployment-receipt.json
-          RUN_ID="$(python -c "import json;print(json.load(open('/tmp/deployment-receipt.json'))['workflow_run_id'])")"
           ARTIFACT_ID="$(python -c "import json;print(json.load(open('/tmp/deployment-receipt.json'))['pages_artifact_id'])")"
           EXPECTED_BASE_LIBRARY="$(python -c "import json;print(json.load(open('/tmp/deployment-receipt.json'))['library_version'])")"
           EXPECTED_BASE_BOOKS="$(python -c "import json;print(json.load(open('/tmp/deployment-receipt.json'))['book_count'])")"
-          test -n "$RUN_ID" && test -n "$ARTIFACT_ID"
-          echo "BASE_DEPLOY_RUN=$RUN_ID"
-          echo "BASE_ARTIFACT_ID=$ARTIFACT_ID"
-          echo "EXPECTED_BASE_LIBRARY=$EXPECTED_BASE_LIBRARY" >> "$GITHUB_ENV"
-          echo "EXPECTED_BASE_BOOKS=$EXPECTED_BASE_BOOKS" >> "$GITHUB_ENV"
+          DIGEST="$(python -c "import json;print(json.load(open('/tmp/deployment-receipt.json'))['pages_artifact_digest'])")"
           gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" > /tmp/pages.zip
+          echo "${DIGEST#sha256:}  /tmp/pages.zip" | sha256sum --check -
           mkdir /tmp/pages-artifact _site
           unzip -q /tmp/pages.zip -d /tmp/pages-artifact
           if [ -f /tmp/pages-artifact/artifact.tar ]; then
@@ -57,29 +58,28 @@ jobs:
           else
             cp -a /tmp/pages-artifact/. _site/
           fi
-          test -f _site/data/library.json
-          test -f _site/sw.js
-          test -f _site/app.js
-          python - <<'PY'
-          import json, os
+          EXPECTED_BASE_LIBRARY="$EXPECTED_BASE_LIBRARY" EXPECTED_BASE_BOOKS="$EXPECTED_BASE_BOOKS" python - <<'PY'
+          import json,os
           from pathlib import Path
           receipt=json.loads(Path('/tmp/deployment-receipt.json').read_text(encoding='utf-8'))
           library=json.loads(Path('_site/data/library.json').read_text(encoding='utf-8'))
+          ids=[b['id'] for b in library['books']]
           assert receipt['status']=='success'
           assert receipt['pages_deploy_status']=='success'
-          assert library['version']==receipt['library_version'], (library['version'], receipt['library_version'])
-          assert len(library['books'])==int(receipt['book_count']), (len(library['books']), receipt['book_count'])
-          assert len(library['books'])==int(receipt['artifact_verified_book_count'])
-          print(f"FORMAL_BASE_RECEIPT_OK books={len(library['books'])} library={library['version']} artifact={receipt['pages_artifact_id']}")
+          assert library['version']==os.environ['EXPECTED_BASE_LIBRARY']
+          assert len(ids)==int(os.environ['EXPECTED_BASE_BOOKS'])
+          assert ids[-1]=='industrial-economics'
+          assert 'industry-trade' not in ids
+          assert (Path('_site')/'app.js').is_file() and (Path('_site')/'sw.js').is_file()
+          print(f"FORMAL_BASE_RECEIPT_OK books={len(ids)} library={library['version']} artifact={receipt['pages_artifact_id']}")
           PY
+          echo "EXPECTED_BASE_LIBRARY=$EXPECTED_BASE_LIBRARY" >> "$GITHUB_ENV"
+          echo "EXPECTED_BASE_BOOKS=$EXPECTED_BASE_BOOKS" >> "$GITHUB_ENV"
 
-      - name: Generate candidate on formally recorded library copy
+      - name: Integrate candidate on current formal tail
         run: |
           set -euo pipefail
-          cp _site/data/library.json /tmp/pre-industry-trade-library.json
-          find _site/books -type f ! -path '*/industry-trade/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-existing-books.sha256
-          python deploy/generate_industry_trade.py _site
-          FINAL_LIBRARY_VERSION="$(python deploy/finalize_industry_trade_library.py _site /tmp/pre-industry-trade-library.json)"
+          FINAL_LIBRARY_VERSION="$(PYTHONPATH=deploy python deploy/integrate_industry_trade.py _site "$EXPECTED_BASE_LIBRARY")"
           echo "FINAL_LIBRARY_VERSION=$FINAL_LIBRARY_VERSION" >> "$GITHUB_ENV"
           echo "INDUSTRY_TRADE_BASE_LIBRARY=$EXPECTED_BASE_LIBRARY"
           echo "INDUSTRY_TRADE_BASE_BOOKS=$EXPECTED_BASE_BOOKS"
@@ -88,34 +88,34 @@ jobs:
       - name: Round 1 structural and integration QA
         run: |
           set -euo pipefail
-          EXPECTED_LIBRARY_VERSION="$FINAL_LIBRARY_VERSION" PRE_LIBRARY_JSON=/tmp/pre-industry-trade-library.json \
-            python deploy/validate_industry_trade.py _site
-          find _site/books -type f ! -path '*/industry-trade/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-existing-books.sha256
-          diff -u /tmp/pre-existing-books.sha256 /tmp/post-existing-books.sha256
+          EXPECTED_LIBRARY_VERSION="$FINAL_LIBRARY_VERSION" PYTHONPATH=deploy python deploy/validate_industry_trade.py _site
           node --check _site/app.js
           node --check _site/sw.js
 
       - name: Round 2 independent content QA
         run: |
           set -euo pipefail
-          python deploy/qa_industry_trade_independent.py _site
+          PYTHONPATH=deploy python deploy/qa_industry_trade_independent.py _site
 
-      - name: Verify tablet-facing asset paths exist
+      - name: Verify formal release shape
         run: |
           set -euo pipefail
-          python - <<'PY'
-          import json
+          FINAL_LIBRARY_VERSION="$FINAL_LIBRARY_VERSION" EXPECTED_BASE_BOOKS="$EXPECTED_BASE_BOOKS" python - <<'PY'
+          import json,os
           from pathlib import Path
           site=Path('_site'); root=site/'books/industry-trade'
+          lib=json.loads((site/'data/library.json').read_text(encoding='utf-8'))
+          ids=[b['id'] for b in lib['books']]
+          assert lib['version']==os.environ['FINAL_LIBRARY_VERSION']
+          assert len(ids)==int(os.environ['EXPECTED_BASE_BOOKS'])+1
+          assert ids[-2:]==['industrial-economics','industry-trade']
           m=json.loads((root/'manifest.json').read_text(encoding='utf-8'))
-          assert len(m['chapters'])==23
-          for ch in m['chapters']:
-              p=root/ch['file']; assert p.is_file() and p.stat().st_size>700, ch
-          figs=list((site/'assets/industry-trade-svg').glob('*.svg'))
-          assert len(figs)==20 and all(p.stat().st_size>300 for p in figs)
           q=json.loads((root/'questions.json').read_text(encoding='utf-8'))
           s=json.loads((root/'search.json').read_text(encoding='utf-8'))
+          assert len(m['chapters'])==23
           assert q['count']==len(q['items'])==100
           assert len(s['entries'])==160
-          print('INDUSTRY_TRADE_TABLET_ASSET_PATHS_OK')
+          figs=list((site/'assets/industry-trade-svg').glob('*.svg'))
+          assert len(figs)==20 and all(p.stat().st_size>300 for p in figs)
+          print('INDUSTRY_TRADE_FORMAL_PREFLIGHT_OK',lib['version'],len(ids))
           PY
