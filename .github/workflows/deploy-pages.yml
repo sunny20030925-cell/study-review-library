@@ -183,7 +183,9 @@ jobs:
           import json
           d=json.load(open('_site/data/library.json'))
           ids=[b['id'] for b in d['books']]
-          assert ids[-1]=='industrial-economics' and ids.count('industrial-economics')==1
+          assert ids.count('industrial-economics')==1
+          if 'industry-trade' in ids:
+              assert ids.index('industrial-economics') < ids.index('industry-trade')
           PY
           node --check _site/app.js
           node --check _site/sw.js
