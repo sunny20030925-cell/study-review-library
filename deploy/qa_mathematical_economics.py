@@ -24,7 +24,7 @@ def main(site_root: str, expected_library: str) -> None:
 
     # Round 1: structure, coverage, PWA paths, IDs and rendered formula hygiene.
     ck(library['version']==expected_library,'library version')
-    ck(len(ids)==15 and ids[-3:]==['advanced-statistics','computer-fundamentals',BOOK],f'canonical tail {ids[-3:]}')
+    ck(len(ids)==16 and ids[-3:]==['computer-fundamentals','game-theory',BOOK],f'canonical tail {ids[-3:]}')
     ck(len(ids)==len(set(ids)),'unique book ids')
     ck(manifest['id']==questions['bookId']==BOOK,'book IDs')
     ck(manifest['version']==questions['version']==VERSION,'content version')
@@ -100,7 +100,7 @@ def main(site_root: str, expected_library: str) -> None:
     ck(manifest['releaseNotes'][0]['version']==VERSION,'release note')
     round2=checks-round1
     print(f'MATHEMATICAL_ECONOMICS_QA_ROUND2_OK checks={round2} numeric_rechecks={len(numeric)} exact_answer_rechecks={len(exact)} high_risk_logic_gates=10')
-    print(f'MATHEMATICAL_ECONOMICS_QA_OK total_checks={checks} books=15 library={expected_library}')
+    print(f'MATHEMATICAL_ECONOMICS_QA_OK total_checks={checks} books=16 library={expected_library}')
 
 
 if __name__=='__main__':
