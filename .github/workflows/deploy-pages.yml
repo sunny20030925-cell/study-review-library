@@ -71,7 +71,6 @@ jobs:
           import json
           d=json.load(open('_site/data/library.json'))
           ids=[b['id'] for b in d['books']]
-          assert len(ids)==14 and ids[-3:]==['advanced-statistics','computer-fundamentals'][-2:] if False else True
           assert len(ids)==14 and ids[-2:]==['advanced-statistics','computer-fundamentals'], ids
           print('COMPUTER_FUNDAMENTALS_FORMAL_BASE_OK',d['version'],len(ids))
           PY
