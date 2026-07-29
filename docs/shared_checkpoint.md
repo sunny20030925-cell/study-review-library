@@ -11,10 +11,10 @@
 - 使用者操作限制：只使用平板；不得要求終端機、Git、電腦檔案管理、手動部署或多檔案上傳操作。
 - 正式書庫內容版本：`2026.07.29-18`
 - 正式書籍數：13 本。
-- 最新正式 Pages run：`30469475874`。
-- 最新正式部署 source commit：`555840467da800c006cdcc11351d3dbabc1e3463`。
-- 最新 Pages artifact：`8730980114`。
-- Artifact digest：`sha256:ace8585e67791f1cc65e540b084ab05c7757f4f6d18e9a4c9f8f37c81a222803`。
+- 最新正式 Pages run：`30469711077`。
+- 最新正式部署 source commit：`cb320cac47bc58860ce92908d53646da94b7b103`。
+- 最新 Pages artifact：`8731080555`。
+- Artifact digest：`sha256:e94982473758beeee6234d33e0962b979267c9f46ab9e0a8b9926c9cce66a25b`。
 - Pages 狀態：Upload artifact 與 Deploy to GitHub Pages 均成功；2026-07-29T14:23:09.128492+00:00 回報 success。
 - 部署回條：`docs/deployment_receipt.json`；`status=success`、`book_count=13`、`library_version=2026.07.29-18`、`progress_storage_changed=false`。
 - 實際下載正式 Pages artifact 後再次核對：12 本 registry、本書 23 份章節／附錄 HTML、100 題、150 搜尋、20 SVG 均存在；下載檔 SHA-256 與 GitHub artifact digest 完全一致。
@@ -139,7 +139,7 @@
 - 成品：20 章、3 附錄、100 題、189 搜尋、20 圖解。
 - QA：兩輪通過；27 個量化節點獨立重算、45 個高風險概念 gate。
 - 既有 12 本教材內容 hash 在整合前後完全一致。
-- 正式 Pages run：`30469475874`；Source commit：`555840467da800c006cdcc11351d3dbabc1e3463`。
+- 正式 Pages run：`30469711077`；Source commit：`cb320cac47bc58860ce92908d53646da94b7b103`。
 - 文件：`docs/books/advanced-statistics/scope.md`、`docs/books/advanced-statistics/qa_report.md`、`docs/books/advanced-statistics/status.md`。
 - 狀態：已部署。
 
@@ -151,7 +151,7 @@
 4. 各書內容／題庫／搜尋／SVG 與高風險公式／法律要件驗證通過後，再檢查 `app.js` 與 `sw.js`。
 5. 全部正式檢查通過後才上傳單一完整 Pages artifact。
 6. Pages deployment 成功後重新下載本次 artifact 驗證，再由結構化 recorder 寫回 deployment receipt、目標書 status／QA、README 與本 checkpoint。
-7. 最新正式書庫：13 本，`2026.07.29-18`；Pages run `30469475874`，artifact `8730980114`。
+7. 最新正式書庫：13 本，`2026.07.29-18`；Pages run `30469711077`，artifact `8731080555`。
 8. 使用者不需要執行 Git、終端機、手動上傳或部署。
 
 ## 多書並行／發布規則
