@@ -84,8 +84,9 @@ def integrate(site_root: str, expected_before: str) -> str:
 
         buf = io.StringIO()
         with contextlib.redirect_stdout(buf):
-            finalized = finalize_library(str(site), str(pre_library))
+            finalize_library(str(site), str(pre_library))
         emit_stderr(buf)
+        finalized = json.loads(library_path.read_text(encoding='utf-8'))['version']
         if finalized != expected_target:
             raise AssertionError(f'game theory finalizer target drift: expected {expected_target}, got {finalized}')
 
