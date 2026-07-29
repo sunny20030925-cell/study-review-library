@@ -1,0 +1,44 @@
+name: Activate mathematical economics v2 stage
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/activate-mathematical-economics-v2-stage.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  activate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Apply validated canonical stage to latest main
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          git checkout -B stage-main origin/main
+          python -m py_compile deploy/stage_mathematical_economics_v2_release.py
+          python deploy/stage_mathematical_economics_v2_release.py
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('.github/workflows/deploy-pages.yml').read_text()
+          assert p.count('Integrate mathematical economics v2 audited release')==1
+          assert p.count('record_mathematical_economics_v2_deployment.py')>=2
+          assert "ids[-2:]==['industry-trade','mathematical-economics']" in p
+          assert 'MATHEMATICAL_ECONOMICS_V2_QA_CHECKS' in p
+          print('MATHEMATICAL_ECONOMICS_V2_MAIN_STAGE_READY')
+          PY
+          git diff --check
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add .github/workflows/deploy-pages.yml
+          if git diff --cached --quiet; then
+            echo 'Canonical workflow already contains mathematical economics v2 stage.'
+            exit 0
+          fi
+          git commit -m 'Stage mathematical economics v2 canonical deployment'
+          git push origin HEAD:main
