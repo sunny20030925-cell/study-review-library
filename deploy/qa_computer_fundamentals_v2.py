@@ -146,7 +146,8 @@ def main(site_root: str, expected_library: str) -> None:
 
     # Security and modern-protocol gates.
     ck('一般雜湊表用 hash function 不一定具備這些性質' in chapter_text['ch16'],'crypto vs generic hash')
-    ck('HTTP/3 使用 QUIC' in q['ch10-q04']['answer'],'HTTP/3 transport')
+    http3_answer=q['ch10-q04']['answer']
+    ck('HTTP/3' in http3_answer and 'QUIC' in http3_answer and 'TLS 1.3' in http3_answer,'HTTP/3 transport')
     ck('TLS 1.3' in chapter_text['ch10'],'HTTP/3 TLS integration')
     ck('外鍵可重複' in chapter_text['ch14'] and 'self-reference' in chapter_text['ch14'],'foreign key semantics')
     ck('O(n) 只給漸近上界' in q['ch12-q05']['explanation'],'Big-O upper bound')
