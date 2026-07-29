@@ -17,8 +17,8 @@ from game_theory_questions_b import QUESTIONS_B
 BOOK = 'game-theory'
 TITLE = '賽局理論及應用'
 SUBTITLE = '策略互動・Nash 均衡・動態賽局・資訊不完全與制度設計'
-VERSION = '2026.07.29-1'
-UPDATED_AT = '2026-07-29'
+VERSION = '2026.07.30-2'
+UPDATED_AT = '2026-07-30'
 COVER = '局'
 ACCENT = '#b45309'
 CHAPTERS = CHAPTERS_A + CHAPTERS_B
@@ -122,9 +122,9 @@ def appendix_a(chapters):
 <h2 id="四個核心解概念">四個核心解概念</h2>
 <table><thead><tr><th>模型</th><th>常用解概念</th><th>額外檢查</th></tr></thead><tbody>
 <tr><td>靜態＋完整資訊</td><td>Nash equilibrium</td><td>互為最佳回應、單方面偏離</td></tr>
-<tr><td>動態＋完整資訊</td><td>SPNE</td><td>每個真正子賽局都要是 Nash</td></tr>
-<tr><td>靜態＋不完全資訊</td><td>Bayesian Nash equilibrium</td><td>策略為 type→action，使用條件期望報酬</td></tr>
-<tr><td>動態＋不完全資訊</td><td>Perfect Bayesian equilibrium</td><td>策略＋belief、Bayes consistency、sequential rationality</td></tr>
+<tr><td>動態＋有 proper subgames</td><td>SPNE</td><td>每個真正子賽局都要是 Nash；有限完美資訊時常可向後歸納</td></tr>
+<tr><td>payoff/type 不完全資訊</td><td>Bayesian Nash equilibrium</td><td>策略為 type→action，使用條件期望報酬</td></tr>
+<tr><td>動態＋非單點資訊集合</td><td>PBE／sequential tools</td><td>策略＋belief、Bayes consistency、sequential rationality</td></tr>
 </tbody></table>
 <h2 id="高頻符號">高頻符號</h2>
 <p><strong>s_i</strong> 表玩家 i 的策略，<strong>s_-i</strong> 表其他玩家策略；<strong>u_i</strong> 是報酬；<strong>BR_i</strong> 是最佳回應；<strong>δ</strong> 常表示跨期折現因子；<strong>μ</strong> 常表示資訊集合上的信念。</p>
@@ -136,13 +136,13 @@ def appendix_b():
     return '''<h1>附錄 B　賽局理論標準解題路線</h1>
 <p class="lead">陌生題目先不要猜「答案像哪個經典模型」。按時序、資訊、策略與報酬四步建模，再選解概念。</p>
 <h2 id="第一步建模">第一步：建模</h2>
-<ol><li>列玩家與每位玩家真正可控制的行動。</li><li>判斷同時還是先後行動；必要時畫賽局樹。</li><li>判斷誰知道什麼：完整資訊、私人 type、可觀察訊號或資訊集合。</li><li>把所有結果轉成 payoff；金錢只是可能的報酬代理。</li></ol>
+<ol><li>列玩家與每位玩家真正可控制的行動。</li><li>判斷同時還是先後行動；必要時畫賽局樹。</li><li>把 payoff/type 是否共同已知，與歷史／訊號是否可觀察分開判斷；complete information 與 perfect information 不是同義詞。</li><li>把所有結果轉成 payoff；金錢只是可能的報酬代理。</li></ol>
 <h2 id="第二步選解概念">第二步：選解概念</h2>
-<ol><li>靜態完整資訊：最佳回應、優勢、純／混合 Nash。</li><li>動態完整資訊：向後歸納與 SPNE，檢查可信威脅。</li><li>靜態不完全資訊：Bayesian strategy 與 BNE。</li><li>動態不完全資訊：完整策略、belief、Bayes 更新與 PBE。</li></ol>
+<ol><li>靜態完整資訊：最佳回應、優勢、純／混合 Nash。</li><li>動態且有 proper subgames：SPNE 檢查續局可信性；有限完美資訊時常可向後歸納。</li><li>有私人 type：Bayesian strategy 與 BNE 是基本工具。</li><li>動態且有非單點資訊集合：把 belief、Bayes 更新與 sequential rationality 納入，常用 PBE／sequential equilibrium 類工具。</li></ol>
 <h2 id="第三步數值工具">第三步：數值工具</h2>
-<ol><li>混合策略：用「自己的機率使對手無差異」求解。</li><li>連續策略：固定對手策略最大化自己的 payoff，得到 reaction function 再聯立。</li><li>重複賽局：比較遵守策略與一次偏離的折現現值。</li><li>合作賽局：先寫效率，再逐 coalition 檢查 blocking；Shapley 另算平均邊際貢獻。</li></ol>
+<ol><li>混合策略：用「自己的機率使對手無差異」求解；即使已有純 NE，也可能另有混合 NE。</li><li>連續策略：固定對手策略最大化自己的 payoff，得到 reaction function 再聯立。</li><li>重複賽局：比較遵守策略與一次偏離的折現現值。</li><li>合作賽局：先寫效率，再逐 coalition 檢查 blocking；Shapley 另算平均邊際貢獻。</li></ol>
 <h2 id="第四步最後檢查">第四步：最後檢查</h2>
-<p>均衡不是效率、優勢不是 Nash 的同義詞、BNE 不是 PBE 的縮寫、Nash bargaining solution 不是 Nash equilibrium。題目若問制度或政策，再另外比較福利、資訊需求與誘因。</p>
+<p>均衡不是效率、優勢不是 Nash 的同義詞、BNE 不是 PBE 的縮寫、Nash bargaining solution 不是 Nash equilibrium。第二價 truthful bidding、Rubinstein 議價、Bertrand p=c、VCG 等結論也都有各自的模型條件；題目若問制度或政策，再另外比較福利、資訊需求與誘因。</p>
 '''
 
 
@@ -152,7 +152,7 @@ def appendix_c():
         ('Best Response','最佳回應'),('Strict Dominance','嚴格優勢'),('Weak Dominance','弱優勢'),('Rationalizability','合理化'),('Nash Equilibrium','Nash 均衡'),
         ('Mixed Strategy','混合策略'),('Support','支撐集'),('Zero-Sum Game','零和賽局'),('Maximin','最大最小'),('Minimax Theorem','極小極大定理'),
         ('Reaction Function','反應函數'),('Cournot Competition','Cournot 數量競爭'),('Bertrand Competition','Bertrand 價格競爭'),('Extensive Form','展開式賽局'),
-        ('Backward Induction','向後歸納'),('Subgame','子賽局'),('Subgame Perfect Nash Equilibrium','子賽局完美 Nash 均衡'),('Credible Threat','可信威脅'),
+        ('Complete Information','完整資訊（報酬／型態共同已知）'),('Perfect Information','完美資訊（每個決策資訊集合為單點）'),('Backward Induction','向後歸納'),('Subgame','子賽局'),('Subgame Perfect Nash Equilibrium','子賽局完美 Nash 均衡'),('Credible Threat','可信威脅'),
         ('Commitment','承諾'),('Ultimatum Game','最後通牒賽局'),('Alternating Offers','交替出價'),('Nash Bargaining Solution','Nash 議價解'),
         ('Repeated Game','重複賽局'),('Trigger Strategy','觸發策略'),('Folk Theorem','民間定理／Folk theorem'),('Type','型態'),('Common Prior','共同先驗'),
         ('Bayesian Nash Equilibrium','Bayesian Nash 均衡'),('Private Value','私人價值'),('Common Value','共同價值'),('Winner\'s Curse','贏家詛咒'),
@@ -165,7 +165,7 @@ def appendix_c():
     return f'''<h1>附錄 C　中英名詞對照</h1>
 <p class="lead">英文題幹的難點常是同一概念有不同中文譯名。先認英文核心詞，再回到定義與解題條件。</p>
 <h2 id="策略與均衡">策略與均衡</h2><p>Best response、dominance、Nash、mixed strategy 與 subgame perfection 是前半部高頻詞。</p>
-<h2 id="資訊與制度">資訊與制度</h2><p>Type、belief、Bayesian、PBE、signaling、screening、IC、IR 與 mechanism design 要特別分清楚。</p>
+<h2 id="資訊與制度">資訊與制度</h2><p>Complete information、perfect information、type、belief、Bayesian、PBE、signaling、screening、IC、IR 與 mechanism design 要特別分清楚。</p>
 <h2 id="名詞表">名詞表</h2><table><thead><tr><th>English</th><th>繁體中文</th></tr></thead><tbody>{rows}</tbody></table>
 '''
 
@@ -205,7 +205,6 @@ def append_sw_assets(sw, old_id, paths):
     starts = list(re.finditer(r'const\s+[A-Za-z0-9_$]+\s*=\s*\[', sw[:idx]))
     if not starts:
         raise AssertionError('cannot locate service-worker asset array')
-    array_start = starts[-1].end() - 1
     array_end = sw.find('];', idx)
     if array_end < 0:
         raise AssertionError('cannot locate service-worker asset array end')
@@ -281,14 +280,14 @@ def main(site_root):
     manifest['releaseNotes'] = [{
         'version': VERSION,
         'date': UPDATED_AT,
-        'title': '新增一般大學賽局理論及應用教材',
+        'title': '第二次內容審稿：資訊結構、動態均衡與條件精度修正',
         'changes': [
-            '新增 20 章正文與 3 份附錄，從策略式賽局延伸到動態、不完全資訊、機制與合作賽局',
-            '新增 100 題題庫，每章 5 題並包含可獨立重算的均衡與機率題',
-            '新增 20 張自製 SVG 與 189 筆全文搜尋索引',
-            '明確區分 NE、SPNE、BNE、PBE，以及 Nash bargaining、core、Shapley 等不同解概念',
+            '更正向後歸納的標準條件為有限完美資訊，並分清 complete information 與 perfect information',
+            '修正混合策略例題，明示同一協調賽局可同時有純策略與混合策略 Nash',
+            '補強 Bayesian 動態例題、PBE 與 signaling 的 off-path／序列理性條件',
+            '釐清第二價 truthful bidding、Bertrand p=c、Rubinstein bargaining 與 VCG 結論的適用假設',
         ],
-        'progressImpact': '新增獨立書籍，不改動既有書籍章節、題目 ID 或閱讀進度。',
+        'progressImpact': '保留 Book ID、章節 ID 與題目 ID；閱讀進度與錯題紀錄可延續。',
     }]
     for key in ('description','summary'):
         if key in manifest:
@@ -320,8 +319,8 @@ def main(site_root):
 
     appendix_meta = [
         ('appendix-a','核心符號與解概念速查','NE、SPNE、BNE、PBE、最佳回應、混合策略、折現、信念與常用公式的快速定位。'),
-        ('appendix-b','賽局理論標準解題路線','從玩家、時序、資訊與報酬建模，再選解概念並檢查偏離與信念。'),
-        ('appendix-c','中英名詞對照','賽局理論、拍賣、訊號、機制設計與合作賽局的常用英文術語。'),
+        ('appendix-b','賽局理論標準解題路線','從玩家、時序、payoff/type 資訊與歷史可觀察性建模，再選解概念並檢查偏離與信念。'),
+        ('appendix-c','中英名詞對照','賽局理論、資訊結構、拍賣、訊號、機制設計與合作賽局的常用英文術語。'),
     ]
     entries = search_entries(CHAPTERS, appendix_meta)
     (root / 'search.json').write_text(jdump({'entries':entries}), encoding='utf-8')
