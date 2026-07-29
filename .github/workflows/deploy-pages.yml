@@ -61,39 +61,41 @@ jobs:
           print('FORMAL_ARTIFACT_BASE_OK',library['version'],len(library['books']))
           PY
 
-      - name: Validate formal advanced statistics tail
+      - name: Validate formal computer fundamentals tail
         run: |
           set -euo pipefail
           BEFORE="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"
-          python deploy/validate_advanced_statistics.py _site "$BEFORE"
+          python deploy/validate_computer_fundamentals_release.py _site "$BEFORE"
+          python deploy/qa_computer_fundamentals_release.py _site "$BEFORE"
           python - <<'PY'
           import json
           d=json.load(open('_site/data/library.json'))
           ids=[b['id'] for b in d['books']]
-          assert len(ids)==13 and ids[-2:]==['money-banking','advanced-statistics'], ids
-          print('ADVANCED_STATISTICS_FORMAL_BASE_OK',d['version'],len(ids))
+          assert len(ids)==14 and ids[-2:]==['advanced-statistics','computer-fundamentals'], ids
+          print('COMPUTER_FUNDAMENTALS_FORMAL_BASE_OK',d['version'],len(ids))
           PY
 
-      - name: Integrate or validate computer fundamentals
+      - name: Decode and compile Investments sources
         run: |
           set -euo pipefail
-          if python - <<'PY'
-          import json,sys
-          d=json.load(open('_site/data/library.json'))
-          sys.exit(0 if any(b['id']=='computer-fundamentals' for b in d['books']) else 1)
-          PY
-          then
-            FINAL_LIBRARY_VERSION="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"
-            python deploy/validate_computer_fundamentals_release.py _site "$FINAL_LIBRARY_VERSION"
-            python deploy/qa_computer_fundamentals_release.py _site "$FINAL_LIBRARY_VERSION"
-          else
-            BEFORE="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"
-            FINAL_LIBRARY_VERSION="$(python deploy/integrate_computer_fundamentals.py _site "$BEFORE")"
-          fi
+          mkdir -p /tmp/investments-src
+          cat deploy/investments-src.tar.xz.b64.part* | tr -d '\n\r\t ' | base64 --decode > /tmp/investments-src.tar.xz
+          echo '5507e92996f4793437517d5c43fd25f2a11c1e5c352f90d3e2de7607852a2d4f  /tmp/investments-src.tar.xz' | sha256sum --check -
+          xz --test /tmp/investments-src.tar.xz
+          tar -xJf /tmp/investments-src.tar.xz -C /tmp/investments-src
+          python -m py_compile /tmp/investments-src/*.py
+
+      - name: Integrate Investments on formal base
+        run: |
+          set -euo pipefail
+          BEFORE="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"
+          FINAL_LIBRARY_VERSION="$(PYTHONPATH=/tmp/investments-src python /tmp/investments-src/integrate_investments.py _site "$BEFORE")"
           export FINAL_LIBRARY_VERSION
           echo "FINAL_LIBRARY_VERSION=$FINAL_LIBRARY_VERSION" >> "$GITHUB_ENV"
           node --check _site/app.js
           node --check _site/sw.js
+          PYTHONPATH=/tmp/investments-src python /tmp/investments-src/validate_investments.py _site "$FINAL_LIBRARY_VERSION"
+          PYTHONPATH=/tmp/investments-src python /tmp/investments-src/qa_investments_round2.py _site "$FINAL_LIBRARY_VERSION"
           python - <<'PY'
           import json,os
           from pathlib import Path
@@ -101,15 +103,7 @@ jobs:
           library=json.load(open(site/'data/library.json'))
           assert library['version']==os.environ['FINAL_LIBRARY_VERSION']
           ids=[b['id'] for b in library['books']]
-          assert len(ids)==14 and ids[-2:]==['advanced-statistics','computer-fundamentals'], ids
-          root=site/'books/computer-fundamentals'
-          manifest=json.load(open(root/'manifest.json'))
-          questions=json.load(open(root/'questions.json'))
-          search=json.load(open(root/'search.json'))
-          assert len(manifest['chapters'])==23
-          assert questions['count']==100
-          assert len(search['entries'])==150
-          assert len(list((site/'assets/computer-fundamentals-svg').glob('*.svg')))==20
+          assert len(ids)==15 and ids[-2:]==['computer-fundamentals','investments'], ids
           print('FINAL_LIBRARY_READY',library['version'],len(ids))
           PY
 
@@ -153,20 +147,21 @@ jobs:
           library=json.load(open(site/'data/library.json'))
           assert library['version']==os.environ['FINAL_LIBRARY_VERSION']
           ids=[b['id'] for b in library['books']]
-          assert len(ids)==14 and ids[-2:]==['advanced-statistics','computer-fundamentals'], ids
-          adv=site/'books/advanced-statistics'
-          assert len(json.load(open(adv/'manifest.json'))['chapters'])==23
-          assert json.load(open(adv/'questions.json'))['count']==100
-          assert len(json.load(open(adv/'search.json'))['entries'])==189
-          assert len(list((site/'assets/advanced-statistics-svg').glob('*.svg')))==20
-          root=site/'books/computer-fundamentals'
+          assert len(ids)==15 and ids[-2:]==['computer-fundamentals','investments'], ids
+          computer=site/'books/computer-fundamentals'
+          assert len(json.load(open(computer/'manifest.json'))['chapters'])==23
+          assert json.load(open(computer/'questions.json'))['count']==100
+          assert len(json.load(open(computer/'search.json'))['entries'])==150
+          assert len(list((site/'assets/computer-fundamentals-svg').glob('*.svg')))==20
+          root=site/'books/investments'
           manifest=json.load(open(root/'manifest.json'))
           questions=json.load(open(root/'questions.json'))
           search=json.load(open(root/'search.json'))
-          assert len(manifest['chapters'])==23
-          assert questions['count']==100
-          assert len(search['entries'])==150
-          assert len(list((site/'assets/computer-fundamentals-svg').glob('*.svg')))==20
+          assert len([x for x in manifest['chapters'] if x['kind']=='chapter'])==22
+          assert len([x for x in manifest['chapters'] if x['kind']=='appendix'])==3
+          assert questions['count']==110 and len(questions['items'])==110
+          assert len(search['entries'])==165
+          assert len(list((site/'assets/investments-svg').glob('*.svg')))==22
           print('DEPLOYED_ARTIFACT_RECHECK_OK',library['version'],len(ids))
           PY
           echo "PAGES_ARTIFACT_ID=$ARTIFACT_ID" >> "$GITHUB_ENV"
@@ -177,16 +172,16 @@ jobs:
       - name: Record successful deployment structurally
         run: |
           set -euo pipefail
-          python deploy/record_computer_fundamentals_deployment.py _site
+          python deploy/record_investments_deployment.py _site
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add \
             docs/deployment_receipt.json \
             README.md \
             docs/shared_checkpoint.md \
-            docs/books/computer-fundamentals/status.md \
-            docs/books/computer-fundamentals/qa_report.md
+            docs/books/investments/status.md \
+            docs/books/investments/qa_report.md
           if ! git diff --cached --quiet; then
-            git commit -m "Record computer fundamentals deployment [skip ci]"
+            git commit -m "Record Investments deployment [skip ci]"
             git push origin HEAD:main
           fi
