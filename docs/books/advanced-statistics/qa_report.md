@@ -81,6 +81,6 @@
 - v2 reaudit validator：1059 項通過。
 - 獨立數值重算：20 項通過；含 Negative Binomial、Slutsky 尺度轉換、Delta、χ²、t、Gamma、多元常態、次序統計量、Bayes、CI、p-value、OLS／R² 等。
 - 其他正式教材逐檔 hash 比對：無變更。
-- Book version：`2026.07.30-1`；shared library：`2026.07.30-4`，20 本。
-- Pages run：`30489368806`；artifact：`8739025051`；digest `sha256:a5d6907a2c230e9767822c53c7a9ed16254e37f2fa4458ac9bea05d778f6c18c`。
+- Book version：`2026.07.30-1`；shared library：`2026.07.30-6`，20 本。
+- Pages run：`30490197263`；artifact：`8739358772`；digest `sha256:6936173acc641daef1c2e369a09407f2ee4533499735b78f5cbb280a147440ce`。
 - 部署後重新下載 artifact，再次核對本書 23 份 HTML、100 題、189 搜尋、20 SVG 與 v2 QA 全部通過。

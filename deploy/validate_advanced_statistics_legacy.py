@@ -53,7 +53,7 @@ def main(site_root: str, expected_library: str) -> None:
     ck([x['id'] for x in chapters]==[f'ch{i:02d}' for i in range(20)],'stable chapter ids')
     ck(questions['count']==len(questions['items'])==100,'100 questions')
     ck(Counter(q['chapterId'] for q in questions['items'])=={f'ch{i:02d}':5 for i in range(20)},'five questions per chapter')
-    ck(len({q['id'] for q in questions['items'])==100,'unique question ids')
+    ck(len({q['id'] for q in questions['items']})==100,'unique question ids')
     ck(len(search['entries'])==189,'189 search entries')
     ck(manifest.get('releaseNotes',[{}])[0].get('version')==VERSION,'release note version')
 

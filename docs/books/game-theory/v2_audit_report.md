@@ -131,3 +131,13 @@
 ## 狀態
 
 v2 內容與候選 artifact QA 已通過；尚待來源 PR 合併與正式 Pages v2 發布。正式發布前仍須再次以最新 deployment receipt／Pages artifact 為唯一基底，不使用本次候選的隔離 shared-library 版本號硬套正式環境。
+
+## 正式 v2 發布結果
+
+- 正式內容版本：`2026.07.30-2`。
+- 正式 shared library：`2026.07.30-6`；正式書籍數：20 本。
+- Pages run：`30490197263`；source commit：`92506854f20bc7caa8a77b2e9774f2be11fbb9be`。
+- Pages artifact：`8739358772`；digest：`sha256:6936173acc641daef1c2e369a09407f2ee4533499735b78f5cbb280a147440ce`。
+- 部署後重新下載 artifact：23 HTML、100 題、189 搜尋、20 SVG 全數存在。
+- 部署後 `GAME_THEORY_V2_AUDIT_OK` 再次通過；其他教材與 shared `app.js` 維持不變。
+- `progress_storage_changed=false`；Book／chapter／question IDs 未改，平板閱讀進度與錯題紀錄相容。

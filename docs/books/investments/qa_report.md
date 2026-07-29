@@ -59,3 +59,61 @@
 - 部署後 artifact 重新下載：25 份本書章節／附錄 HTML、110 題、165 搜尋、22 SVG 全數核對通過。
 - 既有教材逐檔內容 hash 保持不變，閱讀進度與錯題資料相容。
 - post-deploy recorder：`passed-structured-recorder`。
+
+## 發布後第二次獨立內容審計 v2（2026-07-30）
+
+本輪直接以正式 Pages artifact 中實際提供給使用者的 22 章、3 附錄與 110 題為基準，不把原本 QA 的「通過」當成內容正確性的替代證據。
+
+### 審計結果
+
+- v2 reaudit validator：**730 項通過**。
+- 110 題全部重新納入答案／詳解／ID 一致性檢查。
+- 其中 45 個量化題直接由題目原始數字重新計算；未發現既有數值答案的算術錯誤。
+- 發現並修正 7 個內容精確性區域；6 題保留原 ID、只精確化詳解。
+- 22 章、3 附錄、110 題、165 搜尋、22 SVG 及所有既有 ID 均維持。
+
+### 修正 1：APT 報酬生成式的零均值條件
+
+- v1 寫成 `R_i=E[R_i]+Σ beta_ij F_j+e_i`，但沒有明說 `F_j` 的中心化口徑。
+- v2 明列：若截距直接寫成 `E[R_i]`，`F_j` 應是零均值 factor surprise／去均值因子，且 `E[e_i]=0`。
+
+### 修正 2：DuPont 的期間／存量口徑
+
+- v1 基本 ROE 已使用 Average Equity，但三段 DuPont 簡寫成 `Sales/Assets × Assets/Equity`，容易讓讀者用期末存量搭配整期流量。
+- v2 統一為 `Sales/Average Assets × Average Assets/Average Equity`，並明示自行由財報計算時需維持期間口徑一致。
+
+### 修正 3：Duration、Convexity 與 Immunization
+
+- 補上本書 convexity 的價格正規化二階導數定義，避免 `1/2 × Conv × (Δy)^2` 的尺度不明。
+- 單一負債補充資產價值與 Macaulay duration 對應；多筆負債補充 market value、money duration／BPV、凸性與曲線形狀風險。
+- 維持「免疫仍需再平衡」的原本正確結論，但不再把 duration matching 講成足以永久鎖定的單一條件。
+
+### 修正 4：無收益標的 Forward Cost of Carry
+
+- v1 把 `F_0≈S_0(1+r)^T` 寫成近似式。
+- v2 改為：在無收益、無其他 carry、可按 `r` 融資／投資且無套利的離散複利假設下，`F_0=S_0(1+r)^T` 是定價等式；有股利、收益、儲存成本或便利收益時另行調整。
+
+### 修正 5：ETF 不再與被動指數化混為同義詞
+
+- v1 附錄將 Exchange-Traded Fund 直接翻成「指數股票型基金 ETF」，對目前臺灣市場已不完整。
+- v2 改為「交易所交易基金 ETF」，正文明確區分 ETF 的交易架構與 indexing 的被動管理策略。
+- 依 2026-07-30 查核之臺灣證券交易所說明，現行證信託 ETF 已包含被動式 ETF 與主動式 ETF；主動式 ETF 不強制須有 benchmark。
+
+### 修正 6：外幣資產本幣報酬
+
+- v1 將乘法關係寫成近似號且未固定匯率方向。
+- v2 固定 `S_t` 為「1 單位外幣的本幣價格」，`R_FX=S_1/S_0-1`，因此 `1+R_home=(1+R_foreign)(1+R_FX)` 是精確乘法關係。
+- 只有報酬幅度很小時，`R_home≈R_foreign+R_FX` 才是一階近似；新增 10% × 5% → 15.5% 的例子。
+
+### 修正 7：Information Ratio 分子
+
+- v1 定義文字已說「平均主動報酬」，公式卻寫單期 `R_P-R_B`。
+- v2 統一為 `IR=mean(R_P-R_B)/σ(R_P-R_B)`，並補充分子與 tracking error 必須採一致期間／年化口徑。
+
+### 相容性與正式部署
+
+- Book version：`2026.07.30-1`。
+- Shared library：`2026.07.30-6`，20 本。
+- Pages run：`30490197263`。
+- Pages artifact：`8739358772`；digest `sha256:6936173acc641daef1c2e369a09407f2ee4533499735b78f5cbb280a147440ce`。
+- 部署後重新下載 artifact，再核對 25 份 HTML、110 題、165 搜尋與 22 SVG；所有非 Investments 教材 hash 均保持不變。

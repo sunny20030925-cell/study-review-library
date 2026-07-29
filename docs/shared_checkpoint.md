@@ -9,14 +9,14 @@
 - 固定入口：`https://sunny20030925-cell.github.io/study-review-library/`
 - 形式：平板直式 PWA 書庫，可持續加入新科目。
 - 使用者操作限制：只使用平板；不得要求終端機、Git、電腦檔案管理、手動部署或多檔案上傳操作。
-- 正式書庫內容版本：`2026.07.30-4`
+- 正式書庫內容版本：`2026.07.30-6`
 - 正式書籍數：20 本。
-- 最新正式 Pages run：`30489368806`。
-- 最新正式部署 source commit：`854b646097e71d383ff848dad7c0a1c1cdc854fa`。
-- 最新 Pages artifact：`8739025051`。
-- Artifact digest：`sha256:a5d6907a2c230e9767822c53c7a9ed16254e37f2fa4458ac9bea05d778f6c18c`。
-- Pages 狀態：正式 artifact 上傳、Pages deployment 與下載後 artifact recheck 均成功；`2026-07-29T20:40:47.342572+00:00`。
-- 部署回條：`docs/deployment_receipt.json`；`status=success`、`book_count=20`、`library_version=2026.07.30-4`、`progress_storage_changed=false`。
+- 最新正式 Pages run：`30490197263`。
+- 最新正式部署 source commit：`92506854f20bc7caa8a77b2e9774f2be11fbb9be`。
+- 最新 Pages artifact：`8739358772`。
+- Artifact digest：`sha256:6936173acc641daef1c2e369a09407f2ee4533499735b78f5cbb280a147440ce`。
+- Pages 狀態：正式 artifact 上傳、Pages deployment 與下載後 artifact recheck 均成功；`2026-07-29T20:53:35.351062+00:00`。
+- 部署回條：`docs/deployment_receipt.json`；`status=success`、`book_count=20`、`library_version=2026.07.30-6`、`progress_storage_changed=false`。
 - 實際下載正式 Pages artifact 後再次核對：20 本 registry；產業及貿易 23 份章節／附錄 HTML、100 題、160 搜尋、20 SVG 與既有正式教材均存在；下載檔 SHA-256 與 GitHub artifact digest 一致。
 - workflow overall conclusion：`success`；post-deploy recorder 採結構化 Book ID／receipt 更新。
 
@@ -141,8 +141,8 @@
 - 2026-07-30 第二次內容審計：10 個章節修正／補強、7 題題庫精確化；v2 validator 1059 項、數值重算 20 項通過。
 - 修正重點：充分／完備關係、Negative Binomial、Slutsky、MLE invariance、一致性／漸近常態、Rao–Blackwell／CRLB、精確 z/t、size vs level、p-value／NP、UMP／MLR／Wilks、Gauss–Markov。
 - chapter／question IDs、題數與閱讀／錯題儲存相容性全部保持不變；其他正式教材內容 hash 不變。
-- 正式 Pages run：`30489368806`；Source commit：`854b646097e71d383ff848dad7c0a1c1cdc854fa`；artifact：`8739025051`。
-- Artifact digest／下載 SHA-256：`sha256:a5d6907a2c230e9767822c53c7a9ed16254e37f2fa4458ac9bea05d778f6c18c`。
+- 正式 Pages run：`30490197263`；Source commit：`92506854f20bc7caa8a77b2e9774f2be11fbb9be`；artifact：`8739358772`。
+- Artifact digest／下載 SHA-256：`sha256:6936173acc641daef1c2e369a09407f2ee4533499735b78f5cbb280a147440ce`。
 - 文件：`docs/books/advanced-statistics/scope.md`、`docs/books/advanced-statistics/qa_report.md`、`docs/books/advanced-statistics/status.md`。
 - 狀態：已部署。
 
@@ -159,14 +159,16 @@
 
 ### 15. 賽局理論及應用
 - Book ID：`game-theory`
-- 正式內容版本：`2026.07.29-1`
+- 正式內容版本：`2026.07.30-2`
 - 定位：一般大學賽局理論；策略式與展開式賽局、Nash／SPNE／BNE／PBE、重複賽局、拍賣、訊號、機制設計與合作賽局。
 - 成品：20 章、3 附錄、100 題、189 搜尋、20 圖解。
-- QA：第一輪 2385 項、第二輪 360 項通過；24 個數值節點獨立重算、19 個高風險概念 gate。
-- 既有 14 本教材內容 hash 在整合前後完全一致。
-- 正式 Pages run：`30470393224`；Source commit：`2c25ca9f2c0670002b819073d1a346c8c56f142c`。
-- 文件：`docs/books/game-theory/scope.md`、`docs/books/game-theory/qa_report.md`、`docs/books/game-theory/status.md`。
-- 狀態：已部署。
+- 初版 QA：第一輪 2385、第二輪 360。
+- 2026-07-30 第二次獨立內容重審：artifact audit 504 項、source second pass 375 項；21／24 個數值節點重算、19／23 個概念 gate。
+- 修正 complete／perfect information、混合策略、rationalizability、Bertrand、subgame、Bayesian／PBE／signaling、拍賣、Rubinstein、VCG 與 strategic complements 等精度問題。
+- Book／chapter／question IDs 不變；progress storage 相容。
+- 正式 Pages run：`30490197263`；Source commit：`92506854f20bc7caa8a77b2e9774f2be11fbb9be`；artifact：`8739358772`。
+- 文件：`docs/books/game-theory/scope.md`、`docs/books/game-theory/qa_report.md`、`docs/books/game-theory/v2_audit_report.md`、`docs/books/game-theory/status.md`。
+- 狀態：v2 已部署。
 
 ### 16. 民法概要
 - Book ID：`civil-law-overview`
@@ -180,12 +182,16 @@
 
 ### 17. 投資學
 - Book ID：`investments`
-- 正式內容版本：`2026.07.29-1`
+- 正式內容版本：`2026.07.30-1`
 - 定位：一般大學投資學；報酬與風險、投資組合、資產定價、證券估值、衍生工具、資產配置與績效評估。
 - 成品：22 章、3 附錄、110 題、165 搜尋、22 圖解。
-- QA：第一輪 2,672／2,672、第二輪 139／139；45 個量化節點重算、20 個高風險概念重判。
-- 既有教材內容 hash 在整合前後完全一致，閱讀進度與錯題資料相容。
-- 正式 Pages run：`30471109923`；Source commit：`63827e220a501c024ddd90482d7a798ac5995fad`。
+- 初版 QA：第一輪 2,672／2,672、第二輪 139／139；45 個量化節點重算、20 個高風險概念重判。
+- 2026-07-30 發布後第二次獨立內容審計：7 個精確性修正區域、6 題詳解精確化；v2 reaudit validator 730 項通過。
+- 45 個量化題再次由原始數字獨立重算，未發現既有數值答案算術錯誤。
+- 修正重點：APT 零均值 factor surprise、DuPont 平均存量、convexity／immunization、forward cost-of-carry、主動／被動 ETF、外幣資產本幣報酬、Information Ratio。
+- 章節 ID、110 題題目 ID、Book ID 與閱讀／錯題儲存相容性均保持不變；其他教材 hash 不變。
+- 正式 Pages run：`30490197263`；Source commit：`92506854f20bc7caa8a77b2e9774f2be11fbb9be`；artifact：`8739358772`。
+- Artifact digest／下載 SHA-256：`sha256:6936173acc641daef1c2e369a09407f2ee4533499735b78f5cbb280a147440ce`。
 - 文件：`docs/books/investments/scope.md`、`docs/books/investments/qa_report.md`、`docs/books/investments/status.md`。
 - 狀態：已部署。
 
@@ -198,8 +204,8 @@
 - 2026-07-30 發布後獨立內容審計：2 個精確化修正；v2 reaudit validator 57 項通過。
 - 修正重點：FE／FD 明列 strict exogeneity；隨機實驗分開 SATE 與 PATE／external validity。
 - 章節 ID、題目 ID、題數與閱讀／錯題儲存相容性均保持不變。
-- 正式 Pages run：`30489368806`；Source commit：`854b646097e71d383ff848dad7c0a1c1cdc854fa`；artifact：`8739025051`。
-- Artifact digest／下載 SHA-256：`sha256:a5d6907a2c230e9767822c53c7a9ed16254e37f2fa4458ac9bea05d778f6c18c`。
+- 正式 Pages run：`30490197263`；Source commit：`92506854f20bc7caa8a77b2e9774f2be11fbb9be`；artifact：`8739358772`。
+- Artifact digest／下載 SHA-256：`sha256:6936173acc641daef1c2e369a09407f2ee4533499735b78f5cbb280a147440ce`。
 - 文件：`docs/books/econometrics/scope.md`、`docs/books/econometrics/qa_report.md`、`docs/books/econometrics/status.md`。
 - 狀態：已部署。
 
@@ -211,7 +217,7 @@
 - 第二次獨立內容複核：12 個實質修正區域；QA1 = 186、QA2 = 481；26 個量化節點、16 組高風險概念 gate。
 - 其他 19 本教材 hash 在整合前後完全一致；本書章節／題目 ID 與閱讀／錯題進度相容性均保持。
 - 詳細糾錯：`docs/books/industrial-economics/v2_audit_report.md`。
-- 正式 Pages run：`30489368806`；Source commit：`854b646097e71d383ff848dad7c0a1c1cdc854fa`。
+- 正式 Pages run：`30490197263`；Source commit：`92506854f20bc7caa8a77b2e9774f2be11fbb9be`。
 - 狀態：已部署。
 
 ### 20. 產業及貿易
@@ -221,7 +227,7 @@
 - 成品：20 章、3 附錄、100 題、160 搜尋、20 圖解。
 - QA：Round 1 = 1495、Round 2 = 545；20 題數值題獨立重算、12 個高風險章節重判。
 - 既有 19 本教材 hash 在整合前後完全一致。
-- 正式 Pages run：`30489368806`；Source commit：`854b646097e71d383ff848dad7c0a1c1cdc854fa`。
+- 正式 Pages run：`30490197263`；Source commit：`92506854f20bc7caa8a77b2e9774f2be11fbb9be`。
 - 狀態：已部署。
 
 ## Canonical 部署流程
@@ -232,7 +238,7 @@
 4. 各書內容／題庫／搜尋／SVG 與高風險公式／法律要件驗證通過後，再檢查 `app.js` 與 `sw.js`。
 5. 全部正式檢查通過後才上傳單一完整 Pages artifact。
 6. Pages deployment 成功後重新下載本次 artifact 驗證，再由結構化 recorder 寫回 deployment receipt、目標書 status／QA、README 與本 checkpoint。
-7. 最新正式書庫：20 本，`2026.07.30-4`；Pages run `30489368806`，artifact `8739025051`。
+7. 最新正式書庫：20 本，`2026.07.30-6`；Pages run `30490197263`，artifact `8739358772`。
 8. 使用者不需要執行 Git、終端機、手動上傳或部署。
 
 ## 多書並行／發布規則
