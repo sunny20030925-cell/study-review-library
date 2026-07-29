@@ -18,7 +18,9 @@ def main(site_root, expected_library='2026.07.29-15'):
  ids=[x['id'] for x in lib['books']]
  legacy_order=(len(ids)==11 and ids[-3:]==['macroeconomics','international-economics','public-finance'])
  money_order=(len(ids)==12 and ids[-4:]==['macroeconomics','international-economics','public-finance','money-banking'])
- ck(legacy_order or money_order,'canonical book order')
+ computer_order=(len(ids)==13 and ids[-5:]==['macroeconomics','international-economics','public-finance','money-banking','computer-fundamentals'])
+ math_order=(len(ids)==14 and ids[-6:]==['macroeconomics','international-economics','public-finance','money-banking','computer-fundamentals','mathematical-economics'])
+ ck(legacy_order or money_order or computer_order or math_order,'canonical book order')
  chapters=[x for x in m['chapters'] if x['kind']=='chapter']; apps=[x for x in m['chapters'] if x['kind']=='appendix']
  ck(len(chapters)==20,'chapters'); ck(len(apps)==3,'appendices'); ck(q['count']==len(q['items'])==100,'questions'); ck(len(s['entries'])==143,'search'); ck(len({x['id'] for x in q['items']})==100,'unique qids'); ck(Counter(x['chapterId'] for x in q['items'])=={f'ch{i:02d}':5 for i in range(20)},'five each')
  qmap={x['id']:x for x in q['items']}
