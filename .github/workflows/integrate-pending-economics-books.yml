@@ -42,6 +42,7 @@ jobs:
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add .github/workflows/deploy-pages.yml
           git rm --ignore-unmatch .github/workflows/integrate-pending-economics-books.yml
+          git rm --ignore-unmatch .github/workflows/validate-macroeconomics-integration.yml
           git rm --ignore-unmatch .github/workflows/stage-intermediate-accounting-workflow.yml
           rm -f deploy/generated-deploy-pages.intermediate-accounting.yml
           git commit -m "Integrate intermediate accounting and macroeconomics deployment"
