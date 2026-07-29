@@ -8,7 +8,6 @@ on:
       - 'deploy/finalize_econometrics_library.py'
       - 'deploy/validate_econometrics.py'
       - 'deploy/validate_econometrics_v2.py'
-      - 'deploy/record_econometrics_deployment.py'
       - 'docs/books/econometrics/**'
       - '.github/workflows/deploy-pages.yml'
       - '.github/workflows/validate-econometrics-candidate.yml'
@@ -35,8 +34,7 @@ jobs:
             deploy/generate_econometrics.py \
             deploy/finalize_econometrics_library.py \
             deploy/validate_econometrics.py \
-            deploy/validate_econometrics_v2.py \
-            deploy/record_econometrics_deployment.py
+            deploy/validate_econometrics_v2.py
 
       - name: Download receipt-authoritative deployed Pages artifact
         env:
