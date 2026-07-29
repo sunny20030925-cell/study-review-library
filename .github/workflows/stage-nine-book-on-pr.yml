@@ -12,8 +12,7 @@ jobs:
   stage:
     if: >-
       github.event.pull_request.head.repo.full_name == github.repository &&
-      github.event.pull_request.head.ref == 'stage-nine-book-canonical-v3' &&
-      github.actor == 'sunny20030925-cell'
+      github.event.pull_request.head.ref == 'stage-nine-book-canonical-v3'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout controlled staging branch
