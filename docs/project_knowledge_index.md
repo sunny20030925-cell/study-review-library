@@ -25,7 +25,8 @@
 2. `docs/project_knowledge_index.md`
 3. `docs/content_authoring_spec.md`
 4. `docs/shared_checkpoint.md`
-5. 建立該科目的 `scope.md`，先固定科目邊界與共同課程範圍，再開始寫內容。
+5. 若同時還有其他書籍對話在製作，讀 `docs/concurrent_book_workflow.md`。
+6. 建立該科目的 `scope.md`，先固定科目邊界與共同課程範圍，再開始寫內容。
 
 ### 修改既有科目
 
@@ -35,16 +36,26 @@
 - 最新 QA report
 - 最新 status
 - 線上 manifest 與題庫版本
+- 若本次會發布到共同書庫，讀 `docs/concurrent_book_workflow.md`
 
 ### 修改書庫介面或部署
 
 除上述文件外，必須檢查：
 
+- `docs/concurrent_book_workflow.md`
 - PWA manifest
 - service worker 快取版本
 - 書庫 registry
 - GitHub Pages workflow
 - 現有書籍入口與本機進度相容性
+- 當下最新正式書籍清單與各書內容版本，避免版本倒退或覆蓋較新的書庫狀態
+
+## 多書並行的正式原則
+
+- 不同科目的內容製作與 QA 可以平行進行。
+- 共同書庫整合與正式部署必須依 `docs/concurrent_book_workflow.md` 序列化。
+- 每個準備發布的對話都必須重新讀最新 `main` 與 `docs/shared_checkpoint.md`，不得使用對話開始時的舊書庫副本直接發布。
+- 使用者不需要自行排發布順序；發布對話必須自行同步最新狀態並確認所有既有書籍與版本未倒退。
 
 ## 正式狀態原則
 
