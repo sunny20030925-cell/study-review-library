@@ -6,7 +6,7 @@
 
 - Book ID：`macroeconomics`
 - 書籍版本：`2026.07.29-1`
-- 預定書庫版本：`2026.07.29-8`
+- 預定書庫版本：動態順延；依目前正式七書 `2026.07.29-8` 計算，先整合《中級會計學》再整合本書後，預期為 `2026.07.29-10`
 - 工作分支：`agent/macroeconomics-book-20260729-v2`
 
 ## 已固定範圍
@@ -36,12 +36,13 @@
 
 ## 整合狀態
 
-- Canonical PWA 產生器：完成。
-- 七書 canonical deployment gate：整合中。
-- 既有六本書的正式修正與驗證流程必須保留。
-- 新增第七本不得改動既有閱讀進度儲存格式。
-- GitHub Pages：待 PR 審查、合併與正式部署驗證。
+- 原先由成本會計 validator 提前生成本書的舊掛接已移除。
+- Canonical PWA 產生器、動態版本 finalizer 與保留既有書籍的 validator：完成。
+- PR gate：會以最新 `main` 組裝《中級會計學》與《總體經濟學》九書 workflow，檢查 Python、YAML 與關鍵部署步驟。
+- 合併後由一次性整合 workflow 更新唯一 canonical `Deploy study library`，再自我移除；不建立第二條 Pages 部署線。
+- 既有七本正式教材、閱讀進度儲存格式與錯題紀錄必須保持不變。
+- GitHub Pages：待 PR gate、合併與正式九書部署驗證。
 
 ## 目前狀態
 
-內容與兩輪 QA 已完成；尚未宣稱正式部署完成。最終完成門檻是七本書的 canonical GitHub Pages workflow 實際成功，並寫回正式 deployment receipt。
+內容與兩輪 QA 已完成；尚未宣稱正式部署完成。最終完成門檻是 canonical GitHub Pages workflow 實際部署 9 本書、書庫版本動態順延成功，並寫回 `book_count=9` 的正式 deployment receipt。
