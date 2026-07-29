@@ -1,0 +1,46 @@
+name: Validate industry trade v2 authoritative receipt gates
+
+on:
+  pull_request:
+    paths:
+      - 'deploy/patch_industry_trade_v2.py'
+      - 'deploy/qa_industry_trade_reaudit_v2.py'
+      - 'deploy/record_industry_trade_v2_deployment.py'
+      - 'docs/books/industry-trade/v2_*'
+      - '.github/workflows/validate-industry-trade-v2-receipt.yml'
+      - '.github/workflows/deploy-pages.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify current formal receipt then v2 patch independently
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh api "repos/${GITHUB_REPOSITORY}/contents/docs/deployment_receipt.json?ref=main" --jq '.content' | tr -d '\n' | base64 -d > /tmp/receipt.json
+          A="$(python -c "import json;print(json.load(open('/tmp/receipt.json'))['pages_artifact_id'])")"
+          D="$(python -c "import json;print(json.load(open('/tmp/receipt.json'))['pages_artifact_digest'])")"
+          gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${A}/zip" > /tmp/base.zip
+          echo "${D#sha256:}  /tmp/base.zip" | sha256sum --check -
+          mkdir /tmp/u _site
+          unzip -q /tmp/base.zip -d /tmp/u
+          if [ -f /tmp/u/artifact.tar ]; then tar -xf /tmp/u/artifact.tar -C _site; elif [ -f /tmp/u/artifact.tar.gz ]; then tar -xzf /tmp/u/artifact.tar.gz -C _site; else cp -a /tmp/u/. _site/; fi
+          BEFORE="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"
+          FINAL="$(python deploy/patch_industry_trade_v2.py _site)"
+          python deploy/qa_industry_trade_reaudit_v2.py _site "$FINAL"
+          BEFORE="$BEFORE" FINAL="$FINAL" python - <<'PY'
+          import json,os,re
+          def key(v): return tuple(map(int,re.fullmatch(r'(\d{4})\.(\d{2})\.(\d{2})-(\d+)',v).groups()))
+          lib=json.load(open('_site/data/library.json'))
+          assert key(os.environ['FINAL'])>key(os.environ['BEFORE'])
+          assert lib['version']==os.environ['FINAL']
+          assert [b['id'] for b in lib['books']].count('industry-trade')==1
+          print('INDUSTRY_TRADE_V2_RECEIPT_BASE_AND_VERSION_GATE_OK',os.environ['BEFORE'],os.environ['FINAL'])
+          PY
