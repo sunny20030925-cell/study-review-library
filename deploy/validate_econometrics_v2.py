@@ -41,15 +41,13 @@ def main(site_root: str) -> None:
     C(len(search)==189,'189 search entries')
     C(set(chapters)=={f'ch{i:02d}' for i in range(20)},'chapter id set')
 
-    # Independent chapter-by-chapter concept audit. Each group contains affirmative
-    # wording that must survive generation; this does not depend on validator v1.
     chapter_requirements={
       'ch00':['描述平均關係、預測未來，還是估計某個政策或行為的因果效果','estimand','Identification','高 R² 是否足以證明因果關係'],
       'ch01':['標準差描述個別觀察值的離散程度；標準誤描述估計量的抽樣不確定性','大數法則','中央極限定理','s/sqrt(n)'],
       'ch02':['殘差平方和最小','R² 只回答樣本內','殘差 hat u_i','含截距 OLS 的殘差加總為 0'],
       'ch03':['Zero conditional mean','Homoskedasticity','Gauss–Markov','線性無偏估計量中具有最小變異數'],
       'ch04':['partialling out','控制變數可以減少混淆，但不是「越多越好」','Adjusted R²','處置後才發生的變數'],
-      'ch05':['omitted-variable bias','反向因果','robust SE 不是解法','beta2×delta1'],
+      'ch05':['omitted-variable bias','反向因果','robust SE 不是解法','兩者同號是向上偏'],
       'ch06':['p-value','長期覆蓋率','F 檢定','統計顯著自動等同經濟上重要'],
       'ch07':['log-level','level-log','log-log','dummy variable trap','beta1+beta3'],
       'ch08':['heteroskedasticity-robust standard errors','不改同一份 OLS 點估計','WLS','遺漏變數、反向因果'],
@@ -70,8 +68,6 @@ def main(site_root: str) -> None:
         for token in tokens:
             C(token in text,f'{cid} concept: {token}')
 
-    # Negative conceptual gates: dangerous statements can be mentioned as traps, but the
-    # generated chapter must also contain the corresponding correction in the same chapter.
     correction_pairs={
       'ch00':[('高 R²','不能'),('因果','識別假設')],
       'ch03':[('異質變異','不讓 OLS 係數本身有偏'),('BLUE','線性無偏估計量')],
@@ -91,8 +87,6 @@ def main(site_root: str) -> None:
         for a,b in pairs:
             C(a in text and b in text,f'{cid} correction pair: {a} / {b}')
 
-    # Question-bank structural balance is independently checked rather than trusting the
-    # source modules. Exactly one of each difficulty slot is required in every chapter.
     expected_difficulties={'基礎':1,'標準':2,'綜合':1,'陷阱':1}
     for i in range(20):
         cid=f'ch{i:02d}'
@@ -105,8 +99,6 @@ def main(site_root: str) -> None:
             C(len(q['explanation'].strip())>=18,f'{q["id"]} explanation substance')
             C(q['bookId']==BOOK,f'{q["id"]} book id')
 
-    # High-risk answer audit: directly inspect final JSON answers/explanations, not chapter
-    # prose. These are the questions most likely to teach a wrong shortcut if drift occurs.
     answer_gates={
       'ch00-q05':['不能','R²','配適'],
       'ch01-q05':['2','t='],
@@ -147,8 +139,6 @@ def main(site_root: str) -> None:
         for token in tokens:
             C(token in combined,f'{qid} answer gate: {token}')
 
-    # Search quality: each generated chapter must be discoverable under its title and at
-    # least eight distinct section entries, while appendices retain three entries each.
     by_chapter=Counter(e['chapterId'] for e in search)
     for i in range(20):
         cid=f'ch{i:02d}'
@@ -158,7 +148,6 @@ def main(site_root: str) -> None:
     for aid in ('appendix-a','appendix-b','appendix-c'):
         C(by_chapter[aid]==3,f'{aid} search entries')
 
-    # Integration-facing invariants relevant to tablet use.
     lib=json.loads((site/'data/library.json').read_text(encoding='utf-8'))
     entries=[b for b in lib['books'] if b['id']==BOOK]
     C(len(entries)==1,'one library entry')
