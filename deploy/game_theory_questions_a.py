@@ -31,7 +31,7 @@ QUESTIONS_A = [
 {'id':'ch04-q04','chapterId':'ch04','question':'例題中 B 的 L 報酬為2p、R 報酬為3(1-p)。令 B 無差異可得 p 為多少？','answer':'p=0.6。','explanation':'2p=3-3p，所以5p=3，p=0.6。'},
 {'id':'ch04-q05','chapterId':'ch04','question':'要求「求 A 的混合機率 p」時，為什麼常用 B 的無差異條件？','answer':'因 A 的 p 決定 B 面對各純策略的期望報酬。','explanation':'在內點混合均衡中，A 調整自己的混合機率使 B 願意在其支撐策略間混合。'},
 
-{'id':'ch05-q01','chapterId':'ch05','question':'二人零和賽局中，若列玩家得到 v，欄玩家的報酬是多少？','answer':'-v。','explanation':'零和表示兩人報酬總和為0。'},
+{'id':'ch05-q01','chapterId':'ch05','question':'二人零和賽局中，若列玩家得到 v，欄玩家的報酬是多少？','answer':'-v。','explanation':'零和表示每個結果中兩位玩家報酬總和為0，因此列玩家得到 v 時，欄玩家必須得到 -v。'},
 {'id':'ch05-q02','chapterId':'ch05','question':'列玩家報酬矩陣 [[2,-1],[-2,1]] 的兩列最小值分別是多少？','answer':'-1 與 -2。','explanation':'第一列 min(2,-1)=-1；第二列 min(-2,1)=-2。'},
 {'id':'ch05-q03','chapterId':'ch05','question':'同一矩陣的純策略 maximin 值是多少？','answer':'-1。','explanation':'在兩列最小值 -1、-2 中取最大值，得到 -1。'},
 {'id':'ch05-q04','chapterId':'ch05','question':'若零和賽局的純 maximin 等於純 minimax，代表什麼？','answer':'存在純策略鞍點，兩者共同值就是賽局價值。','explanation':'maximin=minimax 時不需靠混合策略縮小安全值差距。'},
@@ -52,12 +52,12 @@ QUESTIONS_A = [
 {'id':'ch08-q01','chapterId':'ch08','question':'每個 SPNE 是否一定也是 Nash equilibrium？','answer':'是。','explanation':'SPNE 要求所有子賽局都是 Nash，因此整個賽局本身當然也是 Nash。'},
 {'id':'ch08-q02','chapterId':'ch08','question':'每個 Nash equilibrium 是否一定是 SPNE？','answer':'不是。','explanation':'一般 Nash 可能依賴均衡路徑外的不可信威脅，未必在每個子賽局都構成 Nash。'},
 {'id':'ch08-q03','chapterId':'ch08','question':'有效承諾與單純口頭威脅的核心差別是什麼？','answer':'有效承諾會改變未來可行選項或報酬，使後續行動真的符合自身利益。','explanation':'若後續誘因完全沒變，口頭宣布通常無法讓原本不可信的威脅變可信。'},
-{'id':'ch08-q04','chapterId':'ch08','question':'某投資成本0.5，可讓既有廠商嚇阻進入後淨得2.5；不投資則進入發生後只得1。是否值得投資？','answer':'值得，若其他條件如題。','explanation':'承諾後淨報酬2.5高於不承諾的1。'},
+{'id':'ch08-q04','chapterId':'ch08','question':'某投資成本0.5，可讓既有廠商嚇阻進入後淨得2.5；不投資則進入發生後只得1。是否值得投資？','answer':'值得，若其他條件如題。','explanation':'承諾後已扣除投資成本的淨報酬是2.5，高於不承諾時的1，因此在題目給定續局下投資值得。'},
 {'id':'ch08-q05','chapterId':'ch08','question':'從非單點資訊集合中的某一節點單獨切出後繼樹，能否直接算子賽局？','answer':'不能。','explanation':'真正子賽局不能切斷資訊集合，起點通常需是單點資訊集合。'},
 
 {'id':'ch09-q01','chapterId':'ch09','question':'Nash bargaining solution 與 Nash equilibrium 是同一概念嗎？','answer':'不是。','explanation':'Nash bargaining solution 是合作式公理化議價解；Nash equilibrium 是非合作策略互動的均衡概念。'},
 {'id':'ch09-q02','chapterId':'ch09','question':'雙方交替出價且 δ1=δ2=0.9、玩家1先提案，Rubinstein 模型中玩家1份額約多少？','answer':'約0.5263。','explanation':'(1-0.9)/(1-0.9×0.9)=0.1/0.19≈0.5263。'},
-{'id':'ch09-q03','chapterId':'ch09','question':'若總餅為 NT$100，上題玩家1約拿多少？','answer':'約 NT$52.63。','explanation':'100×0.5263≈52.63。'},
+{'id':'ch09-q03','chapterId':'ch09','question':'若總餅為 NT$100，上題玩家1約拿多少？','answer':'約 NT$52.63。','explanation':'玩家1的均衡份額約0.5263，所以 NT$100×0.5263≈NT$52.63；這是交替出價模型的先提案者份額。'},
 {'id':'ch09-q04','chapterId':'ch09','question':'對稱 Nash bargaining、分歧點皆0、可行條件 x1+x2=100 時，解是多少？','answer':'NT$50 與 NT$50。','explanation':'最大化 x1x2 且總和固定100，在對稱情況由 x1=x2=50 達到最大。'},
 {'id':'ch09-q05','chapterId':'ch09','question':'談判中的 disagreement point 為什麼重要？','answer':'它決定談判破裂時的外部選項，會改變可接受分配與談判力。','explanation':'議價收益通常看相對於分歧點的增益，不可只看總餅大小。'}
 ]
