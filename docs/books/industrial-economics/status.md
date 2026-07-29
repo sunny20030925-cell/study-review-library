@@ -6,7 +6,7 @@
 
 - Book ID：`industrial-economics`
 - 正式內容版本：`2026.07.29-1`
-- 正式書庫版本：`2026.07.29-24`
+- 正式書庫版本：`2026.07.30-1`
 - 狀態：已部署。
 
 ## 成品與 QA
@@ -19,9 +19,9 @@
 ## 部署
 
 - canonical workflow：`Deploy study library`
-- workflow run：`30472469702`
-- source commit：`00d76c2167c0132f7284e4e13e4106828d1647fc`
-- Pages artifact：`8732231529`
-- Artifact digest：`sha256:885891d570e82aa33dda22cb249584eca1733231f5fbda31cb7789b2dbc97a33`
+- workflow run：`30486206718`
+- source commit：`731a4f51298fe80ce5ac0ba3f07f9f4cf8db2780`
+- Pages artifact：`8737722771`
+- Artifact digest：`sha256:10098e7b8467cb9572515f77e02cc31344850ec253acd2afc69a625d8d033d4a`
 - 正式書庫書籍數：19 本。
 - Pages deployment、artifact 下載重驗與結構化 deployment receipt 均成功。

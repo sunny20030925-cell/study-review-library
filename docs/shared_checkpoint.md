@@ -9,15 +9,15 @@
 - 固定入口：`https://sunny20030925-cell.github.io/study-review-library/`
 - 形式：平板直式 PWA 書庫，可持續加入新科目。
 - 使用者操作限制：只使用平板；不得要求終端機、Git、電腦檔案管理、手動部署或多檔案上傳操作。
-- 正式書庫內容版本：`2026.07.29-24`
+- 正式書庫內容版本：`2026.07.30-1`
 - 正式書籍數：19 本。
-- 最新正式 Pages run：`30472469702`。
-- 最新正式部署 source commit：`00d76c2167c0132f7284e4e13e4106828d1647fc`。
-- 最新 Pages artifact：`8732231529`。
-- Artifact digest：`sha256:885891d570e82aa33dda22cb249584eca1733231f5fbda31cb7789b2dbc97a33`。
-- Pages 狀態：正式 artifact 上傳、Pages deployment 與下載後 artifact recheck 均成功；`2026-07-29T16:49:21.676281+00:00`。
-- 部署回條：`docs/deployment_receipt.json`；`status=success`、`book_count=19`、`library_version=2026.07.29-24`、`progress_storage_changed=false`。
-- 實際下載正式 Pages artifact 後再次核對：19 本 registry；產業經濟學 23 份章節／附錄 HTML、100 題、150 搜尋、20 SVG 均存在；下載檔 SHA-256 與 GitHub artifact digest 一致。
+- 最新正式 Pages run：`30486206718`。
+- 最新正式部署 source commit：`731a4f51298fe80ce5ac0ba3f07f9f4cf8db2780`。
+- 最新 Pages artifact：`8737722771`。
+- Artifact digest：`sha256:10098e7b8467cb9572515f77e02cc31344850ec253acd2afc69a625d8d033d4a`。
+- Pages 狀態：正式 artifact 上傳、Pages deployment 與下載後 artifact recheck 均成功；`2026-07-29T19:51:33.721553+00:00`。
+- 部署回條：`docs/deployment_receipt.json`；`status=success`、`book_count=19`、`library_version=2026.07.30-1`、`progress_storage_changed=false`。
+- 實際下載正式 Pages artifact 後再次核對：19 本 registry；計量經濟學 v2 23 份 HTML、100 題、189 搜尋、20 SVG 與產業經濟學正式資產均存在；下載檔 SHA-256 與 GitHub artifact digest 一致。
 - workflow overall conclusion：`success`；post-deploy recorder 採結構化 Book ID／receipt 更新。
 
 ## 正式規格與讀取順序
@@ -188,14 +188,15 @@
 
 ### 18. 計量經濟學
 - Book ID：`econometrics`
-- 正式內容版本：`2026.07.29-1`
+- 正式內容版本：`2026.07.30-1`
 - 定位：一般大學計量經濟學；OLS、多元迴歸與推論、異質變異、模型設定、二元結果、時間序列、panel、IV／2SLS、實驗、DiD、RDD、預測與實證研究流程。
 - 成品：20 章、3 附錄、100 題、189 搜尋、20 圖解。
-- QA：正式部署前 Round 1 = 384、Round 2 = 675；29 個數值節點獨立重算、32 個高風險答案 gate。部署後重新下載 artifact 再驗 Round 1 = 382、Round 2 = 675。
-- 正式整合由 17 本／`2026.07.29-22` 追加為 18 本／`2026.07.29-23`，既有教材 hash 與進度儲存相容性受保護。
-- 正式 Pages run：`30471586965`；Source commit：`4bdca45ab4772982a812017b34984aff19a9a6c1`；artifact：`8731859754`。
-- Artifact digest／下載 SHA-256：`sha256:f53bf4979a85a0ff96e9e253cad04f97d37062d368195a97ce4189f8e934edf5`。
-- 後續 19 本正式 registry 仍包含 `econometrics`，位置在 `investments` 與 `industrial-economics` 之間。
+- 初版 QA：Round 1 = 384、Round 2 = 675；29 個數值節點獨立重算、32 個高風險答案 gate。
+- 2026-07-30 發布後獨立內容審計：2 個精確化修正；v2 reaudit validator 57 項通過。
+- 修正重點：FE／FD 明列 strict exogeneity；隨機實驗分開 SATE 與 PATE／external validity。
+- 章節 ID、題目 ID、題數與閱讀／錯題儲存相容性均保持不變。
+- 正式 Pages run：`30486206718`；Source commit：`731a4f51298fe80ce5ac0ba3f07f9f4cf8db2780`；artifact：`8737722771`。
+- Artifact digest／下載 SHA-256：`sha256:10098e7b8467cb9572515f77e02cc31344850ec253acd2afc69a625d8d033d4a`。
 - 文件：`docs/books/econometrics/scope.md`、`docs/books/econometrics/qa_report.md`、`docs/books/econometrics/status.md`。
 - 狀態：已部署。
 
@@ -206,7 +207,7 @@
 - 成品：20 章、3 附錄、100 題、150 搜尋、20 圖解。
 - QA：兩輪通過；17 個量化節點、18 組高風險概念／條件複核。
 - 既有 18 本教材 hash 在整合前後完全一致。
-- 正式 Pages run：`30472469702`；Source commit：`00d76c2167c0132f7284e4e13e4106828d1647fc`。
+- 正式 Pages run：`30486206718`；Source commit：`731a4f51298fe80ce5ac0ba3f07f9f4cf8db2780`。
 - 狀態：已部署。
 
 ## Canonical 部署流程
@@ -217,7 +218,7 @@
 4. 各書內容／題庫／搜尋／SVG 與高風險公式／法律要件驗證通過後，再檢查 `app.js` 與 `sw.js`。
 5. 全部正式檢查通過後才上傳單一完整 Pages artifact。
 6. Pages deployment 成功後重新下載本次 artifact 驗證，再由結構化 recorder 寫回 deployment receipt、目標書 status／QA、README 與本 checkpoint。
-7. 最新正式書庫：19 本，`2026.07.29-24`；Pages run `30472469702`，artifact `8732231529`。
+7. 最新正式書庫：19 本，`2026.07.30-1`；Pages run `30486206718`，artifact `8737722771`。
 8. 使用者不需要執行 Git、終端機、手動上傳或部署。
 
 ## 多書並行／發布規則

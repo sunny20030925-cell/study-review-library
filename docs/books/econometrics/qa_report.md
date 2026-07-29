@@ -112,3 +112,36 @@
 ## 發布狀態
 
 已部署。先前 QA 報告尾段仍寫成「正式發布仍需重跑」屬 post-deploy 文件回寫漏項；現已依正式 run、artifact、下載後重驗與最新 registry 校正。
+
+## 發布後獨立內容審計 v2（2026-07-30）
+
+本輪不是重跑原本的字串 gate，而是針對計量解讀最容易「公式沒錯、因果範圍卻講過頭」的地方重新審核。
+
+### 修正 1：Panel FE／FD 的外生性條件
+
+- v1 已正確說明 FE／FD 可消除時間不變個體效果 `alpha_i`，也提醒 time-varying confounder 仍可能造成問題。
+- v2 進一步明列標準靜態 panel 常用的 strict-exogeneity 條件 `E(u_it | x_i1,...,x_iT,alpha_i)=0`。
+- 同步補充：若當期衝擊影響未來 X、存在時間變動混淆或含落後依變數，不能因為用了 FE 就直接宣稱 beta 已具有因果識別。
+- 題目 `ch13-q04` 保留原 ID，改為直接檢查上述成立條件。
+
+### 修正 2：Random assignment 與 population generalization
+
+- v1 把 randomized experiment 的差均值直接連到 ATE，沒有充分區分「實驗樣本內因果效果」與「更大目標母體效果」。
+- v2 明確區分 SATE 與 PATE：random assignment 支持實驗單位內部的因果比較；要推廣到更大母體，仍需代表性抽樣、外部效度或其他 transportability 條件。
+- 題目 `ch15-q02` 保留原 ID，改為檢查 random assignment 是否足以無條件外推 PATE；`ch15-q03` 詳解同步精確化。
+
+### 相容性與 QA
+
+- 20 章、3 附錄、100 題、189 搜尋、20 SVG：全部維持。
+- chapter IDs：`ch00`–`ch19` 全部維持。
+- question IDs：100 個全部維持；每章仍 5 題。
+- 既有第二輪內容 gate 重新執行；另加 v2 reaudit validator：57 項通過。
+- 閱讀進度與錯題儲存結構未變。
+
+### v2 正式部署
+
+- Book version：`2026.07.30-1`。
+- Shared library：`2026.07.30-1`，19 本。
+- Pages run：`30486206718`。
+- Pages artifact：`8737722771`；digest `sha256:10098e7b8467cb9572515f77e02cc31344850ec253acd2afc69a625d8d033d4a`。
+- 部署後重新下載 artifact，再核對本書 23 份 HTML、100 題、189 搜尋與 20 SVG 均通過。
