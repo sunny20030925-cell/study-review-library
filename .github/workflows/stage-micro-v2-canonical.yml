@@ -23,7 +23,7 @@ jobs:
           token: ${{ github.token }}
           fetch-depth: 0
 
-      - name: Stage exact audited correction files and canonical workflow
+      - name: Stage exact audited files and a non-workflow canonical candidate
         run: |
           AUDITED_SHA='bb5761e1d80948916b97d37d3208d1aeea8b46a3'
           git fetch origin agent/microeconomics-post-publication-reaudit-v2
@@ -38,31 +38,30 @@ jobs:
             deploy/patch_microeconomics_v2.py \
             deploy/qa_microeconomics_v2.py \
             deploy/integrate_microeconomics_v2.py
-          if ! grep -Fq "'microeconomics_version': '2026.07.29-2'" .github/workflows/deploy-pages.yml; then
-            python deploy/integrate_microeconomics_v2.py .github/workflows/deploy-pages.yml
+          cp .github/workflows/deploy-pages.yml deploy/staged-micro-v2-deploy-pages.yml
+          if ! grep -Fq "'microeconomics_version': '2026.07.29-2'" deploy/staged-micro-v2-deploy-pages.yml; then
+            python deploy/integrate_microeconomics_v2.py deploy/staged-micro-v2-deploy-pages.yml
           fi
-          ruby -e "require 'yaml'; YAML.parse_file('.github/workflows/deploy-pages.yml'); puts 'CANONICAL_YAML_PARSE_OK'" || echo 'STAGED_YAML_INVALID_FOR_INSPECTION'
-          grep -F 'python deploy/patch_microeconomics_v2.py _site' .github/workflows/deploy-pages.yml
-          grep -F "'microeconomics_post_publication_correction_count': 16" .github/workflows/deploy-pages.yml
-          grep -F "'microeconomics_question_adjustment_count': 4" .github/workflows/deploy-pages.yml
-          grep -F "'microeconomics_independent_check_count': 1616" .github/workflows/deploy-pages.yml
-          rm -f .github/workflows/replay-microeconomics-v2-latest.yml
+          ruby -e "require 'yaml'; YAML.parse_file('deploy/staged-micro-v2-deploy-pages.yml'); puts 'STAGED_YAML_PARSE_OK'" || echo 'STAGED_YAML_INVALID_FOR_INSPECTION'
+          grep -F 'python deploy/patch_microeconomics_v2.py _site' deploy/staged-micro-v2-deploy-pages.yml
+          grep -F "'microeconomics_post_publication_correction_count': 16" deploy/staged-micro-v2-deploy-pages.yml
+          grep -F "'microeconomics_question_adjustment_count': 4" deploy/staged-micro-v2-deploy-pages.yml
+          grep -F "'microeconomics_independent_check_count': 1616" deploy/staged-micro-v2-deploy-pages.yml
 
-      - name: Commit staged canonical diff to PR branch
+      - name: Commit staged candidate to PR branch
         run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add \
-            .github/workflows/deploy-pages.yml \
-            .github/workflows/replay-microeconomics-v2-latest.yml \
+            deploy/staged-micro-v2-deploy-pages.yml \
             deploy/patch_microeconomics_v2.py \
             deploy/qa_microeconomics_v2.py \
             deploy/integrate_microeconomics_v2.py \
             docs/books/microeconomics/qa_report.md \
             docs/books/microeconomics/status.md
           if git diff --cached --quiet; then
-            echo 'Audited microeconomics v2 canonical diff already staged.'
+            echo 'Audited microeconomics v2 candidate already staged.'
             exit 0
           fi
-          git commit -m "Stage audited microeconomics v2 canonical integration"
+          git commit -m "Stage audited microeconomics v2 canonical candidate"
           git push origin HEAD:${{ github.event.pull_request.head.ref }}
