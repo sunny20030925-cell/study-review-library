@@ -76,7 +76,7 @@ def main(site_root: str, expected_library_version: str) -> int:
         'ch16-q03': ('Authorization', '權限'),
         'ch16-q04': ('可逆', '單向'),
         'ch17-q01': ('AI', '更廣'),
-        'ch17-q04': ('可能', '失衡'),
+        'ch17-q04': ('可能', '多數類'),
         'ch17-q05': ('不足', '驗證'),
         'ch18-q04': ('不是', '一致性'),
         'ch19-q01': ('不等於', '授權'),
@@ -126,7 +126,6 @@ def main(site_root: str, expected_library_version: str) -> int:
             assert token in chapters[cid], (cid, token)
             checks += 1
 
-    all_text = '\n'.join(chapters.values())
     explicit_boundaries = [
         'CPU 時脈較高不等於任何工作一定較快',
         '並行（concurrency）不必然同時執行',
