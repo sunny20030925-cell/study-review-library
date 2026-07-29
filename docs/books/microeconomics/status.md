@@ -6,8 +6,8 @@
 
 - Book ID：`microeconomics`
 - 內容版本：`2026.07.29-1`
-- 書庫版本：於正式部署當下依最新正式書庫版本順延，不硬編號覆蓋其他同步教材工作線。
-- 狀態：預發布 QA、canonical workflow 整合與 YAML 驗證完成，待 GitHub Pages 實際部署回條。
+- 書庫版本：正式生成驗證為 `2026.07.29-8`；仍以本次 canonical run 的正式回條為準。
+- 狀態：教材生成與 Pages 部署步驟已驗證通過；正在以最新 `main` 執行最後一次乾淨 canonical 驗收。
 - 範圍文件：`docs/books/microeconomics/scope.md`
 - QA 報告：`docs/books/microeconomics/qa_report.md`
 
@@ -21,13 +21,12 @@
 - 第一輪結構／離線資源 QA：1321／1321 通過。
 - 第二輪內容 gate：87／87 通過。
 - 100 題逐題重新閱讀與重判；另獨立重算 15 題量化題、重判 15 題高風險觀念題。
-- 已在目前正式六本書網站包上實際生成第七本測試站；`app.js`、`sw.js` 語法與 28 個代表性靜態路徑通過。
-- 已於 canonical `Deploy study library` 中加入個體經濟學生成、動態書庫版本順延與正式 QA gate。
-- canonical YAML 已由獨立 Actions 診斷以 Ruby parser 驗證通過；修復 commit 為 `184dbe67b41d385ef8746fc5abc2f09d13e3cfd3`。
+- canonical YAML 已由獨立 Actions 診斷解析通過。
+- run `30410694604` 已確認個體經濟學生成、QA、Pages artifact 上傳與 GitHub Pages 部署步驟全部成功；該 run 僅因最後 metadata push 遭同步 workflow commit 插隊而標記失敗。
 
 ## 待完成
 
-1. GitHub Pages 實際部署成功。
-2. 寫回 deployment receipt、正式 status、README 與 `docs/shared_checkpoint.md`。
+1. 從最新 `main` 完成乾淨 canonical run。
+2. 由該 run 自動寫回 deployment receipt、正式 status、README 與 `docs/shared_checkpoint.md`。
 
-在 Pages 成功回條產生前，不標記為「已部署」。
+在正式成功回條寫回前，不標記為「已部署」。
