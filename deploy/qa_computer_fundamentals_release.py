@@ -73,7 +73,7 @@ def main(site_root: str, expected_library_version: str) -> int:
         'ch14-q02': ('不一定', '外鍵'),
         'ch15-q05': ('不能', '覆蓋'),
         'ch16-q02': ('Authentication', '認證'),
-        'ch16-q03': ('Authorization', '授權'),
+        'ch16-q03': ('Authorization', '權限'),
         'ch16-q04': ('可逆', '單向'),
         'ch17-q01': ('AI', '更廣'),
         'ch17-q04': ('可能', '失衡'),
