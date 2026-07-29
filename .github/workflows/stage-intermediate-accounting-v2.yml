@@ -1,0 +1,48 @@
+name: Stage intermediate accounting v2 canonical workflow
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  stage:
+    if: >-
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.head.ref == 'audit-intermediate-accounting-v2-reaudit'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout controlled intermediate accounting branch
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.ref }}
+          token: ${{ github.token }}
+          fetch-depth: 0
+
+      - name: Build and validate staged canonical workflow
+        run: |
+          python -m py_compile deploy/patch_intermediate_accounting_v2.py
+          python -m py_compile deploy/validate_intermediate_accounting.py
+          python -m py_compile deploy/stage_intermediate_accounting_v2_workflow.py
+          python deploy/stage_intermediate_accounting_v2_workflow.py .github/workflows/deploy-pages.yml deploy/staged-intermediate-accounting-v2-deploy-pages.yml
+          ruby -e "require 'yaml'; YAML.load_file('deploy/staged-intermediate-accounting-v2-deploy-pages.yml'); puts 'INTERMEDIATE_V2_YAML_OK'"
+          grep -F "'intermediate_accounting_version': '2026.07.29-2'" deploy/staged-intermediate-accounting-v2-deploy-pages.yml
+          grep -F "'intermediate_accounting_independent_check_count': 1110" deploy/staged-intermediate-accounting-v2-deploy-pages.yml
+          grep -F "'intermediate_accounting_quantitative_recheck_count': 28" deploy/staged-intermediate-accounting-v2-deploy-pages.yml
+          grep -F '發布後獨立二次內容審計版本 `2026.07.29-2`' deploy/staged-intermediate-accounting-v2-deploy-pages.yml
+
+      - name: Commit staged workflow blob
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add deploy/staged-intermediate-accounting-v2-deploy-pages.yml
+          if git diff --cached --quiet; then
+            echo 'Intermediate accounting v2 workflow already staged'
+            exit 0
+          fi
+          git commit -m "Stage intermediate accounting v2 canonical workflow blob"
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}
