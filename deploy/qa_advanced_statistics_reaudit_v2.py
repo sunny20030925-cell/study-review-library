@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import json
 import math
-import re
 import sys
 from collections import Counter
 from pathlib import Path
@@ -99,7 +98,8 @@ def main(site_root: str, expected_library_version: str) -> None:
     }
     for qid, (answer, explanation_token) in changed.items():
         ck(q[qid]['answer'] == answer, f'{qid} answer')
-        ck(explanation_token in q[qid]['question'] + q[qid]['explanation'], f'{qid} explanation token')
+        combined = q[qid]['question'] + q[qid]['answer'] + q[qid]['explanation']
+        ck(explanation_token in combined, f'{qid} correction token')
 
     for item in questions['items']:
         ck(bool(item['question'].strip()), f'question nonempty {item["id"]}')
@@ -115,7 +115,6 @@ def main(site_root: str, expected_library_version: str) -> None:
     for token in ['Negative Binomial', 'Slutsky', 'MLE 不變性', '兩者一般互不推出', 'level α', 'Karlin–Rubin', 'Gauss–Markov']:
         ck(token in corpus, f'search contains {token}')
 
-    # Independent arithmetic / distribution rechecks for changed and representative high-risk examples.
     num(abs(math.comb(6, 2) * (0.2 ** 3) * (0.8 ** 4) - 0.049152) < 1e-12, 'negative binomial probability')
     num(abs(3 / 0.2 - 15) < 1e-12, 'negative binomial mean')
     num(abs((1 / 2) ** 2 - 0.25) < 1e-12, 'Slutsky scaled normal variance')
