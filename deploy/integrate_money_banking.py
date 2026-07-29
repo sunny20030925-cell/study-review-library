@@ -9,7 +9,7 @@ from qa_money_banking_v2 import main as qa_v2
 
 BOOK='money-banking'
 EXPECTED_PREVIOUS_BOOK='public-finance'
-GENERATOR_SHA256='b1051a6bc4fe64aee79ce343e237718ecf138800379d394cba6ceebb2c4adcbc'
+GENERATOR_SHA256='e31937c06988a26fd52e8f056eb7432ae2cac136e4aebb1ab7fab6ccf15b96bb'
 
 
 def next_version(v: str) -> str:
@@ -37,7 +37,7 @@ def book_hashes(site: Path, book_ids: list[str]) -> dict[str,str]:
 
 def load_generator_source() -> str:
     parts=sorted(Path('deploy').glob('generate-money-banking.py.gz.b64.part*'))
-    if len(parts)!=6: raise AssertionError(f'expected 6 money-banking generator parts, got {len(parts)}')
+    if len(parts)!=7: raise AssertionError(f'expected 7 money-banking generator parts, got {len(parts)}')
     encoded=''.join(p.read_text(encoding='utf-8') for p in parts)
     packed=base64.b64decode(''.join(encoded.split()))
     digest=hashlib.sha256(packed).hexdigest()
