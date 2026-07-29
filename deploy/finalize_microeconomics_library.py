@@ -14,7 +14,7 @@ from contextlib import redirect_stdout
 from pathlib import Path
 
 
-INTERMEDIATE_GENERATOR_SHA256 = "b60133689f2ede497597295688b82646ba070b787ea94a78e950da5603b8bf34"
+INTERMEDIATE_GENERATOR_SHA256 = "3f01e59694b48604ad8ba873a360e744024356bc6e07e09895e08fb1f0890474"
 
 
 def next_library_version(version: str) -> str:
