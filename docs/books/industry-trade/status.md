@@ -20,9 +20,9 @@
 ## 部署
 
 - canonical workflow：`Deploy study library`
-- workflow run：`30493853637`
-- source commit：`d6a83769482eb2fcfc9fcf93a08aa037b4abdddd`
-- Pages artifact：`8740798612`
-- Artifact digest：`sha256:c863a5421710c55696d1b62492d4dfb2d8ed2ecc2f15b37137efd03e1f9e7f94`
+- workflow run：`30493970959`
+- source commit：`2ee913df4b55a55ddc9adcb36ef116a86426da77`
+- Pages artifact：`8740844265`
+- Artifact digest：`sha256:a0d6b573084f870eb4fbd6416d46585ecca5b980f5e35534f2ab676e0c847cf7`
 - 正式書庫書籍數：20 本。
 - Pages deployment、artifact 下載重驗與結構化 deployment receipt 均成功。

@@ -114,5 +114,5 @@
 - 正式書庫版本：`2026.07.30-8`；書籍數：20 本。
 - QA1：186；QA2：481；量化重算 26；高風險概念 gate 16。
 - 其他 19 本教材 hash 完全不變；本書所有公開 ID 保持不變。
-- Pages run：`30493853637`；artifact：`8740798612`。
-- Artifact digest／下載 SHA-256：`sha256:c863a5421710c55696d1b62492d4dfb2d8ed2ecc2f15b37137efd03e1f9e7f94`，重驗通過。
+- Pages run：`30493970959`；artifact：`8740844265`。
+- Artifact digest／下載 SHA-256：`sha256:a0d6b573084f870eb4fbd6416d46585ecca5b980f5e35534f2ab676e0c847cf7`，重驗通過。

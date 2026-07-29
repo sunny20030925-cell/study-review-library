@@ -114,6 +114,6 @@
 
 - Book version：`2026.07.30-1`。
 - Shared library：`2026.07.30-8`，20 本。
-- Pages run：`30493853637`。
-- Pages artifact：`8740798612`；digest `sha256:c863a5421710c55696d1b62492d4dfb2d8ed2ecc2f15b37137efd03e1f9e7f94`。
+- Pages run：`30493970959`。
+- Pages artifact：`8740844265`；digest `sha256:a0d6b573084f870eb4fbd6416d46585ecca5b980f5e35534f2ab676e0c847cf7`。
 - 部署後重新下載 artifact，再核對 25 份 HTML、110 題、165 搜尋與 22 SVG；所有非 Investments 教材 hash 均保持不變。
