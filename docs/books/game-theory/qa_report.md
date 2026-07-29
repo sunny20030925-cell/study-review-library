@@ -74,3 +74,14 @@ GitHub Actions run：`30468164830`
 
 - fixed-point existence proof、高階 equilibrium refinement、Myerson optimal auction、完整 implementation theory、algorithmic game theory 等維持選讀／範圍外，不進核心題庫。
 - 應用案例只服務賽局結構理解，不取代個體經濟學、產業組織、財務或政治學專門課程。
+
+## 正式發布結果
+
+- 第一輪 QA：2385 項，通過。
+- 第二輪獨立 QA：360 項，通過；24 個數值節點重算、19 個高風險概念 gate。
+- 既有 14 本內容 hash：整合前後完全一致。
+- 正式書庫：15 本，版本 `2026.07.29-20`。
+- Pages run：`30470393224`。
+- Pages artifact：`8731369381`；digest `sha256:35b173663520f8bfc29a3b112e1f783577eee8459cc03f13049e3a16878f8ee1`。
+- 部署後 artifact 重新下載：23 份本書 HTML、100 題、189 搜尋、20 SVG 全數核對通過。
+- post-deploy recorder：`passed-structured-recorder`。

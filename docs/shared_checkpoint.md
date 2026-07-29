@@ -9,16 +9,16 @@
 - 固定入口：`https://sunny20030925-cell.github.io/study-review-library/`
 - 形式：平板直式 PWA 書庫，可持續加入新科目。
 - 使用者操作限制：只使用平板；不得要求終端機、Git、電腦檔案管理、手動部署或多檔案上傳操作。
-- 正式書庫內容版本：`2026.07.29-19`
-- 正式書籍數：14 本。
-- 最新正式 Pages run：`30469780777`。
-- 最新正式部署 source commit：`85032444cfc17048117673e3c98546138771a88c`。
-- 最新 Pages artifact：`8731105330`。
-- Artifact digest：`sha256:1b20af1baf726d1de0517df4e09c5796354b45f00e0a71c9b606793932b9029d`。
-- Pages 狀態：Upload artifact 與 Deploy to GitHub Pages 均成功；2026-07-29T14:23:09.128492+00:00 回報 success。
-- 部署回條：`docs/deployment_receipt.json`；`status=success`、`book_count=14`、`library_version=2026.07.29-19`、`progress_storage_changed=false`。
-- 實際下載正式 Pages artifact 後再次核對：14 本 registry、本書 23 份章節／附錄 HTML、100 題、150 搜尋、20 SVG 均存在；下載檔 SHA-256 與 GitHub artifact digest 完全一致。
-- workflow overall conclusion：`success`；post-deploy recorder 已改為結構化更新，不再依賴舊章節自然語句硬比對。
+- 正式書庫內容版本：`2026.07.29-22`
+- 正式書籍數：17 本。
+- 最新正式 Pages run：`30471109923`。
+- 最新正式部署 source commit：`63827e220a501c024ddd90482d7a798ac5995fad`。
+- 最新 Pages artifact：`8731656857`。
+- Artifact digest：`sha256:7835749bf24a53abfbe4a994d0fffd3b288928d2f6331b279ddfd4b1e99ba684`。
+- Pages 狀態：Upload artifact、Deploy to GitHub Pages 與部署後 artifact 重驗均成功；`2026-07-29T16:31:57.441898+00:00` 記錄 success。
+- 部署回條：`docs/deployment_receipt.json`；`status=success`、`book_count=17`、`library_version=2026.07.29-22`、`progress_storage_changed=false`。
+- 實際下載正式 Pages artifact 後再次核對：《投資學》25 份章節／附錄 HTML、110 題、165 搜尋、22 SVG 均存在；下載檔 SHA-256 與 GitHub artifact digest 完全一致。
+- workflow overall conclusion：`success`；post-deploy recorder 使用結構化 receipt／Book ID 更新。
 
 ## 正式規格與讀取順序
 
@@ -154,6 +154,38 @@
 - 文件：`docs/books/computer-fundamentals/scope.md`、`docs/books/computer-fundamentals/qa_report.md`、`docs/books/computer-fundamentals/status.md`。
 - 狀態：已部署。
 
+### 15. 賽局理論及應用
+- Book ID：`game-theory`
+- 正式內容版本：`2026.07.29-1`
+- 定位：一般大學賽局理論；策略式與展開式賽局、Nash／SPNE／BNE／PBE、重複賽局、拍賣、訊號、機制設計與合作賽局。
+- 成品：20 章、3 附錄、100 題、189 搜尋、20 圖解。
+- QA：第一輪 2385 項、第二輪 360 項通過；24 個數值節點獨立重算、19 個高風險概念 gate。
+- 既有 14 本教材內容 hash 在整合前後完全一致。
+- 正式 Pages run：`30470393224`；Source commit：`2c25ca9f2c0670002b819073d1a346c8c56f142c`。
+- 文件：`docs/books/game-theory/scope.md`、`docs/books/game-theory/qa_report.md`、`docs/books/game-theory/status.md`。
+- 狀態：已部署。
+
+### 16. 民法概要
+- Book ID：`civil-law-overview`
+- 正式內容版本：`2026.07.29-1`
+- 定位：一般大學民法概要；總則、債、物權、親屬、繼承，以請求權基礎與案例解題為主。
+- 成品：20 章、3 附錄、100 題、150 搜尋、20 圖解。
+- QA：第一輪 157 項、第二輪 670 項；14 組現行法高風險 gate、19 個高風險題目精確 gate。
+- 現行法基準：2026-07-29；民法第 166-1 條保持「施行日期尚未另定」警示。
+- 正式 Pages run：`30470779444`；Source commit：`34a0db9e8444bad4ac1b689c37bf5ea2bd679aa9`。
+- 狀態：已部署。
+
+### 17. 投資學
+- Book ID：`investments`
+- 正式內容版本：`2026.07.29-1`
+- 定位：一般大學投資學；報酬與風險、投資組合、資產定價、證券估值、衍生工具、資產配置與績效評估。
+- 成品：22 章、3 附錄、110 題、165 搜尋、22 圖解。
+- QA：第一輪 2,672／2,672、第二輪 139／139；45 個量化節點重算、20 個高風險概念重判。
+- 既有教材內容 hash 在整合前後完全一致，閱讀進度與錯題資料相容。
+- 正式 Pages run：`30471109923`；Source commit：`63827e220a501c024ddd90482d7a798ac5995fad`。
+- 文件：`docs/books/investments/scope.md`、`docs/books/investments/qa_report.md`、`docs/books/investments/status.md`。
+- 狀態：已部署。
+
 ## Canonical 部署流程
 
 1. 從正式基礎網站 artifact 開始，先驗證既有書庫與版本。
@@ -162,7 +194,7 @@
 4. 各書內容／題庫／搜尋／SVG 與高風險公式／法律要件驗證通過後，再檢查 `app.js` 與 `sw.js`。
 5. 全部正式檢查通過後才上傳單一完整 Pages artifact。
 6. Pages deployment 成功後重新下載本次 artifact 驗證，再由結構化 recorder 寫回 deployment receipt、目標書 status／QA、README 與本 checkpoint。
-7. 最新正式書庫：14 本，`2026.07.29-19`；Pages run `30469780777`，artifact `8731105330`。
+7. 最新正式書庫：17 本，`2026.07.29-22`；Pages run `30471109923`，artifact `8731656857`。
 8. 使用者不需要執行 Git、終端機、手動上傳或部署。
 
 ## 多書並行／發布規則
@@ -171,13 +203,13 @@
 - 每條準備發布的工作線都要在最後一刻重新同步最新 `main`，確認正式書籍清單與版本。
 - workflow concurrency 造成 cancelled 不視為內容失敗；不可用 cancelled run 當正式部署證據。
 - workflow overall failure 若發生在 Pages deployment 成功後，必須用 job steps、artifact digest、Pages 狀態與下載 artifact 交叉驗證，再以 `[skip ci]` 校正 receipt；不得因此盲目重跑已成功 Pages。
-- canonical post-deploy recorder 仍存在舊 checkpoint 句型相依；下一次正式發布前應改成依結構化 receipt／Book ID 更新，而非依歷史自然語句做硬字串比對。
+- canonical post-deploy recorder 已使用結構化 receipt／Book ID 更新；不得恢復依歷史自然語句硬比對。
 
 ## 下一個新科目流程
 
 1. 使用者只需指定科目，無須重貼歷史規格。
 2. 助理先讀 `AGENTS.md`、knowledge index、content authoring spec、concurrent workflow 與本 checkpoint。
-3. 在下一次正式發布前先修正／驗證 canonical post-deploy recorder，移除舊自然語句硬比對。
+3. 沿用已驗證的結構化 canonical post-deploy recorder；不得改回自然語句硬比對。
 4. 建立新科目的 `scope.md` 與 `status.md`，固定本科邊界。
 5. 依標準本科課程製作教材、圖解、題庫、搜尋資料；必要時以可信官方／大學來源交叉核對。
 6. 完成兩輪獨立 QA，重算數值題並設高風險負面 gate。
