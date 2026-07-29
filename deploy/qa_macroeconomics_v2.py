@@ -10,13 +10,13 @@ def ck(c,msg):
  global checks; checks+=1
  if not c: raise AssertionError(msg)
 
-def main(site_root, expected_library='2026.07.29-14'):
+def main(site_root, expected_library='2026.07.29-15'):
  site=Path(site_root); root=site/'books'/BOOK
  m=json.loads((root/'manifest.json').read_text()); q=json.loads((root/'questions.json').read_text()); s=json.loads((root/'search.json').read_text()); lib=json.loads((site/'data/library.json').read_text())
  ck(m['version']==q['version']==VERSION,'book version')
  ck(lib['version']==expected_library,'library version')
  ids=[x['id'] for x in lib['books']]
- ck(len(ids)==11 and ids[-3:]==['macroeconomics','international-economics','public-finance'],'eleven book order')
+ ck(len(ids)==12 and ids[-4:]==['macroeconomics','international-economics','public-finance','money-banking'],'twelve book order')
  chapters=[x for x in m['chapters'] if x['kind']=='chapter']; apps=[x for x in m['chapters'] if x['kind']=='appendix']
  ck(len(chapters)==20,'chapters'); ck(len(apps)==3,'appendices'); ck(q['count']==len(q['items'])==100,'questions'); ck(len(s['entries'])==143,'search'); ck(len({x['id'] for x in q['items']})==100,'unique qids'); ck(Counter(x['chapterId'] for x in q['items'])=={f'ch{i:02d}':5 for i in range(20)},'five each')
  qmap={x['id']:x for x in q['items']}
@@ -75,8 +75,8 @@ def main(site_root, expected_library='2026.07.29-14'):
   ck(token in corpus,f'search corrected concept {token}')
  for token in ['職缺率 2%、失業率 18%','為使儲蓄等於較低投資']:
   ck(token not in corpus,f'search stale token {token}')
- print(f'MACROECONOMICS_V2_QA_OK checks={checks} books=11 library={expected_library} chapters=20 appendices=3 questions=100 search=143 figures=20 quantitative_rechecks={len(expected)} content_corrections=14 question_adjustments=7')
+ print(f'MACROECONOMICS_V2_QA_OK checks={checks} books=12 library={expected_library} chapters=20 appendices=3 questions=100 search=143 figures=20 quantitative_rechecks={len(expected)} content_corrections=14 question_adjustments=7')
 
 if __name__=='__main__':
  if len(sys.argv) not in (2,3): raise SystemExit('usage: qa_macroeconomics_v2.py SITE_ROOT [EXPECTED_LIBRARY]')
- main(sys.argv[1],sys.argv[2] if len(sys.argv)==3 else '2026.07.29-14')
+ main(sys.argv[1],sys.argv[2] if len(sys.argv)==3 else '2026.07.29-15')

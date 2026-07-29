@@ -18,12 +18,14 @@ def main(site_root, expected_before):
  swp=site/'sw.js'; sw=swp.read_text(); sw,n=re.subn(r"const VERSION = 'study-library-[^']+';",f"const VERSION = 'study-library-{macro_version}';",sw,count=1)
  if n!=1: raise AssertionError('sw version marker')
  swp.write_text(sw,encoding='utf-8')
- # Canonical serialized tail: macroeconomics -> international economics -> public finance.
+ # Canonical serialized tail: macroeconomics -> international economics -> public finance -> money and banking.
  # Keep stdout clean because the workflow captures this script's single final-version line.
  from integrate_international_economics import integrate as integrate_international
  from integrate_public_finance import integrate as integrate_public_finance
+ from integrate_money_banking import integrate as integrate_money_banking
  international_version=integrate_international(site_root,macro_version)
- final_version=integrate_public_finance(site_root,international_version)
+ public_finance_version=integrate_public_finance(site_root,international_version)
+ final_version=integrate_money_banking(site_root,public_finance_version)
  print(final_version)
 if __name__=='__main__':
  if len(sys.argv)!=3: raise SystemExit('usage: finalize_macroeconomics_v2_library.py SITE_ROOT EXPECTED_BEFORE')
