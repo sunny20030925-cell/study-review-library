@@ -1,0 +1,57 @@
+name: Stage nine-book canonical on PR
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  stage:
+    if: >-
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.head.ref == 'stage-nine-book-canonical-v3' &&
+      github.actor == 'sunny20030925-cell'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout controlled staging branch
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.ref }}
+          token: ${{ github.token }}
+          fetch-depth: 0
+
+      - name: Generate and verify nine-book canonical workflow
+        run: |
+          python -m py_compile deploy/integrate_intermediate_accounting_workflow.py deploy/integrate_macroeconomics_workflow.py
+          python deploy/integrate_intermediate_accounting_workflow.py
+          ruby -e "require 'yaml'; YAML.load_file('deploy/generated-deploy-pages.intermediate-accounting.yml'); puts 'INTERMEDIATE_YAML_OK'"
+          cp deploy/generated-deploy-pages.intermediate-accounting.yml .github/workflows/deploy-pages.yml
+          python deploy/integrate_macroeconomics_workflow.py
+          ruby -e "require 'yaml'; YAML.load_file('.github/workflows/deploy-pages.yml'); puts 'NINE_BOOK_YAML_OK'"
+          grep -F "Generate and independently validate intermediate accounting textbook" .github/workflows/deploy-pages.yml
+          grep -F "Generate and independently validate macroeconomics textbook" .github/workflows/deploy-pages.yml
+          grep -F "'intermediate_accounting_version': '2026.07.29-1'" .github/workflows/deploy-pages.yml
+          grep -F "'macroeconomics_version': '2026.07.29-1'" .github/workflows/deploy-pages.yml
+          grep -F "docs/books/intermediate-accounting/status.md docs/books/macroeconomics/status.md" .github/workflows/deploy-pages.yml
+
+      - name: Commit canonical workflow to staging branch
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add .github/workflows/deploy-pages.yml
+          git rm --ignore-unmatch .github/workflows/stage-nine-book-on-pr.yml
+          git rm --ignore-unmatch .github/workflows/integrate-pending-economics-books.yml
+          git rm --ignore-unmatch .github/workflows/validate-macroeconomics-integration.yml
+          git rm --ignore-unmatch .github/workflows/stage-intermediate-accounting-workflow.yml
+          git rm --ignore-unmatch .github/workflows/apply-intermediate-accounting-canonical-once.yml
+          rm -f deploy/generated-deploy-pages.intermediate-accounting.yml
+          if git diff --cached --quiet; then
+            echo "Canonical workflow already staged"
+            exit 0
+          fi
+          git commit -m "Stage canonical nine-book deployment workflow"
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}
