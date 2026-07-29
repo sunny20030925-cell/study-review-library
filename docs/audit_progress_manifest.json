@@ -1,0 +1,534 @@
+{
+  "schema_version": "2.0",
+  "updated_at": "2026-07-30",
+  "repository": "sunny20030925-cell/study-review-library",
+  "default_branch": "main",
+  "source_main_sha_at_upgrade_start": "1aee62710b8477b393fbb2d016668aa2f95575ac",
+  "library_version": "2026.07.30-9",
+  "book_count": 21,
+  "workflow": {
+    "stages": ["DR", "IQ", "EA", "VP", "PUB"],
+    "stage_names": {
+      "DR": "Draft",
+      "IQ": "Internal QA",
+      "EA": "External Audit",
+      "VP": "Visual Polish",
+      "PUB": "Published"
+    },
+    "task_id_format": "<book-id>:<stage-code>",
+    "external_audit_mode": "risk_based_sampling",
+    "legacy_published_backfill": true,
+    "strict_stage_order_for_future_content_releases": true
+  },
+  "routing": {
+    "math_formula_numeric_statistics": ["wolfram"],
+    "empirical_research_academic_dispute": ["consensus"],
+    "important_paper_citation_context": ["scite"],
+    "law": ["official_statutes", "official_agency_materials", "official_judgments"],
+    "accounting": ["official_accounting_standards", "official_regulatory_guidance", "wolfram_for_calculation_only"],
+    "technical_or_institutional": ["official_primary_sources"]
+  },
+  "status_values": ["pending", "in_progress", "passed", "passed_migrated", "blocked", "not_applicable"],
+  "queue_policy": {
+    "eligibility": "IQ passed AND EA pending",
+    "priority": "higher factual or quantitative risk first; prefer tasks where an external verifier materially improves confidence; preserve free quota through sampling",
+    "automatic_next": "external_audit_queue[0]"
+  },
+  "external_audit_queue": [
+    "advanced-statistics",
+    "mathematical-economics",
+    "econometrics",
+    "investments",
+    "statistics",
+    "game-theory",
+    "microeconomics",
+    "macroeconomics",
+    "international-economics",
+    "industrial-economics",
+    "industry-trade",
+    "public-finance",
+    "money-banking",
+    "intermediate-accounting",
+    "cost-accounting",
+    "accounting",
+    "economics",
+    "computer-fundamentals",
+    "calculus"
+  ],
+  "external_audit_queue_count": 19,
+  "first_external_audit_target": "advanced-statistics",
+  "visual_polish_ready": ["commercial-law", "civil-law-overview"],
+  "books": [
+    {
+      "book_id": "calculus",
+      "title": "大一微積分",
+      "content_version": "2026.07.27-3",
+      "current_stage": "EA",
+      "task_id": "calculus:EA",
+      "next_stage": "VP",
+      "legacy_published_before_workflow_v2": true,
+      "stages": {
+        "DR": "passed",
+        "IQ": "passed",
+        "EA": "pending",
+        "VP": "pending",
+        "PUB": "passed"
+      },
+      "external_audit": {
+        "risk_tier": "medium",
+        "primary_route": ["wolfram"],
+        "sampling_focus": ["core formulas", "boundary cases", "worked examples", "question-bank calculations"]
+      }
+    },
+    {
+      "book_id": "accounting",
+      "title": "會計學",
+      "content_version": "2026.07.27-2",
+      "current_stage": "EA",
+      "task_id": "accounting:EA",
+      "next_stage": "VP",
+      "legacy_published_before_workflow_v2": true,
+      "stages": {
+        "DR": "passed",
+        "IQ": "passed",
+        "EA": "pending",
+        "VP": "pending",
+        "PUB": "passed"
+      },
+      "external_audit": {
+        "risk_tier": "high",
+        "primary_route": ["official_accounting_standards", "official_regulatory_guidance"],
+        "secondary_route": ["wolfram_for_calculation_only"],
+        "sampling_focus": ["recognition", "measurement", "classification", "cash-flow presentation", "numerical examples"]
+      }
+    },
+    {
+      "book_id": "economics",
+      "title": "經濟學原理",
+      "content_version": "2026.07.27-2",
+      "current_stage": "EA",
+      "task_id": "economics:EA",
+      "next_stage": "VP",
+      "legacy_published_before_workflow_v2": true,
+      "stages": {
+        "DR": "passed",
+        "IQ": "passed",
+        "EA": "pending",
+        "VP": "pending",
+        "PUB": "passed"
+      },
+      "external_audit": {
+        "risk_tier": "medium",
+        "primary_route": ["wolfram", "consensus"],
+        "secondary_route": ["scite"],
+        "sampling_focus": ["quantitative examples", "policy claims", "empirical generalizations"]
+      }
+    },
+    {
+      "book_id": "statistics",
+      "title": "統計學",
+      "content_version": "2026.07.29-2",
+      "current_stage": "EA",
+      "task_id": "statistics:EA",
+      "next_stage": "VP",
+      "legacy_published_before_workflow_v2": true,
+      "stages": {
+        "DR": "passed",
+        "IQ": "passed",
+        "EA": "pending",
+        "VP": "pending",
+        "PUB": "passed"
+      },
+      "external_audit": {
+        "risk_tier": "high",
+        "primary_route": ["wolfram"],
+        "sampling_focus": ["probability calculations", "sampling distributions", "confidence intervals", "hypothesis tests"]
+      }
+    },
+    {
+      "book_id": "commercial-law",
+      "title": "商事法",
+      "content_version": "2026.07.29-2",
+      "current_stage": "VP",
+      "task_id": "commercial-law:VP",
+      "next_stage": "PUB",
+      "legacy_published_before_workflow_v2": true,
+      "stages": {
+        "DR": "passed",
+        "IQ": "passed",
+        "EA": "passed_migrated",
+        "VP": "pending",
+        "PUB": "passed"
+      },
+      "external_audit": {
+        "risk_tier": "high",
+        "primary_route": ["official_statutes", "official_agency_materials", "official_judgments"],
+        "migration_evidence": ["docs/books/commercial-law/qa_report.md", "docs/books/commercial-law/status.md"],
+        "migration_basis": "existing independent current-law review used official Company Act, Securities and Exchange Act, agency rules and amendment history"
+      }
+    },
+    {
+      "book_id": "cost-accounting",
+      "title": "成本會計學",
+      "content_version": "2026.07.29-2",
+      "current_stage": "EA",
+      "task_id": "cost-accounting:EA",
+      "next_stage": "VP",
+      "legacy_published_before_workflow_v2": true,
+      "stages": {
+        "DR": "passed",
+        "IQ": "passed",
+        "EA": "pending",
+        "VP": "pending",
+        "PUB": "passed"
+      },
+      "external_audit": {
+        "risk_tier": "high",
+        "primary_route": ["official_accounting_standards", "official_regulatory_guidance"],
+        "secondary_route": ["wolfram_for_calculation_only"],
+        "sampling_focus": ["cost allocation", "variance calculations", "inventory-related treatments", "decision calculations"]
+      }
+    },
+    {
+      "book_id": "microeconomics",
+      "title": "個體經濟學",
+      "content_version": "2026.07.29-2",
+      "current_stage": "EA",
+      "task_id": "microeconomics:EA",
+      "next_stage": "VP",
+      "legacy_published_before_workflow_v2": true,
+      "stages": {
+        "DR": "passed",
+        "IQ": "passed",
+        "EA": "pending",
+        "VP": "pending",
+        "PUB": "passed"
+      },
+      "external_audit": {
+        "risk_tier": "high",
+        "primary_route": ["wolfram", "consensus"],
+        "secondary_route": ["scite"],
+        "sampling_focus": ["optimization", "comparative statics", "welfare claims", "empirical applications"]
+      }
+    },
+    {
+      "book_id": "intermediate-accounting",
+      "title": "中級會計學",
+      "content_version": "2026.07.29-2",
+      "current_stage": "EA",
+      "task_id": "intermediate-accounting:EA",
+      "next_stage": "VP",
+      "legacy_published_before_workflow_v2": true,
+      "stages": {
+        "DR": "passed",
+        "IQ": "passed",
+        "EA": "pending",
+        "VP": "pending",
+        "PUB": "passed"
+      },
+      "external_audit": {
+        "risk_tier": "high",
+        "primary_route": ["official_accounting_standards", "official_regulatory_guidance"],
+        "secondary_route": ["wolfram_for_calculation_only"],
+        "sampling_focus": ["recognition and measurement rules", "financial instruments", "leases", "income taxes", "numerical schedules"]
+      }
+    },
+    {
+      "book_id": "macroeconomics",
+      "title": "總體經濟學",
+      "content_version": "2026.07.29-2",
+      "current_stage": "EA",
+      "task_id": "macroeconomics:EA",
+      "next_stage": "VP",
+      "legacy_published_before_workflow_v2": true,
+      "stages": {
+        "DR": "passed",
+        "IQ": "passed",
+        "EA": "pending",
+        "VP": "pending",
+        "PUB": "passed"
+      },
+      "external_audit": {
+        "risk_tier": "high",
+        "primary_route": ["wolfram", "consensus"],
+        "secondary_route": ["scite", "official_primary_sources"],
+        "sampling_focus": ["model equations", "policy transmission", "empirical claims", "institutional descriptions"]
+      }
+    },
+    {
+      "book_id": "international-economics",
+      "title": "國際經濟學",
+      "content_version": "2026.07.29-2",
+      "current_stage": "EA",
+      "task_id": "international-economics:EA",
+      "next_stage": "VP",
+      "legacy_published_before_workflow_v2": true,
+      "stages": {
+        "DR": "passed",
+        "IQ": "passed",
+        "EA": "pending",
+        "VP": "pending",
+        "PUB": "passed"
+      },
+      "external_audit": {
+        "risk_tier": "high",
+        "primary_route": ["wolfram", "consensus"],
+        "secondary_route": ["scite", "official_primary_sources"],
+        "sampling_focus": ["trade models", "exchange-rate calculations", "policy welfare claims", "empirical trade conclusions"]
+      }
+    },
+    {
+      "book_id": "public-finance",
+      "title": "財政學",
+      "content_version": "2026.07.29-2",
+      "current_stage": "EA",
+      "task_id": "public-finance:EA",
+      "next_stage": "VP",
+      "legacy_published_before_workflow_v2": true,
+      "stages": {
+        "DR": "passed",
+        "IQ": "passed",
+        "EA": "pending",
+        "VP": "pending",
+        "PUB": "passed"
+      },
+      "external_audit": {
+        "risk_tier": "high",
+        "primary_route": ["wolfram", "consensus"],
+        "secondary_route": ["scite", "official_primary_sources"],
+        "sampling_focus": ["tax calculations", "welfare analysis", "public-goods results", "empirical policy claims"]
+      }
+    },
+    {
+      "book_id": "money-banking",
+      "title": "貨幣銀行學",
+      "content_version": "2026.07.29-2",
+      "current_stage": "EA",
+      "task_id": "money-banking:EA",
+      "next_stage": "VP",
+      "legacy_published_before_workflow_v2": true,
+      "stages": {
+        "DR": "passed",
+        "IQ": "passed",
+        "EA": "pending",
+        "VP": "pending",
+        "PUB": "passed"
+      },
+      "external_audit": {
+        "risk_tier": "high",
+        "primary_route": ["wolfram", "consensus", "official_primary_sources"],
+        "secondary_route": ["scite"],
+        "sampling_focus": ["bond and duration calculations", "money creation", "central-bank tools", "empirical monetary claims"]
+      }
+    },
+    {
+      "book_id": "advanced-statistics",
+      "title": "高等統計學",
+      "content_version": "2026.07.30-1",
+      "current_stage": "EA",
+      "task_id": "advanced-statistics:EA",
+      "next_stage": "VP",
+      "legacy_published_before_workflow_v2": true,
+      "stages": {
+        "DR": "passed",
+        "IQ": "passed",
+        "EA": "pending",
+        "VP": "pending",
+        "PUB": "passed"
+      },
+      "external_audit": {
+        "risk_tier": "critical",
+        "primary_route": ["wolfram"],
+        "secondary_route": ["consensus", "scite"],
+        "sampling_focus": ["distribution identities", "estimators", "likelihood", "hypothesis-test conditions", "asymptotic results", "worked derivations"]
+      }
+    },
+    {
+      "book_id": "computer-fundamentals",
+      "title": "計算機概論",
+      "content_version": "2026.07.30-2",
+      "current_stage": "EA",
+      "task_id": "computer-fundamentals:EA",
+      "next_stage": "VP",
+      "legacy_published_before_workflow_v2": true,
+      "stages": {
+        "DR": "passed",
+        "IQ": "passed",
+        "EA": "pending",
+        "VP": "pending",
+        "PUB": "passed"
+      },
+      "external_audit": {
+        "risk_tier": "medium",
+        "primary_route": ["official_primary_sources"],
+        "secondary_route": ["consensus", "scite"],
+        "sampling_focus": ["standards", "security claims", "networking terminology", "AI research claims"]
+      }
+    },
+    {
+      "book_id": "game-theory",
+      "title": "賽局理論及應用",
+      "content_version": "2026.07.30-2",
+      "current_stage": "EA",
+      "task_id": "game-theory:EA",
+      "next_stage": "VP",
+      "legacy_published_before_workflow_v2": true,
+      "stages": {
+        "DR": "passed",
+        "IQ": "passed",
+        "EA": "pending",
+        "VP": "pending",
+        "PUB": "passed"
+      },
+      "external_audit": {
+        "risk_tier": "high",
+        "primary_route": ["wolfram"],
+        "secondary_route": ["consensus", "scite"],
+        "sampling_focus": ["equilibrium calculations", "auction formulas", "signaling conditions", "mechanism-design claims"]
+      }
+    },
+    {
+      "book_id": "civil-law-overview",
+      "title": "民法概要",
+      "content_version": "2026.07.30-2",
+      "current_stage": "VP",
+      "task_id": "civil-law-overview:VP",
+      "next_stage": "PUB",
+      "legacy_published_before_workflow_v2": true,
+      "stages": {
+        "DR": "passed",
+        "IQ": "passed",
+        "EA": "passed_migrated",
+        "VP": "pending",
+        "PUB": "passed"
+      },
+      "external_audit": {
+        "risk_tier": "high",
+        "primary_route": ["official_statutes", "official_agency_materials", "official_judgments"],
+        "migration_evidence": ["docs/books/civil-law-overview/qa_report.md", "docs/books/civil-law-overview/status.md"],
+        "migration_basis": "existing independent current-law review used official statutes and Constitutional Court material, with dated legal gates"
+      }
+    },
+    {
+      "book_id": "investments",
+      "title": "投資學",
+      "content_version": "2026.07.30-1",
+      "current_stage": "EA",
+      "task_id": "investments:EA",
+      "next_stage": "VP",
+      "legacy_published_before_workflow_v2": true,
+      "stages": {
+        "DR": "passed",
+        "IQ": "passed",
+        "EA": "pending",
+        "VP": "pending",
+        "PUB": "passed"
+      },
+      "external_audit": {
+        "risk_tier": "critical",
+        "primary_route": ["wolfram", "consensus"],
+        "secondary_route": ["scite", "official_primary_sources"],
+        "sampling_focus": ["asset-pricing formulas", "fixed-income calculations", "derivatives", "performance metrics", "empirical finance claims"]
+      }
+    },
+    {
+      "book_id": "econometrics",
+      "title": "計量經濟學",
+      "content_version": "2026.07.30-1",
+      "current_stage": "EA",
+      "task_id": "econometrics:EA",
+      "next_stage": "VP",
+      "legacy_published_before_workflow_v2": true,
+      "stages": {
+        "DR": "passed",
+        "IQ": "passed",
+        "EA": "pending",
+        "VP": "pending",
+        "PUB": "passed"
+      },
+      "external_audit": {
+        "risk_tier": "critical",
+        "primary_route": ["wolfram", "consensus"],
+        "secondary_route": ["scite"],
+        "sampling_focus": ["estimator formulas", "identification assumptions", "causal inference claims", "panel and IV conditions", "empirical-research conclusions"]
+      }
+    },
+    {
+      "book_id": "industrial-economics",
+      "title": "產業經濟學",
+      "content_version": "2026.07.30-2",
+      "current_stage": "EA",
+      "task_id": "industrial-economics:EA",
+      "next_stage": "VP",
+      "legacy_published_before_workflow_v2": true,
+      "stages": {
+        "DR": "passed",
+        "IQ": "passed",
+        "EA": "pending",
+        "VP": "pending",
+        "PUB": "passed"
+      },
+      "external_audit": {
+        "risk_tier": "high",
+        "primary_route": ["wolfram", "consensus"],
+        "secondary_route": ["scite"],
+        "sampling_focus": ["market-structure models", "pricing games", "welfare claims", "empirical IO conclusions"]
+      }
+    },
+    {
+      "book_id": "industry-trade",
+      "title": "產業及貿易",
+      "content_version": "2026.07.29-1",
+      "current_stage": "EA",
+      "task_id": "industry-trade:EA",
+      "next_stage": "VP",
+      "legacy_published_before_workflow_v2": true,
+      "stages": {
+        "DR": "passed",
+        "IQ": "passed",
+        "EA": "pending",
+        "VP": "pending",
+        "PUB": "passed"
+      },
+      "external_audit": {
+        "risk_tier": "high",
+        "primary_route": ["wolfram", "consensus"],
+        "secondary_route": ["scite", "official_primary_sources"],
+        "sampling_focus": ["trade and IO models", "multinational production", "policy welfare", "empirical trade claims"]
+      }
+    },
+    {
+      "book_id": "mathematical-economics",
+      "title": "數理經濟學",
+      "content_version": "2026.07.30-2",
+      "current_stage": "EA",
+      "task_id": "mathematical-economics:EA",
+      "next_stage": "VP",
+      "legacy_published_before_workflow_v2": true,
+      "stages": {
+        "DR": "passed",
+        "IQ": "passed",
+        "EA": "pending",
+        "VP": "pending",
+        "PUB": "passed"
+      },
+      "external_audit": {
+        "risk_tier": "critical",
+        "primary_route": ["wolfram"],
+        "secondary_route": ["consensus", "scite"],
+        "sampling_focus": ["optimization", "matrix algebra", "comparative statics", "difference and differential equations", "worked derivations"]
+      }
+    }
+  ],
+  "invariants": {
+    "preserve_all_21_books": true,
+    "preserve_book_ids": true,
+    "preserve_chapter_ids": true,
+    "preserve_question_ids": true,
+    "preserve_reading_progress": true,
+    "preserve_wrong_answer_data": true,
+    "preserve_pwa_compatibility": true,
+    "external_audit_does_not_bulk_rewrite_books": true,
+    "visual_polish_does_not_move_books_out_of_pwa": true
+  }
+}

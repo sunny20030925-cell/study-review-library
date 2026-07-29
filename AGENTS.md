@@ -7,10 +7,15 @@
 1. `AGENTS.md`
 2. `docs/project_knowledge_index.md`
 3. `docs/content_authoring_spec.md`
-4. `docs/shared_checkpoint.md`
-5. 目標科目的 `books/<book-id>/` 狀態文件；若尚未建立，先依規格建立。
+4. `docs/external_audit_workflow.md`
+5. `docs/audit_progress_manifest.json`
+6. `docs/shared_checkpoint.md`
+7. 目標科目的 `docs/books/<book-id>/` 狀態文件；若尚未建立，先依規格建立。
+8. 若涉及共同書庫寫入或多書並行，讀 `docs/concurrent_book_workflow.md`。
 
-未完成以上讀取前，不得直接開始寫教材、出題、改版或部署。
+未完成以上讀取前，不得直接開始寫教材、出題、改版、External Audit、Visual Polish 或部署。
+
+GitHub `main` 是唯一正式規格與進度來源。聊天記憶、外掛歷史、本機副本只能作輔助，不得取代正式 repo 狀態。
 
 ## 二、使用者操作邊界
 
@@ -46,45 +51,75 @@
 - 詳解必須精簡但完整：指出判斷關鍵、必要步驟與答案，不寫與解題無關的長篇敘述。
 - 題目來源可包含自編、公開授權題型與公開課程題型重寫；不得大量照搬付費或受版權限制的題庫。
 
-## 六、內容 QA 與發布門檻
+## 六、正式工作流與品質門檻
 
-正式發布前必須完成兩輪內容檢查：
+正式階段固定為：
 
-### 第一輪：製作內檢
+`Draft → Internal QA → External Audit → Visual Polish → Published`
+
+Task ID 與 stage convention 依 `docs/external_audit_workflow.md`：`<book-id>:DR|IQ|EA|VP|PUB`。
+
+### Internal QA
+
+Internal QA 包含既有兩輪：
+
+#### 第一輪：製作內檢
 - 定義與符號一致。
 - 公式附成立條件與使用時機。
 - 例題步驟與答案正確。
 - 圖片、章節、搜尋與題庫連結正常。
 
-### 第二輪：獨立複核
+#### 第二輪：獨立複核
 - 每個核心公式重新核對。
 - 每道例題重新計算。
 - 每道題庫重新驗算答案與詳解。
 - 檢查前後章節矛盾、名詞混用、跳步與單位問題。
 - 產出 QA 報告，列明檢查數量、修正內容與仍存在的限制。
 
-未完成第二輪複核，不得宣稱正式完成或內容已校對。
+未完成兩輪 Internal QA，不得進入 External Audit。
 
-## 七、書庫與更新規則
+### External Audit
+
+- 採風險式抽查，不對普通低風險基礎敘述逐句消耗外部免費額度。
+- 數學／公式／數值／統計推導優先 Wolfram。
+- 實證研究、學術爭議、研究結論優先 Consensus。
+- 重要論文支持／反駁／引用脈絡使用 Scite。
+- 法律以正式法規、官方資料與正式判決為第一順位；不得以 Consensus／Scite 取代正式法源。
+- 會計以正式準則／規範為第一順位；Wolfram 僅作計算驗證。
+- 完整規則以 `docs/external_audit_workflow.md` 為準。
+
+### Visual Polish
+
+- 只有 External Audit 通過後才進入。
+- Canva 僅處理高價值視覺資產：封面、章末重點、比較圖、流程圖、公式／考前速查表。
+- 不得把整本教材搬離既有 PWA 架構。
+
+## 七、書庫、狀態與更新規則
 
 - 所有科目加入同一個「重點複習」PWA 書庫與固定網址。
 - 每一本書使用獨立內容包，不能把不同科目的正文、題庫與狀態混在一起。
-- 新增科目不得破壞既有書籍、閱讀進度、錯題紀錄與主畫面捷徑。
-- 每次正式更新都要提高內容版本，並同步更新 `docs/shared_checkpoint.md`。
+- 新增或更新科目不得破壞既有書籍、閱讀進度、錯題紀錄與主畫面捷徑。
+- 既有 Book ID、chapter ID、question ID、閱讀進度、錯題資料與 PWA 儲存鍵不得因工作流升級而重建或改名。
+- 每次正式內容修正都要提高該書內容版本。
+- `docs/audit_progress_manifest.json` 是全書庫 machine-readable stage／queue 正式來源。
+- 各書 `status.md` 是該書詳細進度與證據來源。
+- `docs/shared_checkpoint.md` 只保留人類容易閱讀的總進度、總數、下一個正式任務與部署摘要，不再複製每本書的完整 QA 細節。
 - 多本書可同時製作，但共同書庫的整合與部署必須依 `docs/concurrent_book_workflow.md` 序列化處理。
-- 任何正式部署前都必須重新讀取當下 GitHub 最新 `main` 與 shared checkpoint，不得以對話開始時保存的舊書庫副本覆蓋新狀態。
-- 部署前後都必須驗證既有書籍未消失、書籍版本未倒退、Book ID／章節 ID／題目 ID 與進度儲存鍵未被意外破壞。
+- 任何正式部署前都必須重新讀取當下 GitHub 最新 `main`、manifest、shared checkpoint 與 deployment receipt，不得以對話開始時保存的舊書庫副本覆蓋新狀態。
+- 部署前後都必須驗證既有 21 本書未消失、書籍版本未倒退、Book ID／章節 ID／題目 ID 與進度儲存鍵未被意外破壞。
 
-## 八、對話分工
+## 八、對話分工與自動續接
 
 - 新科目建議開新對話，以避免不同教材的章節、題庫與 QA 進度混淆。
 - 新對話不需要重述所有規格，只需指定科目並要求先讀本 repo 正式文件。
 - 同一科目的補充、糾錯與題庫擴充留在該科目的對話。
 - 書庫介面、部署與全站規格留在書庫維護對話。
+- 若使用者要求「下一本 External Audit」，新對話必須從最新 `docs/audit_progress_manifest.json` 自動讀取 `external_audit_queue[0]`；不得要求使用者自己記住或重貼過去內容。
+- External Audit 完成後，更新該書 status／audit record／manifest；shared checkpoint 只同步總數與下一本。
 
 ## 九、多書並行規則
 
-- 不同書籍可平行進行內容製作、題庫與 QA。
+- 不同書籍可平行進行內容製作、題庫、Internal QA、External Audit 準備與 Visual Polish 資產準備。
 - 共同書庫寫入、全站版本更新與 GitHub Pages 部署不得由多個對話各自使用舊基底同時完成。
 - 準備發布的對話必須先讀 `docs/concurrent_book_workflow.md`，再以當下最新正式書庫狀態整合。
 - 使用者不需要自行協調發布順序；各對話必須自行避免覆蓋較新的正式狀態。
