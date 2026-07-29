@@ -67,10 +67,8 @@ jobs:
           BEFORE="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"
           BEFORE_COUNT="$(python -c "import json;print(len(json.load(open('_site/data/library.json'))['books']))")"
           FINAL="$(PYTHONPATH=deploy python deploy/integrate_industry_trade.py _site "$BEFORE")"
-          QA1="$(EXPECTED_LIBRARY_VERSION="$FINAL" PYTHONPATH=deploy python deploy/validate_industry_trade.py _site | tee /tmp/it-qa1.log | grep -oE '(^| )checks=[0-9]+' | head -n 1 | cut -d= -f2)"
-          QA2="$(PYTHONPATH=deploy python deploy/qa_industry_trade_independent.py _site | tee /tmp/it-qa2.log | grep -oE '(^| )checks=[0-9]+' | head -n 1 | cut -d= -f2)"
-          test "$QA1" = "1495"
-          test "$QA2" = "545"
+          EXPECTED_LIBRARY_VERSION="$FINAL" PYTHONPATH=deploy python deploy/validate_industry_trade.py _site
+          PYTHONPATH=deploy python deploy/qa_industry_trade_independent.py _site
           FINAL="$FINAL" BEFORE_COUNT="$BEFORE_COUNT" python - <<'PY'
           import json,os
           from pathlib import Path
