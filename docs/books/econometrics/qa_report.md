@@ -141,7 +141,7 @@
 ### v2 正式部署
 
 - Book version：`2026.07.30-1`。
-- Shared library：`2026.07.30-2`，20 本。
-- Pages run：`30487070814`。
-- Pages artifact：`8738081884`；digest `sha256:674accfd19678ab1b16463af54c3b7d87060bb697712698b215cd1455bfea8e5`。
+- Shared library：`2026.07.30-4`，20 本。
+- Pages run：`30489306339`。
+- Pages artifact：`8738999051`；digest `sha256:d21d233e589919d29631074724231a16cdda4cc9f2881543e75f61a6e3903ec4`。
 - 部署後重新下載 artifact，再核對本書 23 份 HTML、100 題、189 搜尋與 20 SVG 均通過。
