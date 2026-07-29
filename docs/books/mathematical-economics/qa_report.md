@@ -49,9 +49,11 @@
 
 ## 自動化 gate
 
-- `.github/workflows/validate-mathematical-economics.yml` 會在 PR 上先做 Python source compile、20 章／100 題 source gate，再用合成的既有 12 本書庫跑完整第 13 本 integration 與兩輪 QA。
-- 正式發布仍必須在 canonical `Deploy study library` 上以真實最新書庫再跑一次，合成測試不能取代正式 Pages artifact／deployment／receipt。
+- 本書接在 canonical serialized tail 的 `computer-fundamentals` 之後；生成後必須形成 14 本書庫，尾端固定為 `money-banking → computer-fundamentals → mathematical-economics`。
+- `deploy/integrate_mathematical_economics.py` 會在正式 `Deploy study library` 流程內執行第一輪結構／內容 QA 與第二輪獨立數值、公式、最佳化與穩定性重算。
+- integration 前後逐本計算既有 13 本教材 hash；任何既有教材內容變動都直接失敗，不得部署。
+- 正式通過仍以 canonical Pages artifact、Pages deployment 與 deployment receipt 為準。
 
 ## 發布狀態
 
-本報告在正式 PR 驗證與 canonical Pages run 完成前不宣稱通過。通過數、正式 library version、run 與 deployment receipt 會在實際驗證後回寫。
+本報告在 canonical QA 與 Pages run 完成前不宣稱正式通過。通過數、正式 library version、run 與 deployment receipt 會在實際驗證後回寫。
