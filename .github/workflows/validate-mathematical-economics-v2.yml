@@ -30,13 +30,14 @@ jobs:
             deploy/mathematical_economics_questions.py \
             deploy/generate_mathematical_economics.py \
             deploy/mathematical_economics_v2_corrections.py \
+            deploy/mathematical_economics_v2_enrichment.py \
             deploy/mathematical_economics_v2_questions.py \
             deploy/generate_mathematical_economics_v2.py \
             deploy/qa_mathematical_economics_v2.py \
             deploy/integrate_mathematical_economics_v2.py \
             deploy/audit_mathematical_economics_v2_density.py
           PYTHONPATH=deploy python - <<'PY'
-          from mathematical_economics_v2_corrections import CHAPTERS_V2
+          from mathematical_economics_v2_enrichment import CHAPTERS_V2
           from mathematical_economics_v2_questions import build_questions_v2
           assert len(CHAPTERS_V2)==20
           assert len(build_questions_v2())==100
@@ -83,7 +84,7 @@ jobs:
           test -n "$FINAL_VERSION"
           QA_LINE="$(PYTHONPATH=deploy python deploy/qa_mathematical_economics_v2.py _site "$FINAL_VERSION" | tail -n 1)"
           echo "$QA_LINE"
-          CHECKS="$(printf '%s\n' "$QA_LINE" | grep -oE 'checks=[0-9]+' | cut -d= -f2)"
+          CHECKS="$(printf '%s\n' "$QA_LINE" | grep -oE '(^|[[:space:]])checks=[0-9]+' | head -n 1 | grep -oE '[0-9]+')"
           test -n "$CHECKS"
           test "$CHECKS" -ge 700
           BASE_COUNT="$BASE_COUNT" FINAL_VERSION="$FINAL_VERSION" python - <<'PY'
