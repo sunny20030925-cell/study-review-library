@@ -1,4 +1,5 @@
 name: Apply cost accounting v2 canonical integration
+# integration revision: yaml-indent-safe
 
 on:
   push:
