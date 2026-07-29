@@ -2,8 +2,9 @@ from __future__ import annotations
 import json, re, sys
 from collections import Counter
 from pathlib import Path
+from bs4 import BeautifulSoup
 
-BOOK='cost-accounting'; VERSION='2026.07.29-1'; LIB='2026.07.29-7'
+BOOK='cost-accounting'; VERSION='2026.07.29-2'; LIB='2026.07.29-8'
 checks=0
 
 def ck(cond, msg):
@@ -12,26 +13,27 @@ def ck(cond, msg):
     if not cond: raise AssertionError(msg)
 
 def main(arg):
-    site=Path(arg)
-    root=site/'books'/BOOK
+    site=Path(arg); root=site/'books'/BOOK
     manifest=json.loads((root/'manifest.json').read_text(encoding='utf-8'))
     questions=json.loads((root/'questions.json').read_text(encoding='utf-8'))
     search=json.loads((root/'search.json').read_text(encoding='utf-8'))
     lib=json.loads((site/'data/library.json').read_text(encoding='utf-8'))
     ck(manifest['id']==BOOK,'manifest id')
     ck(manifest['version']==questions['version']==VERSION,'book version')
+    ck(manifest['releaseNotes'][0]['version']==VERSION,'latest release note')
+    ck('獨立二次內容審計' in manifest['releaseNotes'][0]['title'],'release title')
     ck(lib['version']==LIB,'library version')
-    ck([b['id'] for b in lib['books']].count(BOOK)==1,'library contains cost accounting once')
+    ck([b['id'] for b in lib['books']].count(BOOK)==1,'library contains book once')
     chapters=[x for x in manifest['chapters'] if x['kind']=='chapter']
     appendices=[x for x in manifest['chapters'] if x['kind']=='appendix']
     ck(len(chapters)==19,'chapter count')
     ck(len(appendices)==3,'appendix count')
     ck(questions['count']==95==len(questions['items']),'question count')
-    ck(Counter(q['chapterId'] for q in questions['items'])=={f'ch{i:02d}':5 for i in range(19)},'five questions each chapter')
+    ck(Counter(q['chapterId'] for q in questions['items'])=={f'ch{i:02d}':5 for i in range(19)},'five questions each')
     ck(len({q['id'] for q in questions['items']})==95,'unique question ids')
-    ck(len(search['entries'])==146,'search count')
+    ck(len(search['entries'])==150,'search count')
     qmap={q['id']:q for q in questions['items']}
-    # Independent numerical rechecks: each line recomputes from raw inputs rather than trusting prose.
+
     expected={
       'ch01-q01':f'NT${30000+150000-20000:,}。',
       'ch01-q02':f'NT${160000-12000:,}。',
@@ -64,7 +66,7 @@ def main(arg):
       'ch12-q01':f'NT${900000*600000/(600000+300000):,.0f}。',
       'ch12-q02':f'NT${900000*300000/(600000+300000):,.0f}。',
       'ch12-q03':f'NT${500000-140000:,}。',
-      'ch14-q01':f'NT${5200*(31-30):,} U。',
+      'ch14-q01':f'NT${5400*(31-30):,} U。',
       'ch14-q02':f'NT${30*(5200-5000):,} U。',
       'ch14-q03':f'NT${3900*(205-200):,} U。',
       'ch14-q04':f'NT${200*(4000-3900):,} F。',
@@ -79,41 +81,76 @@ def main(arg):
       'ch17-q02':f'NT${800000/50000:g}／機器小時。',
     }
     for qid, ans in expected.items(): ck(qmap[qid]['answer']==ans, f'{qid}: {qmap[qid]["answer"]!r} != {ans!r}')
-    # Structural and content QA.
-    text_all=[]
+
+    ck(qmap['ch00-q05']['answer']=='直接人工與製造費用。','conversion cost answer')
+    ck('檢驗點' in qmap['ch09-q03']['answer'],'normal spoilage inspection point')
+    ck('銷售價值通常不重大' in qmap['ch12-q05']['answer'],'by-product distinction')
+    ck('AQP' in qmap['ch14-q01']['question'] and '5,400' in qmap['ch14-q01']['answer'],'purchase quantity price variance')
+    ck('AQU' in qmap['ch14-q02']['question'],'usage quantity variance')
+    ck('合理分攤' in qmap['ch16-q04']['explanation'],'absorption allocation boundary')
+    ck(qmap['ch17-q05']['answer']=='在當期認列為費用。','unallocated overhead treatment')
+
+    texts=[]
     for ch in manifest['chapters']:
         p=root/ch['file']; ck(p.is_file() and p.stat().st_size>400,f'chapter file {ch["id"]}')
-        text=p.read_text(encoding='utf-8'); text_all.append(text)
-        ck('<h2' in text,f'h2 {ch["id"]}')
-        ck('理解檢查' in text or ch['kind']=='appendix',f'practice {ch["id"]}')
-        ck('<script' not in text.lower(),f'no inline script {ch["id"]}')
-    full='\n'.join(text_all)
-    for token in ['成本標的','製成品成本','相關範圍','貢獻邊際','預定製造費用分攤率','分批成本制','少分','約當產量','FIFO','正常損壞','作業基礎成本制','服務部門','聯產品','標準成本','材料價格差異','固定製造費用生產量差異','吸收成本法','實務產能','總額檢核']:
-        ck(token in full,f'missing core token {token}')
-    core_titles='|'.join(ch['title'] for ch in chapters)
-    for excluded in ['主預算','資本預算','責任會計','移轉價格','平衡計分卡','定價決策']:
-        ck(excluded not in core_titles,f'cross-subject chapter {excluded}')
-    # Currency convention and formula sanity.
-    ck('NT$' in full,'TWD examples')
+        html=p.read_text(encoding='utf-8'); texts.append(html)
+        ck('<h2' in html,f'h2 {ch["id"]}')
+        ck('理解檢查' in html or ch['kind']=='appendix',f'practice {ch["id"]}')
+        ck('<script' not in html.lower(),f'no inline script {ch["id"]}')
+        ck('\t' not in html,f'no tab-corrupted formula {ch["id"]}')
+    full='\n'.join(texts)
+    plain=' '.join(BeautifulSoup(full,'html.parser').get_text(' ',strip=True).split())
+
+    required=(
+      '主要成本（prime costs）','加工成本（conversion costs）','淨進料',
+      '銷售組合固定','固定製造費用的遞延或釋放','每一成本成分都要用自己的約當產量',
+      '期初 WIP 已帶入的轉入成本屬前期成本','尚未到達檢驗點',
+      '物量法（physical-measure method）','副產品（by-product）',
+      '實際購買量 AQP','實際使用量 AQU','MPV=AQP','MQV=SP',
+      '期末存貨內含固定OH-期初存貨內含固定OH','正常產能原則',
+      '產量異常偏低時','未分攤部分應在當期認列','產量異常偏高時',
+      'actual quantity purchased','actual quantity used',
+    )
+    for token in required: ck(token in plain or token in full,f'missing corrected token {token}')
+    forbidden=(
+      '且生產量與銷售量差異不致扭曲分析',
+      '通常由合格產品吸收；異常損壞',
+      '乘上實際購買或實際使用數量',
+      '\\[MPV=AQ\\times(AP-SP)\\]',
+      '\\[MQV=SP\\times(AQ-SQ)\\]',
+      '對外財務報導的存貨成本通常採吸收成本觀念',
+      '\\[WA單位成本=(期初WIP成本+本期新增成本)\\div WA約當產量\\]',
+    )
+    for token in forbidden: ck(token not in full,f'obsolete wording remains: {token}')
+
     ck('產品成本 = 直接材料 + 直接人工 + 製造費用' in full,'product cost formula')
     ck('COGM = 期初在製品 + 本期製造成本 - 期末在製品' in full,'COGM formula')
-    ck('MPV=AQ' in full and 'MQV=SP' in full,'material variance formulas')
-    # SVG accessibility and cache coverage.
+    ck('AQP\\times(AP-SP)' in full and 'AQU\\times(AP-SP)' in full,'price variance formulas')
+    ck('SP\\times(AQU-SQ)' in full,'quantity variance formula')
+    ck('期末存貨內含固定OH-期初存貨內含固定OH' in full,'income reconciliation')
+    ck('主預算' in (root/'chapters/ch18.html').read_text(encoding='utf-8'),'scope boundary retained')
+
     figs=sorted((site/'assets/cost-accounting-svg').glob('*.svg')); ck(len(figs)==19,'figure count')
     for f in figs:
         s=f.read_text(encoding='utf-8')
-        ck('<title' in s and '<desc' in s and 'viewBox=' in s,f'svg accessibility {f.name}')
-        ck('href="http' not in s and "href='http" not in s,f'no remote svg asset {f.name}')
+        ck('<title' in s and '<desc' in s and 'viewBox' in s,f'svg accessibility {f.name}')
+        ck('href="http' not in s and "href='http" not in s,f'no remote svg {f.name}')
+
     sw=(site/'sw.js').read_text(encoding='utf-8')
-    for token in [f'study-library-{LIB}', './books/cost-accounting/manifest.json','./books/cost-accounting/questions.json','./books/cost-accounting/search.json','./books/cost-accounting/chapters/ch18.html','./books/cost-accounting/chapters/appendix-c.html','./assets/cost-accounting-svg/integration.svg']:
+    for token in [f'study-library-{LIB}','./books/cost-accounting/manifest.json','./books/cost-accounting/questions.json','./books/cost-accounting/search.json','./books/cost-accounting/chapters/ch18.html','./books/cost-accounting/chapters/appendix-c.html','./assets/cost-accounting-svg/integration.svg']:
         ck(token in sw,f'sw cache {token}')
-    # Search entries must point to real chapters and nonempty searchable text.
+
     ids={x['id'] for x in manifest['chapters']}
+    seen=set()
     for e in search['entries']:
         ck(e['chapterId'] in ids,'search chapter id')
         ck(bool(e['title'].strip()) and bool(e['text'].strip()),'search nonempty')
         ck(isinstance(e['page'],int) and e['page']>=0,'search page')
-    print(f'COST_ACCOUNTING_QA_OK checks={checks} chapters=19 appendices=3 questions=95 search=146 figures=19 numeric_rechecks={len(expected)}')
+        key=(e['chapterId'],e['page']); ck(key not in seen,'unique search page'); seen.add(key)
+    for token in ['主要成本','副產品','AQP','正常產能規則']:
+        ck(any(token in e['text'] or token in e['title'] for e in search['entries']),f'search includes {token}')
+
+    print(f'COST_ACCOUNTING_V2_QA_OK checks={checks} chapters=19 appendices=3 questions=95 search=150 figures=19 numeric_rechecks={len(expected)}')
 
 if __name__=='__main__':
     if len(sys.argv)!=2: raise SystemExit('usage: python validate_cost_accounting.py SITE_ROOT')
