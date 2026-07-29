@@ -5,6 +5,7 @@ on:
     types: [opened, synchronize, reopened]
 
 permissions:
+  actions: read
   contents: write
   pull-requests: read
 
@@ -47,6 +48,22 @@ jobs:
           grep -F "'microeconomics_post_publication_correction_count': 16" deploy/staged-micro-v2-deploy-pages.yml
           grep -F "'microeconomics_question_adjustment_count': 4" deploy/staged-micro-v2-deploy-pages.yml
           grep -F "'microeconomics_independent_check_count': 1616" deploy/staged-micro-v2-deploy-pages.yml
+
+      - name: Apply corrections to the current deployed artifact and run full QA
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          rm -rf /tmp/current-pages /tmp/current-site
+          mkdir -p /tmp/current-pages /tmp/current-site
+          gh run download 30416984356 \
+            --repo "$GITHUB_REPOSITORY" \
+            --name github-pages \
+            --dir /tmp/current-pages
+          test -f /tmp/current-pages/artifact.tar
+          tar -xf /tmp/current-pages/artifact.tar -C /tmp/current-site
+          test "$(python -c "import json; print(json.load(open('/tmp/current-site/books/microeconomics/manifest.json'))['version'])")" = '2026.07.29-1'
+          python deploy/patch_microeconomics_v2.py /tmp/current-site
+          python deploy/qa_microeconomics_v2.py /tmp/current-site
 
       - name: Commit staged candidate to PR branch
         run: |
