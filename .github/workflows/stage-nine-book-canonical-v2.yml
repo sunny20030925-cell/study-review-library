@@ -1,3 +1,4 @@
+# Second push intentionally triggers the already-registered staging workflow.
 name: Stage nine-book canonical workflow v2
 
 on:
