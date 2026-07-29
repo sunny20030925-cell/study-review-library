@@ -13,7 +13,7 @@ PATCHES = {
     'ch06-q03': {
         'question': 'y=(3x+1)^2。用鏈鎖律求 x=1 時 dy/dx。',
         'answer': '24。',
-        'explanation': 'dy/dx=2(3x+1)×3；代 x=1 得 2×4×3=24。',
+        'explanation': '外層平方先微分得 2(3x+1)，再乘內層函數 3x+1 的導數 3，所以 dy/dx=2(3x+1)×3；代 x=1 得 24。',
     },
     'ch07-q03': {
         'question': '判斷：對可微函數，dz=f_xdx+f_ydy 與有限變動 Δz=f_xΔx+f_yΔy 永遠完全相等。',
