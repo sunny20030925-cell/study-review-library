@@ -121,8 +121,11 @@ def main(arg):
     for excluded in ['Mirrlees 最適所得稅模型的正式機制設計', 'Diamond–Mirrlees 生產效率定理的正式證明', 'DSGE']:
         ck(excluded not in '|'.join(ch['title'] for ch in chapters), f'advanced topic promoted to core chapter: {excluded}')
     for overclaim in [
-        '政府介入必然改善', '法定納稅人就是最終經濟負擔者', '總剩餘增加代表每個人都變好',
-        'r<g 時任何赤字都沒有成本', '生活必需品就應高稅',
+        '只要存在市場失靈，政府介入一定提高福利',
+        '法定納稅人必然承擔全部經濟稅負',
+        '總剩餘增加就代表每個人都變好',
+        'r<g 時政府可以永久無成本舉債',
+        '生活必需品一定應課最高稅',
     ]:
         ck(overclaim not in full, f'forbidden overclaim {overclaim}')
     ck('NT$' in full, 'TWD examples')
