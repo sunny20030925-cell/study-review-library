@@ -1,0 +1,42 @@
+name: Apply intermediate accounting canonical workflow
+
+on:
+  push:
+    branches:
+      - fix-intermediate-accounting-canonical
+    paths:
+      - .github/workflows/apply-intermediate-accounting-canonical.yml
+      - deploy/integrate_intermediate_accounting_workflow.py
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repair branch
+        uses: actions/checkout@v4
+        with:
+          ref: fix-intermediate-accounting-canonical
+          fetch-depth: 0
+
+      - name: Generate canonical workflow
+        run: |
+          python deploy/integrate_intermediate_accounting_workflow.py
+          mv deploy/generated-deploy-pages.intermediate-accounting.yml .github/workflows/deploy-pages.yml
+          ruby -e "require 'yaml'; YAML.load_file('.github/workflows/deploy-pages.yml'); puts 'YAML_OK'"
+          grep -F "Generate and independently validate intermediate accounting textbook" .github/workflows/deploy-pages.yml
+          grep -F "'intermediate_accounting_version': '2026.07.29-1'" .github/workflows/deploy-pages.yml
+
+      - name: Commit canonical workflow repair
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add .github/workflows/deploy-pages.yml
+          if git diff --cached --quiet; then
+            echo "Canonical workflow already integrated"
+            exit 0
+          fi
+          git commit -m "Integrate intermediate accounting into canonical deployment"
+          git push origin HEAD:fix-intermediate-accounting-canonical
