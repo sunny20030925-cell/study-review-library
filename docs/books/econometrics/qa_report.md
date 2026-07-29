@@ -142,6 +142,6 @@
 
 - Book version：`2026.07.30-1`。
 - Shared library：`2026.07.30-6`，20 本。
-- Pages run：`30490197263`。
-- Pages artifact：`8739358772`；digest `sha256:6936173acc641daef1c2e369a09407f2ee4533499735b78f5cbb280a147440ce`。
+- Pages run：`30490416762`。
+- Pages artifact：`8739445998`；digest `sha256:20484896b21c43b9df209033ba0b93d5e0e20927a1647b9e5e3e6581894147b5`。
 - 部署後重新下載 artifact，再核對本書 23 份 HTML、100 題、189 搜尋與 20 SVG 均通過。
