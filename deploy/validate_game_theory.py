@@ -8,7 +8,7 @@ from collections import Counter
 from pathlib import Path
 
 BOOK = 'game-theory'
-VERSION = '2026.07.29-1'
+VERSION = '2026.07.30-2'
 REQUIRED_PRE_IDS = {
     'calculus', 'accounting', 'economics', 'statistics', 'commercial-law',
     'cost-accounting', 'microeconomics', 'intermediate-accounting', 'macroeconomics',
@@ -100,7 +100,7 @@ def main(arg):
         'ch11-q02':'0.8。', 'ch11-q03':'-0.4。',
         'ch12-q01':'0.6。', 'ch12-q02':'出價 NT$100 者得標，支付 NT$80。',
         'ch13-q02':'1。', 'ch13-q03':'6/7，約0.8571。',
-        'ch14-q02':'7.9。', 'ch14-q03':'3.7。', 'ch14-q04':'5.5，會想模仿。',
+        'ch14-q02':'7.9。', 'ch14-q03':'3.7。', 'ch14-q04':'2≤e≤6。',
         'ch15-q02':'20。', 'ch15-q03':'25；不是 IC。', 'ch15-q04':'H=30，L=-20。',
         'ch16-q02':'給價值 NT$100 的玩家。', 'ch16-q03':'NT$80。', 'ch16-q04':'NT$20。',
         'ch17-q02':'x1+x2+x3=90。', 'ch17-q03':'至少60。', 'ch17-q04':'(30,30,30)。',
@@ -110,6 +110,7 @@ def main(arg):
     for qid, ans in expected.items():
         ck(qmap[qid]['answer'] == ans, f'{qid}: {qmap[qid]["answer"]!r} != {ans!r}')
     ck(qmap['ch17-q05']['answer'] == '不一定。', 'Shapley/core trap answer')
+    ck(qmap['ch19-q05']['answer'] == '不是。', 'complete/perfect information trap answer')
 
     text_all = []
     for ch in manifest['chapters']:
@@ -131,8 +132,10 @@ def main(arg):
         '重複賽局', 'grim trigger', 'Bayesian Nash', '第一價拍賣', '第二價拍賣',
         'Perfect Bayesian', '序列理性', '分離均衡', '混同均衡', '篩選', 'cheap talk',
         '揭示原理', 'VCG', 'core', 'Shapley', '擁擠賽局',
+        'perfect information', 'complete information', '混合策略嚴格支配',
+        '不需要價值彼此獨立', '2≤e≤6', '單點資訊集合',
     ]:
-        ck(token in full, f'missing core token {token}')
+        ck(token in full, f'missing core/v2 token {token}')
 
     titles = '|'.join(ch['title'] for ch in chapters)
     for excluded in [
@@ -148,6 +151,7 @@ def main(arg):
         'minimax theorem 適用於所有賽局',
         '第二價拍賣在任何資訊環境都應誠實出價',
         '有限次重複賽局一定可以靠未來懲罰維持合作',
+        '完美資訊是完整資訊的更強版本',
     ]:
         ck(overclaim not in full, f'forbidden overclaim {overclaim}')
     ck('一般賽局不保證' in full, 'Shapley/core caveat')
