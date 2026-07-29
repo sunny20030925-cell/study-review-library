@@ -132,10 +132,8 @@ jobs:
             deploy/patch_advanced_statistics_v2.py \
             deploy/qa_advanced_statistics_reaudit_v2.py \
             deploy/record_advanced_statistics_v2_deployment.py
-
           find _site/books -type f ! -path '*/advanced-statistics/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-advstat-other-books.sha256
           find _site/assets -type f ! -path '*/advanced-statistics-svg/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-advstat-other-assets.sha256
-
           ADVSTAT_LIBRARY_VERSION="$(PYTHONPATH=deploy python deploy/patch_advanced_statistics_v2.py _site | tail -n 1)"
           test -n "$ADVSTAT_LIBRARY_VERSION"
           PYTHONPATH=deploy python deploy/validate_advanced_statistics.py _site "$ADVSTAT_LIBRARY_VERSION" | tee /tmp/advanced-statistics-existing.log
@@ -146,28 +144,19 @@ jobs:
           test -n "$ADVSTAT_NUMERIC_RECHECKS"
           test "$ADVSTAT_REAUDIT_CHECKS" -ge 400
           test "$ADVSTAT_NUMERIC_RECHECKS" -ge 20
-
           find _site/books -type f ! -path '*/advanced-statistics/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-advstat-other-books.sha256
           find _site/assets -type f ! -path '*/advanced-statistics-svg/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-advstat-other-assets.sha256
           diff -u /tmp/pre-advstat-other-books.sha256 /tmp/post-advstat-other-books.sha256
           diff -u /tmp/pre-advstat-other-assets.sha256 /tmp/post-advstat-other-assets.sha256
-
           ADVSTAT_LIBRARY_VERSION="$ADVSTAT_LIBRARY_VERSION" python - <<'PY'
           import json,os
           from pathlib import Path
-          site=Path('_site')
-          lib=json.load(open(site/'data/library.json'))
-          ids=[b['id'] for b in lib['books']]
-          base=json.load(open('/tmp/base_ids.json'))
-          assert ids==base, (base,ids)
-          assert ids.count('advanced-statistics')==1
-          if 'computer-fundamentals' in ids:
-              assert ids.index('advanced-statistics') < ids.index('computer-fundamentals')
+          site=Path('_site'); lib=json.load(open(site/'data/library.json')); ids=[b['id'] for b in lib['books']]; base=json.load(open('/tmp/base_ids.json'))
+          assert ids==base and ids.count('advanced-statistics')==1
+          if 'computer-fundamentals' in ids: assert ids.index('advanced-statistics') < ids.index('computer-fundamentals')
           assert lib['version']==os.environ['ADVSTAT_LIBRARY_VERSION']
-          root=site/'books/advanced-statistics'
-          m=json.load(open(root/'manifest.json')); q=json.load(open(root/'questions.json')); s=json.load(open(root/'search.json'))
-          assert m['version']==q['version']=='2026.07.30-1'
-          assert len(m['chapters'])==23 and q['count']==100 and len(s['entries'])==189
+          root=site/'books/advanced-statistics'; m=json.load(open(root/'manifest.json')); q=json.load(open(root/'questions.json')); s=json.load(open(root/'search.json'))
+          assert m['version']==q['version']=='2026.07.30-1' and len(m['chapters'])==23 and q['count']==100 and len(s['entries'])==189
           assert len(list((site/'assets/advanced-statistics-svg').glob('*.svg')))==20
           print('ADVANCED_STATISTICS_V2_IN_PLACE_OK',lib['version'],len(ids))
           PY
@@ -180,92 +169,93 @@ jobs:
       - name: Apply or validate econometrics post-publication v2 reaudit
         run: |
           set -euo pipefail
-          python -m py_compile \
-            deploy/econometrics_v2_corrections.py \
-            deploy/patch_econometrics_v2.py \
-            deploy/qa_econometrics_reaudit_v2.py \
-            deploy/record_econometrics_v2_deployment.py
-
+          python -m py_compile deploy/econometrics_v2_corrections.py deploy/patch_econometrics_v2.py deploy/qa_econometrics_reaudit_v2.py deploy/record_econometrics_v2_deployment.py
           find _site/books -type f ! -path '*/econometrics/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-econ-other-books.sha256
           find _site/assets -type f ! -path '*/econometrics-svg/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-econ-other-assets.sha256
-
           ECON_LIBRARY_VERSION="$(PYTHONPATH=deploy python deploy/patch_econometrics_v2.py _site | tail -n 1)"
           test -n "$ECON_LIBRARY_VERSION"
           PYTHONPATH=deploy python deploy/validate_econometrics_v2.py _site | tee /tmp/econometrics-existing-v2.log
           ECON_REAUDIT_CHECKS="$(PYTHONPATH=deploy python deploy/qa_econometrics_reaudit_v2.py _site "$ECON_LIBRARY_VERSION" | tee /tmp/econometrics-reaudit.log | grep -oE '(^| )checks=[0-9]+' | head -n 1 | cut -d= -f2)"
-          test -n "$ECON_REAUDIT_CHECKS"
-          test "$ECON_REAUDIT_CHECKS" -ge 40
-
+          test -n "$ECON_REAUDIT_CHECKS"; test "$ECON_REAUDIT_CHECKS" -ge 40
           find _site/books -type f ! -path '*/econometrics/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-econ-other-books.sha256
           find _site/assets -type f ! -path '*/econometrics-svg/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-econ-other-assets.sha256
           diff -u /tmp/pre-econ-other-books.sha256 /tmp/post-econ-other-books.sha256
           diff -u /tmp/pre-econ-other-assets.sha256 /tmp/post-econ-other-assets.sha256
-
           ECON_LIBRARY_VERSION="$ECON_LIBRARY_VERSION" python - <<'PY'
           import json,os
           from pathlib import Path
-          site=Path('_site')
-          lib=json.load(open(site/'data/library.json'))
-          ids=[b['id'] for b in lib['books']]
-          base=json.load(open('/tmp/base_ids.json'))
-          assert ids==base, (base,ids)
-          assert ids.count('econometrics')==1
-          assert 'industrial-economics' in ids and ids.index('econometrics') < ids.index('industrial-economics')
+          site=Path('_site'); lib=json.load(open(site/'data/library.json')); ids=[b['id'] for b in lib['books']]; base=json.load(open('/tmp/base_ids.json'))
+          assert ids==base and ids.count('econometrics')==1 and ids.index('econometrics') < ids.index('industrial-economics')
           assert lib['version']==os.environ['ECON_LIBRARY_VERSION']
-          root=site/'books/econometrics'
-          m=json.load(open(root/'manifest.json')); q=json.load(open(root/'questions.json')); s=json.load(open(root/'search.json'))
-          assert m['version']==q['version']=='2026.07.30-1'
-          assert len(m['chapters'])==23 and q['count']==100 and len(s['entries'])==189
+          root=site/'books/econometrics'; m=json.load(open(root/'manifest.json')); q=json.load(open(root/'questions.json')); s=json.load(open(root/'search.json'))
+          assert m['version']==q['version']=='2026.07.30-1' and len(m['chapters'])==23 and q['count']==100 and len(s['entries'])==189
           assert len(list((site/'assets/econometrics-svg').glob('*.svg')))==20
           print('ECONOMETRICS_V2_IN_PLACE_OK',lib['version'],len(ids))
           PY
-          node --check _site/app.js
-          node --check _site/sw.js
+          node --check _site/app.js; node --check _site/sw.js
           echo "ECONOMETRICS_REAUDIT_CHECKS=$ECON_REAUDIT_CHECKS" >> "$GITHUB_ENV"
           echo "ECON_LIBRARY_VERSION=$ECON_LIBRARY_VERSION" >> "$GITHUB_ENV"
 
       - name: Apply or validate industrial economics v2 independent audit
         run: |
           set -euo pipefail
-          python -m py_compile \
-            deploy/industrial_economics_content_v2.py \
-            deploy/industrial_economics_questions_v2.py \
-            deploy/patch_industrial_economics_v2.py \
-            deploy/validate_industrial_economics_v2.py \
-            deploy/qa_industrial_economics_v2.py \
-            deploy/integrate_industrial_economics_v2.py \
-            deploy/record_industrial_economics_v2_deployment.py
+          python -m py_compile deploy/industrial_economics_content_v2.py deploy/industrial_economics_questions_v2.py deploy/patch_industrial_economics_v2.py deploy/validate_industrial_economics_v2.py deploy/qa_industrial_economics_v2.py deploy/integrate_industrial_economics_v2.py deploy/record_industrial_economics_v2_deployment.py
           BEFORE="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"
           INDUSTRIAL_LIBRARY_VERSION="$(PYTHONPATH=deploy python deploy/integrate_industrial_economics_v2.py _site "$BEFORE")"
           QA1="$(PYTHONPATH=deploy python deploy/validate_industrial_economics_v2.py _site "$INDUSTRIAL_LIBRARY_VERSION" | tee /tmp/industrial-v2-qa1.log | grep -oE '(^| )checks=[0-9]+' | head -n 1 | cut -d= -f2)"
           QA2="$(PYTHONPATH=deploy python deploy/qa_industrial_economics_v2.py _site "$INDUSTRIAL_LIBRARY_VERSION" | tee /tmp/industrial-v2-qa2.log | grep -oE '(^| )checks=[0-9]+' | head -n 1 | cut -d= -f2)"
-          test "$QA1" -ge 150
-          test "$QA2" -ge 450
+          test "$QA1" -ge 150; test "$QA2" -ge 450
           INDUSTRIAL_LIBRARY_VERSION="$INDUSTRIAL_LIBRARY_VERSION" python - <<'PY'
           import json,os
           from pathlib import Path
-          site=Path('_site')
-          lib=json.load(open(site/'data/library.json'))
-          ids=[b['id'] for b in lib['books']]
-          base=json.load(open('/tmp/base_ids.json'))
-          assert ids==base
-          assert ids.count('industrial-economics')==1
-          assert ids.index('econometrics') < ids.index('industrial-economics') < ids.index('industry-trade')
+          site=Path('_site'); lib=json.load(open(site/'data/library.json')); ids=[b['id'] for b in lib['books']]; base=json.load(open('/tmp/base_ids.json'))
+          assert ids==base and ids.count('industrial-economics')==1 and ids.index('econometrics') < ids.index('industrial-economics') < ids.index('industry-trade')
           assert lib['version']==os.environ['INDUSTRIAL_LIBRARY_VERSION']
-          root=site/'books/industrial-economics'
-          m=json.load(open(root/'manifest.json')); q=json.load(open(root/'questions.json')); s=json.load(open(root/'search.json'))
-          assert m['version']==q['version']=='2026.07.30-2'
-          assert len(m['chapters'])==23 and q['count']==100 and len(s['entries'])==150
+          root=site/'books/industrial-economics'; m=json.load(open(root/'manifest.json')); q=json.load(open(root/'questions.json')); s=json.load(open(root/'search.json'))
+          assert m['version']==q['version']=='2026.07.30-2' and len(m['chapters'])==23 and q['count']==100 and len(s['entries'])==150
           assert len(list((site/'assets/industrial-economics-svg').glob('*.svg')))==20
           assert [x['id'] for x in m['chapters']]==[f'ch{i:02d}' for i in range(20)]+['appendix-a','appendix-b','appendix-c']
           assert [x['id'] for x in q['items']]==[f'ch{i:02d}-q{j:02d}' for i in range(20) for j in range(1,6)]
           print('INDUSTRIAL_ECONOMICS_V2_IN_PLACE_OK',lib['version'],len(ids))
           PY
-          node --check _site/app.js
-          node --check _site/sw.js
+          node --check _site/app.js; node --check _site/sw.js
           echo "INDUSTRIAL_V2_QA1_CHECKS=$QA1" >> "$GITHUB_ENV"
           echo "INDUSTRIAL_V2_QA2_CHECKS=$QA2" >> "$GITHUB_ENV"
           echo "INDUSTRIAL_LIBRARY_VERSION=$INDUSTRIAL_LIBRARY_VERSION" >> "$GITHUB_ENV"
+
+      - name: Apply or validate Investments post-publication v2 reaudit
+        run: |
+          set -euo pipefail
+          python -m py_compile deploy/investments_v2_corrections.py deploy/patch_investments_v2.py deploy/qa_investments_reaudit_v2.py deploy/record_investments_v2_deployment.py
+          find _site/books -type f ! -path '*/investments/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-investments-other-books.sha256
+          find _site/assets -type f ! -path '*/investments-svg/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-investments-other-assets.sha256
+          INVESTMENTS_LIBRARY_VERSION="$(PYTHONPATH=deploy python deploy/patch_investments_v2.py _site | tail -n 1)"
+          test -n "$INVESTMENTS_LIBRARY_VERSION"
+          INVESTMENTS_QA_OUT="$(PYTHONPATH=deploy python deploy/qa_investments_reaudit_v2.py _site "$INVESTMENTS_LIBRARY_VERSION")"
+          echo "$INVESTMENTS_QA_OUT"
+          INVESTMENTS_REAUDIT_CHECKS="$(printf '%s\n' "$INVESTMENTS_QA_OUT" | grep -oE 'checks=[0-9]+' | head -n 1 | cut -d= -f2)"
+          INVESTMENTS_NUMERIC_RECHECKS="$(printf '%s\n' "$INVESTMENTS_QA_OUT" | grep -oE 'quantitative_rechecks=[0-9]+' | head -n 1 | cut -d= -f2)"
+          test "$INVESTMENTS_REAUDIT_CHECKS" -ge 700; test "$INVESTMENTS_NUMERIC_RECHECKS" = "45"
+          find _site/books -type f ! -path '*/investments/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-investments-other-books.sha256
+          find _site/assets -type f ! -path '*/investments-svg/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-investments-other-assets.sha256
+          diff -u /tmp/pre-investments-other-books.sha256 /tmp/post-investments-other-books.sha256
+          diff -u /tmp/pre-investments-other-assets.sha256 /tmp/post-investments-other-assets.sha256
+          INVESTMENTS_LIBRARY_VERSION="$INVESTMENTS_LIBRARY_VERSION" python - <<'PY'
+          import json,os
+          from pathlib import Path
+          site=Path('_site'); lib=json.load(open(site/'data/library.json')); ids=[b['id'] for b in lib['books']]; base=json.load(open('/tmp/base_ids.json'))
+          assert ids==base and ids.count('investments')==1 and ids.index('civil-law-overview') < ids.index('investments') < ids.index('econometrics')
+          assert lib['version']==os.environ['INVESTMENTS_LIBRARY_VERSION']
+          root=site/'books/investments'; m=json.load(open(root/'manifest.json')); q=json.load(open(root/'questions.json')); s=json.load(open(root/'search.json'))
+          assert m['version']==q['version']=='2026.07.30-1' and len(m['chapters'])==25 and q['count']==110 and len(s['entries'])==165
+          assert len(list((site/'assets/investments-svg').glob('*.svg')))==22
+          assert [x['id'] for x in q['items']]==[f'ch{i:02d}-q{j:02d}' for i in range(22) for j in range(1,6)]
+          print('INVESTMENTS_V2_IN_PLACE_OK',lib['version'],len(ids))
+          PY
+          node --check _site/app.js; node --check _site/sw.js
+          echo "INVESTMENTS_REAUDIT_CHECKS=$INVESTMENTS_REAUDIT_CHECKS" >> "$GITHUB_ENV"
+          echo "INVESTMENTS_NUMERIC_RECHECKS=$INVESTMENTS_NUMERIC_RECHECKS" >> "$GITHUB_ENV"
+          echo "INVESTMENTS_LIBRARY_VERSION=$INVESTMENTS_LIBRARY_VERSION" >> "$GITHUB_ENV"
 
       - name: Integrate or validate industry and trade
         run: |
@@ -287,21 +277,15 @@ jobs:
           echo "FINAL_LIBRARY_VERSION=$FINAL_LIBRARY_VERSION" >> "$GITHUB_ENV"
           echo "INDUSTRY_TRADE_QA1_CHECKS=1495" >> "$GITHUB_ENV"
           echo "INDUSTRY_TRADE_QA2_CHECKS=545" >> "$GITHUB_ENV"
-          node --check _site/app.js
-          node --check _site/sw.js
+          node --check _site/app.js; node --check _site/sw.js
           python - <<'PY'
           import json,os
           from pathlib import Path
-          lib=json.load(open('_site/data/library.json'))
-          ids=[b['id'] for b in lib['books']]
-          base=json.load(open('/tmp/base_ids.json'))
+          lib=json.load(open('_site/data/library.json')); ids=[b['id'] for b in lib['books']]; base=json.load(open('/tmp/base_ids.json'))
           assert lib['version']==os.environ['FINAL_LIBRARY_VERSION']
           assert ids[-1]=='industry-trade' and ids.count('industry-trade')==1
           assert ids.count('industrial-economics')==1 and ids.index('industrial-economics') < ids.index('industry-trade')
-          if 'industry-trade' not in base:
-              assert ids==base+['industry-trade']
-          else:
-              assert ids==base
+          assert ids==base if 'industry-trade' in base else ids==base+['industry-trade']
           root=Path('_site/books/industry-trade')
           assert len(json.load(open(root/'manifest.json'))['chapters'])==23
           assert json.load(open(root/'questions.json'))['count']==100
@@ -325,57 +309,33 @@ jobs:
           set -euo pipefail
           ARTIFACT_ID="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts" --jq '.artifacts[] | select(.name == "github-pages") | .id' | tail -n 1)"
           DIGEST="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts" --jq '.artifacts[] | select(.name == "github-pages") | .digest' | tail -n 1)"
-          test -n "$ARTIFACT_ID"
-          test -n "$DIGEST"
+          test -n "$ARTIFACT_ID"; test -n "$DIGEST"
           gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" > /tmp/deployed-pages.zip
-          SHA="$(sha256sum /tmp/deployed-pages.zip | awk '{print $1}')"
-          test "$SHA" = "${DIGEST#sha256:}"
-          rm -rf /tmp/deployed-pages-artifact /tmp/deployed-site
-          mkdir -p /tmp/deployed-pages-artifact /tmp/deployed-site
+          SHA="$(sha256sum /tmp/deployed-pages.zip | awk '{print $1}')"; test "$SHA" = "${DIGEST#sha256:}"
+          rm -rf /tmp/deployed-pages-artifact /tmp/deployed-site; mkdir -p /tmp/deployed-pages-artifact /tmp/deployed-site
           unzip -q /tmp/deployed-pages.zip -d /tmp/deployed-pages-artifact
-          if [ -f /tmp/deployed-pages-artifact/artifact.tar ]; then
-            tar -xf /tmp/deployed-pages-artifact/artifact.tar -C /tmp/deployed-site
-          elif [ -f /tmp/deployed-pages-artifact/artifact.tar.gz ]; then
-            tar -xzf /tmp/deployed-pages-artifact/artifact.tar.gz -C /tmp/deployed-site
-          else
-            cp -a /tmp/deployed-pages-artifact/. /tmp/deployed-site/
-          fi
+          if [ -f /tmp/deployed-pages-artifact/artifact.tar ]; then tar -xf /tmp/deployed-pages-artifact/artifact.tar -C /tmp/deployed-site; elif [ -f /tmp/deployed-pages-artifact/artifact.tar.gz ]; then tar -xzf /tmp/deployed-pages-artifact/artifact.tar.gz -C /tmp/deployed-site; else cp -a /tmp/deployed-pages-artifact/. /tmp/deployed-site/; fi
           FINAL_LIBRARY_VERSION="$FINAL_LIBRARY_VERSION" python - <<'PY'
           import json,os
           from pathlib import Path
-          site=Path('/tmp/deployed-site')
-          lib=json.load(open(site/'data/library.json'))
-          ids=[b['id'] for b in lib['books']]
-          assert lib['version']==os.environ['FINAL_LIBRARY_VERSION']
-          assert ids[-1]=='industry-trade' and ids.count('industry-trade')==1
-          assert ids.count('industrial-economics')==1 and ids.index('industrial-economics') < ids.index('industry-trade')
-          assert ids.count('econometrics')==1 and ids.index('econometrics') < ids.index('industrial-economics')
-          assert ids.count('advanced-statistics')==1
-          advanced=site/'books/advanced-statistics'
-          am=json.load(open(advanced/'manifest.json')); aq=json.load(open(advanced/'questions.json')); ass=json.load(open(advanced/'search.json'))
-          assert am['version']==aq['version']=='2026.07.30-1'
-          assert len(am['chapters'])==23 and aq['count']==100 and len(ass['entries'])==189
-          assert len(list((site/'assets/advanced-statistics-svg').glob('*.svg')))==20
-          econ=site/'books/econometrics'
-          em=json.load(open(econ/'manifest.json')); eq=json.load(open(econ/'questions.json')); es=json.load(open(econ/'search.json'))
-          assert em['version']==eq['version']=='2026.07.30-1'
-          assert len(em['chapters'])==23 and eq['count']==100 and len(es['entries'])==189
-          assert len(list((site/'assets/econometrics-svg').glob('*.svg')))==20
-          industrial=site/'books/industrial-economics'
-          im=json.load(open(industrial/'manifest.json')); iq=json.load(open(industrial/'questions.json')); isearch=json.load(open(industrial/'search.json'))
-          assert im['version']==iq['version']=='2026.07.30-2'
-          assert len(im['chapters'])==23 and iq['count']==100 and len(isearch['entries'])==150
-          assert len(list((site/'assets/industrial-economics-svg').glob('*.svg')))==20
-          assert [x['id'] for x in im['chapters']]==[f'ch{i:02d}' for i in range(20)]+['appendix-a','appendix-b','appendix-c']
-          assert [x['id'] for x in iq['items']]==[f'ch{i:02d}-q{j:02d}' for i in range(20) for j in range(1,6)]
-          trade=site/'books/industry-trade'
-          assert len(json.load(open(trade/'manifest.json'))['chapters'])==23
-          assert json.load(open(trade/'questions.json'))['count']==100
-          assert len(json.load(open(trade/'search.json'))['entries'])==160
-          assert len(list((site/'assets/industry-trade-svg').glob('*.svg')))==20
-          print('DEPLOYED_ARTIFACT_RECHECK_OK',lib['version'],len(ids),'industrial-economics=2026.07.30-2')
+          site=Path('/tmp/deployed-site'); lib=json.load(open(site/'data/library.json')); ids=[b['id'] for b in lib['books']]
+          assert lib['version']==os.environ['FINAL_LIBRARY_VERSION'] and ids[-1]=='industry-trade'
+          assert ids.count('investments')==1 and ids.index('civil-law-overview') < ids.index('investments') < ids.index('econometrics')
+          inv=site/'books/investments'; vm=json.load(open(inv/'manifest.json')); vq=json.load(open(inv/'questions.json')); vs=json.load(open(inv/'search.json'))
+          assert vm['version']==vq['version']=='2026.07.30-1' and len(vm['chapters'])==25 and vq['count']==110 and len(vs['entries'])==165
+          assert len(list((site/'assets/investments-svg').glob('*.svg')))==22
+          assert [x['id'] for x in vq['items']]==[f'ch{i:02d}-q{j:02d}' for i in range(22) for j in range(1,6)]
+          advanced=site/'books/advanced-statistics'; am=json.load(open(advanced/'manifest.json')); aq=json.load(open(advanced/'questions.json')); ass=json.load(open(advanced/'search.json'))
+          assert am['version']==aq['version']=='2026.07.30-1' and len(am['chapters'])==23 and aq['count']==100 and len(ass['entries'])==189
+          econ=site/'books/econometrics'; em=json.load(open(econ/'manifest.json')); eq=json.load(open(econ/'questions.json')); es=json.load(open(econ/'search.json'))
+          assert em['version']==eq['version']=='2026.07.30-1' and len(em['chapters'])==23 and eq['count']==100 and len(es['entries'])==189
+          industrial=site/'books/industrial-economics'; im=json.load(open(industrial/'manifest.json')); iq=json.load(open(industrial/'questions.json')); isearch=json.load(open(industrial/'search.json'))
+          assert im['version']==iq['version']=='2026.07.30-2' and len(im['chapters'])==23 and iq['count']==100 and len(isearch['entries'])==150
+          trade=site/'books/industry-trade'; assert len(json.load(open(trade/'manifest.json'))['chapters'])==23 and json.load(open(trade/'questions.json'))['count']==100 and len(json.load(open(trade/'search.json'))['entries'])==160
+          print('DEPLOYED_ARTIFACT_RECHECK_OK',lib['version'],len(ids),'investments=2026.07.30-1')
           PY
           PYTHONPATH=deploy python deploy/qa_advanced_statistics_reaudit_v2.py /tmp/deployed-site "$FINAL_LIBRARY_VERSION"
+          PYTHONPATH=deploy python deploy/qa_investments_reaudit_v2.py /tmp/deployed-site "$FINAL_LIBRARY_VERSION"
           PYTHONPATH=deploy python deploy/validate_econometrics_v2.py /tmp/deployed-site
           PYTHONPATH=deploy python deploy/qa_econometrics_reaudit_v2.py /tmp/deployed-site "$FINAL_LIBRARY_VERSION"
           PYTHONPATH=deploy python deploy/validate_industrial_economics_v2.py /tmp/deployed-site "$FINAL_LIBRARY_VERSION"
@@ -391,25 +351,14 @@ jobs:
         run: |
           set -euo pipefail
           python deploy/record_advanced_statistics_v2_deployment.py _site
+          python deploy/record_investments_v2_deployment.py _site
           python deploy/record_econometrics_v2_deployment.py _site
           python deploy/record_industrial_economics_v2_deployment.py _site
           python deploy/record_industry_trade_deployment.py _site
           git config user.name github-actions[bot]
-          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add \
-            docs/deployment_receipt.json \
-            README.md \
-            docs/shared_checkpoint.md \
-            docs/books/advanced-statistics/status.md \
-            docs/books/advanced-statistics/qa_report.md \
-            docs/books/industry-trade/status.md \
-            docs/books/industry-trade/qa_report.md \
-            docs/books/econometrics/status.md \
-            docs/books/econometrics/qa_report.md \
-            docs/books/industrial-economics/status.md \
-            docs/books/industrial-economics/qa_report.md \
-            docs/books/industrial-economics/v2_audit_report.md
+          git config user.email 41898282+github-actions-bot@users.noreply.github.com
+          git add docs/deployment_receipt.json README.md docs/shared_checkpoint.md docs/books/advanced-statistics/status.md docs/books/advanced-statistics/qa_report.md docs/books/investments/status.md docs/books/investments/qa_report.md docs/books/industry-trade/status.md docs/books/industry-trade/qa_report.md docs/books/econometrics/status.md docs/books/econometrics/qa_report.md docs/books/industrial-economics/status.md docs/books/industrial-economics/qa_report.md docs/books/industrial-economics/v2_audit_report.md
           if ! git diff --cached --quiet; then
-            git commit -m "Record industrial economics v2 deployment [skip ci]"
+            git commit -m "Record Investments v2 deployment [skip ci]"
             git push origin HEAD:main
           fi
