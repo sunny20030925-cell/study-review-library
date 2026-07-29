@@ -17,7 +17,8 @@ def main(site_root, expected_library='2026.07.29-18'):
     s=json.loads((root/'search.json').read_text(encoding='utf-8'))
     lib=json.loads((site/'data/library.json').read_text(encoding='utf-8'))
     ck(lib['version']==expected_library,'library version')
-    ck(len(lib['books'])==13 and lib['books'][-1]['id']==BOOK,'book tail')
+    ids=[x['id'] for x in lib['books']]
+    ck(len(ids)>=13 and len(set(ids))==len(ids) and ids[-1]==BOOK,'book tail')
     qmap={x['id']:x for x in q['items']}
     ck(q.get('count')==100 and len(q['items'])==100,'100 questions present')
     ck(len(qmap)==100,'100 unique question ids')
