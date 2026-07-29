@@ -1,5 +1,6 @@
 name: Validate econometrics candidate
 
+# Integration validation always rebuilds from the current receipt-authoritative deployed artifact.
 on:
   pull_request:
     paths:
@@ -9,6 +10,7 @@ on:
       - 'deploy/validate_econometrics.py'
       - 'deploy/validate_econometrics_v2.py'
       - 'docs/books/econometrics/**'
+      - '.github/workflows/deploy-pages.yml'
       - '.github/workflows/validate-econometrics-candidate.yml'
   workflow_dispatch:
 
@@ -124,6 +126,7 @@ jobs:
               assert p.is_file() and p.stat().st_size>700, ch
           figs=list((site/'assets/econometrics-svg').glob('*.svg'))
           assert len(figs)==20
-          for p in figs: assert p.stat().st_size>550, p
+          for p in figs:
+              assert p.stat().st_size>550, p
           print('ECONOMETRICS_TABLET_ASSET_PATHS_OK chapters=20 appendices=3 questions=100 search=189 figures=20')
           PY

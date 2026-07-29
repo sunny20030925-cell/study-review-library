@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
   actions: read
   pages: write
   id-token: write
@@ -30,17 +30,6 @@ jobs:
         with:
           enablement: true
 
-      - name: Decode and compile Investments sources
-        run: |
-          set -euo pipefail
-          mkdir -p /tmp/investments-src
-          cat deploy/investments-src.tar.xz.b64.part* | tr -d '\n\r\t ' | base64 --decode > /tmp/investments-src.tar.xz
-          echo '5507e92996f4793437517d5c43fd25f2a11c1e5c352f90d3e2de7607852a2d4f  /tmp/investments-src.tar.xz' | sha256sum --check -
-          xz --test /tmp/investments-src.tar.xz
-          tar -xJf /tmp/investments-src.tar.xz -C /tmp/investments-src
-          python -m py_compile /tmp/investments-src/*.py
-          python -m py_compile deploy/record_investments_deployment.py
-
       - name: Download and verify latest formal Pages artifact
         env:
           GH_TOKEN: ${{ github.token }}
@@ -48,6 +37,8 @@ jobs:
           set -euo pipefail
           ARTIFACT_ID="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['pages_artifact_id'])")"
           ARTIFACT_DIGEST="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['pages_artifact_digest'])")"
+          BASE_LIBRARY_VERSION="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['library_version'])")"
+          BASE_BOOK_COUNT="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['book_count'])")"
           EXPECTED_SHA="${ARTIFACT_DIGEST#sha256:}"
           gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" > /tmp/base-pages.zip
           echo "${EXPECTED_SHA}  /tmp/base-pages.zip" | sha256sum --check -
@@ -60,69 +51,56 @@ jobs:
           else
             cp -a /tmp/base-pages-artifact/. _site/
           fi
-          cp _site/data/library.json /tmp/pre-investments-library.json
-          python - <<'PY'
-          import json, os
-          from pathlib import Path
-          receipt=json.loads(Path('docs/deployment_receipt.json').read_text(encoding='utf-8'))
-          library=json.loads(Path('_site/data/library.json').read_text(encoding='utf-8'))
-          ids=[b['id'] for b in library['books']]
-          assert receipt['status']=='success'
-          assert receipt['pages_deploy_status']=='success'
-          assert receipt['artifact_download_recheck']=='passed'
-          assert receipt['civil_law_overview_version']=='2026.07.29-1'
-          assert receipt['book_count']==16 and receipt['library_version']=='2026.07.29-21', receipt
-          assert library['version']==receipt['library_version']
-          assert len(ids)==receipt['book_count']==16
-          assert ids[-1]=='civil-law-overview' and ids.count('civil-law-overview')==1, ids
-          assert len(set(ids))==len(ids)
-          assert (Path('_site')/'app.js').is_file() and (Path('_site')/'sw.js').is_file()
-          root=Path('_site/books/civil-law-overview')
-          assert len(list((root/'chapters').glob('*.html')))==23
-          assert json.load(open(root/'questions.json'))['count']==100
-          assert len(json.load(open(root/'search.json'))['entries'])==150
-          assert len(list(Path('_site/assets/civil-law-overview-svg').glob('*.svg')))==20
-          print('FORMAL_CIVIL_BASE_OK',library['version'],len(ids))
-          with open(os.environ['GITHUB_ENV'],'a',encoding='utf-8') as f:
-              f.write(f"BASE_LIBRARY_VERSION={library['version']}\n")
-              f.write(f"BASE_BOOK_COUNT={len(ids)}\n")
-          PY
-
-      - name: Integrate and validate Investments
-        run: |
-          set -euo pipefail
-          BEFORE="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"
-          FINAL_LIBRARY_VERSION="$(PYTHONPATH=/tmp/investments-src python /tmp/investments-src/integrate_investments.py _site "$BEFORE")"
-          EXPECTED_FINAL_BOOK_COUNT="$((BASE_BOOK_COUNT + 1))"
-          export FINAL_LIBRARY_VERSION EXPECTED_FINAL_BOOK_COUNT
-          echo "FINAL_LIBRARY_VERSION=$FINAL_LIBRARY_VERSION" >> "$GITHUB_ENV"
-          echo "EXPECTED_FINAL_BOOK_COUNT=$EXPECTED_FINAL_BOOK_COUNT" >> "$GITHUB_ENV"
-          node --check _site/app.js
-          node --check _site/sw.js
-          PYTHONPATH=/tmp/investments-src python /tmp/investments-src/validate_investments.py _site "$FINAL_LIBRARY_VERSION"
-          PYTHONPATH=/tmp/investments-src python /tmp/investments-src/qa_investments_round2.py _site "$FINAL_LIBRARY_VERSION"
-          python - <<'PY'
+          BASE_LIBRARY_VERSION="$BASE_LIBRARY_VERSION" BASE_BOOK_COUNT="$BASE_BOOK_COUNT" python - <<'PY'
           import json,os
           from pathlib import Path
           site=Path('_site')
-          pre=json.loads(Path('/tmp/pre-investments-library.json').read_text(encoding='utf-8'))
-          final=json.loads((site/'data/library.json').read_text(encoding='utf-8'))
-          pre_ids=[b['id'] for b in pre['books']]
-          ids=[b['id'] for b in final['books']]
-          assert pre_ids[-1]=='civil-law-overview' and len(pre_ids)==16, pre_ids
-          assert final['version']==os.environ['FINAL_LIBRARY_VERSION']=='2026.07.29-22'
-          assert len(ids)==int(os.environ['EXPECTED_FINAL_BOOK_COUNT'])==17
-          assert ids==pre_ids+['investments'], (pre_ids,ids)
-          root=site/'books/investments'
-          manifest=json.load(open(root/'manifest.json'))
-          questions=json.load(open(root/'questions.json'))
-          search=json.load(open(root/'search.json'))
-          assert len([x for x in manifest['chapters'] if x['kind']=='chapter'])==22
-          assert len([x for x in manifest['chapters'] if x['kind']=='appendix'])==3
-          assert questions['count']==110 and len(questions['items'])==110
-          assert len(search['entries'])==165
-          assert len(list((site/'assets/investments-svg').glob('*.svg')))==22
-          print('INVESTMENTS_LIBRARY_READY',final['version'],len(ids))
+          library=json.load(open(site/'data/library.json'))
+          assert library['version']==os.environ['BASE_LIBRARY_VERSION']
+          assert len(library['books'])==int(os.environ['BASE_BOOK_COUNT'])
+          assert (site/'app.js').is_file() and (site/'sw.js').is_file()
+          print('FORMAL_ARTIFACT_BASE_OK',library['version'],len(library['books']))
+          PY
+          echo "BASE_LIBRARY_VERSION=$BASE_LIBRARY_VERSION" >> "$GITHUB_ENV"
+          echo "BASE_BOOK_COUNT=$BASE_BOOK_COUNT" >> "$GITHUB_ENV"
+
+      - name: Append and validate econometrics
+        run: |
+          set -euo pipefail
+          if python - <<'PY'
+          import json,sys
+          library=json.load(open('_site/data/library.json'))
+          sys.exit(0 if any(b['id']=='econometrics' for b in library['books']) else 1)
+          PY
+          then
+            FINAL_LIBRARY_VERSION="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"
+            FINAL_BOOK_COUNT="$BASE_BOOK_COUNT"
+            EXPECTED_LIBRARY_VERSION="$FINAL_LIBRARY_VERSION" python deploy/validate_econometrics.py _site
+            python deploy/validate_econometrics_v2.py _site
+          else
+            cp _site/data/library.json /tmp/pre-econometrics-library.json
+            find _site/books -type f -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-econometrics-books.sha256
+            python deploy/generate_econometrics.py _site
+            FINAL_LIBRARY_VERSION="$(python deploy/finalize_econometrics_library.py _site /tmp/pre-econometrics-library.json)"
+            FINAL_BOOK_COUNT="$((BASE_BOOK_COUNT + 1))"
+            EXPECTED_LIBRARY_VERSION="$FINAL_LIBRARY_VERSION" PRE_LIBRARY_JSON=/tmp/pre-econometrics-library.json python deploy/validate_econometrics.py _site
+            python deploy/validate_econometrics_v2.py _site
+            find _site/books -type f ! -path '*/econometrics/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-econometrics-books.sha256
+            diff -u /tmp/pre-econometrics-books.sha256 /tmp/post-econometrics-books.sha256
+          fi
+          export FINAL_LIBRARY_VERSION FINAL_BOOK_COUNT
+          echo "FINAL_LIBRARY_VERSION=$FINAL_LIBRARY_VERSION" >> "$GITHUB_ENV"
+          echo "FINAL_BOOK_COUNT=$FINAL_BOOK_COUNT" >> "$GITHUB_ENV"
+          node --check _site/app.js
+          node --check _site/sw.js
+          python - <<'PY'
+          import json,os
+          library=json.load(open('_site/data/library.json'))
+          ids=[b['id'] for b in library['books']]
+          assert library['version']==os.environ['FINAL_LIBRARY_VERSION']
+          assert len(ids)==int(os.environ['FINAL_BOOK_COUNT'])
+          assert 'econometrics' in ids
+          print('FINAL_LIBRARY_READY',library['version'],len(ids),ids[-1])
           PY
 
       - name: Upload Pages artifact
@@ -158,54 +136,25 @@ jobs:
           else
             cp -a /tmp/deployed-pages-artifact/. /tmp/deployed-site/
           fi
-          PYTHONPATH=/tmp/investments-src python /tmp/investments-src/validate_investments.py /tmp/deployed-site "$FINAL_LIBRARY_VERSION"
-          PYTHONPATH=/tmp/investments-src python /tmp/investments-src/qa_investments_round2.py /tmp/deployed-site "$FINAL_LIBRARY_VERSION"
-          python - <<'PY'
+          FINAL_LIBRARY_VERSION="$FINAL_LIBRARY_VERSION" FINAL_BOOK_COUNT="$FINAL_BOOK_COUNT" python - <<'PY'
           import json,os
           from pathlib import Path
           site=Path('/tmp/deployed-site')
-          pre=json.loads(Path('/tmp/pre-investments-library.json').read_text(encoding='utf-8'))
-          library=json.loads((site/'data/library.json').read_text(encoding='utf-8'))
+          library=json.load(open(site/'data/library.json'))
           ids=[b['id'] for b in library['books']]
-          pre_ids=[b['id'] for b in pre['books']]
-          assert library['version']==os.environ['FINAL_LIBRARY_VERSION']=='2026.07.29-22'
-          assert len(ids)==int(os.environ['EXPECTED_FINAL_BOOK_COUNT'])==17
-          assert ids==pre_ids+['investments']
-          civil=site/'books/civil-law-overview'
-          assert len(list((civil/'chapters').glob('*.html')))==23
-          assert json.load(open(civil/'questions.json'))['count']==100
-          assert len(json.load(open(civil/'search.json'))['entries'])==150
-          assert len(list((site/'assets/civil-law-overview-svg').glob('*.svg')))==20
-          root=site/'books/investments'
+          assert library['version']==os.environ['FINAL_LIBRARY_VERSION']
+          assert len(ids)==int(os.environ['FINAL_BOOK_COUNT'])
+          assert 'econometrics' in ids
+          root=site/'books/econometrics'
           manifest=json.load(open(root/'manifest.json'))
           questions=json.load(open(root/'questions.json'))
           search=json.load(open(root/'search.json'))
-          assert len([x for x in manifest['chapters'] if x['kind']=='chapter'])==22
-          assert len([x for x in manifest['chapters'] if x['kind']=='appendix'])==3
-          assert len(list((root/'chapters').glob('*.html')))==25
-          assert questions['count']==110 and len(questions['items'])==110
-          assert len(search['entries'])==165
-          assert len(list((site/'assets/investments-svg').glob('*.svg')))==22
-          print('DEPLOYED_INVESTMENTS_ARTIFACT_RECHECK_OK',library['version'],len(ids))
+          assert len(manifest['chapters'])==23
+          assert questions['count']==100
+          assert len(search['entries'])==189
+          assert len(list((site/'assets/econometrics-svg').glob('*.svg')))==20
+          print('DEPLOYED_ARTIFACT_RECHECK_OK',library['version'],len(ids))
           PY
-          echo "PAGES_ARTIFACT_ID=$ARTIFACT_ID" >> "$GITHUB_ENV"
-          echo "PAGES_ARTIFACT_DIGEST=$ARTIFACT_DIGEST" >> "$GITHUB_ENV"
-          echo "PAGES_ARTIFACT_SHA256=$ACTUAL_SHA" >> "$GITHUB_ENV"
-          echo "DEPLOYED_PAGE_URL=$DEPLOYED_PAGE_URL" >> "$GITHUB_ENV"
-
-      - name: Record successful Investments deployment structurally
-        run: |
-          set -euo pipefail
-          python deploy/record_investments_deployment.py _site
-          git config user.name github-actions[bot]
-          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add \
-            docs/deployment_receipt.json \
-            README.md \
-            docs/shared_checkpoint.md \
-            docs/books/investments/status.md \
-            docs/books/investments/qa_report.md
-          if ! git diff --cached --quiet; then
-            git commit -m "Record Investments deployment [skip ci]"
-            git push origin HEAD:main
-          fi
+          EXPECTED_LIBRARY_VERSION="$FINAL_LIBRARY_VERSION" python deploy/validate_econometrics.py /tmp/deployed-site
+          python deploy/validate_econometrics_v2.py /tmp/deployed-site
+          echo "DEPLOYMENT_PROOF run=${GITHUB_RUN_ID} artifact=${ARTIFACT_ID} digest=${ARTIFACT_DIGEST} sha256=${ACTUAL_SHA} page=${DEPLOYED_PAGE_URL} library=${FINAL_LIBRARY_VERSION} books=${FINAL_BOOK_COUNT}"
