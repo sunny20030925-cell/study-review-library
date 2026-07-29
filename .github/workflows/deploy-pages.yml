@@ -308,6 +308,53 @@ jobs:
           echo "GAME_THEORY_V2_SOURCE_CHECKS=$GAME_THEORY_V2_SOURCE_CHECKS" >> "$GITHUB_ENV"
           echo "GAME_THEORY_LIBRARY_VERSION=$GAME_THEORY_LIBRARY_VERSION" >> "$GITHUB_ENV"
 
+      - name: Apply or validate Investments post-publication v2 reaudit
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            deploy/investments_v2_corrections.py \
+            deploy/patch_investments_v2.py \
+            deploy/qa_investments_reaudit_v2.py \
+            deploy/record_investments_v2_deployment.py
+          find _site/books -type f ! -path '*/investments/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-investments-other-books.sha256
+          find _site/assets -type f ! -path '*/investments-svg/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-investments-other-assets.sha256
+          INVESTMENTS_LIBRARY_VERSION="$(PYTHONPATH=deploy python deploy/patch_investments_v2.py _site | tail -n 1)"
+          test -n "$INVESTMENTS_LIBRARY_VERSION"
+          INVESTMENTS_QA_OUT="$(PYTHONPATH=deploy python deploy/qa_investments_reaudit_v2.py _site "$INVESTMENTS_LIBRARY_VERSION")"
+          echo "$INVESTMENTS_QA_OUT"
+          INVESTMENTS_REAUDIT_CHECKS="$(printf '%s\n' "$INVESTMENTS_QA_OUT" | grep -oE 'checks=[0-9]+' | head -n 1 | cut -d= -f2)"
+          INVESTMENTS_NUMERIC_RECHECKS="$(printf '%s\n' "$INVESTMENTS_QA_OUT" | grep -oE 'quantitative_rechecks=[0-9]+' | head -n 1 | cut -d= -f2)"
+          test "$INVESTMENTS_REAUDIT_CHECKS" -ge 700
+          test "$INVESTMENTS_NUMERIC_RECHECKS" = "45"
+          find _site/books -type f ! -path '*/investments/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-investments-other-books.sha256
+          find _site/assets -type f ! -path '*/investments-svg/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-investments-other-assets.sha256
+          diff -u /tmp/pre-investments-other-books.sha256 /tmp/post-investments-other-books.sha256
+          diff -u /tmp/pre-investments-other-assets.sha256 /tmp/post-investments-other-assets.sha256
+          INVESTMENTS_LIBRARY_VERSION="$INVESTMENTS_LIBRARY_VERSION" python - <<'PY'
+          import json,os
+          from pathlib import Path
+          site=Path('_site')
+          lib=json.load(open(site/'data/library.json'))
+          ids=[b['id'] for b in lib['books']]
+          base=json.load(open('/tmp/base_ids.json'))
+          assert ids==base, (base,ids)
+          assert ids.count('investments')==1
+          assert ids.index('civil-law-overview') < ids.index('investments') < ids.index('econometrics')
+          assert lib['version']==os.environ['INVESTMENTS_LIBRARY_VERSION']
+          root=site/'books/investments'
+          m=json.load(open(root/'manifest.json')); q=json.load(open(root/'questions.json')); s=json.load(open(root/'search.json'))
+          assert m['version']==q['version']=='2026.07.30-1'
+          assert len(m['chapters'])==25 and q['count']==110 and len(s['entries'])==165
+          assert len(list((site/'assets/investments-svg').glob('*.svg')))==22
+          assert [x['id'] for x in q['items']]==[f'ch{i:02d}-q{j:02d}' for i in range(22) for j in range(1,6)]
+          print('INVESTMENTS_V2_IN_PLACE_OK',lib['version'],len(ids))
+          PY
+          node --check _site/app.js
+          node --check _site/sw.js
+          echo "INVESTMENTS_REAUDIT_CHECKS=$INVESTMENTS_REAUDIT_CHECKS" >> "$GITHUB_ENV"
+          echo "INVESTMENTS_NUMERIC_RECHECKS=$INVESTMENTS_NUMERIC_RECHECKS" >> "$GITHUB_ENV"
+          echo "INVESTMENTS_LIBRARY_VERSION=$INVESTMENTS_LIBRARY_VERSION" >> "$GITHUB_ENV"
+
       - name: Integrate or validate industry and trade
         run: |
           set -euo pipefail
@@ -393,11 +440,18 @@ jobs:
           assert ids.count('econometrics')==1 and ids.index('econometrics') < ids.index('industrial-economics')
           assert ids.count('advanced-statistics')==1
           assert ids.count('game-theory')==1
+          assert ids.count('investments')==1 and ids.index('civil-law-overview') < ids.index('investments') < ids.index('econometrics')
           advanced=site/'books/advanced-statistics'
           am=json.load(open(advanced/'manifest.json')); aq=json.load(open(advanced/'questions.json')); ass=json.load(open(advanced/'search.json'))
           assert am['version']==aq['version']=='2026.07.30-1'
           assert len(am['chapters'])==23 and aq['count']==100 and len(ass['entries'])==189
           assert len(list((site/'assets/advanced-statistics-svg').glob('*.svg')))==20
+          investments=site/'books/investments'
+          vm=json.load(open(investments/'manifest.json')); vq=json.load(open(investments/'questions.json')); vs=json.load(open(investments/'search.json'))
+          assert vm['version']==vq['version']=='2026.07.30-1'
+          assert len(vm['chapters'])==25 and vq['count']==110 and len(vs['entries'])==165
+          assert len(list((site/'assets/investments-svg').glob('*.svg')))==22
+          assert [x['id'] for x in vq['items']]==[f'ch{i:02d}-q{j:02d}' for i in range(22) for j in range(1,6)]
           econ=site/'books/econometrics'
           em=json.load(open(econ/'manifest.json')); eq=json.load(open(econ/'questions.json')); es=json.load(open(econ/'search.json'))
           assert em['version']==eq['version']=='2026.07.30-1'
@@ -420,9 +474,10 @@ jobs:
           assert json.load(open(trade/'questions.json'))['count']==100
           assert len(json.load(open(trade/'search.json'))['entries'])==160
           assert len(list((site/'assets/industry-trade-svg').glob('*.svg')))==20
-          print('DEPLOYED_ARTIFACT_RECHECK_OK',lib['version'],len(ids),'game-theory=2026.07.30-2')
+          print('DEPLOYED_ARTIFACT_RECHECK_OK',lib['version'],len(ids),'investments=2026.07.30-1')
           PY
           PYTHONPATH=deploy python deploy/qa_advanced_statistics_reaudit_v2.py /tmp/deployed-site "$FINAL_LIBRARY_VERSION"
+          PYTHONPATH=deploy python deploy/qa_investments_reaudit_v2.py /tmp/deployed-site "$FINAL_LIBRARY_VERSION"
           PYTHONPATH=deploy python deploy/validate_econometrics_v2.py /tmp/deployed-site
           PYTHONPATH=deploy python deploy/qa_econometrics_reaudit_v2.py /tmp/deployed-site "$FINAL_LIBRARY_VERSION"
           PYTHONPATH=deploy python deploy/validate_industrial_economics_v2.py /tmp/deployed-site "$FINAL_LIBRARY_VERSION"
@@ -444,6 +499,7 @@ jobs:
           python deploy/record_industrial_economics_v2_deployment.py _site
           python deploy/record_industry_trade_deployment.py _site
           PYTHONPATH=deploy python deploy/record_game_theory_v2_deployment.py _site
+          PYTHONPATH=deploy python deploy/record_investments_v2_deployment.py _site
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add \
@@ -452,6 +508,8 @@ jobs:
             docs/shared_checkpoint.md \
             docs/books/advanced-statistics/status.md \
             docs/books/advanced-statistics/qa_report.md \
+            docs/books/investments/status.md \
+            docs/books/investments/qa_report.md \
             docs/books/industry-trade/status.md \
             docs/books/industry-trade/qa_report.md \
             docs/books/econometrics/status.md \
