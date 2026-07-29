@@ -68,8 +68,13 @@ def main(workflow_path: str) -> None:
         "update generated status QA summary",
     )
 
-    marker = "          cp.write_text(c, encoding='utf-8')\n"
-    inject = '''          micro_section = f''' + "'''" + '''### 個體經濟學
+    marker = """          if '個體經濟學均已納入同一套正式書庫部署流程。' not in c:
+              c = c.replace('成本會計學均已納入同一套正式書庫部署流程。', '成本會計學、個體經濟學均已納入同一套正式書庫部署流程。')
+          cp.write_text(c, encoding='utf-8')
+"""
+    inject = '''          if '個體經濟學均已納入同一套正式書庫部署流程。' not in c:
+              c = c.replace('成本會計學均已納入同一套正式書庫部署流程。', '成本會計學、個體經濟學均已納入同一套正式書庫部署流程。')
+          micro_section = f''' + "'''" + '''### 個體經濟學
 
 - Book ID：`microeconomics`
 - 正式內容版本：`2026.07.29-2`
@@ -94,13 +99,21 @@ def main(workflow_path: str) -> None:
           )
           if micro_section_count != 1:
               raise AssertionError('microeconomics checkpoint section not found')
+          old_flow = '10. 個體經濟學額外驗證 20 章、3 附錄、100 題、154 筆搜尋索引、20 張 SVG，並執行 1,321 項第一輪檢查、87 項第二輪內容 gate、15 題量化重算與 15 題高風險觀念重判。'
+          if old_flow not in c:
+              raise AssertionError('microeconomics deployment-flow line not found')
           c = c.replace(
-              '10. 個體經濟學額外驗證 20 章、3 附錄、100 題、154 筆搜尋索引、20 張 SVG，並執行 1,321 項第一輪檢查、87 項第二輪內容 gate、15 題量化重算與 15 題高風險觀念重判。',
+              old_flow,
               '10. 個體經濟學先通過初版兩輪 QA，再套用發布後獨立二次複核修正；額外驗證 20 章、3 附錄、100 題、154 筆搜尋索引、20 張 SVG、1,616 項二次檢查、15 題量化重算與 20 題高風險觀念重判。',
+              1,
           )
+          old_workline = '- 個體經濟學初版內容、兩輪 QA、canonical integration 與正式 Pages 部署均已完成。'
+          if old_workline not in c:
+              raise AssertionError('microeconomics workline status not found')
           c = c.replace(
-              '- 個體經濟學初版內容、兩輪 QA、canonical integration 與正式 Pages 部署均已完成。',
+              old_workline,
               '- 個體經濟學初版、發布後獨立二次複核、糾錯修正與新版 Pages 部署均已完成；章節 ID、題目 ID 與題數未變。',
+              1,
           )
           cp.write_text(c, encoding='utf-8')
 '''
