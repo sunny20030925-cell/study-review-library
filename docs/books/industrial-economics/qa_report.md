@@ -37,7 +37,7 @@ HHI 3,000；Delta HHI 1,500 與 1,200；平均成本 NT$300；範疇經濟 NT$20
 - 量化獨立重算：26 個節點；高風險概念 gate：16 組；實質修正區域：12。
 - 其他 19 本教材內容 hash：整合前後完全一致。
 - 本書章節／附錄／題目 ID：全部保持不變；閱讀進度與錯題資料相容。
-- 正式書庫：20 本，版本 `2026.07.30-5`。
-- Pages run：`30489962137`；artifact：`8739266866`；digest：`sha256:f79df76813ac8ccfc28f8aa910919f5e4fc98e42bd649aa797b5ddba925679c5`。
+- 正式書庫：20 本，版本 `2026.07.30-6`。
+- Pages run：`30490197263`；artifact：`8739358772`；digest：`sha256:6936173acc641daef1c2e369a09407f2ee4533499735b78f5cbb280a147440ce`。
 - 部署後重新下載 artifact，23 份本書 HTML、100 題、150 搜尋、20 SVG 全數核對通過。
 - 詳細糾錯：`docs/books/industrial-economics/v2_audit_report.md`。

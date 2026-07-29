@@ -6,7 +6,7 @@
 
 - Book ID：`econometrics`
 - 正式內容版本：`2026.07.30-1`
-- 正式書庫版本：`2026.07.30-5`
+- 正式書庫版本：`2026.07.30-6`
 - 狀態：已部署。
 - 範圍文件：`docs/books/econometrics/scope.md`
 - QA 報告：`docs/books/econometrics/qa_report.md`
@@ -32,9 +32,9 @@
 ## 正式發布證據
 
 - canonical workflow：`Deploy study library`
-- workflow run：`30489962137`
-- source commit：`e31e3b79327ca38986e4d1a2cdf517c69c3df06d`
-- Pages artifact：`8739266866`
-- Artifact digest：`sha256:f79df76813ac8ccfc28f8aa910919f5e4fc98e42bd649aa797b5ddba925679c5`
-- 正式書庫：20 本，版本 `2026.07.30-5`。
+- workflow run：`30490197263`
+- source commit：`92506854f20bc7caa8a77b2e9774f2be11fbb9be`
+- Pages artifact：`8739358772`
+- Artifact digest：`sha256:6936173acc641daef1c2e369a09407f2ee4533499735b78f5cbb280a147440ce`
+- 正式書庫：20 本，版本 `2026.07.30-6`。
 - Pages deployment、artifact 下載後重驗與 deployment receipt 均成功。
