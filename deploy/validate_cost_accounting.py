@@ -1,5 +1,5 @@
 from __future__ import annotations
-import base64, gzip, hashlib, json, re, subprocess, sys, tempfile
+import json, re, sys
 from collections import Counter
 from pathlib import Path
 
@@ -114,24 +114,6 @@ def main(arg):
         ck(bool(e['title'].strip()) and bool(e['text'].strip()),'search nonempty')
         ck(isinstance(e['page'],int) and e['page']>=0,'search page')
     print(f'COST_ACCOUNTING_QA_OK checks={checks} chapters=19 appendices=3 questions=95 search=146 figures=19 numeric_rechecks={len(expected)}')
-
-    # The canonical workflow already reaches this validator only after all earlier books
-    # and cost accounting have passed. Add macroeconomics as the next book without
-    # replacing or bypassing those existing gates.
-    deploy=Path(__file__).resolve().parent
-    parts=sorted(deploy.glob('generate-macroeconomics.py.gz.b64.part*'))
-    ck(len(parts)==2,'macroeconomics generator parts')
-    encoded=''.join(p.read_text(encoding='utf-8').strip() for p in parts)
-    payload=base64.b64decode(encoded)
-    expected_sha='05259f866024c5e442207ae2e9d448f4511c33db3868f14d504424b103fb058e'
-    ck(hashlib.sha256(payload).hexdigest()==expected_sha,'macroeconomics generator sha256')
-    source=gzip.decompress(payload)
-    with tempfile.TemporaryDirectory() as tmp:
-        generator=Path(tmp)/'generate_macroeconomics.py'
-        generator.write_bytes(source)
-        subprocess.run([sys.executable,'-m','py_compile',str(generator)],check=True)
-        subprocess.run([sys.executable,str(generator),str(site)],check=True)
-    subprocess.run([sys.executable,str(deploy/'validate_macroeconomics.py'),str(site)],check=True)
 
 if __name__=='__main__':
     if len(sys.argv)!=2: raise SystemExit('usage: python validate_cost_accounting.py SITE_ROOT')
