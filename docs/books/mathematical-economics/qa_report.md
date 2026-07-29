@@ -62,7 +62,7 @@
 
 ## 正式發布結果
 
-目前為 v2 候選。完成實際 formal Pages artifact 生成、第二次獨立 QA、Pages deployment、artifact 重新下載與 receipt 回寫前，不宣稱正式部署成功。
+已完成 canonical `Deploy study library` 正式發布、Pages deployment、artifact 重新下載驗證與結構化 deployment receipt 回寫；以下為正式發布證據。
 
 ## 第二次獨立內容審計與正式發布（v2）
 
