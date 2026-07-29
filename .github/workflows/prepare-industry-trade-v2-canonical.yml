@@ -10,7 +10,6 @@ permissions:
 jobs:
   prepare:
     runs-on: ubuntu-latest
-    if: github.actor == 'sunny20030925-cell'
     steps:
       - uses: actions/checkout@v4
         with:
