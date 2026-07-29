@@ -12,6 +12,13 @@ def replace_once(text: str, old: str, new: str, label: str) -> str:
     return text.replace(old,new,1)
 
 
+def replace_last(text: str, old: str, new: str, label: str) -> str:
+    if old not in text:
+        raise AssertionError(f'{label}: marker missing')
+    head,tail=text.rsplit(old,1)
+    return head+new+tail
+
+
 def main() -> None:
     text=PATH.read_text(encoding='utf-8')
     if 'Integrate mathematical economics v2 audited release' in text:
@@ -87,7 +94,7 @@ def main() -> None:
 
     old="          assert ids[-1]=='industry-trade' and ids.count('industry-trade')==1"
     new="          assert ids[-2:]==['industry-trade','mathematical-economics'] and ids.count('industry-trade')==1 and ids.count('mathematical-economics')==1"
-    text=replace_once(text,old,new,'deployed tail')
+    text=replace_last(text,old,new,'deployed tail')
 
     print_marker="          print('DEPLOYED_ARTIFACT_RECHECK_OK',lib['version'],len(ids),'computer-fundamentals=2026.07.30-2')"
     math_verify=r'''          mathroot=site/'books/mathematical-economics'
