@@ -1,44 +1,32 @@
 # 《國際經濟學》製作狀態
 
-更新日期：2026-07-29
+更新日期：2026-07-30
 
-## 版本
+## 正式識別
 
 - Book ID：`international-economics`
 - 正式內容版本：`2026.07.29-2`
-- 正式書庫版本：`2026.07.29-16`
-- 正式書庫書籍數：11 本。
-- 狀態：已完成發布後第二次獨立內容複核、糾錯、canonical 整合與 Pages 部署。
-- 正式部署 run：`30452678302`。
-- Source commit：`24bcf00d73dcb2e11b4d2dfbce14c5e99b5db85d`。
-- Pages artifact：`8724164394`。
-- Artifact digest：`sha256:282d2bdeec05a04427dd13a5c50aa1fcce172011fff4c1403fd563c4cfc1b201`。
-- 部署回條：`docs/deployment_receipt.json`。
+- 正式書庫版本：`2026.07.30-9`
+- 目前 stage：`VP`
+- Task ID：`international-economics:VP`
+- 下一階段：`PUB`
+- Published：workflow v2 前既有正式版本維持 `passed`。
+- Internal QA：既有 v2 二次內容複核與正式部署證據保留。
+- External Audit：`docs/books/international-economics/external_audit.md`
 
-## v2 二次內容複核
+## Internal QA 證據
 
-- 重新人工檢查全部 20 章、3 附錄與 100 題題庫，不以重跑 v1 validator 代替內容審查。
-- 修正 11 個內容節點，分布於第 3、5、6、7、8、11、13、14、16、18 章與附錄 B。
-- 同步精確化 7 題題幹、答案或詳解；題目 ID、題數與章節 ID 均不變。
-- 17 題量化題由原始輸入重新計算，答案全數維持正確，沒有發現需要改動的數值答案。
-- v2 獨立 QA：`1,656／1,656` 通過；100 題全數重查、17 題量化題重算、144 筆搜尋與 20 張 SVG 重新驗證。
-- 同一 canonical run 中財政學 v2 先順延書庫版本，再套用國際經濟學 v2，因此最終正式書庫版本由原先預估的 `2026.07.29-15` 改為實際 `2026.07.29-16`。
-- 正式 Actions 中國際經濟學 v2 QA 與後續總體經濟學 201 項回歸 QA 均通過；Pages artifact 上傳與部署成功。
+- 正文 20 章、附錄 3 份、題庫 100 題、搜尋 144 筆、SVG 20 張。
+- v2 獨立 QA：1,656／1,656；100 題全數重查、17 題量化重算。
+- 已補 H-O 定理群條件、trade welfare、BPM7、CIP/PPP、Marshall–Lerner/J curve 與 Bretton Woods 邊界。
 
-## 主要修正
+## External Audit
 
-- Heckscher–Ohlin 定理群：補足 Stolper–Samuelson 與 Rybczynski 的 2×2、多樣化生產、要素密集度等必要基準條件，避免把條件式結論寫成普遍定律。
-- 獨占性競爭：把「市場可容納更多品種」改成消費者可接觸品種與單廠規模的精確敘述，避免暗示世界廠商總數一定增加。
-- 傾銷：分開國際價格歧視與傾銷；傾銷核心改為出口價格低於正常價值，並保留 WTO 損害與因果關係的法律邊界。
-- 關稅／出口補貼福利：精確化線性圖形三角形的適用語境；修正「政府補貼支出＋兩個扭曲＝三塊效率損失」的錯誤印象，明示淨無謂損失來自生產與消費扭曲，政府支出是福利帳中的財政項目。
-- 國際收支：由 BPM6 參照更新為 IMF 現行 BPM7，明確寫出 `FA_in` 與 BPM7 金融帳平衡項的方向相反。
-- CIP／PPP：補入可比資產、交易成本／資本管制與可比價格水準條件；明確禁止直接拿不同基期的跨國 CPI 指數水準相除求絕對 PPP。
-- Marshall–Lerner／J 曲線：補入初始貿易大致平衡、供給彈性／匯率傳遞等標準特例條件。
-- Bretton Woods：精確化美元兌金是對外國官方持有美元的官方兌換承諾，不寫成一般民眾全面自由兌金。
+- 結果：`passed`
+- 路由：Wolfram + Consensus + IMF/WTO official primary sources。
+- 抽查 comparative advantage、tariff/quota、CA、exchange rates、CIP/UIP/PPP、heterogeneous firms、BPM7 與 anti-dumping 法律邊界。
+- 核心答案錯誤：0；需要升版：否；unresolved blocker：0。
 
-## 進度與部署相容性
+## 相容性
 
-- 正文仍為 20 章、3 附錄；題庫仍為 100 題；搜尋索引仍為 144 筆；SVG 仍為 20 張。
-- 章節 ID、題目 ID、題數與儲存鍵不變，既有閱讀進度與錯題紀錄可沿用。
-- 正式 artifact 已終檢：國際經濟學 manifest／questions 皆為 `2026.07.29-2`，service worker 為 `study-library-2026.07.29-16`，其餘正式教材仍完整存在。
-- workflow overall conclusion 顯示 failure，原因仍是 Pages 成功後的舊 post-deploy recorder 不相容目前 checkpoint 格式；教材產生、v2 QA、artifact upload 與 Pages deployment 本身均成功，正式 receipt 已依 artifact 與 deploy log 校正。
+章節／題目 ID、題數、PWA、閱讀進度與錯題資料均未變；正式 21 本 artifact 維持 `2026.07.30-9`。
