@@ -6,7 +6,8 @@ import sys
 from pathlib import Path
 
 import generate_mathematical_economics as legacy
-from mathematical_economics_v2_corrections import CHAPTERS_V2, UPDATED_AT, VERSION
+from mathematical_economics_v2_corrections import UPDATED_AT, VERSION
+from mathematical_economics_v2_enrichment import CHAPTERS_V2
 from mathematical_economics_v2_questions import build_questions_v2
 
 BOOK = 'mathematical-economics'
@@ -91,6 +92,7 @@ def main(site_root: str) -> None:
                 '移除彈性章自相矛盾公式，補上 Cobb–Douglas 對數微分',
                 '補入鏈鎖律、凹性／擬凹性、受限制二階條件與 constrained envelope theorem',
                 '強化差分／微分方程邊界穩定性與線性化失效情形',
+                '補強聯立方程、矩陣運算與積分三個偏薄章節的 rank、內積／線性組合、累積函數與剩餘積分',
                 '調整 11 題高風險題庫題幹、答案或解析',
             ],
             'progressImpact': '保留 20 章、3 附錄、100 題及所有既有章節／題目 ID；僅提升內容正確性與完整性。',
