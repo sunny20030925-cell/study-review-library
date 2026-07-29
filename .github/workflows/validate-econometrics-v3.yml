@@ -24,17 +24,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Rebuild v3 from the latest verified formal artifact
+      - name: Dry-run formal upgrade chain from latest verified artifact
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           python -m py_compile \
+            deploy/validate_advanced_statistics.py \
+            deploy/advanced_statistics_v2_corrections.py \
+            deploy/patch_advanced_statistics_v2.py \
+            deploy/qa_advanced_statistics_reaudit_v2.py \
             deploy/econometrics_v3_corrections.py \
             deploy/patch_econometrics_v3.py \
             deploy/qa_econometrics_reaudit_v3.py \
             deploy/record_econometrics_v3_deployment.py \
-            deploy/validate_advanced_statistics.py \
             deploy/validate_industrial_economics.py \
             deploy/qa_industrial_economics.py
 
@@ -64,6 +67,7 @@ jobs:
           ids=[b['id'] for b in lib['books']]
           assert lib['version']==os.environ['BASE_VERSION']
           assert len(ids)==int(os.environ['BASE_COUNT'])==20
+          assert ids.count('advanced-statistics')==1
           assert ids.count('econometrics')==1
           assert ids.count('industrial-economics')==1
           assert ids.count('industry-trade')==1
@@ -72,12 +76,40 @@ jobs:
           print('FORMAL_20_BOOK_BASE_OK',lib['version'],len(ids))
           PY
 
-          PYTHONPATH=deploy python deploy/validate_econometrics_v2.py _site
-          PYTHONPATH=deploy python deploy/qa_econometrics_reaudit_v2.py _site "$BASE_VERSION"
+          ADV_PRE="$(python -c "import json;print(json.load(open('_site/books/advanced-statistics/manifest.json'))['version'])")"
+          if [ "$ADV_PRE" = "2026.07.29-1" ]; then
+            PYTHONPATH=deploy python deploy/validate_advanced_statistics.py _site "$BASE_VERSION"
+          elif [ "$ADV_PRE" != "2026.07.30-1" ]; then
+            echo "Unexpected advanced-statistics base: $ADV_PRE" >&2
+            exit 1
+          fi
+          find _site/books -type f ! -path '*/advanced-statistics/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-adv-other-books.sha256
+          find _site/assets -type f ! -path '*/advanced-statistics-svg/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-adv-other-assets.sha256
+          ADV_LIBRARY_VERSION="$(PYTHONPATH=deploy python deploy/patch_advanced_statistics_v2.py _site | tail -n 1)"
+          PYTHONPATH=deploy python deploy/qa_advanced_statistics_reaudit_v2.py _site "$ADV_LIBRARY_VERSION"
+          find _site/books -type f ! -path '*/advanced-statistics/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-adv-other-books.sha256
+          find _site/assets -type f ! -path '*/advanced-statistics-svg/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-adv-other-assets.sha256
+          diff -u /tmp/pre-adv-other-books.sha256 /tmp/post-adv-other-books.sha256
+          diff -u /tmp/pre-adv-other-assets.sha256 /tmp/post-adv-other-assets.sha256
 
-          find _site/books -type f ! -path '*/econometrics/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-other-books.sha256
-          find _site/assets -type f ! -path '*/econometrics-svg/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-other-assets.sha256
+          ECON_PRE="$(python -c "import json;print(json.load(open('_site/books/econometrics/manifest.json'))['version'])")"
+          if [ "$ECON_PRE" = "2026.07.29-1" ]; then
+            ECON_V2_LIBRARY_VERSION="$(PYTHONPATH=deploy python deploy/patch_econometrics_v2.py _site | tail -n 1)"
+            PYTHONPATH=deploy python deploy/validate_econometrics_v2.py _site
+            PYTHONPATH=deploy python deploy/qa_econometrics_reaudit_v2.py _site "$ECON_V2_LIBRARY_VERSION"
+          elif [ "$ECON_PRE" = "2026.07.30-1" ]; then
+            ECON_V2_LIBRARY_VERSION="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"
+            PYTHONPATH=deploy python deploy/validate_econometrics_v2.py _site
+            PYTHONPATH=deploy python deploy/qa_econometrics_reaudit_v2.py _site "$ECON_V2_LIBRARY_VERSION"
+          elif [ "$ECON_PRE" = "2026.07.30-2" ]; then
+            ECON_V2_LIBRARY_VERSION="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"
+          else
+            echo "Unexpected econometrics base: $ECON_PRE" >&2
+            exit 1
+          fi
 
+          find _site/books -type f ! -path '*/econometrics/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-econ-other-books.sha256
+          find _site/assets -type f ! -path '*/econometrics-svg/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-econ-other-assets.sha256
           V3_LIBRARY_VERSION="$(PYTHONPATH=deploy python deploy/patch_econometrics_v3.py _site | tail -n 1)"
           test -n "$V3_LIBRARY_VERSION"
           PYTHONPATH=deploy python deploy/validate_econometrics_v2.py _site
@@ -88,11 +120,18 @@ jobs:
           echo "$V3_OUT" | grep -q 'correction_areas=5'
           echo "$V3_OUT" | grep -q 'question_adjustments=4'
           echo "$V3_OUT" | grep -q 'ids_preserved=true'
+          find _site/books -type f ! -path '*/econometrics/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-econ-other-books.sha256
+          find _site/assets -type f ! -path '*/econometrics-svg/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-econ-other-assets.sha256
+          diff -u /tmp/pre-econ-other-books.sha256 /tmp/post-econ-other-books.sha256
+          diff -u /tmp/pre-econ-other-assets.sha256 /tmp/post-econ-other-assets.sha256
 
-          find _site/books -type f ! -path '*/econometrics/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-other-books.sha256
-          find _site/assets -type f ! -path '*/econometrics-svg/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-other-assets.sha256
-          diff -u /tmp/pre-other-books.sha256 /tmp/post-other-books.sha256
-          diff -u /tmp/pre-other-assets.sha256 /tmp/post-other-assets.sha256
+          INDUSTRIAL_LIBRARY_VERSION="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"
+          QA1="$(PYTHONPATH=deploy python deploy/validate_industrial_economics.py _site "$INDUSTRIAL_LIBRARY_VERSION" | grep -oE '(^| )checks=[0-9]+' | head -n 1 | cut -d= -f2)"
+          QA2="$(PYTHONPATH=deploy python deploy/qa_industrial_economics.py _site "$INDUSTRIAL_LIBRARY_VERSION" | grep -oE '(^| )checks=[0-9]+' | head -n 1 | cut -d= -f2)"
+          test "$QA1" = "935"
+          test "$QA2" = "479"
+          EXPECTED_LIBRARY_VERSION="$INDUSTRIAL_LIBRARY_VERSION" PYTHONPATH=deploy python deploy/validate_industry_trade.py _site
+          PYTHONPATH=deploy python deploy/qa_industry_trade_independent.py _site
 
           V3_LIBRARY_VERSION="$V3_LIBRARY_VERSION" python - <<'PY'
           import json,os
@@ -103,13 +142,16 @@ jobs:
           assert ids==json.load(open('/tmp/base_ids.json'))
           assert len(ids)==20
           assert lib['version']==os.environ['V3_LIBRARY_VERSION']
+          am=json.load(open(site/'books/advanced-statistics/manifest.json'))
+          aq=json.load(open(site/'books/advanced-statistics/questions.json'))
+          assert am['version']==aq['version']=='2026.07.30-1'
           root=site/'books/econometrics'
           m=json.load(open(root/'manifest.json')); q=json.load(open(root/'questions.json')); s=json.load(open(root/'search.json'))
           assert m['version']==q['version']=='2026.07.30-2'
           assert len(m['chapters'])==23 and q['count']==100 and len(s['entries'])==189
           assert len(list((site/'assets/econometrics-svg').glob('*.svg')))==20
           assert ids.index('econometrics') < ids.index('industrial-economics') < ids.index('industry-trade')
-          print('ECONOMETRICS_V3_PR_VALIDATION_OK',lib['version'],len(ids))
+          print('FULL_REAUDIT_CHAIN_PR_VALIDATION_OK',lib['version'],len(ids))
           PY
           node --check _site/app.js
           node --check _site/sw.js
