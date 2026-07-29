@@ -6,7 +6,7 @@
 
 - Book ID：`microeconomics`
 - 正式內容版本：`2026.07.29-1`
-- 正式書庫版本：`2026.07.29-9`
+- 正式書庫版本：`2026.07.29-10`
 - 狀態：已部署。
 - 範圍文件：`docs/books/microeconomics/scope.md`
 - QA 報告：`docs/books/microeconomics/qa_report.md`
@@ -21,7 +21,7 @@
 ## 部署
 
 - canonical workflow：`Deploy study library`
-- workflow run：`30416558956`
-- source commit：`a07c0e4f262d726fb30d7a7300ee60674516ff3d`
+- workflow run：`30416637787`
+- source commit：`914331452581fb7b8441dc46bfa4d3019a34c412`
 - 正式書庫書籍數：8 本。
 - GitHub Pages 部署成功並已寫回 deployment receipt。
