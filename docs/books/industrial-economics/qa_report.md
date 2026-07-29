@@ -19,3 +19,13 @@ HHI 3,000；Delta HHI 1,500 與 1,200；平均成本 NT$300；範疇經濟 NT$20
 ## 發布候選
 
 先前曾在 12 本正式 artifact 上完成一次 13 本候選驗證（QA1 975、QA2 379、17 個量化重算，原 12 本 hash 不變）。因並行教材先正式發布，最終候選已改為動態讀取最新 deployment receipt，發布前會重新對當下全部正式教材做 hash 保護；舊候選只保留作為內容 QA 歷史證據，不作正式發布依據。
+
+## 正式發布結果
+
+- 兩輪 QA：通過；17 個量化節點與 18 組高風險概念／條件重新驗證。
+- 既有 18 本內容 hash：整合前後完全一致。
+- 正式書庫：19 本，版本 `2026.07.29-24`。
+- Pages run：`30472210701`。
+- Pages artifact：`8732126409`；digest `sha256:deccb98be2dc719876c235ba8166264cc883dedc366a476cdbcefe9ea367ac0b`。
+- 部署後 artifact 重抓：23 份本書 HTML、100 題、150 搜尋、20 SVG 全數核對通過。
+- post-deploy recorder：`passed-structured-recorder`。
