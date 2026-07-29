@@ -124,6 +124,53 @@ jobs:
           echo "FORMAL_BASE_ARTIFACT_ID=$SELECTED_ARTIFACT_ID" >> "$GITHUB_ENV"
           echo "FORMAL_BASE_DIGEST=$SELECTED_DIGEST" >> "$GITHUB_ENV"
 
+      - name: Apply or validate econometrics post-publication v2 reaudit
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            deploy/econometrics_v2_corrections.py \
+            deploy/patch_econometrics_v2.py \
+            deploy/qa_econometrics_reaudit_v2.py \
+            deploy/record_econometrics_v2_deployment.py
+
+          find _site/books -type f ! -path '*/econometrics/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-econ-other-books.sha256
+          find _site/assets -type f ! -path '*/econometrics-svg/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-econ-other-assets.sha256
+
+          ECON_LIBRARY_VERSION="$(PYTHONPATH=deploy python deploy/patch_econometrics_v2.py _site | tail -n 1)"
+          test -n "$ECON_LIBRARY_VERSION"
+          PYTHONPATH=deploy python deploy/validate_econometrics_v2.py _site | tee /tmp/econometrics-existing-v2.log
+          ECON_REAUDIT_CHECKS="$(PYTHONPATH=deploy python deploy/qa_econometrics_reaudit_v2.py _site "$ECON_LIBRARY_VERSION" | tee /tmp/econometrics-reaudit.log | grep -oE '(^| )checks=[0-9]+' | head -n 1 | cut -d= -f2)"
+          test -n "$ECON_REAUDIT_CHECKS"
+          test "$ECON_REAUDIT_CHECKS" -ge 40
+
+          find _site/books -type f ! -path '*/econometrics/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-econ-other-books.sha256
+          find _site/assets -type f ! -path '*/econometrics-svg/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-econ-other-assets.sha256
+          diff -u /tmp/pre-econ-other-books.sha256 /tmp/post-econ-other-books.sha256
+          diff -u /tmp/pre-econ-other-assets.sha256 /tmp/post-econ-other-assets.sha256
+
+          ECON_LIBRARY_VERSION="$ECON_LIBRARY_VERSION" python - <<'PY'
+          import json,os
+          from pathlib import Path
+          site=Path('_site')
+          lib=json.load(open(site/'data/library.json'))
+          ids=[b['id'] for b in lib['books']]
+          base=json.load(open('/tmp/base_ids.json'))
+          assert ids==base, (base,ids)
+          assert ids.count('econometrics')==1
+          assert 'industrial-economics' in ids and ids.index('econometrics') < ids.index('industrial-economics')
+          assert lib['version']==os.environ['ECON_LIBRARY_VERSION']
+          root=site/'books/econometrics'
+          m=json.load(open(root/'manifest.json')); q=json.load(open(root/'questions.json')); s=json.load(open(root/'search.json'))
+          assert m['version']==q['version']=='2026.07.30-1'
+          assert len(m['chapters'])==23 and q['count']==100 and len(s['entries'])==189
+          assert len(list((site/'assets/econometrics-svg').glob('*.svg')))==20
+          print('ECONOMETRICS_V2_IN_PLACE_OK',lib['version'],len(ids))
+          PY
+          node --check _site/app.js
+          node --check _site/sw.js
+          echo "ECONOMETRICS_REAUDIT_CHECKS=$ECON_REAUDIT_CHECKS" >> "$GITHUB_ENV"
+          echo "ECON_LIBRARY_VERSION=$ECON_LIBRARY_VERSION" >> "$GITHUB_ENV"
+
       - name: Integrate or validate industrial economics
         run: |
           set -euo pipefail
@@ -158,6 +205,8 @@ jobs:
           assert ids[-1]=='industrial-economics' and ids.count('industrial-economics')==1
           if 'industrial-economics' not in base:
               assert ids==base+['industrial-economics']
+          else:
+              assert ids==base
           root=Path('_site/books/industrial-economics')
           assert len(json.load(open(root/'manifest.json'))['chapters'])==23
           assert json.load(open(root/'questions.json'))['count']==100
@@ -204,13 +253,21 @@ jobs:
           ids=[b['id'] for b in lib['books']]
           assert lib['version']==os.environ['FINAL_LIBRARY_VERSION']
           assert ids[-1]=='industrial-economics' and ids.count('industrial-economics')==1
+          assert ids.count('econometrics')==1 and ids.index('econometrics') < ids.index('industrial-economics')
+          econ=site/'books/econometrics'
+          em=json.load(open(econ/'manifest.json')); eq=json.load(open(econ/'questions.json')); es=json.load(open(econ/'search.json'))
+          assert em['version']==eq['version']=='2026.07.30-1'
+          assert len(em['chapters'])==23 and eq['count']==100 and len(es['entries'])==189
+          assert len(list((site/'assets/econometrics-svg').glob('*.svg')))==20
           root=site/'books/industrial-economics'
           assert len(json.load(open(root/'manifest.json'))['chapters'])==23
           assert json.load(open(root/'questions.json'))['count']==100
           assert len(json.load(open(root/'search.json'))['entries'])==150
           assert len(list((site/'assets/industrial-economics-svg').glob('*.svg')))==20
-          print('DEPLOYED_ARTIFACT_RECHECK_OK',lib['version'],len(ids))
+          print('DEPLOYED_ARTIFACT_RECHECK_OK',lib['version'],len(ids),'econometrics=2026.07.30-1')
           PY
+          PYTHONPATH=deploy python deploy/validate_econometrics_v2.py /tmp/deployed-site
+          PYTHONPATH=deploy python deploy/qa_econometrics_reaudit_v2.py /tmp/deployed-site "$FINAL_LIBRARY_VERSION"
           echo "PAGES_ARTIFACT_ID=$ARTIFACT_ID" >> "$GITHUB_ENV"
           echo "PAGES_ARTIFACT_DIGEST=$DIGEST" >> "$GITHUB_ENV"
           echo "PAGES_ARTIFACT_SHA256=$SHA" >> "$GITHUB_ENV"
@@ -220,6 +277,7 @@ jobs:
         run: |
           set -euo pipefail
           python deploy/record_industrial_economics_deployment.py _site
+          python deploy/record_econometrics_v2_deployment.py _site
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add \
@@ -227,8 +285,10 @@ jobs:
             README.md \
             docs/shared_checkpoint.md \
             docs/books/industrial-economics/status.md \
-            docs/books/industrial-economics/qa_report.md
+            docs/books/industrial-economics/qa_report.md \
+            docs/books/econometrics/status.md \
+            docs/books/econometrics/qa_report.md
           if ! git diff --cached --quiet; then
-            git commit -m "Record industrial economics deployment [skip ci]"
+            git commit -m "Record econometrics v2 reaudit deployment [skip ci]"
             git push origin HEAD:main
           fi
