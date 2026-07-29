@@ -5,3 +5,5 @@ Temporary pull-request-only trigger used to verify the one-time canonical integr
 Retrigger after switching the workflow to stage the generated canonical YAML as a normal repository file.
 
 Retrigger diagnostic of the canonical workflow after integration.
+
+Retrigger targeted YAML repair and validation.
