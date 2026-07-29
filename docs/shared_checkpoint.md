@@ -46,32 +46,34 @@ Task ID：`<book-id>:<stage-code>`。
 
 - 正式書籍：21／21 已發布。
 - Internal QA：21／21 已完成既有兩輪 QA。
-- External Audit：**3／21 已通過**；18／21 待執行。
+- External Audit：**4／21 已通過**；17／21 待執行。
   - `commercial-law`：`passed_migrated`
   - `civil-law-overview`：`passed_migrated`
   - `advanced-statistics`：`passed`（2026-07-30，Wolfram 風險式外部驗算）
-- Visual Polish：0／21 依新制正式完成；`advanced-statistics`、`commercial-law`、`civil-law-overview` 已具備進入 VP 的前置條件。
+  - `mathematical-economics`：`passed`（2026-07-30，Wolfram 風險式外部驗算）
+- Visual Polish：0／21 依新制正式完成；`advanced-statistics`、`mathematical-economics`、`commercial-law`、`civil-law-overview` 已具備進入 VP 的前置條件。
 - Published：21／21 保持既有正式發布與 PWA 相容性。
 
 ## 最新 External Audit 結果
 
-### `advanced-statistics:EA`
+### `mathematical-economics:EA`
 
 - 結果：`passed`
-- 內容版本：維持 `2026.07.30-1`，不需升版。
-- Wolfram：獨立重算既有 v2 validator 20 個數值節點；另驗算 Bernoulli Fisher information／CRLB 與 Exponential MLE invariance，全部一致。
-- 高風險定理條件：條件常態、Slutsky、Delta、MLE invariance、完備／充分、Rao–Blackwell、精確 z/t、size／level、NP、UMP／MLR／Wilks、Gauss–Markov／F-test 均未留下核心 blocker。
-- Consensus／Scite：本輪無需使用，沒有抽到必須以實證研究或論文引用脈絡才能判斷的核心主張。
-- Audit record：`docs/books/advanced-statistics/external_audit.md`
+- 內容版本：維持 `2026.07.30-2`，不需升版。
+- Wolfram：獨立重算既有 v2 QA 的 23 個數值／公式節點，全部一致。
+- 額外形式化檢查：rank／線性系統一致性、負特徵值 invariant span、Hessian、等式限制切方向 SOC、KKT 邊界乘數與 CQ、constrained envelope、Euler 齊次關係、`b=-1` 二期循環與 `F'(x*)=0` 線性化失效，均未留下核心 blocker。
+- 核心答案錯誤：0；需要內容修正：0；unresolved blocker：0。
+- Consensus／Scite：本輪無需使用，沒有抽到必須以實證研究或重要論文引用脈絡才能判斷的核心主張。
+- Audit record：`docs/books/mathematical-economics/external_audit.md`
 - Book ID、chapter ID、question ID、閱讀進度、錯題資料與 PWA 內容包均未修改。
 
 ## 下一個正式 External Audit
 
-- Task ID：`mathematical-economics:EA`
-- 書籍：《數理經濟學》
-- 主路由：Wolfram。
-- 次路由：只有涉及實證研究／學術主張或重要論文引用脈絡時才使用 Consensus／Scite。
-- 原則：優先抽查最佳化、矩陣代數、比較靜態、差分／微分方程與高風險推導，不對普通基礎敘述做無差別第三輪全量查核。
+- Task ID：`econometrics:EA`
+- 書籍：《計量經濟學》
+- 主路由：Wolfram＋Consensus。
+- 次路由：重要論文的支持／反駁／引用脈絡才使用 Scite。
+- 原則：數學／估計量／檢定／IV／panel／DiD／RDD 的形式化條件先由 Wolfram 抽查；實證研究結論、識別主張與學術爭議再用 Consensus；不對一般低風險定義做第三輪全量查核。
 
 新對話不得要求使用者自己記得下一本。必須重新讀最新 `main` 與 `docs/audit_progress_manifest.json`，由 `external_audit_queue[0]` 自動判定。
 
