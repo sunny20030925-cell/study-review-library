@@ -1,120 +1,40 @@
-deploy	Record successful deployment	2026-07-29T14:23:09.1522059Z ^[[36;1mc, macro_section_count = re.subn(^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1522552Z ^[[36;1m    r'(?ms)^### 總體經濟學\n.*?(?=^### |^## 部署流程)',^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1522990Z ^[[36;1m    macro_section,^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1523357Z ^[[36;1m    c,^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1523664Z ^[[36;1m    count=1,^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1523979Z ^[[36;1m)^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1524292Z ^[[36;1mif macro_section_count != 1:^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1524892Z ^[[36;1m    raise AssertionError('macroeconomics checkpoint section not found')^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1525492Z ^[[36;1mia_section_v2 = (^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1525842Z ^[[36;1m    '### 中級會計學\n\n'^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1526268Z ^[[36;1m    '- Book ID：`intermediate-accounting`\n'^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1526699Z ^[[36;1m    '- 正式內容版本：`2026.07.29-2`\n'^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1527118Z ^[[36;1m    '- 定位：一般大學中級會計學，銜接基礎會計，聚焦 IFRS／TIFRS 下的認列、衡量、表達、分錄與財務報導判斷。\n'^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1527799Z ^[[36;1m    '- 範圍：現值與攤銷、ECL、存貨、PPE、借款成本、無形資產、減損、投資性不動產、金融工具、公司債、負債準備、權益、EPS、收入、租賃、所得稅、員工福利、會計變動、期後事項與現金流量。\n'^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1528214Z ^[[36;1m    '- 成品：22 章、3 附錄、110 題題庫、145 筆搜尋索引、22 張自製圖解。\n'^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1528551Z ^[[36;1m    '- 初版 QA：第一輪 135 項、獨立數值與公式重算 23 項、第二輪 485 項。\n'^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1528922Z ^[[36;1m    '- 發布後獨立二次內容審計：修正 12 個內容節點／10 份章節與附錄，4 題題幹或詳解同步精確化；v2 獨立驗證 1,110 項、量化重算 28 項全數通過。\n'^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1529348Z ^[[36;1m    '- 閱讀進度相容性：章節 ID、題目 ID 與題數未變；部署回條確認 `progress_storage_changed=false`。\n'^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1529753Z ^[[36;1m    '- 範圍文件：`docs/books/intermediate-accounting/scope.md`\n'^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1530152Z ^[[36;1m    '- QA 報告：`docs/books/intermediate-accounting/qa_report.md`\n'^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1530561Z ^[[36;1m    f'- GitHub Pages 部署 run：`{os.environ["GITHUB_RUN_ID"]}`。\n'^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1530944Z ^[[36;1m    f'- Source commit：`{os.environ["GITHUB_SHA"]}`。\n'^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1531304Z ^[[36;1m    '- 部署回條：`docs/deployment_receipt.json`。\n'^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1531584Z ^[[36;1m    '- 狀態：已部署。\n\n'^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1531806Z ^[[36;1m)^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1532018Z ^[[36;1mc, ia_section_count = re.subn(^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1532407Z ^[[36;1m    r'(?ms)^### 中級會計學\n.*?(?=^### |^## 部署流程)',^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1532685Z ^[[36;1m    ia_section_v2,^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1532912Z ^[[36;1m    c,^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1533116Z ^[[36;1m    count=1,^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1533383Z ^[[36;1m)^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1533631Z ^[[36;1mif ia_section_count != 1:^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1534140Z ^[[36;1m    raise AssertionError('intermediate accounting checkpoint section not found')^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1534696Z ^[[36;1mold_ia_flow = '11. 中級會計學額外驗證 22 章、3 附錄、110 題、145 筆搜尋索引、22 張 SVG，並執行 135 項第一輪檢查、23 項獨立數值與公式重算及 485 項第二輪檢查。'^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1535265Z ^[[36;1mnew_ia_flow = '11. 中級會計學先完成初版 QA，再套用發布後獨立二次內容審計修正；額外驗證 22 章、3 附錄、110 題、145 筆搜尋索引、22 張 SVG、1,110 項 v2 獨立檢查與 28 項量化重算。'^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1536056Z ^[[36;1mif old_ia_flow in c:^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1536484Z ^[[36;1m    c = c.replace(old_ia_flow, new_ia_flow, 1)^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1536949Z ^[[36;1melif new_ia_flow not in c:^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1537732Z ^[[36;1m    raise AssertionError('intermediate accounting deployment-flow line not found')^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1538579Z ^[[36;1mold_ia_workline = '- 中級會計學初版內容、兩輪 QA、canonical integration 與正式 Pages 部署均已完成。'^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1539340Z ^[[36;1mnew_ia_workline = '- 中級會計學初版、發布後獨立二次內容審計、糾錯修正與新版 Pages 部署均已完成；章節 ID、題目 ID 與題數未變。'^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1539823Z ^[[36;1mif old_ia_workline in c:^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1540137Z ^[[36;1m    c = c.replace(old_ia_workline, new_ia_workline, 1)^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1540457Z ^[[36;1melif new_ia_workline not in c:^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1540838Z ^[[36;1m    raise AssertionError('intermediate accounting workline status not found')^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1541281Z ^[[36;1mcp.write_text(c, encoding='utf-8')^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1541579Z ^[[36;1m^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1541798Z ^[[36;1mrp = Path('README.md')^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1542090Z ^[[36;1mr = rp.read_text(encoding='utf-8')^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1542434Z ^[[36;1mr = re.sub(r'目前內容版本：`[^`]+`', f'目前內容版本：`{final_version}`', r, count=1)^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1542868Z ^[[36;1mcost = '- 《成本會計學》：一般大學成本會計，19 章、3 附錄、95 題題庫、146 筆搜尋索引與 19 張圖解；內容版本 `2026.07.29-1`。\n'^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1543319Z ^[[36;1mmicro = '- 《個體經濟學》：一般大學中級個體經濟學，20 章、3 附錄、100 題題庫、154 筆搜尋索引與 20 張圖解；內容版本 `2026.07.29-1`。\n'^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1543787Z ^[[36;1mintermediate = '- 《中級會計學》：一般大學中級會計學，22 章、3 附錄、110 題題庫、145 筆搜尋索引與 22 張圖解；內容版本 `2026.07.29-1`。\n'^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1544164Z ^[[36;1mif cost not in r:^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1544575Z ^[[36;1m    r = r.replace('- 《商事法》：以公司法與證券交易法為核心，18 章、3 附錄、90 題題庫、111 筆搜尋索引與 18 張圖解；發布後獨立內容複核與公司法第 8 條現行法 follow-up 版本 `2026.07.29-2`。\n',^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1545174Z ^[[36;1m                  '- 《商事法》：以公司法與證券交易法為核心，18 章、3 附錄、90 題題庫、111 筆搜尋索引與 18 張圖解；發布後獨立內容複核與公司法第 8 條現行法 follow-up 版本 `2026.07.29-2`。\n' + cost)^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1545626Z ^[[36;1mif micro not in r:^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1545897Z ^[[36;1m    anchor = cost if cost in r else '- 《商事法》：'^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1546304Z ^[[36;1m    if anchor == cost:^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1546578Z ^[[36;1m        r = r.replace(cost, cost + micro, 1)^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1546852Z ^[[36;1m    else:^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1547565Z ^[[36;1m        lines=r.splitlines(True); idx=max(i for i,x in enumerate(lines) if x.startswith('- 《'))+1; lines.insert(idx,micro); r=''.join(lines)^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1548117Z ^[[36;1mif intermediate not in r:^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1548389Z ^[[36;1m    lines = r.splitlines(True)^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1548742Z ^[[36;1m    idx = max(i for i, x in enumerate(lines) if x.startswith('- 《')) + 1^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1549113Z ^[[36;1m    lines.insert(idx, intermediate)^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1549391Z ^[[36;1m    r = ''.join(lines)^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1549774Z ^[[36;1mmacro_v2_line = '- 《總體經濟學》：一般大學總體經濟學，20 章、3 附錄、100 題題庫、143 筆搜尋索引與 20 張圖解；發布後第二次獨立內容複核版本 `2026.07.29-2`。'^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1550187Z ^[[36;1mr_lines = r.splitlines()^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1550576Z ^[[36;1mmacro_indexes = [i for i, line in enumerate(r_lines) if line.startswith('- 《總體經濟學》：')]^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1550985Z ^[[36;1mif macro_indexes:^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1551236Z ^[[36;1m    first = macro_indexes[0]^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1551504Z ^[[36;1m    r_lines[first] = macro_v2_line^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1551796Z ^[[36;1m    for i in reversed(macro_indexes[1:]):^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1552072Z ^[[36;1m        del r_lines[i]^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1552331Z ^[[36;1melse:^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1552669Z ^[[36;1m    insert_at = max(i for i, line in enumerate(r_lines) if line.startswith('- 《')) + 1^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1553087Z ^[[36;1m    r_lines.insert(insert_at, macro_v2_line)^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1553441Z ^[[36;1mr = '\n'.join(r_lines) + ('\n' if r.endswith('\n') else '')^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1553923Z ^[[36;1mr = re.sub(r'五本書均由同一個 canonical GitHub Pages 工作流部署。', '全部正式教材均由同一個 canonical GitHub Pages 工作流部署。', r)^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1554547Z ^[[36;1mmicro_v2_line = '- 《個體經濟學》：一般大學中級個體經濟學，20 章、3 附錄、100 題題庫、154 筆搜尋索引與 20 張圖解；發布後獨立二次複核版本 `2026.07.29-2`。'^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1554947Z ^[[36;1mr_lines = r.splitlines()^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1555330Z ^[[36;1mmicro_indexes = [i for i, line in enumerate(r_lines) if line.startswith('- 《個體經濟學》：')]^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1555731Z ^[[36;1mif micro_indexes:^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1555975Z ^[[36;1m    first = micro_indexes[0]^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1556240Z ^[[36;1m    r_lines[first] = micro_v2_line^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1556534Z ^[[36;1m    for i in reversed(micro_indexes[1:]):^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1556812Z ^[[36;1m        del r_lines[i]^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1557054Z ^[[36;1melse:^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1557509Z ^[[36;1m    insert_at = max(i for i, line in enumerate(r_lines) if line.startswith('- 《')) + 1^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1557932Z ^[[36;1m    r_lines.insert(insert_at, micro_v2_line)^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1558293Z ^[[36;1mr = '\n'.join(r_lines) + ('\n' if r.endswith('\n') else '')^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1558775Z ^[[36;1mintermediate_v2_line = '- 《中級會計學》：一般大學中級會計學，22 章、3 附錄、110 題題庫、145 筆搜尋索引與 22 張圖解；發布後獨立二次內容審計版本 `2026.07.29-2`。'^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1559207Z ^[[36;1mr_lines = r.splitlines()^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1559580Z ^[[36;1mia_indexes = [i for i, line in enumerate(r_lines) if line.startswith('- 《中級會計學》：')]^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1559964Z ^[[36;1mif ia_indexes:^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1560202Z ^[[36;1m    first = ia_indexes[0]^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1560481Z ^[[36;1m    r_lines[first] = intermediate_v2_line^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1560780Z ^[[36;1m    for i in reversed(ia_indexes[1:]):^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1561129Z ^[[36;1m        del r_lines[i]^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1561430Z ^[[36;1melse:^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1561766Z ^[[36;1m    insert_at = max(i for i, line in enumerate(r_lines) if line.startswith('- 《')) + 1^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1562197Z ^[[36;1m    r_lines.insert(insert_at, intermediate_v2_line)^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1562564Z ^[[36;1mr = '\n'.join(r_lines) + ('\n' if r.endswith('\n') else '')^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1562899Z ^[[36;1mrp.write_text(r, encoding='utf-8')^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1563367Z ^[[36;1mPY^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1563659Z ^[[36;1mgit config user.name github-actions[bot]^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1564256Z ^[[36;1mgit config user.email 41898282+github-actions[bot]@users.noreply.github.com^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1565512Z ^[[36;1mgit add docs/deployment_receipt.json README.md docs/shared_checkpoint.md docs/books/microeconomics/status.md docs/books/intermediate-accounting/status.md docs/books/macroeconomics/status.md^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1566853Z ^[[36;1mgit commit -m "Record successful study library deployment [skip ci]"^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1567556Z ^[[36;1mgit push origin HEAD:main^[[0m
-deploy	Record successful deployment	2026-07-29T14:23:09.1598981Z shell: /usr/bin/bash -e {0}
-deploy	Record successful deployment	2026-07-29T14:23:09.1599279Z env:
-deploy	Record successful deployment	2026-07-29T14:23:09.1599479Z   GITHUB_PAGES: true
-deploy	Record successful deployment	2026-07-29T14:23:09.1599868Z   DEPLOYED_PAGE_URL: https://sunny20030925-cell.github.io/study-review-library/
-deploy	Record successful deployment	2026-07-29T14:23:09.1600390Z ##[endgroup]
-deploy	Record successful deployment	2026-07-29T14:23:09.4606336Z Traceback (most recent call last):
-deploy	Record successful deployment	2026-07-29T14:23:09.4607131Z   File "<stdin>", line 248, in <module>
-deploy	Record successful deployment	2026-07-29T14:23:09.4608101Z AssertionError: microeconomics deployment-flow line not found
-deploy	Record successful deployment	2026-07-29T14:23:09.4773475Z ##[error]Process completed with exit code 1.
+deploy	Integrate or validate advanced statistics	﻿2026-07-29T16:08:39.1279676Z ##[group]Run set -euo pipefail
+deploy	Integrate or validate advanced statistics	2026-07-29T16:08:39.1280151Z ^[[36;1mset -euo pipefail^[[0m
+deploy	Integrate or validate advanced statistics	2026-07-29T16:08:39.1280484Z ^[[36;1mif python - <<'PY'^[[0m
+deploy	Integrate or validate advanced statistics	2026-07-29T16:08:39.1280995Z ^[[36;1mimport json,sys^[[0m
+deploy	Integrate or validate advanced statistics	2026-07-29T16:08:39.1281363Z ^[[36;1md=json.load(open('_site/data/library.json'))^[[0m
+deploy	Integrate or validate advanced statistics	2026-07-29T16:08:39.1281932Z ^[[36;1msys.exit(0 if any(b['id']=='advanced-statistics' for b in d['books']) else 1)^[[0m
+deploy	Integrate or validate advanced statistics	2026-07-29T16:08:39.1282733Z ^[[36;1mPY^[[0m
+deploy	Integrate or validate advanced statistics	2026-07-29T16:08:39.1282999Z ^[[36;1mthen^[[0m
+deploy	Integrate or validate advanced statistics	2026-07-29T16:08:39.1283581Z ^[[36;1m  FINAL_LIBRARY_VERSION="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"^[[0m
+deploy	Integrate or validate advanced statistics	2026-07-29T16:08:39.1284423Z ^[[36;1m  python deploy/validate_advanced_statistics.py _site "$FINAL_LIBRARY_VERSION"^[[0m
+deploy	Integrate or validate advanced statistics	2026-07-29T16:08:39.1284953Z ^[[36;1melse^[[0m
+deploy	Integrate or validate advanced statistics	2026-07-29T16:08:39.1285456Z ^[[36;1m  BEFORE="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"^[[0m
+deploy	Integrate or validate advanced statistics	2026-07-29T16:08:39.1286288Z ^[[36;1m  FINAL_LIBRARY_VERSION="$(python deploy/integrate_advanced_statistics.py _site "$BEFORE")"^[[0m
+deploy	Integrate or validate advanced statistics	2026-07-29T16:08:39.1286904Z ^[[36;1mfi^[[0m
+deploy	Integrate or validate advanced statistics	2026-07-29T16:08:39.1287309Z ^[[36;1mecho "FINAL_LIBRARY_VERSION=$FINAL_LIBRARY_VERSION" >> "$GITHUB_ENV"^[[0m
+deploy	Integrate or validate advanced statistics	2026-07-29T16:08:39.1287813Z ^[[36;1mnode --check _site/app.js^[[0m
+deploy	Integrate or validate advanced statistics	2026-07-29T16:08:39.1288160Z ^[[36;1mnode --check _site/sw.js^[[0m
+deploy	Integrate or validate advanced statistics	2026-07-29T16:08:39.1288492Z ^[[36;1mpython - <<'PY'^[[0m
+deploy	Integrate or validate advanced statistics	2026-07-29T16:08:39.1288796Z ^[[36;1mimport json,os^[[0m
+deploy	Integrate or validate advanced statistics	2026-07-29T16:08:39.1289109Z ^[[36;1mfrom pathlib import Path^[[0m
+deploy	Integrate or validate advanced statistics	2026-07-29T16:08:39.1289445Z ^[[36;1msite=Path('_site')^[[0m
+deploy	Integrate or validate advanced statistics	2026-07-29T16:08:39.1289830Z ^[[36;1mlibrary=json.load(open(site/'data/library.json'))^[[0m
+deploy	Integrate or validate advanced statistics	2026-07-29T16:08:39.1290371Z ^[[36;1massert library['version']==os.environ['FINAL_LIBRARY_VERSION']^[[0m
+deploy	Integrate or validate advanced statistics	2026-07-29T16:08:39.1290854Z ^[[36;1mids=[b['id'] for b in library['books']]^[[0m
+deploy	Integrate or validate advanced statistics	2026-07-29T16:08:39.1291278Z ^[[36;1massert len(ids)==13 and ids[-1]=='advanced-statistics'^[[0m
+deploy	Integrate or validate advanced statistics	2026-07-29T16:08:39.1291747Z ^[[36;1mprint('FINAL_LIBRARY_READY',library['version'],len(ids))^[[0m
+deploy	Integrate or validate advanced statistics	2026-07-29T16:08:39.1292134Z ^[[36;1mPY^[[0m
+deploy	Integrate or validate advanced statistics	2026-07-29T16:08:39.1337954Z shell: /usr/bin/bash -e {0}
+deploy	Integrate or validate advanced statistics	2026-07-29T16:08:39.1338299Z env:
+deploy	Integrate or validate advanced statistics	2026-07-29T16:08:39.1338562Z   GITHUB_PAGES: true
+deploy	Integrate or validate advanced statistics	2026-07-29T16:08:39.1338861Z ##[endgroup]
+deploy	Integrate or validate advanced statistics	2026-07-29T16:08:39.3578795Z {"book": "advanced-statistics", "version": "2026.07.29-1", "chapters": 20, "appendices": 3, "questions": 100, "search": 189, "figures": 20, "pre_books": 12, "post_books": 13}
+deploy	Integrate or validate advanced statistics	2026-07-29T16:08:39.3637631Z ADVANCED_STATISTICS_QA_ROUND1_OK checks=529 books=13 library=2026.07.29-18 chapters=20 appendices=3 questions=100 search=189 figures=20
+deploy	Integrate or validate advanced statistics	2026-07-29T16:08:39.3639672Z ADVANCED_STATISTICS_QA_ROUND2_OK quantitative_rechecks=27 high_risk_concepts=45 scope_separation=passed exact_vs_asymptotic=passed
+deploy	Integrate or validate advanced statistics	2026-07-29T16:08:39.3890407Z ADVANCED_STATISTICS_INTEGRATION_OK books=13 library=2026.07.29-18 preserved_existing_books=12
+deploy	Integrate or validate advanced statistics	2026-07-29T16:08:39.9591440Z Traceback (most recent call last):
+deploy	Integrate or validate advanced statistics	2026-07-29T16:08:39.9592179Z   File "<stdin>", line 5, in <module>
+deploy	Integrate or validate advanced statistics	2026-07-29T16:08:39.9593269Z   File "<frozen os>", line 685, in __getitem__
+deploy	Integrate or validate advanced statistics	2026-07-29T16:08:39.9593853Z KeyError: 'FINAL_LIBRARY_VERSION'
+deploy	Integrate or validate advanced statistics	2026-07-29T16:08:39.9741306Z ##[error]Process completed with exit code 1.

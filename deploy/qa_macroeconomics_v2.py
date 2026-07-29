@@ -16,9 +16,12 @@ def main(site_root, expected_library='2026.07.29-15'):
  ck(m['version']==q['version']==VERSION,'book version')
  ck(lib['version']==expected_library,'library version')
  ids=[x['id'] for x in lib['books']]
- legacy_order=(len(ids)==11 and ids[-3:]==['macroeconomics','international-economics','public-finance'])
- money_order=(len(ids)==12 and ids[-4:]==['macroeconomics','international-economics','public-finance','money-banking'])
- ck(legacy_order or money_order,'canonical book order')
+ # This QA owns the macro/public-finance/money-banking ordering invariant only.
+ # Later textbooks are intentionally allowed to append after that stable segment.
+ stable_segment=['macroeconomics','international-economics','public-finance','money-banking']
+ ck('macroeconomics' in ids,'macroeconomics missing from canonical library')
+ macro_index=ids.index('macroeconomics')
+ ck(ids[macro_index:macro_index+len(stable_segment)]==stable_segment,'canonical macro-to-money segment order')
  chapters=[x for x in m['chapters'] if x['kind']=='chapter']; apps=[x for x in m['chapters'] if x['kind']=='appendix']
  ck(len(chapters)==20,'chapters'); ck(len(apps)==3,'appendices'); ck(q['count']==len(q['items'])==100,'questions'); ck(len(s['entries'])==143,'search'); ck(len({x['id'] for x in q['items']})==100,'unique qids'); ck(Counter(x['chapterId'] for x in q['items'])=={f'ch{i:02d}':5 for i in range(20)},'five each')
  qmap={x['id']:x for x in q['items']}

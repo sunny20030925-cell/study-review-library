@@ -1,0 +1,100 @@
+name: Validate advanced statistics candidate
+
+on:
+  pull_request:
+    paths:
+      - 'deploy/advanced_statistics_*.py'
+      - 'deploy/generate_advanced_statistics.py'
+      - 'deploy/integrate_advanced_statistics.py'
+      - 'deploy/validate_advanced_statistics.py'
+      - 'deploy/record_advanced_statistics_deployment.py'
+      - 'docs/books/advanced-statistics/**'
+      - '.github/workflows/validate-advanced-statistics-candidate.yml'
+      - '.github/workflows/deploy-pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout candidate
+        uses: actions/checkout@v4
+
+      - name: Compile candidate sources
+        run: |
+          python -m py_compile \
+            deploy/advanced_statistics_content_a.py \
+            deploy/advanced_statistics_content_b.py \
+            deploy/advanced_statistics_questions_a.py \
+            deploy/advanced_statistics_questions_b.py \
+            deploy/generate_advanced_statistics.py \
+            deploy/integrate_advanced_statistics.py \
+            deploy/validate_advanced_statistics.py \
+            deploy/record_advanced_statistics_deployment.py
+
+      - name: Download verified formal Pages artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          ARTIFACT_ID="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['pages_artifact_id'])")"
+          ARTIFACT_DIGEST="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['pages_artifact_digest'])")"
+          EXPECTED_SHA="${ARTIFACT_DIGEST#sha256:}"
+          gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" > /tmp/pages.zip
+          echo "${EXPECTED_SHA}  /tmp/pages.zip" | sha256sum --check -
+          mkdir -p /tmp/pages-artifact _site
+          unzip -q /tmp/pages.zip -d /tmp/pages-artifact
+          if [ -f /tmp/pages-artifact/artifact.tar ]; then
+            tar -xf /tmp/pages-artifact/artifact.tar -C _site
+          elif [ -f /tmp/pages-artifact/artifact.tar.gz ]; then
+            tar -xzf /tmp/pages-artifact/artifact.tar.gz -C _site
+          else
+            cp -a /tmp/pages-artifact/. _site/
+          fi
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          site=Path('_site')
+          receipt=json.load(open('docs/deployment_receipt.json'))
+          library=json.load(open(site/'data/library.json'))
+          assert library['version']==receipt['library_version']
+          assert len(library['books'])==receipt['book_count']==12
+          assert library['books'][-1]['id']=='money-banking'
+          print('FORMAL_BASE_OK',library['version'],len(library['books']))
+          PY
+
+      - name: Integrate and independently validate candidate
+        run: |
+          set -euo pipefail
+          BEFORE="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"
+          python deploy/integrate_advanced_statistics.py _site "$BEFORE" > /tmp/final-version.txt
+          FINAL="$(cat /tmp/final-version.txt)"
+          python deploy/validate_advanced_statistics.py _site "$FINAL"
+          node --check _site/app.js
+          node --check _site/sw.js
+          echo "ADVANCED_STATISTICS_CANDIDATE_OK library=$FINAL"
+
+      - name: Tablet-facing artifact checks
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          site=Path('_site')
+          root=site/'books/advanced-statistics'
+          manifest=json.load(open(root/'manifest.json'))
+          questions=json.load(open(root/'questions.json'))
+          search=json.load(open(root/'search.json'))
+          assert len([x for x in manifest['chapters'] if x['kind']=='chapter'])==20
+          assert len([x for x in manifest['chapters'] if x['kind']=='appendix'])==3
+          assert questions['count']==100 and len(search['entries'])==189
+          assert len(list((site/'assets/advanced-statistics-svg').glob('*.svg')))==20
+          for ch in manifest['chapters']:
+              p=root/ch['file']
+              assert p.is_file() and p.stat().st_size>900
+          print('ADVANCED_STATISTICS_TABLET_ASSETS_OK')
+          PY
