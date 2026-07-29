@@ -186,6 +186,19 @@
 - 文件：`docs/books/investments/scope.md`、`docs/books/investments/qa_report.md`、`docs/books/investments/status.md`。
 - 狀態：已部署。
 
+### 18. 計量經濟學
+- Book ID：`econometrics`
+- 正式內容版本：`2026.07.29-1`
+- 定位：一般大學計量經濟學；OLS、多元迴歸與推論、異質變異、模型設定、二元結果、時間序列、panel、IV／2SLS、實驗、DiD、RDD、預測與實證研究流程。
+- 成品：20 章、3 附錄、100 題、189 搜尋、20 圖解。
+- QA：正式部署前 Round 1 = 384、Round 2 = 675；29 個數值節點獨立重算、32 個高風險答案 gate。部署後重新下載 artifact 再驗 Round 1 = 382、Round 2 = 675。
+- 正式整合由 17 本／`2026.07.29-22` 追加為 18 本／`2026.07.29-23`，既有教材 hash 與進度儲存相容性受保護。
+- 正式 Pages run：`30471586965`；Source commit：`4bdca45ab4772982a812017b34984aff19a9a6c1`；artifact：`8731859754`。
+- Artifact digest／下載 SHA-256：`sha256:f53bf4979a85a0ff96e9e253cad04f97d37062d368195a97ce4189f8e934edf5`。
+- 後續 19 本正式 registry 仍包含 `econometrics`，位置在 `investments` 與 `industrial-economics` 之間。
+- 文件：`docs/books/econometrics/scope.md`、`docs/books/econometrics/qa_report.md`、`docs/books/econometrics/status.md`。
+- 狀態：已部署。
+
 ### 19. 產業經濟學
 - Book ID：`industrial-economics`
 - 正式內容版本：`2026.07.29-1`
