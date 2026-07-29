@@ -1,0 +1,53 @@
+name: Apply cost accounting v2 canonical integration
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/apply-cost-accounting-v2.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  integrate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout latest main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Validate and integrate cost accounting corrections
+        run: |
+          python -m py_compile \
+            deploy/patch_cost_accounting_v2.py \
+            deploy/validate_cost_accounting.py \
+            deploy/validate_cost_accounting_v2_core.py \
+            deploy/integrate_cost_accounting_v2.py
+          python deploy/integrate_cost_accounting_v2.py .github/workflows/deploy-pages.yml
+          ruby -e "require 'yaml'; YAML.parse_file('.github/workflows/deploy-pages.yml'); puts 'CANONICAL_YAML_PARSE_OK'"
+          grep -F "'cost_accounting_version': cost_manifest['version']" .github/workflows/deploy-pages.yml
+          grep -F "'cost_accounting_search_count': len(cost_search['entries'])" .github/workflows/deploy-pages.yml
+          grep -F "'cost_accounting_independent_check_count': 857" .github/workflows/deploy-pages.yml
+          grep -F '發布後獨立二次內容審計版本 `2026.07.29-2`' .github/workflows/deploy-pages.yml
+          grep -F 'docs/books/cost-accounting/status.md' .github/workflows/deploy-pages.yml
+
+      - name: Commit canonical workflow and retire temporary integrator
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          rm .github/workflows/apply-cost-accounting-v2.yml
+          git add .github/workflows/deploy-pages.yml .github/workflows/apply-cost-accounting-v2.yml
+          git commit -m "Integrate cost accounting post-publication corrections"
+          for attempt in 1 2 3; do
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            git fetch origin main
+            git rebase origin/main
+          done
+          echo 'Unable to push canonical workflow after three attempts.' >&2
+          exit 1
