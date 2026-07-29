@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
-import copy, html, json, re, sys
+import html, json, sys
 from pathlib import Path
 from xml.sax.saxutils import escape as xml_escape
 
@@ -97,7 +97,7 @@ def append_sw_assets(sw,anchor,paths):
 def main(site_root):
     site=Path(site_root); lp=site/'data/library.json'; library=json.loads(lp.read_text(encoding='utf-8')); ids=[b['id'] for b in library['books']]
     if BOOK in ids: raise AssertionError(f'{BOOK} already exists')
-    if len(ids)!=14 or ids[-1]!='computer-fundamentals': raise AssertionError(f'expected 14-book computer-fundamentals tail, got {ids}')
+    if len(ids)!=15 or ids[-1]!='game-theory': raise AssertionError(f'expected 15-book game-theory tail, got {ids}')
     library['books'].append({'id':BOOK,'title':TITLE,'subtitle':SUBTITLE,'manifest':f'books/{BOOK}/manifest.json','cover':COVER,'accent':ACCENT,'status':'available'})
     lp.write_text(jdump(library),encoding='utf-8')
     root=site/'books'/BOOK; (root/'chapters').mkdir(parents=True,exist_ok=False); figdir=site/'assets/mathematical-economics-svg'; figdir.mkdir(parents=True,exist_ok=False)
@@ -114,8 +114,8 @@ def main(site_root):
     (root/'questions.json').write_text(jdump({'bookId':BOOK,'version':VERSION,'count':len(qitems),'items':qitems}),encoding='utf-8')
     entries=search_entries(); (root/'search.json').write_text(jdump({'entries':entries}),encoding='utf-8')
     cache=[f'./books/{BOOK}/manifest.json',f'./books/{BOOK}/questions.json',f'./books/{BOOK}/search.json']+[f'./books/{BOOK}/{x["file"]}' for x in meta]+[f'./assets/mathematical-economics-svg/{c["slug"]}.svg' for c in CHAPTERS]
-    swp=site/'sw.js'; swp.write_text(append_sw_assets(swp.read_text(encoding='utf-8'),'computer-fundamentals',cache),encoding='utf-8')
-    print(json.dumps({'book':BOOK,'version':VERSION,'chapters':20,'appendices':3,'questions':100,'search':150,'figures':20,'pre_books':14,'post_books':15},ensure_ascii=False),file=sys.stderr)
+    swp=site/'sw.js'; swp.write_text(append_sw_assets(swp.read_text(encoding='utf-8'),'game-theory',cache),encoding='utf-8')
+    print(json.dumps({'book':BOOK,'version':VERSION,'chapters':20,'appendices':3,'questions':100,'search':150,'figures':20,'pre_books':15,'post_books':16},ensure_ascii=False),file=sys.stderr)
 
 
 if __name__=='__main__':
