@@ -102,6 +102,7 @@ jobs:
           fi
           echo "FINAL_LIBRARY_VERSION=$FINAL_LIBRARY_VERSION" >> "$GITHUB_ENV"
           echo "EXPECTED_FINAL_BOOK_COUNT=$EXPECTED_FINAL_BOOK_COUNT" >> "$GITHUB_ENV"
+          export FINAL_LIBRARY_VERSION EXPECTED_FINAL_BOOK_COUNT
           node --check _site/app.js
           node --check _site/sw.js
           python - <<'PY'
