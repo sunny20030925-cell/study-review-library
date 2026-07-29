@@ -1,0 +1,61 @@
+name: Stage macro generator decode fix
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  stage:
+    if: >-
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.head.ref == 'stage-macro-decode-fix'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout controlled staging branch
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.ref }}
+          token: ${{ github.token }}
+          fetch-depth: 0
+
+      - name: Validate split Base64 decoder and stage workflow
+        run: |
+          python -m py_compile deploy/decode_split_base64.py
+          python deploy/decode_split_base64.py 'deploy/generate-macroeconomics.py.gz.b64.part*' /tmp/generate-macroeconomics.py.gz
+          echo '05259f866024c5e442207ae2e9d448f4511c33db3868f14d504424b103fb058e  /tmp/generate-macroeconomics.py.gz' | sha256sum --check -
+          gzip --test /tmp/generate-macroeconomics.py.gz
+          gzip --decompress --stdout /tmp/generate-macroeconomics.py.gz > /tmp/generate-macroeconomics.py
+          python -m py_compile /tmp/generate-macroeconomics.py
+          python - <<'PY'
+          from pathlib import Path
+
+          source = Path('.github/workflows/deploy-pages.yml')
+          target = Path('deploy/staged-macro-decode-deploy-pages.yml')
+          text = source.read_text(encoding='utf-8')
+          old = "          cat deploy/generate-macroeconomics.py.gz.b64.part* | tr -d '\\n' | base64 --decode > /tmp/generate-macroeconomics.py.gz\n"
+          new = "          python deploy/decode_split_base64.py 'deploy/generate-macroeconomics.py.gz.b64.part*' /tmp/generate-macroeconomics.py.gz\n"
+          assert text.count(old) == 1
+          text = text.replace(old, new, 1)
+          assert old not in text
+          assert text.count(new) == 1
+          target.write_text(text, encoding='utf-8')
+          PY
+          ruby -e "require 'yaml'; YAML.load_file('deploy/staged-macro-decode-deploy-pages.yml'); puts 'MACRO_DECODE_YAML_OK'"
+          grep -F "python deploy/decode_split_base64.py 'deploy/generate-macroeconomics.py.gz.b64.part*' /tmp/generate-macroeconomics.py.gz" deploy/staged-macro-decode-deploy-pages.yml
+
+      - name: Commit non-workflow staging blob
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add deploy/staged-macro-decode-deploy-pages.yml
+          if git diff --cached --quiet; then
+            echo 'Macro decode workflow already staged'
+            exit 0
+          fi
+          git commit -m "Stage macro generator decode workflow blob"
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}
