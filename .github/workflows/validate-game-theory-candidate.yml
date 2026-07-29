@@ -1,0 +1,114 @@
+name: Validate game theory candidate
+
+on:
+  pull_request:
+    paths:
+      - 'deploy/game_theory_*.py'
+      - 'deploy/generate_game_theory.py'
+      - 'deploy/finalize_game_theory_library.py'
+      - 'deploy/validate_game_theory.py'
+      - 'deploy/qa_game_theory_second_pass.py'
+      - 'docs/books/game-theory/**'
+      - '.github/workflows/validate-game-theory-candidate.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout candidate
+        uses: actions/checkout@v4
+
+      - name: Compile game theory sources
+        run: |
+          python -m py_compile \
+            deploy/game_theory_content_a.py \
+            deploy/game_theory_content_b.py \
+            deploy/game_theory_questions_a.py \
+            deploy/game_theory_questions_b.py \
+            deploy/generate_game_theory.py \
+            deploy/finalize_game_theory_library.py \
+            deploy/validate_game_theory.py \
+            deploy/qa_game_theory_second_pass.py
+
+      - name: Download formal deployed Pages artifact from receipt
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          ARTIFACT_ID="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['pages_artifact_id'])")"
+          RECEIPT_LIBRARY="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['library_version'])")"
+          RECEIPT_BOOKS="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['book_count'])")"
+          test -n "$ARTIFACT_ID"
+          echo "BASE_ARTIFACT_ID=$ARTIFACT_ID"
+          echo "RECEIPT_LIBRARY=$RECEIPT_LIBRARY"
+          echo "RECEIPT_BOOKS=$RECEIPT_BOOKS"
+          gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" > /tmp/pages.zip
+          mkdir /tmp/pages-artifact _site
+          unzip -q /tmp/pages.zip -d /tmp/pages-artifact
+          if [ -f /tmp/pages-artifact/artifact.tar ]; then
+            tar -xf /tmp/pages-artifact/artifact.tar -C _site
+          elif [ -f /tmp/pages-artifact/artifact.tar.gz ]; then
+            tar -xzf /tmp/pages-artifact/artifact.tar.gz -C _site
+          else
+            cp -a /tmp/pages-artifact/. _site/
+          fi
+          test -f _site/data/library.json
+          test -f _site/sw.js
+          test -f _site/app.js
+          RECEIPT_LIBRARY="$RECEIPT_LIBRARY" RECEIPT_BOOKS="$RECEIPT_BOOKS" python - <<'PY'
+          import json, os
+          from pathlib import Path
+          lib=json.loads(Path('_site/data/library.json').read_text(encoding='utf-8'))
+          ids=[b['id'] for b in lib['books']]
+          assert lib['version']==os.environ['RECEIPT_LIBRARY'], (lib['version'],os.environ['RECEIPT_LIBRARY'])
+          assert len(ids)==int(os.environ['RECEIPT_BOOKS']), ids
+          assert 'game-theory' not in ids, ids
+          print(f"FORMAL_GAME_THEORY_BASE_OK books={len(ids)} library={lib['version']} tail={ids[-3:]}")
+          PY
+
+      - name: Generate isolated candidate on deployed library copy
+        run: |
+          set -euo pipefail
+          cp _site/data/library.json /tmp/pre-game-theory-library.json
+          find _site/books -type f -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-existing-books.sha256
+          python deploy/generate_game_theory.py _site
+          FINAL_LIBRARY_VERSION="$(python deploy/finalize_game_theory_library.py _site /tmp/pre-game-theory-library.json)"
+          echo "FINAL_LIBRARY_VERSION=$FINAL_LIBRARY_VERSION" >> "$GITHUB_ENV"
+          echo "GAME_THEORY_FINAL_LIBRARY=$FINAL_LIBRARY_VERSION"
+
+      - name: Independent content and preservation validation
+        run: |
+          set -euo pipefail
+          EXPECTED_LIBRARY_VERSION="$FINAL_LIBRARY_VERSION" PRE_LIBRARY_JSON=/tmp/pre-game-theory-library.json \
+            python deploy/validate_game_theory.py _site
+          python deploy/qa_game_theory_second_pass.py
+          find _site/books -type f ! -path '*/game-theory/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-existing-books.sha256
+          diff -u /tmp/pre-existing-books.sha256 /tmp/post-existing-books.sha256
+          node --check _site/app.js
+          node --check _site/sw.js
+
+      - name: Verify tablet-facing asset paths exist
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          site=Path('_site')
+          m=json.loads((site/'books/game-theory/manifest.json').read_text(encoding='utf-8'))
+          q=json.loads((site/'books/game-theory/questions.json').read_text(encoding='utf-8'))
+          s=json.loads((site/'books/game-theory/search.json').read_text(encoding='utf-8'))
+          for ch in m['chapters']:
+              p=site/'books/game-theory'/ch['file']
+              assert p.is_file() and p.stat().st_size>700, ch
+          figures=list((site/'assets/game-theory-svg').glob('*.svg'))
+          assert len(figures)==20, len(figures)
+          assert all(p.stat().st_size>300 for p in figures)
+          assert len(q['items'])==100
+          assert len(s['entries'])==189
+          print('GAME_THEORY_TABLET_ASSET_PATHS_OK chapters=23 questions=100 search=189 figures=20')
+          PY
