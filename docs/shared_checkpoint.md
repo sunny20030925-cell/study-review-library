@@ -136,8 +136,8 @@
 - 閱讀進度相容性：章節 ID、題目 ID 與題數未變；部署回條確認 `progress_storage_changed=false`。
 - 範圍文件：`docs/books/microeconomics/scope.md`
 - QA 報告：`docs/books/microeconomics/qa_report.md`
-- GitHub Pages 部署 run：`30437328439`。
-- Source commit：`01dc8dde57baab9572fb019812e52a8402aa7670`。
+- GitHub Pages 部署 run：`30437610043`。
+- Source commit：`eaf8136594b1a4f8992502588794aeaa5602d337`。
 - 部署回條：`docs/deployment_receipt.json`。
 - 狀態：已部署。
 
@@ -153,8 +153,8 @@
 - 閱讀進度相容性：章節 ID、題目 ID 與題數未變；部署回條確認 `progress_storage_changed=false`。
 - 範圍文件：`docs/books/intermediate-accounting/scope.md`
 - QA 報告：`docs/books/intermediate-accounting/qa_report.md`
-- GitHub Pages 部署 run：`30437328439`。
-- Source commit：`01dc8dde57baab9572fb019812e52a8402aa7670`。
+- GitHub Pages 部署 run：`30437610043`。
+- Source commit：`eaf8136594b1a4f8992502588794aeaa5602d337`。
 - 部署回條：`docs/deployment_receipt.json`。
 - 狀態：已部署。
 
@@ -169,8 +169,8 @@
 - 閱讀進度相容性：章節 ID、題目 ID 與題數均未變；部署回條確認 `progress_storage_changed=false`。
 - 範圍文件：`docs/books/macroeconomics/scope.md`
 - QA 報告：`docs/books/macroeconomics/qa_report.md`
-- GitHub Pages 部署 run：`30437328439`。
-- Source commit：`01dc8dde57baab9572fb019812e52a8402aa7670`。
+- GitHub Pages 部署 run：`30437610043`。
+- Source commit：`eaf8136594b1a4f8992502588794aeaa5602d337`。
 - 部署回條：`docs/deployment_receipt.json`。
 - 狀態：已部署。
 
@@ -189,7 +189,7 @@
 11. 中級會計學先完成初版 QA，再套用發布後獨立二次內容審計修正；額外驗證 22 章、3 附錄、110 題、145 筆搜尋索引、22 張 SVG、1,110 項 v2 獨立檢查與 28 項量化重算。
 12. JavaScript、service worker 與全部正式檢查通過後，才上傳 Pages artifact。
 13. Pages 部署成功後寫回 `docs/deployment_receipt.json`。
-14. 最新9本書成功部署 run：`30437328439`；書庫內容版本：`2026.07.29-12`。
+14. 最新9本書成功部署 run：`30437610043`；書庫內容版本：`2026.07.29-12`。
 15. 使用者不需要執行 Git、終端機、手動上傳或部署。
 
 ## 工作線狀態
