@@ -57,11 +57,17 @@ def main():
 
     qmap = {q['id']: q for q in QUESTIONS}
 
+    # Mixed equilibrium in a coordination game: verify both pure NE coexist with the interior mixed NE.
+    payoff_a = {('U','L'):3, ('U','R'):0, ('D','L'):0, ('D','R'):2}
+    payoff_b = {('U','L'):2, ('U','R'):0, ('D','L'):0, ('D','R'):3}
+    ck(payoff_a[('U','L')] >= payoff_a[('D','L')] and payoff_b[('U','L')] >= payoff_b[('U','R')], '(U,L) pure NE')
+    ck(payoff_a[('D','R')] >= payoff_a[('U','R')] and payoff_b[('D','R')] >= payoff_b[('D','L')], '(D,R) pure NE')
     q = 2 / 5
     p = 3 / 5
     ck(math.isclose(q, 0.4) and math.isclose(p, 0.6), 'mixed equilibrium arithmetic')
     qcheck(qmap, 'ch04-q03', f'q={q:.1f}。')
     qcheck(qmap, 'ch04-q04', f'p={p:.1f}。')
+    ccheck(qmap, 'ch04-q02', '可能。')
 
     matrix = ((2, -1), (-2, 1))
     row_mins = tuple(min(r) for r in matrix)
@@ -81,6 +87,7 @@ def main():
     ck((cournot_q, price, profit) == (30, 40, 900), 'Cournot reconstruction')
     qcheck(qmap, 'ch06-q03', '30。')
     qcheck(qmap, 'ch06-q04', '總產量60，價格40。')
+    ccheck(qmap, 'ch06-q05', '需要。')
 
     d1 = d2 = .9
     proposer_share = (1-d2)/(1-d1*d2)
@@ -104,6 +111,7 @@ def main():
     ck(math.isclose(enter_04,.8) and math.isclose(enter_08,-.4), 'Bayesian entry expectation')
     qcheck(qmap, 'ch11-q02', '0.8。')
     qcheck(qmap, 'ch11-q03', '-0.4。')
+    ccheck(qmap, 'ch11-q05', '不一定。')
 
     first_price = (3-1)/3 * .9
     ck(math.isclose(first_price,.6), 'first-price bid')
@@ -114,11 +122,13 @@ def main():
 
     h_signal = 10 - 2.1
     l_mimic = 10 - 3*2.1
-    l_mimic_bad_signal = 10 - 3*1.5
-    ck(math.isclose(h_signal,7.9) and math.isclose(l_mimic,3.7) and math.isclose(l_mimic_bad_signal,5.5), 'signaling IC arithmetic')
+    e_min = (10-4)/3
+    e_max = 10-4
+    ck(math.isclose(h_signal,7.9) and math.isclose(l_mimic,3.7), 'signaling IC arithmetic')
+    ck(math.isclose(e_min,2) and math.isclose(e_max,6), 'signaling separation interval')
     qcheck(qmap, 'ch14-q02', '7.9。')
     qcheck(qmap, 'ch14-q03', '3.7。')
-    qcheck(qmap, 'ch14-q04', '5.5，會想模仿。')
+    qcheck(qmap, 'ch14-q04', '2≤e≤6。')
 
     h_high_old = 100-80
     h_low = 100*.5-25
@@ -143,6 +153,7 @@ def main():
     qcheck(qmap, 'ch17-q04', '(30,30,30)。')
 
     ccheck(qmap, 'ch02-q03', '是。')
+    ccheck(qmap, 'ch02-q05', '不一定。')
     ccheck(qmap, 'ch03-q05', '不保證。')
     ccheck(qmap, 'ch04-q05', '因 A 的 p 決定 B 面對各純策略的期望報酬。')
     ccheck(qmap, 'ch05-q05', '不能。')
@@ -159,7 +170,7 @@ def main():
     ccheck(qmap, 'ch15-q01', 'screening 常由資訊較少的一方先設計選單；signaling 則由有私人資訊的一方先送訊號。')
     ccheck(qmap, 'ch16-q05', '是。')
     ccheck(qmap, 'ch17-q05', '不一定。')
-    ccheck(qmap, 'ch18-q05', '不應。')
+    ccheck(qmap, 'ch18-q05', '不一定。')
     ccheck(qmap, 'ch19-q05', '不是。')
 
     corpus = ' '.join(
@@ -168,13 +179,16 @@ def main():
         + [d for c in CHAPTERS for _,d in c['definitions']]
         + [x for c in CHAPTERS for x in c['traps']]
         + [x for c in CHAPTERS for x in c['exam']]
+        + [n for c in CHAPTERS for _,n in c['formulas']]
     )
     for phrase in [
         '效率', '弱劣勢', '支撐集', '一般總和', '真正子賽局', '折現',
         '共同先驗', '私人價值', 'Bayes', '序列理性', 'off-path',
         '誘因相容', '個別理性', '準線性', '一般賽局不保證',
+        '完美資訊', 'complete information', 'perfect information', '混合策略嚴格支配',
+        '不需要價值彼此獨立', '2≤e≤6', '單點資訊集合', '正負號',
     ]:
-        ck(phrase in corpus, f'missing caveat {phrase}')
+        ck(phrase in corpus, f'missing v2 caveat {phrase}')
 
     print(
         f'GAME_THEORY_SECOND_PASS_OK checks={checks} '
