@@ -79,7 +79,7 @@ def main(workflow_path: str) -> None:
     )
 
     status_qa_pattern = (
-        r"(?m)^(\s*)- 第一輪 QA：1321／1321 通過。\n"
+        r"(?m)^([ \t]*)- 第一輪 QA：1321／1321 通過。\n"
         r"\1- 第二輪 QA：87／87 通過；100 題逐題複核，另獨立重算 15 題量化題與重判 15 題高風險觀念題。"
     )
 
@@ -93,23 +93,22 @@ def main(workflow_path: str) -> None:
     text = sub_once(text, status_qa_pattern, status_qa_repl, "update generated microeconomics status QA summary")
 
     cp_marker = "          cp.write_text(c, encoding='utf-8')\n"
-    cp_insertion = '''          micro_section = f''' + "'''" + '''### 個體經濟學
-
-- Book ID：`microeconomics`
-- 正式內容版本：`2026.07.29-2`
-- 定位：一般大學中級個體經濟學，從近零基礎銜接消費者對偶、Slutsky、生產與成本、競爭／獨占、賽局、一般均衡、福利與資訊不對稱。
-- 成品：20 章、3 附錄、100 題題庫、154 筆搜尋索引、20 張自製圖解。
-- 初版 QA：第一輪 1,321／1,321、第二輪 87／87。
-- 發布後獨立二次複核：1,616 項檢查通過；修正 16 個內容點，4 題題幹或詳解同步精確化；15 題量化題獨立重算、20 題高風險觀念題獨立重判。
-- 閱讀進度相容性：章節 ID、題目 ID 與題數未變；部署回條確認 `progress_storage_changed=false`。
-- 範圍文件：`docs/books/microeconomics/scope.md`
-- QA 報告：`docs/books/microeconomics/qa_report.md`
-- GitHub Pages 部署 run：`{os.environ['GITHUB_RUN_ID']}`。
-- Source commit：`{os.environ['GITHUB_SHA']}`。
-- 部署回條：`docs/deployment_receipt.json`。
-- 狀態：已部署。
-
-''' + "'''" + '''
+    cp_insertion = '''          micro_section = (
+              '### 個體經濟學\\n\\n'
+              '- Book ID：`microeconomics`\\n'
+              '- 正式內容版本：`2026.07.29-2`\\n'
+              '- 定位：一般大學中級個體經濟學，從近零基礎銜接消費者對偶、Slutsky、生產與成本、競爭／獨占、賽局、一般均衡、福利與資訊不對稱。\\n'
+              '- 成品：20 章、3 附錄、100 題題庫、154 筆搜尋索引、20 張自製圖解。\\n'
+              '- 初版 QA：第一輪 1,321／1,321、第二輪 87／87。\\n'
+              '- 發布後獨立二次複核：1,616 項檢查通過；修正 16 個內容點，4 題題幹或詳解同步精確化；15 題量化題獨立重算、20 題高風險觀念題獨立重判。\\n'
+              '- 閱讀進度相容性：章節 ID、題目 ID 與題數未變；部署回條確認 `progress_storage_changed=false`。\\n'
+              '- 範圍文件：`docs/books/microeconomics/scope.md`\\n'
+              '- QA 報告：`docs/books/microeconomics/qa_report.md`\\n'
+              f'- GitHub Pages 部署 run：`{os.environ["GITHUB_RUN_ID"]}`。\\n'
+              f'- Source commit：`{os.environ["GITHUB_SHA"]}`。\\n'
+              '- 部署回條：`docs/deployment_receipt.json`。\\n'
+              '- 狀態：已部署。\\n\\n'
+          )
           c, micro_section_count = re.subn(
               r'(?ms)^### 個體經濟學\\n.*?(?=^### |^## 部署流程)',
               micro_section,
