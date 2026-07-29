@@ -10,7 +10,7 @@ def ck(c,msg):
  global checks; checks+=1
  if not c: raise AssertionError(msg)
 
-def main(site_root, expected_library='2026.07.29-14'):
+def main(site_root, expected_library='2026.07.29-15'):
  site=Path(site_root); root=site/'books'/BOOK
  m=json.loads((root/'manifest.json').read_text()); q=json.loads((root/'questions.json').read_text()); s=json.loads((root/'search.json').read_text()); lib=json.loads((site/'data/library.json').read_text())
  ck(m['version']==q['version']==VERSION,'book version')
@@ -79,4 +79,4 @@ def main(site_root, expected_library='2026.07.29-14'):
 
 if __name__=='__main__':
  if len(sys.argv) not in (2,3): raise SystemExit('usage: qa_macroeconomics_v2.py SITE_ROOT [EXPECTED_LIBRARY]')
- main(sys.argv[1],sys.argv[2] if len(sys.argv)==3 else '2026.07.29-14')
+ main(sys.argv[1],sys.argv[2] if len(sys.argv)==3 else '2026.07.29-15')
