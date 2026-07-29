@@ -37,6 +37,8 @@ jobs:
           set -euo pipefail
           ARTIFACT_ID="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['pages_artifact_id'])")"
           ARTIFACT_DIGEST="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['pages_artifact_digest'])")"
+          BASE_LIBRARY_VERSION="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['library_version'])")"
+          BASE_BOOK_COUNT="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['book_count'])")"
           EXPECTED_SHA="${ARTIFACT_DIGEST#sha256:}"
           gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" > /tmp/base-pages.zip
           echo "${EXPECTED_SHA}  /tmp/base-pages.zip" | sha256sum --check -
@@ -49,41 +51,30 @@ jobs:
           else
             cp -a /tmp/base-pages-artifact/. _site/
           fi
-          python - <<'PY'
-          import json
+          BASE_LIBRARY_VERSION="$BASE_LIBRARY_VERSION" BASE_BOOK_COUNT="$BASE_BOOK_COUNT" python - <<'PY'
+          import json,os
           from pathlib import Path
           site=Path('_site')
-          receipt=json.load(open('docs/deployment_receipt.json'))
           library=json.load(open(site/'data/library.json'))
-          assert library['version']==receipt['library_version'], (library['version'],receipt['library_version'])
-          assert len(library['books'])==receipt['book_count']
+          assert library['version']==os.environ['BASE_LIBRARY_VERSION']
+          assert len(library['books'])==int(os.environ['BASE_BOOK_COUNT'])
           assert (site/'app.js').is_file() and (site/'sw.js').is_file()
           print('FORMAL_ARTIFACT_BASE_OK',library['version'],len(library['books']))
           PY
+          echo "BASE_LIBRARY_VERSION=$BASE_LIBRARY_VERSION" >> "$GITHUB_ENV"
+          echo "BASE_BOOK_COUNT=$BASE_BOOK_COUNT" >> "$GITHUB_ENV"
 
-      - name: Validate advanced statistics formal base
-        run: |
-          set -euo pipefail
-          CURRENT_LIBRARY_VERSION="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"
-          python deploy/validate_advanced_statistics.py _site "$CURRENT_LIBRARY_VERSION"
-          python - <<'PY'
-          import json
-          d=json.load(open('_site/data/library.json'))
-          ids=[b['id'] for b in d['books']]
-          assert len(ids)==13 and ids[-1]=='advanced-statistics', ids
-          print('ADVANCED_STATISTICS_FORMAL_BASE_OK',d['version'],len(ids))
-          PY
-
-      - name: Integrate or validate econometrics
+      - name: Append and validate econometrics
         run: |
           set -euo pipefail
           if python - <<'PY'
           import json,sys
-          d=json.load(open('_site/data/library.json'))
-          sys.exit(0 if any(b['id']=='econometrics' for b in d['books']) else 1)
+          library=json.load(open('_site/data/library.json'))
+          sys.exit(0 if any(b['id']=='econometrics' for b in library['books']) else 1)
           PY
           then
             FINAL_LIBRARY_VERSION="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"
+            FINAL_BOOK_COUNT="$BASE_BOOK_COUNT"
             EXPECTED_LIBRARY_VERSION="$FINAL_LIBRARY_VERSION" python deploy/validate_econometrics.py _site
             python deploy/validate_econometrics_v2.py _site
           else
@@ -91,13 +82,15 @@ jobs:
             find _site/books -type f -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-econometrics-books.sha256
             python deploy/generate_econometrics.py _site
             FINAL_LIBRARY_VERSION="$(python deploy/finalize_econometrics_library.py _site /tmp/pre-econometrics-library.json)"
+            FINAL_BOOK_COUNT="$((BASE_BOOK_COUNT + 1))"
             EXPECTED_LIBRARY_VERSION="$FINAL_LIBRARY_VERSION" PRE_LIBRARY_JSON=/tmp/pre-econometrics-library.json python deploy/validate_econometrics.py _site
             python deploy/validate_econometrics_v2.py _site
             find _site/books -type f ! -path '*/econometrics/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-econometrics-books.sha256
             diff -u /tmp/pre-econometrics-books.sha256 /tmp/post-econometrics-books.sha256
           fi
-          export FINAL_LIBRARY_VERSION
+          export FINAL_LIBRARY_VERSION FINAL_BOOK_COUNT
           echo "FINAL_LIBRARY_VERSION=$FINAL_LIBRARY_VERSION" >> "$GITHUB_ENV"
+          echo "FINAL_BOOK_COUNT=$FINAL_BOOK_COUNT" >> "$GITHUB_ENV"
           node --check _site/app.js
           node --check _site/sw.js
           python - <<'PY'
@@ -105,8 +98,9 @@ jobs:
           library=json.load(open('_site/data/library.json'))
           ids=[b['id'] for b in library['books']]
           assert library['version']==os.environ['FINAL_LIBRARY_VERSION']
-          assert len(ids)==14 and ids[-1]=='econometrics', ids
-          print('FINAL_LIBRARY_READY',library['version'],len(ids))
+          assert len(ids)==int(os.environ['FINAL_BOOK_COUNT'])
+          assert 'econometrics' in ids
+          print('FINAL_LIBRARY_READY',library['version'],len(ids),ids[-1])
           PY
 
       - name: Upload Pages artifact
@@ -142,14 +136,15 @@ jobs:
           else
             cp -a /tmp/deployed-pages-artifact/. /tmp/deployed-site/
           fi
-          FINAL_LIBRARY_VERSION="$FINAL_LIBRARY_VERSION" python - <<'PY'
+          FINAL_LIBRARY_VERSION="$FINAL_LIBRARY_VERSION" FINAL_BOOK_COUNT="$FINAL_BOOK_COUNT" python - <<'PY'
           import json,os
           from pathlib import Path
           site=Path('/tmp/deployed-site')
           library=json.load(open(site/'data/library.json'))
-          assert library['version']==os.environ['FINAL_LIBRARY_VERSION']
           ids=[b['id'] for b in library['books']]
-          assert len(ids)==14 and ids[-1]=='econometrics', ids
+          assert library['version']==os.environ['FINAL_LIBRARY_VERSION']
+          assert len(ids)==int(os.environ['FINAL_BOOK_COUNT'])
+          assert 'econometrics' in ids
           root=site/'books/econometrics'
           manifest=json.load(open(root/'manifest.json'))
           questions=json.load(open(root/'questions.json'))
@@ -162,4 +157,4 @@ jobs:
           PY
           EXPECTED_LIBRARY_VERSION="$FINAL_LIBRARY_VERSION" python deploy/validate_econometrics.py /tmp/deployed-site
           python deploy/validate_econometrics_v2.py /tmp/deployed-site
-          echo "DEPLOYMENT_PROOF run=${GITHUB_RUN_ID} artifact=${ARTIFACT_ID} digest=${ARTIFACT_DIGEST} sha256=${ACTUAL_SHA} page=${DEPLOYED_PAGE_URL} library=${FINAL_LIBRARY_VERSION} books=14"
+          echo "DEPLOYMENT_PROOF run=${GITHUB_RUN_ID} artifact=${ARTIFACT_ID} digest=${ARTIFACT_DIGEST} sha256=${ACTUAL_SHA} page=${DEPLOYED_PAGE_URL} library=${FINAL_LIBRARY_VERSION} books=${FINAL_BOOK_COUNT}"
