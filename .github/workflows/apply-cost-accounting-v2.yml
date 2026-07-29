@@ -15,62 +15,66 @@ jobs:
   integrate:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout latest main
+      - name: Checkout repository history
         uses: actions/checkout@v4
         with:
           ref: main
           fetch-depth: 0
 
-      - name: Validate and integrate cost accounting corrections
+      - name: Integrate against latest main with retry
         shell: bash
         run: |
-          set +e
-          {
-            python -m py_compile \
-              deploy/patch_cost_accounting_v2.py \
-              deploy/validate_cost_accounting.py \
-              deploy/validate_cost_accounting_v2_core.py \
-              deploy/integrate_cost_accounting_v2.py
-            python deploy/integrate_cost_accounting_v2.py .github/workflows/deploy-pages.yml
-            ruby -e "require 'yaml'; YAML.parse_file('.github/workflows/deploy-pages.yml'); puts 'CANONICAL_YAML_PARSE_OK'"
-            grep -F "'cost_accounting_version': cost_manifest['version']" .github/workflows/deploy-pages.yml
-            grep -F "'cost_accounting_search_count': len(cost_search['entries'])" .github/workflows/deploy-pages.yml
-            grep -F "'cost_accounting_independent_check_count': 857" .github/workflows/deploy-pages.yml
-            grep -F '發布後獨立二次內容審計版本 `2026.07.29-2`' .github/workflows/deploy-pages.yml
-            grep -F 'docs/books/cost-accounting/status.md' .github/workflows/deploy-pages.yml
-          } > >(tee /tmp/cost-accounting-v2-integration.log) 2>&1
-          status=$?
-          set -e
-          if [ "$status" -ne 0 ]; then
-            cp /tmp/cost-accounting-v2-integration.log docs/cost-accounting-v2-integration-failure.log
+          set -u
+          for attempt in $(seq 1 10); do
+            echo "===== COST V2 INTEGRATION ATTEMPT ${attempt} ====="
+            git fetch origin main
+            git reset --hard origin/main
+
+            set +e
+            (
+              set -e
+              python -m py_compile \
+                deploy/patch_cost_accounting_v2.py \
+                deploy/validate_cost_accounting.py \
+                deploy/validate_cost_accounting_v2_core.py \
+                deploy/integrate_cost_accounting_v2.py
+              python deploy/integrate_cost_accounting_v2.py .github/workflows/deploy-pages.yml
+              ruby -e "require 'yaml'; YAML.parse_file('.github/workflows/deploy-pages.yml'); puts 'CANONICAL_YAML_PARSE_OK'"
+              grep -F "'cost_accounting_version': cost_manifest['version']" .github/workflows/deploy-pages.yml
+              grep -F "'cost_accounting_search_count': len(cost_search['entries'])" .github/workflows/deploy-pages.yml
+              grep -F "'cost_accounting_independent_check_count': 857" .github/workflows/deploy-pages.yml
+              grep -F '發布後獨立二次內容審計版本 `2026.07.29-2`' .github/workflows/deploy-pages.yml
+              grep -F 'docs/books/cost-accounting/status.md' .github/workflows/deploy-pages.yml
+            ) > >(tee /tmp/cost-accounting-v2-integration.log) 2>&1
+            status=$?
+            set -e
+
             git config user.name github-actions[bot]
             git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-            git add docs/cost-accounting-v2-integration-failure.log
-            git commit -m "Record cost accounting v2 integration failure [skip ci]"
-            for attempt in 1 2 3; do
-              if git push origin HEAD:main; then
-                break
-              fi
-              git fetch origin main
-              git rebase origin/main
-            done
-            exit "$status"
-          fi
 
-      - name: Commit canonical workflow and retire temporary integrator
-        run: |
-          git config user.name github-actions[bot]
-          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          rm .github/workflows/apply-cost-accounting-v2.yml
-          rm -f docs/cost-accounting-v2-integration-failure.log
-          git add .github/workflows/deploy-pages.yml .github/workflows/apply-cost-accounting-v2.yml docs/cost-accounting-v2-integration-failure.log
-          git commit -m "Integrate cost accounting post-publication corrections"
-          for attempt in 1 2 3; do
+            if [ "$status" -ne 0 ]; then
+              {
+                echo "attempt=${attempt}"
+                echo "head=$(git rev-parse HEAD)"
+                cat /tmp/cost-accounting-v2-integration.log
+              } > docs/cost-accounting-v2-integration-failure.log
+              git add docs/cost-accounting-v2-integration-failure.log
+              git commit -m "Record cost accounting v2 integration failure [skip ci]"
+              if git push origin HEAD:main; then
+                exit "$status"
+              fi
+              sleep 2
+              continue
+            fi
+
+            rm .github/workflows/apply-cost-accounting-v2.yml
+            rm -f docs/cost-accounting-v2-integration-failure.log
+            git add .github/workflows/deploy-pages.yml .github/workflows/apply-cost-accounting-v2.yml docs/cost-accounting-v2-integration-failure.log
+            git commit -m "Integrate cost accounting post-publication corrections"
             if git push origin HEAD:main; then
               exit 0
             fi
-            git fetch origin main
-            git rebase origin/main
+            sleep 2
           done
-          echo 'Unable to push canonical workflow after three attempts.' >&2
+          echo 'Unable to integrate cost accounting after ten latest-main retries.' >&2
           exit 1
