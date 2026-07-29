@@ -1,0 +1,92 @@
+name: Validate Investments v2 reaudit
+
+on:
+  pull_request:
+    paths:
+      - 'deploy/investments_v2_corrections.py'
+      - 'deploy/patch_investments_v2.py'
+      - 'deploy/qa_investments_reaudit_v2.py'
+      - 'deploy/record_investments_v2_deployment.py'
+      - '.github/workflows/validate-investments-v2.yml'
+      - '.github/workflows/deploy-pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download verified formal Pages artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          ARTIFACT_ID="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['pages_artifact_id'])")"
+          DIGEST="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['pages_artifact_digest'])")"
+          gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" > /tmp/formal.zip
+          echo "${DIGEST#sha256:}  /tmp/formal.zip" | sha256sum --check -
+          mkdir -p /tmp/unpack _site
+          unzip -q /tmp/formal.zip -d /tmp/unpack
+          if [ -f /tmp/unpack/artifact.tar ]; then
+            tar -xf /tmp/unpack/artifact.tar -C _site
+          elif [ -f /tmp/unpack/artifact.tar.gz ]; then
+            tar -xzf /tmp/unpack/artifact.tar.gz -C _site
+          else
+            cp -a /tmp/unpack/. _site/
+          fi
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          site=Path('_site')
+          receipt=json.load(open('docs/deployment_receipt.json'))
+          lib=json.load(open(site/'data/library.json'))
+          assert lib['version']==receipt['library_version']
+          assert len(lib['books'])==receipt['book_count']
+          assert any(b['id']=='investments' for b in lib['books'])
+          PY
+
+      - name: Apply Investments v2 and run independent audit
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            deploy/investments_v2_corrections.py \
+            deploy/patch_investments_v2.py \
+            deploy/qa_investments_reaudit_v2.py \
+            deploy/record_investments_v2_deployment.py
+          find _site/books -type f ! -path '*/investments/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-other-books.sha256
+          find _site/assets -type f ! -path '*/investments-svg/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-other-assets.sha256
+          BEFORE_IDS="$(python -c "import json;print(','.join(b['id'] for b in json.load(open('_site/data/library.json'))['books']))")"
+          FINAL_VERSION="$(PYTHONPATH=deploy python deploy/patch_investments_v2.py _site | tail -n 1)"
+          QA_OUT="$(PYTHONPATH=deploy python deploy/qa_investments_reaudit_v2.py _site "$FINAL_VERSION")"
+          echo "$QA_OUT"
+          CHECKS="$(printf '%s\n' "$QA_OUT" | grep -oE 'checks=[0-9]+' | head -n1 | cut -d= -f2)"
+          NUMERIC="$(printf '%s\n' "$QA_OUT" | grep -oE 'quantitative_rechecks=[0-9]+' | head -n1 | cut -d= -f2)"
+          test "$CHECKS" -ge 700
+          test "$NUMERIC" = "45"
+          find _site/books -type f ! -path '*/investments/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-other-books.sha256
+          find _site/assets -type f ! -path '*/investments-svg/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-other-assets.sha256
+          diff -u /tmp/pre-other-books.sha256 /tmp/post-other-books.sha256
+          diff -u /tmp/pre-other-assets.sha256 /tmp/post-other-assets.sha256
+          BEFORE_IDS="$BEFORE_IDS" FINAL_VERSION="$FINAL_VERSION" python - <<'PY'
+          import json,os
+          from pathlib import Path
+          site=Path('_site')
+          lib=json.load(open(site/'data/library.json'))
+          ids=[b['id'] for b in lib['books']]
+          assert ','.join(ids)==os.environ['BEFORE_IDS']
+          assert lib['version']==os.environ['FINAL_VERSION']
+          root=site/'books/investments'
+          m=json.load(open(root/'manifest.json')); q=json.load(open(root/'questions.json')); s=json.load(open(root/'search.json'))
+          assert m['version']==q['version']=='2026.07.30-1'
+          assert len(m['chapters'])==25 and q['count']==110 and len(s['entries'])==165
+          assert len(list((site/'assets/investments-svg').glob('*.svg')))==22
+          assert [x['id'] for x in q['items']]==[f'ch{i:02d}-q{j:02d}' for i in range(22) for j in range(1,6)]
+          print('INVESTMENTS_V2_CANDIDATE_OK',lib['version'],len(ids))
+          PY
+          node --check _site/app.js
+          node --check _site/sw.js
