@@ -1,4 +1,4 @@
-name: Apply intermediate accounting canonical workflow once
+name: Stage intermediate accounting canonical workflow for PR
 
 on:
   push:
@@ -12,43 +12,35 @@ permissions:
   contents: write
 
 jobs:
-  apply:
+  stage:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout main
+      - name: Checkout dedicated integration branch
         uses: actions/checkout@v4
         with:
-          ref: main
+          ref: stage-intermediate-canonical-pr
           fetch-depth: 0
 
-      - name: Generate and verify canonical workflow
+      - name: Generate and verify canonical workflow from latest main
         run: |
+          git fetch origin main
+          git show origin/main:.github/workflows/deploy-pages.yml > .github/workflows/deploy-pages.yml
           python deploy/integrate_intermediate_accounting_workflow.py
           mv deploy/generated-deploy-pages.intermediate-accounting.yml .github/workflows/deploy-pages.yml
           ruby -e "require 'yaml'; YAML.load_file('.github/workflows/deploy-pages.yml'); puts 'YAML_OK'"
           grep -F "Generate and independently validate intermediate accounting textbook" .github/workflows/deploy-pages.yml
           grep -F "'intermediate_accounting_version': '2026.07.29-1'" .github/workflows/deploy-pages.yml
 
-      - name: Commit canonical workflow repair with race-safe push
+      - name: Commit staged canonical workflow
         run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add .github/workflows/deploy-pages.yml
           if git diff --cached --quiet; then
-            echo "Canonical workflow already integrated"
+            echo "Canonical workflow already staged"
             exit 0
           fi
-          git commit -m "Integrate intermediate accounting into canonical deployment"
-          for attempt in 1 2 3 4 5; do
-            git fetch origin main
-            git rebase origin/main
-            if git push origin HEAD:main; then
-              exit 0
-            fi
-            echo "Push race on attempt ${attempt}; retrying"
-            sleep 3
-          done
-          echo "Unable to push canonical workflow repair after retries" >&2
-          exit 1
+          git commit -m "Stage intermediate accounting canonical workflow for PR"
+          git push origin HEAD:stage-intermediate-canonical-pr
 
-# Triggered once through a reviewed PR merge; remove after successful deployment.
+# Temporary staging workflow; remove after the canonical PR is merged and deployed.
