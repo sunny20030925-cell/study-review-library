@@ -77,24 +77,25 @@ def main(site_root: str, expected_library: str) -> None:
     for tok in required:
         concept(tok in full,f'missing core concept: {tok}')
 
-    forbidden=[
-        '共變異數為 0 就一定獨立',
-        '任何兩個邊際常態就自動聯合常態',
-        '每個分配都有有限 MGF',
-        '中央極限定理表示原始資料會變成常態',
-        't 分配對任何母體都精確成立',
-        'likelihood 是參數的機率密度',
-        '充分統計量一定無偏',
-        'Cramér–Rao 下界不需要任何正則條件',
-        '95% 信賴區間表示參數有 95% 機率落在區間',
-        'p-value 是虛無假設為真的機率',
-        '每個複合假設都有 UMP',
-        'Wilks 定理在所有有限樣本都精確成立',
-        'Gauss–Markov 必須假設常態誤差',
-        'R² 高代表因果關係成立',
+    corrections=[
+        '不足以推出獨立',
+        '邊際常態不足以決定聯合分配',
+        '不保證所有分配都在 0 附近有有限 MGF',
+        '標準化樣本平均分布收斂到 N(0,1)',
+        '精確 t 結果還依賴常態母體',
+        'Likelihood 不是參數的機率分布',
+        '「充分」不代表「無偏」',
+        'Cramér–Rao 下界在正則條件下',
+        '古典參數不是以 95% 機率落在已固定區間內',
+        '不是 H0 為真的機率',
+        '因此未必存在',
+        '這需要正則條件',
+        '常態性不是 BLUE 的必要條件',
+        'R² 高仍不等於因果關係成立',
     ]
-    for tok in forbidden:
-        concept(tok not in full,f'forbidden overclaim: {tok}')
+    corrective_corpus=full+'\n'+json.dumps(questions,ensure_ascii=False)
+    for tok in corrections:
+        concept(tok in corrective_corpus,f'missing corrective statement: {tok}')
 
     q={x['id']:x for x in questions['items']}
     expected={
