@@ -14,7 +14,7 @@ def replace_once(text: str, old: str, new: str, label: str) -> str:
 
 
 def sub_once(text: str, pattern: str, replacement: str, label: str, *, flags: int = 0) -> str:
-    text, count = re.subn(pattern, replacement, text, count=1, flags=flags)
+    text, count = re.subn(pattern, lambda _match: replacement, text, count=1, flags=flags)
     if count != 1:
         raise AssertionError(f"{label}: expected exactly one match, got {count}")
     return text
@@ -123,7 +123,7 @@ def main(workflow_path: str) -> None:
           if cost_section_count != 1:
               raise AssertionError('cost accounting checkpoint section not found')
           c, cost_gate_count = re.subn(
-              r'(?m)^9\. 成本會計.*$',
+              r'(?m)^9\\. 成本會計.*$',
               '9. 成本會計先套用發布後獨立二次內容審計修正，再驗證 19 章、3 附錄、95 題、150 筆搜尋索引、19 張 SVG，並執行 857 項獨立檢查與 44 項數值重算。',
               c,
               count=1,
@@ -147,15 +147,18 @@ def main(workflow_path: str) -> None:
         "update cost accounting shared checkpoint",
     )
 
-    old_readme = """          cost = '- 《成本會計學》：一般大學成本會計，19 章、3 附錄、95 題題庫、146 筆搜尋索引與 19 張圖解；內容版本 `2026.07.29-1`。\n'
-"""
-    new_readme = """          cost = '- 《成本會計學》：一般大學成本會計，19 章、3 附錄、95 題題庫、150 筆搜尋索引與 19 張圖解；發布後獨立二次內容審計版本 `2026.07.29-2`。\n'
-"""
-    text = replace_once(text, old_readme, new_readme, "update cost accounting README entry")
+    readme_assignment_pattern = r"(?m)^          cost = '- 《成本會計學》：.*'$"
+    readme_assignment = "          cost = '- 《成本會計學》：一般大學成本會計，19 章、3 附錄、95 題題庫、150 筆搜尋索引與 19 張圖解；發布後獨立二次內容審計版本 `2026.07.29-2`。\\n'"
+    text = sub_once(
+        text,
+        readme_assignment_pattern,
+        readme_assignment,
+        "update cost accounting README assignment",
+    )
 
     readme_marker = """          r = re.sub(r'五本書均由同一個 canonical GitHub Pages 工作流部署。', '全部正式教材均由同一個 canonical GitHub Pages 工作流部署。', r)
 """
-    readme_inject = """          cost_v2_line = cost.rstrip('\n')
+    readme_inject = """          cost_v2_line = cost.rstrip('\\n')
           r_lines = r.splitlines()
           cost_indexes = [i for i, line in enumerate(r_lines) if line.startswith('- 《成本會計學》：')]
           if cost_indexes:
@@ -166,7 +169,7 @@ def main(workflow_path: str) -> None:
           else:
               insert_at = max(i for i, line in enumerate(r_lines) if line.startswith('- 《')) + 1
               r_lines.insert(insert_at, cost_v2_line)
-          r = '\n'.join(r_lines) + ('\n' if r.endswith('\n') else '')
+          r = '\\n'.join(r_lines) + ('\\n' if r.endswith('\\n') else '')
           r = re.sub(r'五本書均由同一個 canonical GitHub Pages 工作流部署。', '全部正式教材均由同一個 canonical GitHub Pages 工作流部署。', r)
 """
     text = replace_once(text, readme_marker, readme_inject, "deduplicate cost accounting README entry")
