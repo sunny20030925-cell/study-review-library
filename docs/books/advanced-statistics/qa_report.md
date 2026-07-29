@@ -53,3 +53,34 @@
 - Pages artifact：`8731080555`；digest `sha256:e94982473758beeee6234d33e0962b979267c9f46ab9e0a8b9926c9cce66a25b`。
 - 部署後 artifact 重新下載：23 份本書 HTML、100 題、189 搜尋、20 SVG 全數核對通過。
 - post-deploy recorder：`passed-structured-recorder`；已移除舊版依賴 checkpoint 自然語句的硬比對流程。
+
+## 第二次內容審計 v2（2026-07-30）
+
+本輪不是重跑初版 QA，而是重新逐章審查公式、成立條件、參數化、例題與 100 題答案，優先處理「算式看似正確，但少一個條件就會誤導」的內容。
+
+### 實際修正／補強
+
+1. **充分與完備**：移除「完備性比充分性更強」的一般化說法。兩者是不同性質，一般互不推出；Lehmann–Scheffé 使用的是同一統計量同時完備且充分。
+2. **Negative Binomial**：補齊「直到第 r 次成功的試驗總次數」參數化、支撐、PMF、期望與變異數，並明示另一種「失敗次數」口徑不可混用。
+3. **多元常態**：條件常態公式明列聯合常態與 `Var(X)>0`；只有兩個邊際常態不足以套用。
+4. **LLN／Slutsky／Delta method**：補正式 Slutsky 敘述與 studentization 例；補 `g'(theta)=0` 時一階 Delta method 退化的警告。
+5. **MLE**：補 MLE invariance 與參數轉換例題。
+6. **估計量品質**：補一致性、漸近常態；Fisher information／CRLB 明列內點與正則條件；Rao–Blackwell 明列平方可積／有限變異數語境。
+7. **信賴區間**：區分常態且 sigma 已知時的精確 z 區間與一般 CLT 大樣本近似；精確 t 區間明列 iid 常態與 S² 定義。
+8. **檢定理論**：分清 size 與 level alpha；p-value 補 composite null／nuisance parameter 校準；NP 補離散情況可能需 randomization。
+9. **UMP／LRT／Wilks**：補 MLR／Karlin–Rubin 結構；Wilks 明列 H0、正則巢狀、可識別、內點條件及非正則邊界例外。
+10. **線性模型**：Gauss–Markov 改成條件於 X 的 `E(epsilon|X)=0`、`Var(epsilon|X)=sigma²I`、full rank；精確 F 說明 q、p 與 `F_(q,n-p)`。
+
+### 題庫調整
+
+- 保留全部 100 個 question ID，只改 7 題內容／詳解：`ch03-q05`、`ch11-q01`、`ch13-q03`、`ch14-q04`、`ch15-q05`、`ch17-q04`、`ch18-q04`。
+- 題數仍為每章 5 題，閱讀進度與錯題儲存鍵不變。
+
+### 獨立 QA 與部署
+
+- v2 reaudit validator：1059 項通過。
+- 獨立數值重算：20 項通過；含 Negative Binomial、Slutsky 尺度轉換、Delta、χ²、t、Gamma、多元常態、次序統計量、Bayes、CI、p-value、OLS／R² 等。
+- 其他正式教材逐檔 hash 比對：無變更。
+- Book version：`2026.07.30-1`；shared library：`2026.07.30-4`，20 本。
+- Pages run：`30489368806`；artifact：`8739025051`；digest `sha256:a5d6907a2c230e9767822c53c7a9ed16254e37f2fa4458ac9bea05d778f6c18c`。
+- 部署後重新下載 artifact，再次核對本書 23 份 HTML、100 題、189 搜尋、20 SVG 與 v2 QA 全部通過。

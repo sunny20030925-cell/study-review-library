@@ -1,35 +1,68 @@
-deploy	Validate industrial economics already in formal base	﻿2026-07-29T20:15:05.4455360Z ##[group]Run set -euo pipefail
-deploy	Validate industrial economics already in formal base	2026-07-29T20:15:05.4455733Z ^[[36;1mset -euo pipefail^[[0m
-deploy	Validate industrial economics already in formal base	2026-07-29T20:15:05.4456258Z ^[[36;1mINDUSTRIAL_LIBRARY_VERSION="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"^[[0m
-deploy	Validate industrial economics already in formal base	2026-07-29T20:15:05.4457351Z ^[[36;1mQA1="$(PYTHONPATH=deploy python deploy/validate_industrial_economics.py _site "$INDUSTRIAL_LIBRARY_VERSION" | tee /tmp/industrial-qa1.log | grep -oE '(^| )checks=[0-9]+' | head -n 1 | cut -d= -f2)"^[[0m
-deploy	Validate industrial economics already in formal base	2026-07-29T20:15:05.4459201Z ^[[36;1mQA2="$(PYTHONPATH=deploy python deploy/qa_industrial_economics.py _site "$INDUSTRIAL_LIBRARY_VERSION" | tee /tmp/industrial-qa2.log | grep -oE '(^| )checks=[0-9]+' | head -n 1 | cut -d= -f2)"^[[0m
-deploy	Validate industrial economics already in formal base	2026-07-29T20:15:05.4460017Z ^[[36;1mtest "$QA1" = "935"^[[0m
-deploy	Validate industrial economics already in formal base	2026-07-29T20:15:05.4460253Z ^[[36;1mtest "$QA2" = "479"^[[0m
-deploy	Validate industrial economics already in formal base	2026-07-29T20:15:05.4460476Z ^[[36;1mpython - <<'PY'^[[0m
-deploy	Validate industrial economics already in formal base	2026-07-29T20:15:05.4460690Z ^[[36;1mimport json^[[0m
-deploy	Validate industrial economics already in formal base	2026-07-29T20:15:05.4460944Z ^[[36;1md=json.load(open('_site/data/library.json'))^[[0m
-deploy	Validate industrial economics already in formal base	2026-07-29T20:15:05.4461293Z ^[[36;1mids=[b['id'] for b in d['books']]^[[0m
-deploy	Validate industrial economics already in formal base	2026-07-29T20:15:05.4461717Z ^[[36;1massert ids[-1]=='industrial-economics' and ids.count('industrial-economics')==1^[[0m
-deploy	Validate industrial economics already in formal base	2026-07-29T20:15:05.4462135Z ^[[36;1mPY^[[0m
-deploy	Validate industrial economics already in formal base	2026-07-29T20:15:05.4462341Z ^[[36;1mnode --check _site/app.js^[[0m
-deploy	Validate industrial economics already in formal base	2026-07-29T20:15:05.4462605Z ^[[36;1mnode --check _site/sw.js^[[0m
-deploy	Validate industrial economics already in formal base	2026-07-29T20:15:05.4507725Z shell: /usr/bin/bash -e {0}
-deploy	Validate industrial economics already in formal base	2026-07-29T20:15:05.4507982Z env:
-deploy	Validate industrial economics already in formal base	2026-07-29T20:15:05.4508175Z   GITHUB_PAGES: true
-deploy	Validate industrial economics already in formal base	2026-07-29T20:15:05.4508674Z   FORMAL_BASE_SOURCE: deployment-receipt
-deploy	Validate industrial economics already in formal base	2026-07-29T20:15:05.4508967Z   FORMAL_BASE_ARTIFACT_ID: 8738081884
-deploy	Validate industrial economics already in formal base	2026-07-29T20:15:05.4509398Z   FORMAL_BASE_DIGEST: sha256:674accfd19678ab1b16463af54c3b7d87060bb697712698b215cd1455bfea8e5
-deploy	Validate industrial economics already in formal base	2026-07-29T20:15:05.4510043Z   ECONOMETRICS_REAUDIT_CHECKS: 57
-deploy	Validate industrial economics already in formal base	2026-07-29T20:15:05.4510301Z   ECON_LIBRARY_VERSION: 2026.07.30-2
-deploy	Validate industrial economics already in formal base	2026-07-29T20:15:05.4510687Z ##[endgroup]
-deploy	Validate industrial economics already in formal base	2026-07-29T20:15:05.5894426Z Traceback (most recent call last):
-deploy	Validate industrial economics already in formal base	2026-07-29T20:15:05.5896089Z   File "/home/runner/work/study-review-library/study-review-library/deploy/validate_industrial_economics.py", line 42, in <module>
-deploy	Validate industrial economics already in formal base	2026-07-29T20:15:05.5897240Z     main(sys.argv[1],sys.argv[2])
-deploy	Validate industrial economics already in formal base	2026-07-29T20:15:05.5898238Z   File "/home/runner/work/study-review-library/study-review-library/deploy/validate_industrial_economics.py", line 15, in main
-deploy	Validate industrial economics already in formal base	2026-07-29T20:15:05.5900264Z     ids=[b['id'] for b in lib['books']]; ck(len(ids)>=13 and ids[-1]==BOOK,'industrial economics must be the appended tail'); ck(ids.count(BOOK)==1,'single industrial economics registry entry')
-deploy	Validate industrial economics already in formal base	2026-07-29T20:15:05.5901489Z                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-deploy	Validate industrial economics already in formal base	2026-07-29T20:15:05.5902552Z   File "/home/runner/work/study-review-library/study-review-library/deploy/validate_industrial_economics.py", line 13, in ck
-deploy	Validate industrial economics already in formal base	2026-07-29T20:15:05.5903479Z     if not cond: raise AssertionError(msg)
-deploy	Validate industrial economics already in formal base	2026-07-29T20:15:05.5903916Z                  ^^^^^^^^^^^^^^^^^^^^^^^^^
-deploy	Validate industrial economics already in formal base	2026-07-29T20:15:05.5904538Z AssertionError: industrial economics must be the appended tail
-deploy	Validate industrial economics already in formal base	2026-07-29T20:15:05.6102450Z ##[error]Process completed with exit code 1.
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	﻿2026-07-29T20:45:07.0400268Z ##[group]Run set -euo pipefail
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0400652Z ^[[36;1mset -euo pipefail^[[0m
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0400910Z ^[[36;1mpython -m py_compile \^[[0m
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0401286Z ^[[36;1m  deploy/advanced_statistics_v2_corrections.py \^[[0m
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0401671Z ^[[36;1m  deploy/patch_advanced_statistics_v2.py \^[[0m
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0402030Z ^[[36;1m  deploy/qa_advanced_statistics_reaudit_v2.py \^[[0m
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0402415Z ^[[36;1m  deploy/record_advanced_statistics_v2_deployment.py^[[0m
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0403007Z ^[[36;1m^[[0m
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0403588Z ^[[36;1mfind _site/books -type f ! -path '*/advanced-statistics/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-advstat-other-books.sha256^[[0m
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0404582Z ^[[36;1mfind _site/assets -type f ! -path '*/advanced-statistics-svg/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-advstat-other-assets.sha256^[[0m
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0405175Z ^[[36;1m^[[0m
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0405620Z ^[[36;1mADVSTAT_LIBRARY_VERSION="$(PYTHONPATH=deploy python deploy/patch_advanced_statistics_v2.py _site | tail -n 1)"^[[0m
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0406190Z ^[[36;1mtest -n "$ADVSTAT_LIBRARY_VERSION"^[[0m
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0406872Z ^[[36;1mPYTHONPATH=deploy python deploy/validate_advanced_statistics.py _site "$ADVSTAT_LIBRARY_VERSION" | tee /tmp/advanced-statistics-existing.log^[[0m
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0407858Z ^[[36;1mPYTHONPATH=deploy python deploy/qa_advanced_statistics_reaudit_v2.py _site "$ADVSTAT_LIBRARY_VERSION" | tee /tmp/advanced-statistics-reaudit.log^[[0m
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0408755Z ^[[36;1mADVSTAT_REAUDIT_CHECKS="$(grep -oE '(^| )checks=[0-9]+' /tmp/advanced-statistics-reaudit.log | head -n 1 | cut -d= -f2)"^[[0m
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0409585Z ^[[36;1mADVSTAT_NUMERIC_RECHECKS="$(grep -oE '(^| )numerical_rechecks=[0-9]+' /tmp/advanced-statistics-reaudit.log | head -n 1 | cut -d= -f2)"^[[0m
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0410178Z ^[[36;1mtest -n "$ADVSTAT_REAUDIT_CHECKS"^[[0m
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0410471Z ^[[36;1mtest -n "$ADVSTAT_NUMERIC_RECHECKS"^[[0m
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0410795Z ^[[36;1mtest "$ADVSTAT_REAUDIT_CHECKS" -ge 400^[[0m
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0411113Z ^[[36;1mtest "$ADVSTAT_NUMERIC_RECHECKS" -ge 20^[[0m
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0411404Z ^[[36;1m^[[0m
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0411939Z ^[[36;1mfind _site/books -type f ! -path '*/advanced-statistics/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-advstat-other-books.sha256^[[0m
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0413109Z ^[[36;1mfind _site/assets -type f ! -path '*/advanced-statistics-svg/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-advstat-other-assets.sha256^[[0m
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0414140Z ^[[36;1mdiff -u /tmp/pre-advstat-other-books.sha256 /tmp/post-advstat-other-books.sha256^[[0m
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0414765Z ^[[36;1mdiff -u /tmp/pre-advstat-other-assets.sha256 /tmp/post-advstat-other-assets.sha256^[[0m
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0415193Z ^[[36;1m^[[0m
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0415521Z ^[[36;1mADVSTAT_LIBRARY_VERSION="$ADVSTAT_LIBRARY_VERSION" python - <<'PY'^[[0m
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0415934Z ^[[36;1mimport json,os^[[0m
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0416187Z ^[[36;1mfrom pathlib import Path^[[0m
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0416451Z ^[[36;1msite=Path('_site')^[[0m
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0416737Z ^[[36;1mlib=json.load(open(site/'data/library.json'))^[[0m
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0417061Z ^[[36;1mids=[b['id'] for b in lib['books']]^[[0m
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0417383Z ^[[36;1mbase=json.load(open('/tmp/base_ids.json'))^[[0m
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0417688Z ^[[36;1massert ids==base, (base,ids)^[[0m
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0417984Z ^[[36;1massert ids.count('advanced-statistics')==1^[[0m
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0418307Z ^[[36;1mif 'computer-fundamentals' in ids:^[[0m
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0418732Z ^[[36;1m    assert ids.index('advanced-statistics') < ids.index('computer-fundamentals')^[[0m
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0419230Z ^[[36;1massert lib['version']==os.environ['ADVSTAT_LIBRARY_VERSION']^[[0m
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0419607Z ^[[36;1mroot=site/'books/advanced-statistics'^[[0m
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0420149Z ^[[36;1mm=json.load(open(root/'manifest.json')); q=json.load(open(root/'questions.json')); s=json.load(open(root/'search.json'))^[[0m
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0420893Z ^[[36;1massert m['version']==q['version']=='2026.07.30-1'^[[0m
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0421309Z ^[[36;1massert len(m['chapters'])==23 and q['count']==100 and len(s['entries'])==189^[[0m
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0421808Z ^[[36;1massert len(list((site/'assets/advanced-statistics-svg').glob('*.svg')))==20^[[0m
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0422307Z ^[[36;1mprint('ADVANCED_STATISTICS_V2_IN_PLACE_OK',lib['version'],len(ids))^[[0m
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0422672Z ^[[36;1mPY^[[0m
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0423131Z ^[[36;1mnode --check _site/app.js^[[0m
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0423408Z ^[[36;1mnode --check _site/sw.js^[[0m
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0423764Z ^[[36;1mecho "ADVSTAT_REAUDIT_CHECKS=$ADVSTAT_REAUDIT_CHECKS" >> "$GITHUB_ENV"^[[0m
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0424263Z ^[[36;1mecho "ADVSTAT_NUMERIC_RECHECKS=$ADVSTAT_NUMERIC_RECHECKS" >> "$GITHUB_ENV"^[[0m
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0424765Z ^[[36;1mecho "ADVSTAT_LIBRARY_VERSION=$ADVSTAT_LIBRARY_VERSION" >> "$GITHUB_ENV"^[[0m
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0468023Z shell: /usr/bin/bash -e {0}
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0468289Z env:
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0468491Z   GITHUB_PAGES: true
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0468735Z   FORMAL_BASE_SOURCE: deployment-receipt
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0469023Z   FORMAL_BASE_ARTIFACT_ID: 8739025051
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0469448Z   FORMAL_BASE_DIGEST: sha256:a5d6907a2c230e9767822c53c7a9ed16254e37f2fa4458ac9bea05d778f6c18c
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0469884Z ##[endgroup]
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0813458Z deploy/advanced_statistics_v2_corrections.py:76: SyntaxWarning: invalid escape sequence '\L'
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.0816388Z   ('X_n\\Rightarrow X,\\ Y_n\\xrightarrow{p}c\\ \Longrightarrow\\ X_nY_n\\Rightarrow cX', 'Slutsky 的乘法版本；加法與 c≠0 時的除法版本同理。'),
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.2848669Z Traceback (most recent call last):
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.2850491Z   File "/home/runner/work/study-review-library/study-review-library/deploy/validate_advanced_statistics.py", line 9, in <module>
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.2851710Z     import validate_advanced_statistics_legacy as legacy
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.2853289Z   File "/home/runner/work/study-review-library/study-review-library/deploy/validate_advanced_statistics_legacy.py", line 56
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.2854599Z     ck(len({q['id'] for q in questions['items'])==100,'unique question ids')
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.2855272Z                                                ^
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.2856001Z SyntaxError: closing parenthesis ')' does not match opening parenthesis '{'
+deploy	Apply or validate advanced statistics post-publication v2 reaudit	2026-07-29T20:45:07.3010506Z ##[error]Process completed with exit code 1.

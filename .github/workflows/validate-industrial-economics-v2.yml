@@ -1,0 +1,191 @@
+name: Validate industrial economics v2 audit
+
+on:
+  pull_request:
+    paths:
+      - 'deploy/industrial_economics_content_v2.py'
+      - 'deploy/industrial_economics_questions_v2.py'
+      - 'deploy/patch_industrial_economics_v2.py'
+      - 'deploy/validate_industrial_economics_v2.py'
+      - 'deploy/qa_industrial_economics_v2.py'
+      - 'deploy/integrate_industrial_economics_v2.py'
+      - 'deploy/record_industrial_economics_v2_deployment.py'
+      - 'deploy/patch_industrial_v2_deploy_workflow.py'
+      - 'docs/books/industrial-economics/**'
+      - '.github/workflows/validate-industrial-economics-v2.yml'
+      - '.github/workflows/stage-industrial-economics-v2-deploy.yml'
+      - '.github/workflows/deploy-pages.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select newest verified formal Pages base
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          extract_artifact() {
+            ZIP="$1"; OUT="$2"; TMP="$3"
+            rm -rf "$OUT" "$TMP"
+            mkdir -p "$OUT" "$TMP"
+            unzip -q "$ZIP" -d "$TMP"
+            if [ -f "$TMP/artifact.tar" ]; then
+              tar -xf "$TMP/artifact.tar" -C "$OUT"
+            elif [ -f "$TMP/artifact.tar.gz" ]; then
+              tar -xzf "$TMP/artifact.tar.gz" -C "$OUT"
+            else
+              cp -a "$TMP/." "$OUT/"
+            fi
+          }
+
+          RECEIPT_ID="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['pages_artifact_id'])")"
+          RECEIPT_DIGEST="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['pages_artifact_digest'])")"
+          RECEIPT_VERSION="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['library_version'])")"
+          RECEIPT_COUNT="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['book_count'])")"
+          RECEIPT_RUN="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json')).get('workflow_run_id',''))")"
+          gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${RECEIPT_ID}/zip" > /tmp/receipt.zip
+          echo "${RECEIPT_DIGEST#sha256:}  /tmp/receipt.zip" | sha256sum --check -
+          extract_artifact /tmp/receipt.zip /tmp/receipt-site /tmp/receipt-unpack
+
+          SELECTED_SITE=/tmp/receipt-site
+          SELECTED_VERSION="$RECEIPT_VERSION"
+          SELECTED_COUNT="$RECEIPT_COUNT"
+          SELECTED_SOURCE=deployment-receipt
+
+          WF_NAME="$(python -c "import json;print(json.load(open('docs/study_library_workflow_receipt.json')).get('workflow',''))")"
+          WF_CONCLUSION="$(python -c "import json;print(json.load(open('docs/study_library_workflow_receipt.json')).get('conclusion',''))")"
+          WF_RUN="$(python -c "import json;print(json.load(open('docs/study_library_workflow_receipt.json')).get('workflow_run_id',''))")"
+          if [ "$WF_NAME" = "Deploy study library" ] && [ "$WF_CONCLUSION" = "success" ] && [ -n "$WF_RUN" ] && [ "$WF_RUN" != "$RECEIPT_RUN" ]; then
+            WF_ID="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${WF_RUN}/artifacts" --jq '.artifacts[] | select(.name == "github-pages") | .id' | tail -n 1)"
+            WF_DIGEST="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${WF_RUN}/artifacts" --jq '.artifacts[] | select(.name == "github-pages") | .digest' | tail -n 1)"
+            if [ -n "$WF_ID" ] && [ -n "$WF_DIGEST" ]; then
+              gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${WF_ID}/zip" > /tmp/workflow.zip
+              echo "${WF_DIGEST#sha256:}  /tmp/workflow.zip" | sha256sum --check -
+              extract_artifact /tmp/workflow.zip /tmp/workflow-site /tmp/workflow-unpack
+              WF_VERSION="$(python -c "import json;print(json.load(open('/tmp/workflow-site/data/library.json'))['version'])")"
+              WF_COUNT="$(python -c "import json;print(len(json.load(open('/tmp/workflow-site/data/library.json'))['books']))")"
+              if RECEIPT_VERSION="$RECEIPT_VERSION" WF_VERSION="$WF_VERSION" python - <<'PY'
+          import os,re,sys
+          def key(v):
+              m=re.fullmatch(r'(\d{4})\.(\d{2})\.(\d{2})-(\d+)',v)
+              if not m: raise SystemExit(2)
+              return tuple(map(int,m.groups()))
+          sys.exit(0 if key(os.environ['WF_VERSION']) > key(os.environ['RECEIPT_VERSION']) else 1)
+          PY
+              then
+                SELECTED_SITE=/tmp/workflow-site
+                SELECTED_VERSION="$WF_VERSION"
+                SELECTED_COUNT="$WF_COUNT"
+                SELECTED_SOURCE=successful-workflow-artifact
+              fi
+            fi
+          fi
+
+          rm -rf _site
+          mkdir _site
+          cp -a "$SELECTED_SITE/." _site/
+          SELECTED_VERSION="$SELECTED_VERSION" SELECTED_COUNT="$SELECTED_COUNT" python - <<'PY'
+          import json,os
+          from pathlib import Path
+          site=Path('_site')
+          lib=json.load(open(site/'data/library.json'))
+          ids=[b['id'] for b in lib['books']]
+          assert lib['version']==os.environ['SELECTED_VERSION']
+          assert len(ids)==int(os.environ['SELECTED_COUNT'])
+          assert ids.count('industrial-economics')==1
+          Path('/tmp/base_ids.json').write_text(json.dumps(ids))
+          print('FORMAL_BASE_OK',lib['version'],len(ids),'industrial_index',ids.index('industrial-economics'))
+          PY
+          echo "FORMAL_BASE_SOURCE=$SELECTED_SOURCE"
+
+      - name: Apply v2 correction and run two independent QA rounds
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            deploy/industrial_economics_content_v2.py \
+            deploy/industrial_economics_questions_v2.py \
+            deploy/patch_industrial_economics_v2.py \
+            deploy/validate_industrial_economics_v2.py \
+            deploy/qa_industrial_economics_v2.py \
+            deploy/integrate_industrial_economics_v2.py \
+            deploy/record_industrial_economics_v2_deployment.py \
+            deploy/patch_industrial_v2_deploy_workflow.py
+          BEFORE="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"
+          FINAL="$(PYTHONPATH=deploy python deploy/integrate_industrial_economics_v2.py _site "$BEFORE")"
+          QA1="$(PYTHONPATH=deploy python deploy/validate_industrial_economics_v2.py _site "$FINAL" | tee /tmp/qa1.log | grep -oE '(^| )checks=[0-9]+' | head -n 1 | cut -d= -f2)"
+          QA2="$(PYTHONPATH=deploy python deploy/qa_industrial_economics_v2.py _site "$FINAL" | tee /tmp/qa2.log | grep -oE '(^| )checks=[0-9]+' | head -n 1 | cut -d= -f2)"
+          BEFORE="$BEFORE" FINAL="$FINAL" QA1="$QA1" QA2="$QA2" python - <<'PY'
+          import json,os,re
+          base=json.load(open('/tmp/base_ids.json'))
+          lib=json.load(open('_site/data/library.json'))
+          ids=[b['id'] for b in lib['books']]
+          assert ids==base
+          m=re.fullmatch(r'(\d{4}\.\d{2}\.\d{2})-(\d+)',os.environ['BEFORE'])
+          assert m
+          assert os.environ['FINAL']==f'{m.group(1)}-{int(m.group(2))+1}'
+          assert lib['version']==os.environ['FINAL']
+          assert int(os.environ['QA1']) >= 150 and int(os.environ['QA2']) >= 450
+          manifest=json.load(open('_site/books/industrial-economics/manifest.json'))
+          questions=json.load(open('_site/books/industrial-economics/questions.json'))
+          assert manifest['version']=='2026.07.30-2'
+          assert questions['version']=='2026.07.30-2'
+          print('INDUSTRIAL_ECONOMICS_V2_CANDIDATE_OK',lib['version'],len(ids),'qa1',os.environ['QA1'],'qa2',os.environ['QA2'])
+          PY
+          echo "INDUSTRIAL_V2_QA1_CHECKS=$QA1" >> "$GITHUB_ENV"
+          echo "INDUSTRIAL_V2_QA2_CHECKS=$QA2" >> "$GITHUB_ENV"
+          node --check _site/app.js
+          node --check _site/sw.js
+
+      - name: Dry-run canonical workflow patch
+        run: |
+          set -euo pipefail
+          cp .github/workflows/deploy-pages.yml /tmp/deploy-pages.before.yml
+          python deploy/patch_industrial_v2_deploy_workflow.py
+          ruby -e "require 'yaml'; YAML.load_file('.github/workflows/deploy-pages.yml'); puts 'INDUSTRIAL_V2_DEPLOY_YAML_OK'"
+          grep -F 'Apply or validate industrial economics v2 independent audit' .github/workflows/deploy-pages.yml
+          grep -F 'record_industrial_economics_v2_deployment.py' .github/workflows/deploy-pages.yml
+          grep -F "assert im['version']==iq['version']=='2026.07.30-2'" .github/workflows/deploy-pages.yml
+          mv /tmp/deploy-pages.before.yml .github/workflows/deploy-pages.yml
+
+      - name: Dry-run structured v2 recorder
+        env:
+          PAGES_ARTIFACT_ID: '9999999999'
+          PAGES_ARTIFACT_DIGEST: 'sha256:0000000000000000000000000000000000000000000000000000000000000000'
+          PAGES_ARTIFACT_SHA256: '0000000000000000000000000000000000000000000000000000000000000000'
+          DEPLOYED_PAGE_URL: 'https://example.invalid/study-review-library/'
+        run: |
+          set -euo pipefail
+          python deploy/record_industrial_economics_v2_deployment.py _site
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          lib=json.load(open('_site/data/library.json'))
+          receipt=json.load(open('docs/deployment_receipt.json'))
+          ids=[b['id'] for b in lib['books']]
+          assert receipt['library_version']==lib['version']
+          assert receipt['book_count']==len(ids)
+          assert receipt['industrial_economics_version']=='2026.07.30-2'
+          assert receipt['industrial_economics_round1_check_count']>=150
+          assert receipt['industrial_economics_round2_check_count']>=450
+          assert receipt['industrial_economics_quantitative_recheck_count']==26
+          assert receipt['industrial_economics_v2_correction_area_count']==12
+          assert receipt['industrial_economics_ids_preserved'] is True
+          assert receipt['industrial_economics_progress_compatibility']=='preserved'
+          status=Path('docs/books/industrial-economics/status.md').read_text(encoding='utf-8')
+          assert '第二次獨立內容複核與糾錯完成' in status
+          checkpoint=Path('docs/shared_checkpoint.md').read_text(encoding='utf-8')
+          ordinal=ids.index('industrial-economics')+1
+          assert f'### {ordinal}. 產業經濟學' in checkpoint
+          assert '12 個實質修正區域' in checkpoint
+          audit=Path('docs/books/industrial-economics/v2_audit_report.md').read_text(encoding='utf-8')
+          assert '## 正式發布結果' in audit
+          print('INDUSTRIAL_ECONOMICS_V2_RECORDER_DRY_RUN_OK',lib['version'],len(ids),ordinal)
+          PY

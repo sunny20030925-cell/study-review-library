@@ -1,0 +1,59 @@
+name: Validate forward-compatible shared validators
+
+on:
+  pull_request:
+    paths:
+      - 'deploy/validate_advanced_statistics.py'
+      - 'deploy/validate_industrial_economics.py'
+      - 'deploy/qa_industrial_economics.py'
+      - '.github/workflows/validate-forward-compatible-shared-validators.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download current formal Pages artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          ID="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['pages_artifact_id'])")"
+          DIGEST="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['pages_artifact_digest'])")"
+          gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${ID}/zip" > /tmp/pages.zip
+          echo "${DIGEST#sha256:}  /tmp/pages.zip" | sha256sum --check -
+          mkdir -p /tmp/pages-artifact _site
+          unzip -q /tmp/pages.zip -d /tmp/pages-artifact
+          if [ -f /tmp/pages-artifact/artifact.tar ]; then
+            tar -xf /tmp/pages-artifact/artifact.tar -C _site
+          elif [ -f /tmp/pages-artifact/artifact.tar.gz ]; then
+            tar -xzf /tmp/pages-artifact/artifact.tar.gz -C _site
+          else
+            cp -a /tmp/pages-artifact/. _site/
+          fi
+
+      - name: Validate current formal registry with forward-compatible validators
+        run: |
+          set -euo pipefail
+          VERSION="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"
+          PYTHONPATH=deploy python deploy/validate_advanced_statistics.py _site "$VERSION"
+          PYTHONPATH=deploy python deploy/validate_industrial_economics.py _site "$VERSION"
+          PYTHONPATH=deploy python deploy/qa_industrial_economics.py _site "$VERSION"
+
+      - name: Apply advanced statistics v2 and validate appended-book compatibility
+        run: |
+          set -euo pipefail
+          FINAL="$(PYTHONPATH=deploy python deploy/patch_advanced_statistics_v2.py _site | tail -n 1)"
+          PYTHONPATH=deploy python deploy/validate_advanced_statistics.py _site "$FINAL"
+          PYTHONPATH=deploy python deploy/qa_advanced_statistics_reaudit_v2.py _site "$FINAL"
+          PYTHONPATH=deploy python deploy/validate_industrial_economics.py _site "$FINAL"
+          PYTHONPATH=deploy python deploy/qa_industrial_economics.py _site "$FINAL"
+          node --check _site/app.js
+          node --check _site/sw.js
+          echo "FORWARD_COMPATIBLE_VALIDATORS_OK library=$FINAL"

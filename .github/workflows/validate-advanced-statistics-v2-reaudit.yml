@@ -1,0 +1,96 @@
+name: Validate advanced statistics v2 reaudit
+
+on:
+  pull_request:
+    paths:
+      - 'deploy/advanced_statistics_v2_corrections.py'
+      - 'deploy/patch_advanced_statistics_v2.py'
+      - 'deploy/qa_advanced_statistics_reaudit_v2.py'
+      - 'deploy/record_advanced_statistics_v2_deployment.py'
+      - 'docs/books/advanced-statistics/**'
+      - '.github/workflows/validate-advanced-statistics-v2-reaudit.yml'
+      - '.github/workflows/deploy-pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compile v2 correction sources
+        run: |
+          python -m py_compile \
+            deploy/advanced_statistics_v2_corrections.py \
+            deploy/patch_advanced_statistics_v2.py \
+            deploy/qa_advanced_statistics_reaudit_v2.py
+
+      - name: Download current verified formal Pages artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          ARTIFACT_ID="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['pages_artifact_id'])")"
+          DIGEST="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['pages_artifact_digest'])")"
+          VERSION="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['library_version'])")"
+          COUNT="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['book_count'])")"
+          gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" > /tmp/pages.zip
+          echo "${DIGEST#sha256:}  /tmp/pages.zip" | sha256sum --check -
+          mkdir -p /tmp/pages-artifact _site
+          unzip -q /tmp/pages.zip -d /tmp/pages-artifact
+          if [ -f /tmp/pages-artifact/artifact.tar ]; then
+            tar -xf /tmp/pages-artifact/artifact.tar -C _site
+          elif [ -f /tmp/pages-artifact/artifact.tar.gz ]; then
+            tar -xzf /tmp/pages-artifact/artifact.tar.gz -C _site
+          else
+            cp -a /tmp/pages-artifact/. _site/
+          fi
+          VERSION="$VERSION" COUNT="$COUNT" python - <<'PY'
+          import json,os
+          from pathlib import Path
+          site=Path('_site')
+          lib=json.load(open(site/'data/library.json'))
+          ids=[b['id'] for b in lib['books']]
+          assert lib['version']==os.environ['VERSION']
+          assert len(ids)==int(os.environ['COUNT'])
+          assert ids.count('advanced-statistics')==1
+          root=site/'books/advanced-statistics'
+          assert json.load(open(root/'manifest.json'))['version']=='2026.07.29-1'
+          assert json.load(open(root/'questions.json'))['version']=='2026.07.29-1'
+          print('ADVSTAT_FORMAL_BASE_OK',lib['version'],len(ids))
+          PY
+
+      - name: Apply v2 correction and preserve every other book
+        run: |
+          set -euo pipefail
+          find _site/books -type f ! -path '*/advanced-statistics/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-other-books.sha256
+          find _site/assets -type f ! -path '*/advanced-statistics-svg/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-other-assets.sha256
+          BEFORE_IDS="$(python -c "import json;print(json.dumps([b['id'] for b in json.load(open('_site/data/library.json'))['books']]))")"
+          FINAL_VERSION="$(PYTHONPATH=deploy python deploy/patch_advanced_statistics_v2.py _site | tail -n 1)"
+          test -n "$FINAL_VERSION"
+          PYTHONPATH=deploy python deploy/qa_advanced_statistics_reaudit_v2.py _site "$FINAL_VERSION"
+          find _site/books -type f ! -path '*/advanced-statistics/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-other-books.sha256
+          find _site/assets -type f ! -path '*/advanced-statistics-svg/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-other-assets.sha256
+          diff -u /tmp/pre-other-books.sha256 /tmp/post-other-books.sha256
+          diff -u /tmp/pre-other-assets.sha256 /tmp/post-other-assets.sha256
+          BEFORE_IDS="$BEFORE_IDS" FINAL_VERSION="$FINAL_VERSION" python - <<'PY'
+          import json,os
+          from pathlib import Path
+          site=Path('_site')
+          lib=json.load(open(site/'data/library.json'))
+          ids=[b['id'] for b in lib['books']]
+          assert ids==json.loads(os.environ['BEFORE_IDS'])
+          assert lib['version']==os.environ['FINAL_VERSION']
+          root=site/'books/advanced-statistics'
+          m=json.load(open(root/'manifest.json')); q=json.load(open(root/'questions.json')); s=json.load(open(root/'search.json'))
+          assert m['version']==q['version']=='2026.07.30-1'
+          assert len(m['chapters'])==23 and q['count']==100 and len(s['entries'])==189
+          assert len(list((site/'assets/advanced-statistics-svg').glob('*.svg')))==20
+          print('ADVSTAT_V2_IN_PLACE_OK',lib['version'],len(ids))
+          PY
+          node --check _site/app.js
+          node --check _site/sw.js
