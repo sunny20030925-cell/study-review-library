@@ -1,0 +1,59 @@
+name: Stage mathematical economics v2 release
+
+on:
+  pull_request:
+    paths:
+      - 'deploy/stage_mathematical_economics_v2_release.py'
+      - 'deploy/record_mathematical_economics_v2_deployment.py'
+      - '.github/workflows/stage-mathematical-economics-v2-release.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'deploy/stage_mathematical_economics_v2_release.py'
+      - 'deploy/record_mathematical_economics_v2_deployment.py'
+      - '.github/workflows/stage-mathematical-economics-v2-release.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  stage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate and stage canonical workflow update
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            deploy/stage_mathematical_economics_v2_release.py \
+            deploy/record_mathematical_economics_v2_deployment.py \
+            deploy/integrate_mathematical_economics_v2.py \
+            deploy/qa_mathematical_economics_v2.py
+          python deploy/stage_mathematical_economics_v2_release.py
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('.github/workflows/deploy-pages.yml').read_text()
+          assert p.count('Integrate mathematical economics v2 audited release')==1
+          assert p.count('record_mathematical_economics_v2_deployment.py')>=2
+          assert "ids[-2:]==['industry-trade','mathematical-economics']" in p
+          assert 'MATHEMATICAL_ECONOMICS_V2_QA_CHECKS' in p
+          print('MATHEMATICAL_ECONOMICS_V2_STAGE_VALIDATED')
+          PY
+          git diff --check
+
+      - name: Commit canonical workflow stage
+        if: github.event_name == 'push'
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- .github/workflows/deploy-pages.yml; then
+            echo 'Canonical workflow already staged.'
+            exit 0
+          fi
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add .github/workflows/deploy-pages.yml
+          git commit -m 'Stage mathematical economics v2 canonical deployment'
+          git push origin HEAD:main
