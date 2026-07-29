@@ -1,0 +1,679 @@
+name: Deploy study library
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - name: Select newest verified formal Pages base
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          extract_artifact() {
+            ZIP="$1"; OUT="$2"; TMP="$3"
+            rm -rf "$OUT" "$TMP"
+            mkdir -p "$OUT" "$TMP"
+            unzip -q "$ZIP" -d "$TMP"
+            if [ -f "$TMP/artifact.tar" ]; then
+              tar -xf "$TMP/artifact.tar" -C "$OUT"
+            elif [ -f "$TMP/artifact.tar.gz" ]; then
+              tar -xzf "$TMP/artifact.tar.gz" -C "$OUT"
+            else
+              cp -a "$TMP/." "$OUT/"
+            fi
+          }
+
+          RECEIPT_ID="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['pages_artifact_id'])")"
+          RECEIPT_DIGEST="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['pages_artifact_digest'])")"
+          RECEIPT_VERSION="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['library_version'])")"
+          RECEIPT_COUNT="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['book_count'])")"
+          RECEIPT_RUN="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json')).get('workflow_run_id',''))")"
+
+          gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${RECEIPT_ID}/zip" > /tmp/receipt-base.zip
+          echo "${RECEIPT_DIGEST#sha256:}  /tmp/receipt-base.zip" | sha256sum --check -
+          extract_artifact /tmp/receipt-base.zip /tmp/receipt-site /tmp/receipt-unpack
+          RECEIPT_VERSION="$RECEIPT_VERSION" RECEIPT_COUNT="$RECEIPT_COUNT" python - <<'PY'
+          import json,os
+          from pathlib import Path
+          site=Path('/tmp/receipt-site')
+          lib=json.load(open(site/'data/library.json'))
+          assert lib['version']==os.environ['RECEIPT_VERSION']
+          assert len(lib['books'])==int(os.environ['RECEIPT_COUNT'])
+          assert (site/'app.js').is_file() and (site/'sw.js').is_file()
+          PY
+
+          SELECTED_SITE=/tmp/receipt-site
+          SELECTED_SOURCE=deployment-receipt
+          SELECTED_ARTIFACT_ID="$RECEIPT_ID"
+          SELECTED_DIGEST="$RECEIPT_DIGEST"
+          SELECTED_VERSION="$RECEIPT_VERSION"
+          SELECTED_COUNT="$RECEIPT_COUNT"
+
+          WF_NAME="$(python -c "import json;print(json.load(open('docs/study_library_workflow_receipt.json')).get('workflow',''))")"
+          WF_CONCLUSION="$(python -c "import json;print(json.load(open('docs/study_library_workflow_receipt.json')).get('conclusion',''))")"
+          WF_RUN="$(python -c "import json;print(json.load(open('docs/study_library_workflow_receipt.json')).get('workflow_run_id',''))")"
+          if [ "$WF_NAME" = "Deploy study library" ] && [ "$WF_CONCLUSION" = "success" ] && [ -n "$WF_RUN" ] && [ "$WF_RUN" != "$RECEIPT_RUN" ]; then
+            WF_ID="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${WF_RUN}/artifacts" --jq '.artifacts[] | select(.name == "github-pages") | .id' | tail -n 1)"
+            WF_DIGEST="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${WF_RUN}/artifacts" --jq '.artifacts[] | select(.name == "github-pages") | .digest' | tail -n 1)"
+            if [ -n "$WF_ID" ] && [ -n "$WF_DIGEST" ]; then
+              gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${WF_ID}/zip" > /tmp/workflow-base.zip
+              echo "${WF_DIGEST#sha256:}  /tmp/workflow-base.zip" | sha256sum --check -
+              extract_artifact /tmp/workflow-base.zip /tmp/workflow-site /tmp/workflow-unpack
+              WF_VERSION="$(python -c "import json;print(json.load(open('/tmp/workflow-site/data/library.json'))['version'])")"
+              WF_COUNT="$(python -c "import json;print(len(json.load(open('/tmp/workflow-site/data/library.json'))['books']))")"
+              if RECEIPT_VERSION="$RECEIPT_VERSION" WF_VERSION="$WF_VERSION" python - <<'PY'
+          import os,re,sys
+          def key(v):
+              m=re.fullmatch(r'(\d{4})\.(\d{2})\.(\d{2})-(\d+)',v)
+              if not m: raise SystemExit(2)
+              return tuple(map(int,m.groups()))
+          sys.exit(0 if key(os.environ['WF_VERSION']) > key(os.environ['RECEIPT_VERSION']) else 1)
+          PY
+              then
+                SELECTED_SITE=/tmp/workflow-site
+                SELECTED_SOURCE=successful-workflow-artifact
+                SELECTED_ARTIFACT_ID="$WF_ID"
+                SELECTED_DIGEST="$WF_DIGEST"
+                SELECTED_VERSION="$WF_VERSION"
+                SELECTED_COUNT="$WF_COUNT"
+              fi
+            fi
+          fi
+
+          rm -rf _site
+          mkdir _site
+          cp -a "$SELECTED_SITE/." _site/
+          SELECTED_VERSION="$SELECTED_VERSION" SELECTED_COUNT="$SELECTED_COUNT" python - <<'PY'
+          import json,os
+          from pathlib import Path
+          site=Path('_site')
+          lib=json.load(open(site/'data/library.json'))
+          ids=[b['id'] for b in lib['books']]
+          assert lib['version']==os.environ['SELECTED_VERSION']
+          assert len(ids)==int(os.environ['SELECTED_COUNT'])
+          Path('/tmp/base_ids.json').write_text(json.dumps(ids))
+          assert (site/'app.js').is_file() and (site/'sw.js').is_file()
+          print('FORMAL_ARTIFACT_BASE_OK',lib['version'],len(ids))
+          PY
+          echo "FORMAL_BASE_SOURCE=$SELECTED_SOURCE" >> "$GITHUB_ENV"
+          echo "FORMAL_BASE_ARTIFACT_ID=$SELECTED_ARTIFACT_ID" >> "$GITHUB_ENV"
+          echo "FORMAL_BASE_DIGEST=$SELECTED_DIGEST" >> "$GITHUB_ENV"
+
+      - name: Apply or validate advanced statistics post-publication v2 reaudit
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            deploy/advanced_statistics_v2_corrections.py \
+            deploy/patch_advanced_statistics_v2.py \
+            deploy/qa_advanced_statistics_reaudit_v2.py \
+            deploy/record_advanced_statistics_v2_deployment.py
+
+          find _site/books -type f ! -path '*/advanced-statistics/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-advstat-other-books.sha256
+          find _site/assets -type f ! -path '*/advanced-statistics-svg/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-advstat-other-assets.sha256
+
+          ADVSTAT_LIBRARY_VERSION="$(PYTHONPATH=deploy python deploy/patch_advanced_statistics_v2.py _site | tail -n 1)"
+          test -n "$ADVSTAT_LIBRARY_VERSION"
+          PYTHONPATH=deploy python deploy/validate_advanced_statistics.py _site "$ADVSTAT_LIBRARY_VERSION" | tee /tmp/advanced-statistics-existing.log
+          PYTHONPATH=deploy python deploy/qa_advanced_statistics_reaudit_v2.py _site "$ADVSTAT_LIBRARY_VERSION" | tee /tmp/advanced-statistics-reaudit.log
+          ADVSTAT_REAUDIT_CHECKS="$(grep -oE '(^| )checks=[0-9]+' /tmp/advanced-statistics-reaudit.log | head -n 1 | cut -d= -f2)"
+          ADVSTAT_NUMERIC_RECHECKS="$(grep -oE '(^| )numerical_rechecks=[0-9]+' /tmp/advanced-statistics-reaudit.log | head -n 1 | cut -d= -f2)"
+          test -n "$ADVSTAT_REAUDIT_CHECKS"
+          test -n "$ADVSTAT_NUMERIC_RECHECKS"
+          test "$ADVSTAT_REAUDIT_CHECKS" -ge 400
+          test "$ADVSTAT_NUMERIC_RECHECKS" -ge 20
+
+          find _site/books -type f ! -path '*/advanced-statistics/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-advstat-other-books.sha256
+          find _site/assets -type f ! -path '*/advanced-statistics-svg/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-advstat-other-assets.sha256
+          diff -u /tmp/pre-advstat-other-books.sha256 /tmp/post-advstat-other-books.sha256
+          diff -u /tmp/pre-advstat-other-assets.sha256 /tmp/post-advstat-other-assets.sha256
+
+          ADVSTAT_LIBRARY_VERSION="$ADVSTAT_LIBRARY_VERSION" python - <<'PY'
+          import json,os
+          from pathlib import Path
+          site=Path('_site')
+          lib=json.load(open(site/'data/library.json'))
+          ids=[b['id'] for b in lib['books']]
+          base=json.load(open('/tmp/base_ids.json'))
+          assert ids==base, (base,ids)
+          assert ids.count('advanced-statistics')==1
+          if 'computer-fundamentals' in ids:
+              assert ids.index('advanced-statistics') < ids.index('computer-fundamentals')
+          assert lib['version']==os.environ['ADVSTAT_LIBRARY_VERSION']
+          root=site/'books/advanced-statistics'
+          m=json.load(open(root/'manifest.json')); q=json.load(open(root/'questions.json')); s=json.load(open(root/'search.json'))
+          assert m['version']==q['version']=='2026.07.30-1'
+          assert len(m['chapters'])==23 and q['count']==100 and len(s['entries'])==189
+          assert len(list((site/'assets/advanced-statistics-svg').glob('*.svg')))==20
+          print('ADVANCED_STATISTICS_V2_IN_PLACE_OK',lib['version'],len(ids))
+          PY
+          node --check _site/app.js
+          node --check _site/sw.js
+          echo "ADVSTAT_REAUDIT_CHECKS=$ADVSTAT_REAUDIT_CHECKS" >> "$GITHUB_ENV"
+          echo "ADVSTAT_NUMERIC_RECHECKS=$ADVSTAT_NUMERIC_RECHECKS" >> "$GITHUB_ENV"
+          echo "ADVSTAT_LIBRARY_VERSION=$ADVSTAT_LIBRARY_VERSION" >> "$GITHUB_ENV"
+
+      - name: Apply or validate econometrics post-publication v2 reaudit
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            deploy/econometrics_v2_corrections.py \
+            deploy/patch_econometrics_v2.py \
+            deploy/qa_econometrics_reaudit_v2.py \
+            deploy/record_econometrics_v2_deployment.py
+
+          find _site/books -type f ! -path '*/econometrics/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-econ-other-books.sha256
+          find _site/assets -type f ! -path '*/econometrics-svg/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-econ-other-assets.sha256
+
+          ECON_LIBRARY_VERSION="$(PYTHONPATH=deploy python deploy/patch_econometrics_v2.py _site | tail -n 1)"
+          test -n "$ECON_LIBRARY_VERSION"
+          PYTHONPATH=deploy python deploy/validate_econometrics_v2.py _site | tee /tmp/econometrics-existing-v2.log
+          ECON_REAUDIT_CHECKS="$(PYTHONPATH=deploy python deploy/qa_econometrics_reaudit_v2.py _site "$ECON_LIBRARY_VERSION" | tee /tmp/econometrics-reaudit.log | grep -oE '(^| )checks=[0-9]+' | head -n 1 | cut -d= -f2)"
+          test -n "$ECON_REAUDIT_CHECKS"
+          test "$ECON_REAUDIT_CHECKS" -ge 40
+
+          find _site/books -type f ! -path '*/econometrics/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-econ-other-books.sha256
+          find _site/assets -type f ! -path '*/econometrics-svg/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-econ-other-assets.sha256
+          diff -u /tmp/pre-econ-other-books.sha256 /tmp/post-econ-other-books.sha256
+          diff -u /tmp/pre-econ-other-assets.sha256 /tmp/post-econ-other-assets.sha256
+
+          ECON_LIBRARY_VERSION="$ECON_LIBRARY_VERSION" python - <<'PY'
+          import json,os
+          from pathlib import Path
+          site=Path('_site')
+          lib=json.load(open(site/'data/library.json'))
+          ids=[b['id'] for b in lib['books']]
+          base=json.load(open('/tmp/base_ids.json'))
+          assert ids==base, (base,ids)
+          assert ids.count('econometrics')==1
+          assert 'industrial-economics' in ids and ids.index('econometrics') < ids.index('industrial-economics')
+          assert lib['version']==os.environ['ECON_LIBRARY_VERSION']
+          root=site/'books/econometrics'
+          m=json.load(open(root/'manifest.json')); q=json.load(open(root/'questions.json')); s=json.load(open(root/'search.json'))
+          assert m['version']==q['version']=='2026.07.30-1'
+          assert len(m['chapters'])==23 and q['count']==100 and len(s['entries'])==189
+          assert len(list((site/'assets/econometrics-svg').glob('*.svg')))==20
+          print('ECONOMETRICS_V2_IN_PLACE_OK',lib['version'],len(ids))
+          PY
+          node --check _site/app.js
+          node --check _site/sw.js
+          echo "ECONOMETRICS_REAUDIT_CHECKS=$ECON_REAUDIT_CHECKS" >> "$GITHUB_ENV"
+          echo "ECON_LIBRARY_VERSION=$ECON_LIBRARY_VERSION" >> "$GITHUB_ENV"
+
+      - name: Apply or validate industrial economics v2 independent audit
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            deploy/industrial_economics_content_v2.py \
+            deploy/industrial_economics_questions_v2.py \
+            deploy/patch_industrial_economics_v2.py \
+            deploy/validate_industrial_economics_v2.py \
+            deploy/qa_industrial_economics_v2.py \
+            deploy/integrate_industrial_economics_v2.py \
+            deploy/record_industrial_economics_v2_deployment.py
+          BEFORE="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"
+          INDUSTRIAL_LIBRARY_VERSION="$(PYTHONPATH=deploy python deploy/integrate_industrial_economics_v2.py _site "$BEFORE")"
+          QA1="$(PYTHONPATH=deploy python deploy/validate_industrial_economics_v2.py _site "$INDUSTRIAL_LIBRARY_VERSION" | tee /tmp/industrial-v2-qa1.log | grep -oE '(^| )checks=[0-9]+' | head -n 1 | cut -d= -f2)"
+          QA2="$(PYTHONPATH=deploy python deploy/qa_industrial_economics_v2.py _site "$INDUSTRIAL_LIBRARY_VERSION" | tee /tmp/industrial-v2-qa2.log | grep -oE '(^| )checks=[0-9]+' | head -n 1 | cut -d= -f2)"
+          test "$QA1" -ge 150
+          test "$QA2" -ge 450
+          INDUSTRIAL_LIBRARY_VERSION="$INDUSTRIAL_LIBRARY_VERSION" python - <<'PY'
+          import json,os
+          from pathlib import Path
+          site=Path('_site')
+          lib=json.load(open(site/'data/library.json'))
+          ids=[b['id'] for b in lib['books']]
+          base=json.load(open('/tmp/base_ids.json'))
+          assert ids==base
+          assert ids.count('industrial-economics')==1
+          assert ids.index('econometrics') < ids.index('industrial-economics') < ids.index('industry-trade')
+          assert lib['version']==os.environ['INDUSTRIAL_LIBRARY_VERSION']
+          root=site/'books/industrial-economics'
+          m=json.load(open(root/'manifest.json')); q=json.load(open(root/'questions.json')); s=json.load(open(root/'search.json'))
+          assert m['version']==q['version']=='2026.07.30-2'
+          assert len(m['chapters'])==23 and q['count']==100 and len(s['entries'])==150
+          assert len(list((site/'assets/industrial-economics-svg').glob('*.svg')))==20
+          assert [x['id'] for x in m['chapters']]==[f'ch{i:02d}' for i in range(20)]+['appendix-a','appendix-b','appendix-c']
+          assert [x['id'] for x in q['items']]==[f'ch{i:02d}-q{j:02d}' for i in range(20) for j in range(1,6)]
+          print('INDUSTRIAL_ECONOMICS_V2_IN_PLACE_OK',lib['version'],len(ids))
+          PY
+          node --check _site/app.js
+          node --check _site/sw.js
+          echo "INDUSTRIAL_V2_QA1_CHECKS=$QA1" >> "$GITHUB_ENV"
+          echo "INDUSTRIAL_V2_QA2_CHECKS=$QA2" >> "$GITHUB_ENV"
+          echo "INDUSTRIAL_LIBRARY_VERSION=$INDUSTRIAL_LIBRARY_VERSION" >> "$GITHUB_ENV"
+
+      - name: Apply or validate game theory post-publication v2 reaudit
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            deploy/apply_game_theory_v2_release.py \
+            deploy/patch_game_theory_v2.py \
+            deploy/finalize_game_theory_v2_library.py \
+            deploy/qa_game_theory_v2.py \
+            deploy/qa_game_theory_second_pass.py \
+            deploy/record_game_theory_v2_deployment.py
+          GAME_THEORY_LIBRARY_VERSION="$(PYTHONPATH=deploy python deploy/apply_game_theory_v2_release.py _site | tail -n 1)"
+          test -n "$GAME_THEORY_LIBRARY_VERSION"
+          PYTHONPATH=deploy python deploy/qa_game_theory_v2.py _site "$GAME_THEORY_LIBRARY_VERSION" | tee /tmp/game-theory-v2-artifact.log
+          PYTHONPATH=deploy python deploy/qa_game_theory_second_pass.py | tee /tmp/game-theory-v2-source.log
+          GAME_THEORY_V2_ARTIFACT_CHECKS="$(grep -oE '(^| )checks=[0-9]+' /tmp/game-theory-v2-artifact.log | head -n 1 | cut -d= -f2)"
+          GAME_THEORY_V2_SOURCE_CHECKS="$(grep -oE '(^| )checks=[0-9]+' /tmp/game-theory-v2-source.log | head -n 1 | cut -d= -f2)"
+          test "$GAME_THEORY_V2_ARTIFACT_CHECKS" -ge 500
+          test "$GAME_THEORY_V2_SOURCE_CHECKS" -ge 370
+          GAME_THEORY_LIBRARY_VERSION="$GAME_THEORY_LIBRARY_VERSION" python - <<'PY'
+          import json,os
+          from pathlib import Path
+          site=Path('_site')
+          lib=json.load(open(site/'data/library.json'))
+          ids=[b['id'] for b in lib['books']]
+          base=json.load(open('/tmp/base_ids.json'))
+          assert ids==base, (base,ids)
+          assert ids.count('game-theory')==1
+          assert lib['version']==os.environ['GAME_THEORY_LIBRARY_VERSION']
+          root=site/'books/game-theory'
+          m=json.load(open(root/'manifest.json')); q=json.load(open(root/'questions.json')); s=json.load(open(root/'search.json'))
+          assert m['version']==q['version']=='2026.07.30-2'
+          assert len(m['chapters'])==23 and q['count']==100 and len(s['entries'])==189
+          assert len(list((site/'assets/game-theory-svg').glob('*.svg')))==20
+          print('GAME_THEORY_V2_IN_PLACE_OK',lib['version'],len(ids))
+          PY
+          node --check _site/app.js
+          node --check _site/sw.js
+          echo "GAME_THEORY_V2_ARTIFACT_CHECKS=$GAME_THEORY_V2_ARTIFACT_CHECKS" >> "$GITHUB_ENV"
+          echo "GAME_THEORY_V2_SOURCE_CHECKS=$GAME_THEORY_V2_SOURCE_CHECKS" >> "$GITHUB_ENV"
+          echo "GAME_THEORY_LIBRARY_VERSION=$GAME_THEORY_LIBRARY_VERSION" >> "$GITHUB_ENV"
+
+      - name: Apply or validate Investments post-publication v2 reaudit
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            deploy/investments_v2_corrections.py \
+            deploy/patch_investments_v2.py \
+            deploy/qa_investments_reaudit_v2.py \
+            deploy/record_investments_v2_deployment.py
+          find _site/books -type f ! -path '*/investments/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-investments-other-books.sha256
+          find _site/assets -type f ! -path '*/investments-svg/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-investments-other-assets.sha256
+          INVESTMENTS_LIBRARY_VERSION="$(PYTHONPATH=deploy python deploy/patch_investments_v2.py _site | tail -n 1)"
+          test -n "$INVESTMENTS_LIBRARY_VERSION"
+          INVESTMENTS_QA_OUT="$(PYTHONPATH=deploy python deploy/qa_investments_reaudit_v2.py _site "$INVESTMENTS_LIBRARY_VERSION")"
+          echo "$INVESTMENTS_QA_OUT"
+          INVESTMENTS_REAUDIT_CHECKS="$(printf '%s\n' "$INVESTMENTS_QA_OUT" | grep -oE 'checks=[0-9]+' | head -n 1 | cut -d= -f2)"
+          INVESTMENTS_NUMERIC_RECHECKS="$(printf '%s\n' "$INVESTMENTS_QA_OUT" | grep -oE 'quantitative_rechecks=[0-9]+' | head -n 1 | cut -d= -f2)"
+          test "$INVESTMENTS_REAUDIT_CHECKS" -ge 700
+          test "$INVESTMENTS_NUMERIC_RECHECKS" = "45"
+          find _site/books -type f ! -path '*/investments/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-investments-other-books.sha256
+          find _site/assets -type f ! -path '*/investments-svg/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-investments-other-assets.sha256
+          diff -u /tmp/pre-investments-other-books.sha256 /tmp/post-investments-other-books.sha256
+          diff -u /tmp/pre-investments-other-assets.sha256 /tmp/post-investments-other-assets.sha256
+          INVESTMENTS_LIBRARY_VERSION="$INVESTMENTS_LIBRARY_VERSION" python - <<'PY'
+          import json,os
+          from pathlib import Path
+          site=Path('_site')
+          lib=json.load(open(site/'data/library.json'))
+          ids=[b['id'] for b in lib['books']]
+          base=json.load(open('/tmp/base_ids.json'))
+          assert ids==base, (base,ids)
+          assert ids.count('investments')==1
+          assert ids.index('civil-law-overview') < ids.index('investments') < ids.index('econometrics')
+          assert lib['version']==os.environ['INVESTMENTS_LIBRARY_VERSION']
+          root=site/'books/investments'
+          m=json.load(open(root/'manifest.json')); q=json.load(open(root/'questions.json')); s=json.load(open(root/'search.json'))
+          assert m['version']==q['version']=='2026.07.30-1'
+          assert len(m['chapters'])==25 and q['count']==110 and len(s['entries'])==165
+          assert len(list((site/'assets/investments-svg').glob('*.svg')))==22
+          assert [x['id'] for x in q['items']]==[f'ch{i:02d}-q{j:02d}' for i in range(22) for j in range(1,6)]
+          print('INVESTMENTS_V2_IN_PLACE_OK',lib['version'],len(ids))
+          PY
+          node --check _site/app.js
+          node --check _site/sw.js
+          echo "INVESTMENTS_REAUDIT_CHECKS=$INVESTMENTS_REAUDIT_CHECKS" >> "$GITHUB_ENV"
+          echo "INVESTMENTS_NUMERIC_RECHECKS=$INVESTMENTS_NUMERIC_RECHECKS" >> "$GITHUB_ENV"
+          echo "INVESTMENTS_LIBRARY_VERSION=$INVESTMENTS_LIBRARY_VERSION" >> "$GITHUB_ENV"
+
+      - name: Integrate or validate industry and trade
+        run: |
+          set -euo pipefail
+          if python - <<'PY'
+          import json,sys
+          d=json.load(open('_site/data/library.json'))
+          sys.exit(0 if any(b['id']=='industry-trade' for b in d['books']) else 1)
+          PY
+          then
+            FINAL_LIBRARY_VERSION="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"
+          else
+            BEFORE="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"
+            FINAL_LIBRARY_VERSION="$(PYTHONPATH=deploy python deploy/integrate_industry_trade.py _site "$BEFORE")"
+          fi
+          EXPECTED_LIBRARY_VERSION="$FINAL_LIBRARY_VERSION" PYTHONPATH=deploy python deploy/validate_industry_trade.py _site
+          PYTHONPATH=deploy python deploy/qa_industry_trade_independent.py _site
+          export FINAL_LIBRARY_VERSION
+          echo "FINAL_LIBRARY_VERSION=$FINAL_LIBRARY_VERSION" >> "$GITHUB_ENV"
+          echo "INDUSTRY_TRADE_QA1_CHECKS=1495" >> "$GITHUB_ENV"
+          echo "INDUSTRY_TRADE_QA2_CHECKS=545" >> "$GITHUB_ENV"
+          node --check _site/app.js
+          node --check _site/sw.js
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          lib=json.load(open('_site/data/library.json'))
+          ids=[b['id'] for b in lib['books']]
+          base=json.load(open('/tmp/base_ids.json'))
+          assert lib['version']==os.environ['FINAL_LIBRARY_VERSION']
+          assert ids[-1]=='industry-trade' and ids.count('industry-trade')==1
+          assert ids.count('industrial-economics')==1 and ids.index('industrial-economics') < ids.index('industry-trade')
+          if 'industry-trade' not in base:
+              assert ids==base+['industry-trade']
+          else:
+              assert ids==base
+          root=Path('_site/books/industry-trade')
+          assert len(json.load(open(root/'manifest.json'))['chapters'])==23
+          assert json.load(open(root/'questions.json'))['count']==100
+          assert len(json.load(open(root/'search.json'))['entries'])==160
+          assert len(list(Path('_site/assets/industry-trade-svg').glob('*.svg')))==20
+          print('FINAL_LIBRARY_READY',lib['version'],len(ids))
+          PY
+
+      - name: Apply or validate computer fundamentals post-publication v2 reaudit
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            deploy/patch_computer_fundamentals_v2.py \
+            deploy/finalize_computer_fundamentals_v2_library.py \
+            deploy/qa_computer_fundamentals_v2.py \
+            deploy/apply_computer_fundamentals_v2.py \
+            deploy/record_computer_fundamentals_v2_deployment.py
+
+          python - <<'PY'
+          import json
+          d=json.load(open('_site/data/library.json'))
+          json.dump([b['id'] for b in d['books']],open('/tmp/pre-computer-v2-ids.json','w'))
+          print('COMPUTER_V2_BASE',d['version'],len(d['books']))
+          PY
+          find _site/books -type f ! -path '*/computer-fundamentals/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-computer-v2-other-books.sha256
+
+          BEFORE="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"
+          FINAL_LIBRARY_VERSION="$(PYTHONPATH=deploy python deploy/apply_computer_fundamentals_v2.py _site "$BEFORE")"
+          QA_LINE="$(PYTHONPATH=deploy python deploy/qa_computer_fundamentals_v2.py _site "$FINAL_LIBRARY_VERSION" | tee /tmp/computer-v2-qa.log | tail -n 1)"
+          echo "$QA_LINE"
+          COMPUTER_V2_QA_CHECKS="$(printf '%s\n' "$QA_LINE" | sed -n 's/^COMPUTER_FUNDAMENTALS_V2_QA_OK checks=\([0-9][0-9]*\).*/\1/p')"
+          COMPUTER_V2_NUMERIC_RECHECKS="$(printf '%s\n' "$QA_LINE" | grep -oE 'numeric_rechecks=[0-9]+' | cut -d= -f2)"
+          test "$COMPUTER_V2_QA_CHECKS" = "128"
+          test "$COMPUTER_V2_NUMERIC_RECHECKS" = "36"
+
+          find _site/books -type f ! -path '*/computer-fundamentals/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-computer-v2-other-books.sha256
+          diff -u /tmp/pre-computer-v2-other-books.sha256 /tmp/post-computer-v2-other-books.sha256
+
+          export FINAL_LIBRARY_VERSION COMPUTER_V2_QA_CHECKS COMPUTER_V2_NUMERIC_RECHECKS
+          echo "FINAL_LIBRARY_VERSION=$FINAL_LIBRARY_VERSION" >> "$GITHUB_ENV"
+          echo "COMPUTER_V2_QA_CHECKS=$COMPUTER_V2_QA_CHECKS" >> "$GITHUB_ENV"
+          echo "COMPUTER_V2_NUMERIC_RECHECKS=$COMPUTER_V2_NUMERIC_RECHECKS" >> "$GITHUB_ENV"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          site=Path('_site')
+          lib=json.load(open(site/'data/library.json'))
+          ids=[b['id'] for b in lib['books']]
+          pre=json.load(open('/tmp/pre-computer-v2-ids.json'))
+          assert ids==pre, (pre,ids)
+          assert lib['version']==os.environ['FINAL_LIBRARY_VERSION']
+          assert ids.count('computer-fundamentals')==1
+          root=site/'books/computer-fundamentals'
+          m=json.load(open(root/'manifest.json')); q=json.load(open(root/'questions.json')); s=json.load(open(root/'search.json'))
+          assert m['version']==q['version']=='2026.07.30-2'
+          assert len(m['chapters'])==23 and q['count']==100 and len(s['entries'])==150
+          assert len({x['id'] for x in q['items']})==100
+          assert len(list((site/'assets/computer-fundamentals-svg').glob('*.svg')))==20
+          assert '章節 ID、題目 ID、Book ID、題數與進度儲存鍵均未變' in m['releaseNotes'][0]['progressImpact']
+          print('COMPUTER_FUNDAMENTALS_V2_IN_PLACE_OK',lib['version'],len(ids))
+          PY
+          node --check _site/app.js
+          node --check _site/sw.js
+
+      - name: Integrate mathematical economics v2 audited release
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            deploy/mathematical_economics_content.py \
+            deploy/mathematical_economics_questions.py \
+            deploy/generate_mathematical_economics.py \
+            deploy/mathematical_economics_v2_corrections.py \
+            deploy/mathematical_economics_v2_enrichment.py \
+            deploy/mathematical_economics_v2_questions.py \
+            deploy/generate_mathematical_economics_v2.py \
+            deploy/qa_mathematical_economics_v2.py \
+            deploy/integrate_mathematical_economics_v2.py \
+            deploy/record_mathematical_economics_v2_deployment.py
+
+          python - <<'PY'
+          import json
+          d=json.load(open('_site/data/library.json'))
+          ids=[b['id'] for b in d['books']]
+          assert ids.count('mathematical-economics') in {0,1}, ids
+          json.dump(ids,open('/tmp/pre-math-v2-ids.json','w'))
+          print('MATHEMATICAL_ECONOMICS_V2_BASE',d['version'],len(ids),ids[-1], 'already_present=' + str('mathematical-economics' in ids).lower())
+          PY
+
+          BEFORE="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"
+          if python - <<'PY'
+          import json,sys
+          ids=[b['id'] for b in json.load(open('_site/data/library.json'))['books']]
+          sys.exit(0 if 'mathematical-economics' in ids else 1)
+          PY
+          then
+            FINAL_LIBRARY_VERSION="$BEFORE"
+          else
+            FINAL_LIBRARY_VERSION="$(PYTHONPATH=deploy python deploy/integrate_mathematical_economics_v2.py _site "$BEFORE")"
+          fi
+          test -n "$FINAL_LIBRARY_VERSION"
+          QA_LINE="$(PYTHONPATH=deploy python deploy/qa_mathematical_economics_v2.py _site "$FINAL_LIBRARY_VERSION" | tail -n 1)"
+          echo "$QA_LINE"
+          MATHEMATICAL_ECONOMICS_V2_QA_CHECKS="$(printf '%s\n' "$QA_LINE" | sed -n 's/^MATHEMATICAL_ECONOMICS_V2_QA_OK checks=\([0-9][0-9]*\).*/\1/p')"
+          MATHEMATICAL_ECONOMICS_V2_NUMERIC_RECHECKS="$(printf '%s\n' "$QA_LINE" | grep -oE 'quantitative_rechecks=[0-9]+' | head -n 1 | cut -d= -f2)"
+          MATHEMATICAL_ECONOMICS_V2_LOGIC_GATES="$(printf '%s\n' "$QA_LINE" | grep -oE 'high_risk_logic_gates=[0-9]+' | head -n 1 | cut -d= -f2)"
+          test "$MATHEMATICAL_ECONOMICS_V2_QA_CHECKS" = "855"
+          test "$MATHEMATICAL_ECONOMICS_V2_NUMERIC_RECHECKS" = "23"
+          test "$MATHEMATICAL_ECONOMICS_V2_LOGIC_GATES" = "10"
+
+          export FINAL_LIBRARY_VERSION MATHEMATICAL_ECONOMICS_V2_QA_CHECKS MATHEMATICAL_ECONOMICS_V2_NUMERIC_RECHECKS MATHEMATICAL_ECONOMICS_V2_LOGIC_GATES
+          echo "FINAL_LIBRARY_VERSION=$FINAL_LIBRARY_VERSION" >> "$GITHUB_ENV"
+          echo "MATHEMATICAL_ECONOMICS_V2_QA_CHECKS=$MATHEMATICAL_ECONOMICS_V2_QA_CHECKS" >> "$GITHUB_ENV"
+          echo "MATHEMATICAL_ECONOMICS_V2_NUMERIC_RECHECKS=$MATHEMATICAL_ECONOMICS_V2_NUMERIC_RECHECKS" >> "$GITHUB_ENV"
+          echo "MATHEMATICAL_ECONOMICS_V2_LOGIC_GATES=$MATHEMATICAL_ECONOMICS_V2_LOGIC_GATES" >> "$GITHUB_ENV"
+
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          site=Path('_site')
+          lib=json.load(open(site/'data/library.json'))
+          ids=[b['id'] for b in lib['books']]
+          pre=json.load(open('/tmp/pre-math-v2-ids.json'))
+          if 'mathematical-economics' in pre:
+              assert ids==pre, (pre,ids)
+          else:
+              assert ids==pre+['mathematical-economics'], (pre,ids)
+          assert ids.count('mathematical-economics')==1
+          assert lib['version']==os.environ['FINAL_LIBRARY_VERSION']
+          root=site/'books/mathematical-economics'
+          m=json.load(open(root/'manifest.json')); q=json.load(open(root/'questions.json')); s=json.load(open(root/'search.json'))
+          assert m['version']==q['version']=='2026.07.30-2'
+          assert len(m['chapters'])==23 and q['count']==100 and len(s['entries'])==150
+          assert [x['id'] for x in m['chapters']]==[f'ch{i:02d}' for i in range(20)]+['appendix-a','appendix-b','appendix-c']
+          assert [x['id'] for x in q['items']]==[f'ch{i:02d}-q{j:02d}' for i in range(20) for j in range(1,6)]
+          assert len(list((site/'assets/mathematical-economics-svg').glob('*.svg')))==20
+          print('MATHEMATICAL_ECONOMICS_V2_FORMAL_CANDIDATE_OK',lib['version'],len(ids))
+          PY
+          node --check _site/app.js
+          node --check _site/sw.js
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Re-download and verify deployed artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DEPLOYED_PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          set -euo pipefail
+          ARTIFACT_ID="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts" --jq '.artifacts[] | select(.name == "github-pages") | .id' | tail -n 1)"
+          DIGEST="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts" --jq '.artifacts[] | select(.name == "github-pages") | .digest' | tail -n 1)"
+          test -n "$ARTIFACT_ID"
+          test -n "$DIGEST"
+          gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" > /tmp/deployed-pages.zip
+          SHA="$(sha256sum /tmp/deployed-pages.zip | awk '{print $1}')"
+          test "$SHA" = "${DIGEST#sha256:}"
+          rm -rf /tmp/deployed-pages-artifact /tmp/deployed-site
+          mkdir -p /tmp/deployed-pages-artifact /tmp/deployed-site
+          unzip -q /tmp/deployed-pages.zip -d /tmp/deployed-pages-artifact
+          if [ -f /tmp/deployed-pages-artifact/artifact.tar ]; then
+            tar -xf /tmp/deployed-pages-artifact/artifact.tar -C /tmp/deployed-site
+          elif [ -f /tmp/deployed-pages-artifact/artifact.tar.gz ]; then
+            tar -xzf /tmp/deployed-pages-artifact/artifact.tar.gz -C /tmp/deployed-site
+          else
+            cp -a /tmp/deployed-pages-artifact/. /tmp/deployed-site/
+          fi
+          FINAL_LIBRARY_VERSION="$FINAL_LIBRARY_VERSION" python - <<'PY'
+          import json,os
+          from pathlib import Path
+          site=Path('/tmp/deployed-site')
+          lib=json.load(open(site/'data/library.json'))
+          ids=[b['id'] for b in lib['books']]
+          assert lib['version']==os.environ['FINAL_LIBRARY_VERSION']
+          assert ids[-2:]==['industry-trade','mathematical-economics'] and ids.count('industry-trade')==1 and ids.count('mathematical-economics')==1
+          assert ids.count('industrial-economics')==1 and ids.index('industrial-economics') < ids.index('industry-trade')
+          assert ids.count('econometrics')==1 and ids.index('econometrics') < ids.index('industrial-economics')
+          assert ids.count('advanced-statistics')==1
+          assert ids.count('game-theory')==1
+          assert ids.count('investments')==1 and ids.index('civil-law-overview') < ids.index('investments') < ids.index('econometrics')
+          assert ids.count('computer-fundamentals')==1
+          advanced=site/'books/advanced-statistics'
+          am=json.load(open(advanced/'manifest.json')); aq=json.load(open(advanced/'questions.json')); ass=json.load(open(advanced/'search.json'))
+          assert am['version']==aq['version']=='2026.07.30-1'
+          assert len(am['chapters'])==23 and aq['count']==100 and len(ass['entries'])==189
+          assert len(list((site/'assets/advanced-statistics-svg').glob('*.svg')))==20
+          investments=site/'books/investments'
+          vm=json.load(open(investments/'manifest.json')); vq=json.load(open(investments/'questions.json')); vs=json.load(open(investments/'search.json'))
+          assert vm['version']==vq['version']=='2026.07.30-1'
+          assert len(vm['chapters'])==25 and vq['count']==110 and len(vs['entries'])==165
+          assert len(list((site/'assets/investments-svg').glob('*.svg')))==22
+          assert [x['id'] for x in vq['items']]==[f'ch{i:02d}-q{j:02d}' for i in range(22) for j in range(1,6)]
+          econ=site/'books/econometrics'
+          em=json.load(open(econ/'manifest.json')); eq=json.load(open(econ/'questions.json')); es=json.load(open(econ/'search.json'))
+          assert em['version']==eq['version']=='2026.07.30-1'
+          assert len(em['chapters'])==23 and eq['count']==100 and len(es['entries'])==189
+          assert len(list((site/'assets/econometrics-svg').glob('*.svg')))==20
+          industrial=site/'books/industrial-economics'
+          im=json.load(open(industrial/'manifest.json')); iq=json.load(open(industrial/'questions.json')); isearch=json.load(open(industrial/'search.json'))
+          assert im['version']==iq['version']=='2026.07.30-2'
+          assert len(im['chapters'])==23 and iq['count']==100 and len(isearch['entries'])==150
+          assert len(list((site/'assets/industrial-economics-svg').glob('*.svg')))==20
+          assert [x['id'] for x in im['chapters']]==[f'ch{i:02d}' for i in range(20)]+['appendix-a','appendix-b','appendix-c']
+          assert [x['id'] for x in iq['items']]==[f'ch{i:02d}-q{j:02d}' for i in range(20) for j in range(1,6)]
+          game=site/'books/game-theory'
+          gm=json.load(open(game/'manifest.json')); gq=json.load(open(game/'questions.json')); gs=json.load(open(game/'search.json'))
+          assert gm['version']==gq['version']=='2026.07.30-2'
+          assert len(gm['chapters'])==23 and gq['count']==100 and len(gs['entries'])==189
+          assert len(list((site/'assets/game-theory-svg').glob('*.svg')))==20
+          trade=site/'books/industry-trade'
+          assert len(json.load(open(trade/'manifest.json'))['chapters'])==23
+          assert json.load(open(trade/'questions.json'))['count']==100
+          assert len(json.load(open(trade/'search.json'))['entries'])==160
+          assert len(list((site/'assets/industry-trade-svg').glob('*.svg')))==20
+          comp=site/'books/computer-fundamentals'
+          cm=json.load(open(comp/'manifest.json')); cq=json.load(open(comp/'questions.json')); cs=json.load(open(comp/'search.json'))
+          assert cm['version']==cq['version']=='2026.07.30-2'
+          assert len(cm['chapters'])==23 and cq['count']==100 and len(cs['entries'])==150
+          assert len({x['id'] for x in cq['items']})==100
+          assert len(list((site/'assets/computer-fundamentals-svg').glob('*.svg')))==20
+          mathroot=site/'books/mathematical-economics'
+          mm=json.load(open(mathroot/'manifest.json')); mq=json.load(open(mathroot/'questions.json')); ms=json.load(open(mathroot/'search.json'))
+          assert mm['version']==mq['version']=='2026.07.30-2'
+          assert len(mm['chapters'])==23 and mq['count']==100 and len(ms['entries'])==150
+          assert [x['id'] for x in mm['chapters']]==[f'ch{i:02d}' for i in range(20)]+['appendix-a','appendix-b','appendix-c']
+          assert [x['id'] for x in mq['items']]==[f'ch{i:02d}-q{j:02d}' for i in range(20) for j in range(1,6)]
+          assert len(list((site/'assets/mathematical-economics-svg').glob('*.svg')))==20
+          print('DEPLOYED_ARTIFACT_RECHECK_OK',lib['version'],len(ids),'mathematical-economics=2026.07.30-2')
+          PY
+          PYTHONPATH=deploy python deploy/qa_advanced_statistics_reaudit_v2.py /tmp/deployed-site "$FINAL_LIBRARY_VERSION"
+          PYTHONPATH=deploy python deploy/qa_investments_reaudit_v2.py /tmp/deployed-site "$FINAL_LIBRARY_VERSION"
+          PYTHONPATH=deploy python deploy/validate_econometrics_v2.py /tmp/deployed-site
+          PYTHONPATH=deploy python deploy/qa_econometrics_reaudit_v2.py /tmp/deployed-site "$FINAL_LIBRARY_VERSION"
+          PYTHONPATH=deploy python deploy/validate_industrial_economics_v2.py /tmp/deployed-site "$FINAL_LIBRARY_VERSION"
+          PYTHONPATH=deploy python deploy/qa_industrial_economics_v2.py /tmp/deployed-site "$FINAL_LIBRARY_VERSION"
+          PYTHONPATH=deploy python deploy/qa_game_theory_v2.py /tmp/deployed-site "$FINAL_LIBRARY_VERSION"
+          PYTHONPATH=deploy python deploy/qa_game_theory_second_pass.py
+          EXPECTED_LIBRARY_VERSION="$FINAL_LIBRARY_VERSION" PYTHONPATH=deploy python deploy/validate_industry_trade.py /tmp/deployed-site
+          PYTHONPATH=deploy python deploy/qa_industry_trade_independent.py /tmp/deployed-site
+          PYTHONPATH=deploy python deploy/qa_computer_fundamentals_v2.py /tmp/deployed-site "$FINAL_LIBRARY_VERSION"
+          PYTHONPATH=deploy python deploy/qa_mathematical_economics_v2.py /tmp/deployed-site "$FINAL_LIBRARY_VERSION"
+          echo "PAGES_ARTIFACT_ID=$ARTIFACT_ID" >> "$GITHUB_ENV"
+          echo "PAGES_ARTIFACT_DIGEST=$DIGEST" >> "$GITHUB_ENV"
+          echo "PAGES_ARTIFACT_SHA256=$SHA" >> "$GITHUB_ENV"
+          echo "DEPLOYED_PAGE_URL=$DEPLOYED_PAGE_URL" >> "$GITHUB_ENV"
+
+      - name: Record successful deployment structurally
+        run: |
+          set -euo pipefail
+          python deploy/record_advanced_statistics_v2_deployment.py _site
+          python deploy/record_econometrics_v2_deployment.py _site
+          python deploy/record_industrial_economics_v2_deployment.py _site
+          python deploy/record_industry_trade_deployment.py _site
+          PYTHONPATH=deploy python deploy/record_game_theory_v2_deployment.py _site
+          PYTHONPATH=deploy python deploy/record_investments_v2_deployment.py _site
+          python deploy/record_computer_fundamentals_v2_deployment.py _site
+          PYTHONPATH=deploy python deploy/record_mathematical_economics_v2_deployment.py _site
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add \
+            docs/deployment_receipt.json \
+            README.md \
+            docs/shared_checkpoint.md \
+            docs/books/advanced-statistics/status.md \
+            docs/books/advanced-statistics/qa_report.md \
+            docs/books/investments/status.md \
+            docs/books/investments/qa_report.md \
+            docs/books/industry-trade/status.md \
+            docs/books/industry-trade/qa_report.md \
+            docs/books/econometrics/status.md \
+            docs/books/econometrics/qa_report.md \
+            docs/books/industrial-economics/status.md \
+            docs/books/industrial-economics/qa_report.md \
+            docs/books/industrial-economics/v2_audit_report.md \
+            docs/books/game-theory/status.md \
+            docs/books/game-theory/v2_audit_report.md \
+            docs/books/computer-fundamentals/status.md \
+            docs/books/computer-fundamentals/qa_report.md \
+            docs/books/mathematical-economics/status.md \
+            docs/books/mathematical-economics/qa_report.md
+          if ! git diff --cached --quiet; then
+            git commit -m "Record study library deployment [skip ci]"
+            git push origin HEAD:main
+          fi
