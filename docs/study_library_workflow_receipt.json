@@ -1,8 +1,8 @@
 {
   "workflow": "Deploy study library",
-  "conclusion": "failure",
-  "workflow_run_id": "30470616790",
-  "source_commit": "0516bc4e8712106bf8c2a4f43f48546896c0153a",
-  "workflow_url": "https://github.com/sunny20030925-cell/study-review-library/actions/runs/30470616790",
-  "recorded_at": "2026-07-29T16:25:37.856362+00:00"
+  "conclusion": "success",
+  "workflow_run_id": "30470779444",
+  "source_commit": "34a0db9e8444bad4ac1b689c37bf5ea2bd679aa9",
+  "workflow_url": "https://github.com/sunny20030925-cell/study-review-library/actions/runs/30470779444",
+  "recorded_at": "2026-07-29T16:27:57.440828+00:00"
 }
