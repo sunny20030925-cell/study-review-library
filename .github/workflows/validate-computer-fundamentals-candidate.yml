@@ -23,28 +23,38 @@ jobs:
       - name: Checkout candidate
         uses: actions/checkout@v4
 
-      - name: Compile computer fundamentals sources
+      - name: Compile mathematical economics sources
         run: |
           python -m py_compile \
-            deploy/computer_fundamentals_content_a.py \
-            deploy/computer_fundamentals_content_b.py \
-            deploy/computer_fundamentals_questions_a.py \
-            deploy/computer_fundamentals_questions_b.py \
-            deploy/generate_computer_fundamentals.py \
-            deploy/finalize_computer_fundamentals_library.py \
-            deploy/validate_computer_fundamentals.py \
-            deploy/qa_computer_fundamentals_independent.py
+            deploy/mathematical_economics_content.py \
+            deploy/mathematical_economics_questions.py \
+            deploy/generate_mathematical_economics.py \
+            deploy/qa_mathematical_economics.py \
+            deploy/integrate_mathematical_economics.py \
+            deploy/record_successful_deployment.py \
+            deploy/finalize_macroeconomics_v2_library.py \
+            deploy/qa_macroeconomics_v2.py
+          PYTHONPATH=deploy python - <<'PY'
+          from mathematical_economics_content import CHAPTERS
+          from mathematical_economics_questions import build_questions
+          assert len(CHAPTERS)==20
+          assert len(build_questions())==100
+          assert all(len(c['definitions'])>=4 for c in CHAPTERS)
+          assert all(len(c['formulas'])>=3 for c in CHAPTERS)
+          print('MATHEMATICAL_ECONOMICS_SOURCE_OK chapters=20 questions=100')
+          PY
 
-      - name: Download latest deployed Pages artifact
+      - name: Download formal Pages artifact recorded by checkpoint
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          RUN_ID="$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/deploy-pages.yml/runs?branch=main&status=success&per_page=1" --jq '.workflow_runs[0].id')"
-          test -n "$RUN_ID" && test "$RUN_ID" != "null"
+          RUN_ID="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['workflow_run_id'])")"
+          test -n "$RUN_ID"
           ARTIFACT_ID="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}/artifacts" --jq '.artifacts[] | select(.name == "github-pages") | .id' | head -n 1)"
           test -n "$ARTIFACT_ID"
           echo "BASE_DEPLOY_RUN=$RUN_ID"
+          echo "BASE_ARTIFACT_ID=$ARTIFACT_ID"
           gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" > /tmp/pages.zip
           mkdir /tmp/pages-artifact _site
           unzip -q /tmp/pages.zip -d /tmp/pages-artifact
@@ -58,52 +68,37 @@ jobs:
           test -f _site/data/library.json
           test -f _site/sw.js
           test -f _site/app.js
+          python - <<'PY'
+          import json
+          d=json.load(open('_site/data/library.json',encoding='utf-8'))
+          assert len(d['books'])==12, d
+          assert d['books'][-1]['id']=='money-banking', d['books'][-1]
+          print('FORMAL_BASE_OK library='+d['version']+' books='+str(len(d['books'])))
+          PY
 
-      - name: Generate candidate on latest deployed library copy
+      - name: Integrate mathematical economics and run both QA rounds
         run: |
           set -euo pipefail
-          cp _site/data/library.json /tmp/pre-computer-fundamentals-library.json
-          find _site/books -type f ! -path '*/computer-fundamentals/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-existing-books.sha256
-          python deploy/generate_computer_fundamentals.py _site
-          FINAL_LIBRARY_VERSION="$(python deploy/finalize_computer_fundamentals_library.py _site /tmp/pre-computer-fundamentals-library.json)"
-          echo "FINAL_LIBRARY_VERSION=$FINAL_LIBRARY_VERSION" >> "$GITHUB_ENV"
-          echo "COMPUTER_FUNDAMENTALS_BASE_LIBRARY=$(python -c "import json;print(json.load(open('/tmp/pre-computer-fundamentals-library.json'))['version'])")"
-          echo "COMPUTER_FUNDAMENTALS_FINAL_LIBRARY=$FINAL_LIBRARY_VERSION"
-
-      - name: Round 1 structural and integration QA
-        run: |
-          set -euo pipefail
-          EXPECTED_LIBRARY_VERSION="$FINAL_LIBRARY_VERSION" PRE_LIBRARY_JSON=/tmp/pre-computer-fundamentals-library.json \
-            python deploy/validate_computer_fundamentals.py _site
-          find _site/books -type f ! -path '*/computer-fundamentals/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-existing-books.sha256
+          find _site/books -type f -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-existing-books.sha256
+          BASE_VERSION="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"
+          FINAL_VERSION="$(PYTHONPATH=deploy python deploy/integrate_mathematical_economics.py _site "$BASE_VERSION")"
+          echo "MATHEMATICAL_ECONOMICS_BASE_LIBRARY=$BASE_VERSION"
+          echo "MATHEMATICAL_ECONOMICS_FINAL_LIBRARY=$FINAL_VERSION"
+          find _site/books -type f ! -path '*/mathematical-economics/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-existing-books.sha256
           diff -u /tmp/pre-existing-books.sha256 /tmp/post-existing-books.sha256
           node --check _site/app.js
           node --check _site/sw.js
-
-      - name: Round 2 independent content QA
-        run: |
-          set -euo pipefail
-          python deploy/qa_computer_fundamentals_independent.py _site
-
-      - name: Verify tablet-facing asset paths exist
-        run: |
-          set -euo pipefail
           python - <<'PY'
           import json
           from pathlib import Path
-          site = Path('_site')
-          root = site/'books/computer-fundamentals'
-          m = json.loads((root/'manifest.json').read_text(encoding='utf-8'))
-          assert len(m['chapters']) == 23
-          for ch in m['chapters']:
-              p = root/ch['file']
-              assert p.is_file() and p.stat().st_size > 700, ch
-          figures = list((site/'assets/computer-fundamentals-svg').glob('*.svg'))
-          assert len(figures) == 20
-          assert all(p.stat().st_size > 300 for p in figures)
-          q = json.loads((root/'questions.json').read_text(encoding='utf-8'))
-          s = json.loads((root/'search.json').read_text(encoding='utf-8'))
-          assert q['count'] == len(q['items']) == 100
-          assert len(s['entries']) == 150
-          print('COMPUTER_FUNDAMENTALS_TABLET_ASSET_PATHS_OK')
+          site=Path('_site'); d=json.loads((site/'data/library.json').read_text(encoding='utf-8'))
+          root=site/'books/mathematical-economics'; m=json.loads((root/'manifest.json').read_text(encoding='utf-8')); q=json.loads((root/'questions.json').read_text(encoding='utf-8')); s=json.loads((root/'search.json').read_text(encoding='utf-8'))
+          assert len(d['books'])==13 and d['books'][-1]['id']=='mathematical-economics'
+          assert len([x for x in m['chapters'] if x['kind']=='chapter'])==20
+          assert len([x for x in m['chapters'] if x['kind']=='appendix'])==3
+          assert q['count']==len(q['items'])==100
+          assert len(s['entries'])==150
+          assert len(list((site/'assets/mathematical-economics-svg').glob('*.svg')))==20
+          print('MATHEMATICAL_ECONOMICS_FORMAL_ARTIFACT_QA_OK books=13 library='+d['version'])
           PY
+          git diff --cached --name-only | grep -Fx '.github/workflows/deploy-pages.yml'
