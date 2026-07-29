@@ -201,7 +201,7 @@ def main(site_root):
     if not lib_path.is_file(): raise SystemExit(f'library not found: {lib_path}')
     library=json.loads(lib_path.read_text(encoding='utf-8')); pre_ids=[b['id'] for b in library['books']]
     if BOOK in pre_ids: raise AssertionError(f'{BOOK} already exists')
-    if len(pre_ids)!=12 or pre_ids[-1]!='money-banking': raise AssertionError(f'civil generator expects current twelve-book money-banking tail: {pre_ids}')
+    if len(pre_ids)<12 or len(set(pre_ids))!=len(pre_ids): raise AssertionError(f'civil generator requires a valid formal library tail: {pre_ids}')
 
     template_entry=copy.deepcopy(library['books'][-1]); old_id=template_entry['id']; template_entry=deep_replace(template_entry,old_id,BOOK)
     template_entry.update({'id':BOOK,'title':TITLE,'subtitle':SUBTITLE,'cover':COVER,'accent':ACCENT,'status':'available'})
