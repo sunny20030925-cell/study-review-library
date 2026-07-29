@@ -1,0 +1,103 @@
+name: Validate mathematical economics
+
+on:
+  pull_request:
+    paths:
+      - 'deploy/mathematical_economics_*.py'
+      - 'deploy/generate_mathematical_economics.py'
+      - 'deploy/integrate_mathematical_economics.py'
+      - 'deploy/qa_mathematical_economics.py'
+      - 'deploy/record_successful_deployment.py'
+      - 'deploy/finalize_macroeconomics_v2_library.py'
+      - 'deploy/qa_macroeconomics_v2.py'
+      - 'docs/books/mathematical-economics/**'
+      - '.github/workflows/validate-mathematical-economics.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compile sources
+        run: |
+          python -m py_compile \
+            deploy/mathematical_economics_content.py \
+            deploy/mathematical_economics_questions.py \
+            deploy/generate_mathematical_economics.py \
+            deploy/qa_mathematical_economics.py \
+            deploy/integrate_mathematical_economics.py \
+            deploy/record_successful_deployment.py \
+            deploy/finalize_macroeconomics_v2_library.py \
+            deploy/qa_macroeconomics_v2.py
+          python - <<'PY'
+          import sys
+          sys.path.insert(0, 'deploy')
+          from mathematical_economics_content import CHAPTERS
+          from mathematical_economics_questions import build_questions
+          assert len(CHAPTERS) == 20
+          assert len(build_questions()) == 100
+          assert all(len(c['definitions']) >= 4 for c in CHAPTERS)
+          assert all(len(c['formulas']) >= 3 for c in CHAPTERS)
+          print('SOURCE_COMPILE_OK chapters=20 questions=100')
+          PY
+
+      - name: Download latest formal Pages artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          RUN_ID="$(python - <<'PY'
+          import json
+          print(json.load(open('docs/deployment_receipt.json',encoding='utf-8'))['workflow_run_id'])
+          PY
+          )"
+          test -n "$RUN_ID"
+          ARTIFACT_ID="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}/artifacts" --jq '.artifacts[] | select(.name == "github-pages") | .id' | head -n 1)"
+          test -n "$ARTIFACT_ID"
+          echo "BASE_DEPLOY_RUN=$RUN_ID"
+          echo "BASE_ARTIFACT_ID=$ARTIFACT_ID"
+          gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" > /tmp/pages.zip
+          mkdir /tmp/pages-artifact _site
+          unzip -q /tmp/pages.zip -d /tmp/pages-artifact
+          if [ -f /tmp/pages-artifact/artifact.tar ]; then
+            tar -xf /tmp/pages-artifact/artifact.tar -C _site
+          elif [ -f /tmp/pages-artifact/artifact.tar.gz ]; then
+            tar -xzf /tmp/pages-artifact/artifact.tar.gz -C _site
+          else
+            cp -a /tmp/pages-artifact/. _site/
+          fi
+          test -f _site/data/library.json
+          test -f _site/sw.js
+          python - <<'PY'
+          import json
+          d=json.load(open('_site/data/library.json',encoding='utf-8'))
+          assert len(d['books'])==12, d
+          assert d['books'][-1]['id']=='money-banking', d['books'][-1]
+          print('FORMAL_BASE_OK library='+d['version']+' books='+str(len(d['books'])))
+          PY
+
+      - name: Integrate candidate and run two-round QA
+        run: |
+          set -euo pipefail
+          find _site/books -type f -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-existing-books.sha256
+          BASE_VERSION="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"
+          FINAL_VERSION="$(PYTHONPATH=deploy python deploy/integrate_mathematical_economics.py _site "$BASE_VERSION")"
+          echo "FINAL_VERSION=$FINAL_VERSION"
+          find _site/books -type f ! -path '*/mathematical-economics/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-existing-books.sha256
+          diff -u /tmp/pre-existing-books.sha256 /tmp/post-existing-books.sha256
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          site=Path('_site'); lib=json.loads((site/'data/library.json').read_text())
+          assert len(lib['books'])==13 and lib['books'][-1]['id']=='mathematical-economics'
+          assert len(list((site/'assets/mathematical-economics-svg').glob('*.svg')))==20
+          print('FORMAL_ARTIFACT_CANDIDATE_OK books=13 library='+lib['version'])
+          PY
+          node --check _site/app.js
+          node --check _site/sw.js
+          git diff --cached --name-only | grep -Fx '.github/workflows/deploy-pages.yml'
