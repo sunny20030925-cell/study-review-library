@@ -5,26 +5,23 @@
 ## 正式定位
 
 - Book ID：`microeconomics`
-- 目前正式部署內容版本：`2026.07.29-1`
-- 待部署修正版：`2026.07.29-2`
-- 書庫版本：正式部署時依當下最新正式書庫版本順延。
-- 狀態：發布後獨立二次複核與修正完成，待 canonical GitHub Pages 成功部署回條。
+- 正式內容版本：`2026.07.29-2`
+- 正式書庫版本：`2026.07.29-10`
+- 狀態：已部署。
 - 範圍文件：`docs/books/microeconomics/scope.md`
 - QA 報告：`docs/books/microeconomics/qa_report.md`
 
 ## 成品與 QA
 
 - 正文 20 章、附錄 3 份、題庫 100 題、搜尋索引 154 筆、自製 SVG 20 張。
-- 初版 QA：第一輪 1,321／1,321、第二輪 87／87 通過。
-- 發布後獨立二次複核：1,616／1,616 項通過。
-- 本次修正 16 個實質內容點，4 題題幹或詳解同步精確化。
-- 100 題重新閱讀；15 題量化題獨立重算、20 題高風險觀念題獨立重判。
-- 閱讀進度相容性：章節 ID、題目 ID、題數、儲存鍵與錯題紀錄均不變。
+- 初版 QA：第一輪 1321／1321、第二輪 87／87 通過。
+- 發布後獨立二次複核：1,616 項檢查通過；修正 16 個內容點，4 題題幹或詳解同步精確化，另重算 15 題量化題、重判 20 題高風險觀念題。
+- 閱讀進度相容性：新增獨立 book ID，不改既有教材章節、題目 ID、儲存鍵或錯題紀錄。
 
-## 待完成
+## 部署
 
-1. 將修正層與新版 QA gate 接入唯一 canonical `Deploy study library`。
-2. GitHub Pages 部署成功。
-3. 寫回 deployment receipt、正式 status、README 與 `docs/shared_checkpoint.md`。
-
-在新版 Pages 成功回條產生前，不把 `2026.07.29-2` 標記為已部署。
+- canonical workflow：`Deploy study library`
+- workflow run：`30419632477`
+- source commit：`2e41d696e97ed92ca2d66ac9adcc2fc6c804bc8d`
+- 正式書庫書籍數：8 本。
+- GitHub Pages 部署成功並已寫回 deployment receipt。
