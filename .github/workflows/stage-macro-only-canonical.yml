@@ -1,0 +1,66 @@
+name: Stage macro-only canonical workflow
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  stage:
+    if: >-
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.head.ref == 'stage-macro-only-canonical'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout controlled staging branch
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.ref }}
+          token: ${{ github.token }}
+          fetch-depth: 0
+
+      - name: Remove duplicate intermediate accounting execution
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          source = Path('.github/workflows/deploy-pages.yml')
+          target = Path('deploy/staged-macro-only-deploy-pages.yml')
+          text = source.read_text(encoding='utf-8')
+          start_marker = '      - name: Generate and independently validate intermediate accounting textbook\n'
+          end_marker = '      - name: Generate and independently validate macroeconomics textbook\n'
+          assert text.count(start_marker) == 1
+          assert text.count(end_marker) == 1
+          start = text.index(start_marker)
+          end = text.index(end_marker)
+          text = text[:start] + text[end:]
+          assert start_marker not in text
+          assert text.count(end_marker) == 1
+          assert text.count("'intermediate_accounting_version': '2026.07.29-1'") == 1
+          assert text.count("'macroeconomics_version': '2026.07.29-1'") == 1
+          target.write_text(text, encoding='utf-8')
+          PY
+          ruby -e "require 'yaml'; YAML.load_file('deploy/staged-macro-only-deploy-pages.yml'); puts 'MACRO_ONLY_YAML_OK'"
+          grep -F "Generate and independently validate macroeconomics textbook" deploy/staged-macro-only-deploy-pages.yml
+          if grep -F "Generate and independently validate intermediate accounting textbook" deploy/staged-macro-only-deploy-pages.yml; then
+            echo 'duplicate intermediate step remains' >&2
+            exit 1
+          fi
+          grep -F "'intermediate_accounting_version': '2026.07.29-1'" deploy/staged-macro-only-deploy-pages.yml
+          grep -F "'macroeconomics_version': '2026.07.29-1'" deploy/staged-macro-only-deploy-pages.yml
+
+      - name: Commit non-workflow staging blob
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add deploy/staged-macro-only-deploy-pages.yml
+          if git diff --cached --quiet; then
+            echo 'Macro-only canonical already staged'
+            exit 0
+          fi
+          git commit -m "Stage macro-only canonical workflow blob"
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}
