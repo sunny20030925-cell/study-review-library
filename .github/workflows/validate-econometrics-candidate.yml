@@ -7,6 +7,7 @@ on:
       - 'deploy/generate_econometrics.py'
       - 'deploy/finalize_econometrics_library.py'
       - 'deploy/validate_econometrics.py'
+      - 'deploy/validate_econometrics_v2.py'
       - 'docs/books/econometrics/**'
       - '.github/workflows/validate-econometrics-candidate.yml'
   workflow_dispatch:
@@ -31,7 +32,8 @@ jobs:
             deploy/econometrics_questions_b.py \
             deploy/generate_econometrics.py \
             deploy/finalize_econometrics_library.py \
-            deploy/validate_econometrics.py
+            deploy/validate_econometrics.py \
+            deploy/validate_econometrics_v2.py
 
       - name: Download receipt-authoritative deployed Pages artifact
         env:
@@ -87,7 +89,7 @@ jobs:
           echo "FINAL_LIBRARY_VERSION=$FINAL_LIBRARY_VERSION" >> "$GITHUB_ENV"
           echo "ECONOMETRICS_FINAL_LIBRARY=$FINAL_LIBRARY_VERSION"
 
-      - name: Independent content and preservation validation
+      - name: First independent content and preservation validation
         env:
           PRE_LIBRARY_JSON: /tmp/pre-econometrics-library.json
         run: |
@@ -97,6 +99,11 @@ jobs:
           diff -u /tmp/pre-existing-books.sha256 /tmp/post-existing-books.sha256
           node --check _site/app.js
           node --check _site/sw.js
+
+      - name: Second independent econometrics content audit
+        run: |
+          set -euo pipefail
+          python deploy/validate_econometrics_v2.py _site
 
       - name: Verify tablet-facing asset paths exist
         run: |
