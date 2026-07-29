@@ -1,1 +1,18 @@
-
+deploy	Generate and independently validate intermediate accounting textbook	﻿2026-07-29T02:37:38.4266261Z ##[group]Run cp _site/data/library.json /tmp/pre-intermediate-accounting-library.json
+deploy	Generate and independently validate intermediate accounting textbook	2026-07-29T02:37:38.4266921Z ^[[36;1mcp _site/data/library.json /tmp/pre-intermediate-accounting-library.json^[[0m
+deploy	Generate and independently validate intermediate accounting textbook	2026-07-29T02:37:38.4267989Z ^[[36;1mcat deploy/generate-intermediate-accounting.py.gz.b64.part* | tr -d '\n' | base64 --decode > /tmp/generate-intermediate-accounting.py.gz^[[0m
+deploy	Generate and independently validate intermediate accounting textbook	2026-07-29T02:37:38.4268986Z ^[[36;1mecho 'b60133689f2ede497597295688b82646ba070b787ea94a78e950da5603b8bf34  /tmp/generate-intermediate-accounting.py.gz' | sha256sum --check -^[[0m
+deploy	Generate and independently validate intermediate accounting textbook	2026-07-29T02:37:38.4270558Z ^[[36;1mgzip --decompress --stdout /tmp/generate-intermediate-accounting.py.gz > /tmp/generate-intermediate-accounting.py^[[0m
+deploy	Generate and independently validate intermediate accounting textbook	2026-07-29T02:37:38.4271633Z ^[[36;1mpython /tmp/generate-intermediate-accounting.py _site^[[0m
+deploy	Generate and independently validate intermediate accounting textbook	2026-07-29T02:37:38.4272339Z ^[[36;1mFINAL_LIBRARY_VERSION="$(python deploy/finalize_intermediate_accounting_library.py _site /tmp/pre-intermediate-accounting-library.json)"^[[0m
+deploy	Generate and independently validate intermediate accounting textbook	2026-07-29T02:37:38.4273412Z ^[[36;1mEXPECTED_LIBRARY_VERSION="$FINAL_LIBRARY_VERSION" PRE_LIBRARY_JSON=/tmp/pre-intermediate-accounting-library.json python deploy/validate_intermediate_accounting.py _site^[[0m
+deploy	Generate and independently validate intermediate accounting textbook	2026-07-29T02:37:38.4274181Z ^[[36;1mnode --check _site/app.js^[[0m
+deploy	Generate and independently validate intermediate accounting textbook	2026-07-29T02:37:38.4274455Z ^[[36;1mnode --check _site/sw.js^[[0m
+deploy	Generate and independently validate intermediate accounting textbook	2026-07-29T02:37:38.4274848Z ^[[36;1mecho "INTERMEDIATE_ACCOUNTING_FINAL_LIBRARY_VERSION=$FINAL_LIBRARY_VERSION"^[[0m
+deploy	Generate and independently validate intermediate accounting textbook	2026-07-29T02:37:38.4322009Z shell: /usr/bin/bash -e {0}
+deploy	Generate and independently validate intermediate accounting textbook	2026-07-29T02:37:38.4322263Z env:
+deploy	Generate and independently validate intermediate accounting textbook	2026-07-29T02:37:38.4322459Z   GITHUB_PAGES: true
+deploy	Generate and independently validate intermediate accounting textbook	2026-07-29T02:37:38.4322679Z ##[endgroup]
+deploy	Generate and independently validate intermediate accounting textbook	2026-07-29T02:37:38.4436014Z sha256sum: WARNING: 1 computed checksum did NOT match
+deploy	Generate and independently validate intermediate accounting textbook	2026-07-29T02:37:38.4436645Z /tmp/generate-intermediate-accounting.py.gz: FAILED
+deploy	Generate and independently validate intermediate accounting textbook	2026-07-29T02:37:38.4449655Z ##[error]Process completed with exit code 1.
