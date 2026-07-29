@@ -41,15 +41,16 @@ jobs:
             deploy/qa_game_theory_second_pass.py \
             deploy/qa_game_theory_v2.py
 
-      - name: Download latest formal Pages artifact
+      - name: Download latest formal Pages artifact from current main
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          ARTIFACT_ID="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['pages_artifact_id'])")"
-          ARTIFACT_DIGEST="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['pages_artifact_digest'])")"
-          RECEIPT_LIBRARY="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['library_version'])")"
-          RECEIPT_BOOKS="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['book_count'])")"
+          gh api "repos/${GITHUB_REPOSITORY}/contents/docs/deployment_receipt.json?ref=main" --jq .content | tr -d '\n' | base64 -d > /tmp/formal-receipt.json
+          ARTIFACT_ID="$(python -c "import json;print(json.load(open('/tmp/formal-receipt.json'))['pages_artifact_id'])")"
+          ARTIFACT_DIGEST="$(python -c "import json;print(json.load(open('/tmp/formal-receipt.json'))['pages_artifact_digest'])")"
+          RECEIPT_LIBRARY="$(python -c "import json;print(json.load(open('/tmp/formal-receipt.json'))['library_version'])")"
+          RECEIPT_BOOKS="$(python -c "import json;print(json.load(open('/tmp/formal-receipt.json'))['book_count'])")"
           EXPECTED_SHA="${ARTIFACT_DIGEST#sha256:}"
           gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" > /tmp/pages.zip
           echo "${EXPECTED_SHA}  /tmp/pages.zip" | sha256sum --check -
