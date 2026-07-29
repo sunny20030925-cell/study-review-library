@@ -4,7 +4,7 @@ from __future__ import annotations
 import re
 
 import generate_mathematical_economics as legacy
-from mathematical_economics_v2_corrections import CHAPTERS_V2
+from mathematical_economics_v2_enrichment import CHAPTERS_V2
 
 
 def main() -> None:
