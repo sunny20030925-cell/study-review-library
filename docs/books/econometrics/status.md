@@ -6,7 +6,7 @@
 
 - Book ID：`econometrics`
 - 目標初版內容版本：`2026.07.29-1`
-- 目前狀態：候選內容完成，兩輪 QA 已通過；尚未正式發布。
+- 目前狀態：候選內容完成，兩輪 QA 已通過；PR #81 已同步最新 `main` 並進入正式審查，尚未正式發布。
 - 範圍文件：`docs/books/econometrics/scope.md`
 - QA 報告：`docs/books/econometrics/qa_report.md`
 
