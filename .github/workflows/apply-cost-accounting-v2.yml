@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/apply-cost-accounting-v2.yml'
+      - 'deploy/integrate_cost_accounting_v2.py'
   workflow_dispatch:
 
 permissions:
