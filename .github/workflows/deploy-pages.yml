@@ -76,6 +76,7 @@ jobs:
             BEFORE="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"
             FINAL_LIBRARY_VERSION="$(python deploy/integrate_advanced_statistics.py _site "$BEFORE")"
           fi
+          export FINAL_LIBRARY_VERSION
           echo "FINAL_LIBRARY_VERSION=$FINAL_LIBRARY_VERSION" >> "$GITHUB_ENV"
           node --check _site/app.js
           node --check _site/sw.js
