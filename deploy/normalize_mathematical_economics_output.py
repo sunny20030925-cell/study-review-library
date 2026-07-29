@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import sys
 from pathlib import Path
 
 BOOK = 'mathematical-economics'
@@ -35,12 +36,11 @@ def main(site_root: str) -> int:
     if replacements <= 0:
         raise AssertionError('expected derivative-prime normalization replacements')
 
-    print(f'MATHEMATICAL_ECONOMICS_OUTPUT_NORMALIZED replacements={replacements}')
+    print(f'MATHEMATICAL_ECONOMICS_OUTPUT_NORMALIZED replacements={replacements}', file=sys.stderr)
     return replacements
 
 
 if __name__ == '__main__':
-    import sys
     if len(sys.argv) != 2:
         raise SystemExit('usage: normalize_mathematical_economics_output.py SITE_ROOT')
     main(sys.argv[1])
