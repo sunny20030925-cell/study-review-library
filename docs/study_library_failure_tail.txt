@@ -1,1 +1,35 @@
-
+deploy	Validate industrial economics already in formal base	﻿2026-07-29T20:11:22.2841681Z ##[group]Run set -euo pipefail
+deploy	Validate industrial economics already in formal base	2026-07-29T20:11:22.2842031Z ^[[36;1mset -euo pipefail^[[0m
+deploy	Validate industrial economics already in formal base	2026-07-29T20:11:22.2842620Z ^[[36;1mINDUSTRIAL_LIBRARY_VERSION="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"^[[0m
+deploy	Validate industrial economics already in formal base	2026-07-29T20:11:22.2843705Z ^[[36;1mQA1="$(PYTHONPATH=deploy python deploy/validate_industrial_economics.py _site "$INDUSTRIAL_LIBRARY_VERSION" | tee /tmp/industrial-qa1.log | grep -oE '(^| )checks=[0-9]+' | head -n 1 | cut -d= -f2)"^[[0m
+deploy	Validate industrial economics already in formal base	2026-07-29T20:11:22.2844973Z ^[[36;1mQA2="$(PYTHONPATH=deploy python deploy/qa_industrial_economics.py _site "$INDUSTRIAL_LIBRARY_VERSION" | tee /tmp/industrial-qa2.log | grep -oE '(^| )checks=[0-9]+' | head -n 1 | cut -d= -f2)"^[[0m
+deploy	Validate industrial economics already in formal base	2026-07-29T20:11:22.2846093Z ^[[36;1mtest "$QA1" = "935"^[[0m
+deploy	Validate industrial economics already in formal base	2026-07-29T20:11:22.2846333Z ^[[36;1mtest "$QA2" = "479"^[[0m
+deploy	Validate industrial economics already in formal base	2026-07-29T20:11:22.2846559Z ^[[36;1mpython - <<'PY'^[[0m
+deploy	Validate industrial economics already in formal base	2026-07-29T20:11:22.2846776Z ^[[36;1mimport json^[[0m
+deploy	Validate industrial economics already in formal base	2026-07-29T20:11:22.2847028Z ^[[36;1md=json.load(open('_site/data/library.json'))^[[0m
+deploy	Validate industrial economics already in formal base	2026-07-29T20:11:22.2847379Z ^[[36;1mids=[b['id'] for b in d['books']]^[[0m
+deploy	Validate industrial economics already in formal base	2026-07-29T20:11:22.2847803Z ^[[36;1massert ids[-1]=='industrial-economics' and ids.count('industrial-economics')==1^[[0m
+deploy	Validate industrial economics already in formal base	2026-07-29T20:11:22.2848214Z ^[[36;1mPY^[[0m
+deploy	Validate industrial economics already in formal base	2026-07-29T20:11:22.2848414Z ^[[36;1mnode --check _site/app.js^[[0m
+deploy	Validate industrial economics already in formal base	2026-07-29T20:11:22.2848673Z ^[[36;1mnode --check _site/sw.js^[[0m
+deploy	Validate industrial economics already in formal base	2026-07-29T20:11:22.2892519Z shell: /usr/bin/bash -e {0}
+deploy	Validate industrial economics already in formal base	2026-07-29T20:11:22.2892772Z env:
+deploy	Validate industrial economics already in formal base	2026-07-29T20:11:22.2892958Z   GITHUB_PAGES: true
+deploy	Validate industrial economics already in formal base	2026-07-29T20:11:22.2893198Z   FORMAL_BASE_SOURCE: deployment-receipt
+deploy	Validate industrial economics already in formal base	2026-07-29T20:11:22.2893487Z   FORMAL_BASE_ARTIFACT_ID: 8738081884
+deploy	Validate industrial economics already in formal base	2026-07-29T20:11:22.2893926Z   FORMAL_BASE_DIGEST: sha256:674accfd19678ab1b16463af54c3b7d87060bb697712698b215cd1455bfea8e5
+deploy	Validate industrial economics already in formal base	2026-07-29T20:11:22.2894568Z   ECONOMETRICS_REAUDIT_CHECKS: 57
+deploy	Validate industrial economics already in formal base	2026-07-29T20:11:22.2894825Z   ECON_LIBRARY_VERSION: 2026.07.30-2
+deploy	Validate industrial economics already in formal base	2026-07-29T20:11:22.2895065Z ##[endgroup]
+deploy	Validate industrial economics already in formal base	2026-07-29T20:11:22.4216849Z Traceback (most recent call last):
+deploy	Validate industrial economics already in formal base	2026-07-29T20:11:22.4218782Z   File "/home/runner/work/study-review-library/study-review-library/deploy/validate_industrial_economics.py", line 42, in <module>
+deploy	Validate industrial economics already in formal base	2026-07-29T20:11:22.4220829Z     main(sys.argv[1],sys.argv[2])
+deploy	Validate industrial economics already in formal base	2026-07-29T20:11:22.4222513Z   File "/home/runner/work/study-review-library/study-review-library/deploy/validate_industrial_economics.py", line 15, in main
+deploy	Validate industrial economics already in formal base	2026-07-29T20:11:22.4225449Z     ids=[b['id'] for b in lib['books']]; ck(len(ids)>=13 and ids[-1]==BOOK,'industrial economics must be the appended tail'); ck(ids.count(BOOK)==1,'single industrial economics registry entry')
+deploy	Validate industrial economics already in formal base	2026-07-29T20:11:22.4226968Z                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+deploy	Validate industrial economics already in formal base	2026-07-29T20:11:22.4227983Z   File "/home/runner/work/study-review-library/study-review-library/deploy/validate_industrial_economics.py", line 13, in ck
+deploy	Validate industrial economics already in formal base	2026-07-29T20:11:22.4228844Z     if not cond: raise AssertionError(msg)
+deploy	Validate industrial economics already in formal base	2026-07-29T20:11:22.4229240Z                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+deploy	Validate industrial economics already in formal base	2026-07-29T20:11:22.4229787Z AssertionError: industrial economics must be the appended tail
+deploy	Validate industrial economics already in formal base	2026-07-29T20:11:22.4379720Z ##[error]Process completed with exit code 1.
