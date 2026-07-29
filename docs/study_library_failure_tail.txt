@@ -1,58 +1,58 @@
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	﻿2026-07-29T16:02:05.0892825Z ##[group]Run cp _site/data/library.json /tmp/pre-macroeconomics-library.json
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.0893444Z ^[[36;1mcp _site/data/library.json /tmp/pre-macroeconomics-library.json^[[0m
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.0894149Z ^[[36;1mcat deploy/generate-macroeconomics.py.gz.b64.part* | tr -d '\n\r\t ' | base64 --decode > /tmp/generate-macroeconomics.py.gz^[[0m
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.0895086Z ^[[36;1mecho 'c3643675f863883a429d492334b291d430ebfa87bf0b1cbf49806dfe790b6b34  /tmp/generate-macroeconomics.py.gz' | sha256sum --check -^[[0m
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.0895854Z ^[[36;1mgzip --test /tmp/generate-macroeconomics.py.gz^[[0m
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.0896439Z ^[[36;1mgzip --decompress --stdout /tmp/generate-macroeconomics.py.gz > /tmp/generate-macroeconomics.py^[[0m
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.0897038Z ^[[36;1mpython -m py_compile /tmp/generate-macroeconomics.py^[[0m
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.0897433Z ^[[36;1mpython /tmp/generate-macroeconomics.py _site^[[0m
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.0898076Z ^[[36;1mINITIAL_MACRO_LIBRARY_VERSION="$(python deploy/finalize_macroeconomics_library.py _site /tmp/pre-macroeconomics-library.json)"^[[0m
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.0899444Z ^[[36;1mEXPECTED_LIBRARY_VERSION="$INITIAL_MACRO_LIBRARY_VERSION" PRE_LIBRARY_JSON=/tmp/pre-macroeconomics-library.json python deploy/validate_macroeconomics.py _site^[[0m
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.0900491Z ^[[36;1mpython -m py_compile deploy/patch_macroeconomics_v2.py deploy/finalize_macroeconomics_v2_library.py deploy/qa_macroeconomics_v2.py^[[0m
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.0901146Z ^[[36;1mpython deploy/patch_macroeconomics_v2.py _site^[[0m
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.0901744Z ^[[36;1mFINAL_LIBRARY_VERSION="$(python deploy/finalize_macroeconomics_v2_library.py _site "$INITIAL_MACRO_LIBRARY_VERSION")"^[[0m
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.0902447Z ^[[36;1mpython deploy/qa_macroeconomics_v2.py _site "$FINAL_LIBRARY_VERSION"^[[0m
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.0902857Z ^[[36;1mnode --check _site/app.js^[[0m
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.0903143Z ^[[36;1mnode --check _site/sw.js^[[0m
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.0903746Z ^[[36;1mecho "MACROECONOMICS_V2_QA library=$FINAL_LIBRARY_VERSION checks=201 corrections=14 question_adjustments=7 quantitative_rechecks=20"^[[0m
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.0951229Z shell: /usr/bin/bash -e {0}
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.0951501Z env:
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.0951707Z   GITHUB_PAGES: true
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.0951930Z ##[endgroup]
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.1067772Z /tmp/generate-macroeconomics.py.gz: OK
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.1911942Z MACROECONOMICS_GENERATED chapters=20 appendices=3 questions=100 search=143 figures=20 version=2026.07.29-1
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.2621102Z MACROECONOMICS_QA_OK checks=656 books=9 library=2026.07.29-11 chapters=20 appendices=3 questions=100 search=143 figures=20 numeric_rechecks=18
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.3313662Z MACRO_V2_PATCH_OK content_replacements=14 question_adjustments=7
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.5101736Z INTERNATIONAL_ECONOMICS_GENERATED chapters=20 appendices=3 questions=100 search=144 figures=20
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.5106650Z 2026.07.29-13
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.5212029Z INTERNATIONAL_ECONOMICS_QA1_OK checks=696 books=10 library=2026.07.29-13 chapters=20 appendices=3 questions=100 search=144 figures=20 numeric_rechecks=17
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.5242672Z INTERNATIONAL_ECONOMICS_QA2_OK checks=1383 quantitative_rechecks=17 questions_rechecked=100 chapters=20 appendices=3 search=144 figures=20
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.5496441Z {"book": "public-finance", "version": "2026.07.29-2", "chapters": 20, "appendices": 3, "questions": 100, "search": 189, "figures": 20, "pre_books": 10, "post_books": 11}
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.5500911Z 2026.07.29-15
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.5623361Z PUBLIC_FINANCE_QA_OK checks=2386 books=11 library=2026.07.29-15 chapters=20 appendices=3 questions=100 search=189 figures=20 numeric_rechecks=40
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.5650420Z PUBLIC_FINANCE_V2_QA_OK checks=174 books=11 library=2026.07.29-15 chapters=20 appendices=3 questions=100 search=189 figures=20 numeric_rechecks=38 correction_areas=16 question_adjustments=5
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.6411942Z INTERNATIONAL_ECONOMICS_V2_PATCH_OK touched_chapters=11 question_adjustments=7 target=2026.07.29-2
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.6420950Z 2026.07.29-16
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.6593493Z INTERNATIONAL_ECONOMICS_V2_QA_OK checks=1656 questions_rechecked=100 quantitative_rechecks=17 content_corrections=11 question_adjustments=7 search=144 figures=20 books=11 library=2026.07.29-16
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.6844023Z {"book": "money-banking", "version": "2026.07.29-1", "chapters": 20, "appendices": 3, "questions": 100, "search": 150, "figures": 20, "pre_books": 11, "post_books": 12}
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.6882848Z MONEY_BANKING_V2_PATCH_OK corrections=9 question_notes=7 search_notes=9 version=2026.07.29-2
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.6925983Z MONEY_BANKING_QA_ROUND1_OK checks=963 chapters=20 appendices=3 questions=100 search=150 figures=20
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.6927663Z MONEY_BANKING_QA_ROUND2_OK numeric_rechecks=20 high_risk_concepts=10 fx_quote=passed multiplier_boundaries=passed policy_framework=passed
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.6961995Z MONEY_BANKING_V2_QA_OK checks=473 books=12 library=2026.07.29-17 chapters=20 appendices=3 questions=100 search=150 figures=20 corrections=9 question_adjustments=7 quantitative_rechecks=20
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.7143696Z MONEY_BANKING_FRESH_INTEGRATION_OK books=12 library=2026.07.29-17 preserved_existing_books=11
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.7412438Z {"book": "computer-fundamentals", "version": "2026.07.29-1", "chapters": 20, "appendices": 3, "questions": 100, "search": 150, "figures": 20, "pre_books": 12, "post_books": 13}
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.7416939Z 2026.07.29-18
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.7446529Z COMPUTER_FUNDAMENTALS_RELEASE_QA_ROUND1_OK checks=757 chapters=20 appendices=3 questions=100 search=150 figures=20
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.7789904Z Traceback (most recent call last):
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.7790896Z   File "/home/runner/work/study-review-library/study-review-library/deploy/finalize_macroeconomics_v2_library.py", line 53, in <module>
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.7791767Z     main(sys.argv[1],sys.argv[2])
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.7792335Z   File "/home/runner/work/study-review-library/study-review-library/deploy/finalize_macroeconomics_v2_library.py", line 49, in main
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.7799470Z     final_version=integrate_computer_fundamentals(site_root,money_version)
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.7800136Z                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.7800746Z   File "/home/runner/work/study-review-library/study-review-library/deploy/integrate_computer_fundamentals.py", line 98, in integrate
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.7801339Z     qa_round2(str(site), expected_target)
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.7801904Z   File "/home/runner/work/study-review-library/study-review-library/deploy/qa_computer_fundamentals_release.py", line 96, in main
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.7802503Z     assert len(q['explanation'].strip()) >= 12; checks += 1
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.7802841Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.7803111Z AssertionError
-deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:05.8006247Z ##[error]Process completed with exit code 1.
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	﻿2026-07-29T16:02:39.3256583Z ##[group]Run cp _site/data/library.json /tmp/pre-macroeconomics-library.json
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:39.3257188Z ^[[36;1mcp _site/data/library.json /tmp/pre-macroeconomics-library.json^[[0m
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:39.3257869Z ^[[36;1mcat deploy/generate-macroeconomics.py.gz.b64.part* | tr -d '\n\r\t ' | base64 --decode > /tmp/generate-macroeconomics.py.gz^[[0m
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:39.3258743Z ^[[36;1mecho 'c3643675f863883a429d492334b291d430ebfa87bf0b1cbf49806dfe790b6b34  /tmp/generate-macroeconomics.py.gz' | sha256sum --check -^[[0m
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:39.3259552Z ^[[36;1mgzip --test /tmp/generate-macroeconomics.py.gz^[[0m
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:39.3260330Z ^[[36;1mgzip --decompress --stdout /tmp/generate-macroeconomics.py.gz > /tmp/generate-macroeconomics.py^[[0m
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:39.3261079Z ^[[36;1mpython -m py_compile /tmp/generate-macroeconomics.py^[[0m
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:39.3261608Z ^[[36;1mpython /tmp/generate-macroeconomics.py _site^[[0m
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:39.3262627Z ^[[36;1mINITIAL_MACRO_LIBRARY_VERSION="$(python deploy/finalize_macroeconomics_library.py _site /tmp/pre-macroeconomics-library.json)"^[[0m
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:39.3264572Z ^[[36;1mEXPECTED_LIBRARY_VERSION="$INITIAL_MACRO_LIBRARY_VERSION" PRE_LIBRARY_JSON=/tmp/pre-macroeconomics-library.json python deploy/validate_macroeconomics.py _site^[[0m
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:39.3265942Z ^[[36;1mpython -m py_compile deploy/patch_macroeconomics_v2.py deploy/finalize_macroeconomics_v2_library.py deploy/qa_macroeconomics_v2.py^[[0m
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:39.3266589Z ^[[36;1mpython deploy/patch_macroeconomics_v2.py _site^[[0m
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:39.3267198Z ^[[36;1mFINAL_LIBRARY_VERSION="$(python deploy/finalize_macroeconomics_v2_library.py _site "$INITIAL_MACRO_LIBRARY_VERSION")"^[[0m
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:39.3267856Z ^[[36;1mpython deploy/qa_macroeconomics_v2.py _site "$FINAL_LIBRARY_VERSION"^[[0m
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:39.3268263Z ^[[36;1mnode --check _site/app.js^[[0m
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:39.3268529Z ^[[36;1mnode --check _site/sw.js^[[0m
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:39.3269100Z ^[[36;1mecho "MACROECONOMICS_V2_QA library=$FINAL_LIBRARY_VERSION checks=201 corrections=14 question_adjustments=7 quantitative_rechecks=20"^[[0m
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:39.3317710Z shell: /usr/bin/bash -e {0}
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:39.3317978Z env:
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:39.3318179Z   GITHUB_PAGES: true
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:39.3318396Z ##[endgroup]
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:39.3436397Z /tmp/generate-macroeconomics.py.gz: OK
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:39.4315359Z MACROECONOMICS_GENERATED chapters=20 appendices=3 questions=100 search=143 figures=20 version=2026.07.29-1
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:39.5060313Z MACROECONOMICS_QA_OK checks=656 books=9 library=2026.07.29-11 chapters=20 appendices=3 questions=100 search=143 figures=20 numeric_rechecks=18
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:39.5859614Z MACRO_V2_PATCH_OK content_replacements=14 question_adjustments=7
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:39.7675069Z INTERNATIONAL_ECONOMICS_GENERATED chapters=20 appendices=3 questions=100 search=144 figures=20
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:39.7679757Z 2026.07.29-13
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:39.7782772Z INTERNATIONAL_ECONOMICS_QA1_OK checks=696 books=10 library=2026.07.29-13 chapters=20 appendices=3 questions=100 search=144 figures=20 numeric_rechecks=17
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:39.7811496Z INTERNATIONAL_ECONOMICS_QA2_OK checks=1383 quantitative_rechecks=17 questions_rechecked=100 chapters=20 appendices=3 search=144 figures=20
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:39.8067777Z {"book": "public-finance", "version": "2026.07.29-2", "chapters": 20, "appendices": 3, "questions": 100, "search": 189, "figures": 20, "pre_books": 10, "post_books": 11}
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:39.8071814Z 2026.07.29-15
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:39.8193575Z PUBLIC_FINANCE_QA_OK checks=2386 books=11 library=2026.07.29-15 chapters=20 appendices=3 questions=100 search=189 figures=20 numeric_rechecks=40
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:39.8218783Z PUBLIC_FINANCE_V2_QA_OK checks=174 books=11 library=2026.07.29-15 chapters=20 appendices=3 questions=100 search=189 figures=20 numeric_rechecks=38 correction_areas=16 question_adjustments=5
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:39.9008324Z INTERNATIONAL_ECONOMICS_V2_PATCH_OK touched_chapters=11 question_adjustments=7 target=2026.07.29-2
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:39.9017530Z 2026.07.29-16
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:39.9191793Z INTERNATIONAL_ECONOMICS_V2_QA_OK checks=1656 questions_rechecked=100 quantitative_rechecks=17 content_corrections=11 question_adjustments=7 search=144 figures=20 books=11 library=2026.07.29-16
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:39.9452428Z {"book": "money-banking", "version": "2026.07.29-1", "chapters": 20, "appendices": 3, "questions": 100, "search": 150, "figures": 20, "pre_books": 11, "post_books": 12}
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:39.9496241Z MONEY_BANKING_V2_PATCH_OK corrections=9 question_notes=7 search_notes=9 version=2026.07.29-2
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:39.9540826Z MONEY_BANKING_QA_ROUND1_OK checks=963 chapters=20 appendices=3 questions=100 search=150 figures=20
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:39.9541811Z MONEY_BANKING_QA_ROUND2_OK numeric_rechecks=20 high_risk_concepts=10 fx_quote=passed multiplier_boundaries=passed policy_framework=passed
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:39.9574034Z MONEY_BANKING_V2_QA_OK checks=473 books=12 library=2026.07.29-17 chapters=20 appendices=3 questions=100 search=150 figures=20 corrections=9 question_adjustments=7 quantitative_rechecks=20
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:39.9762880Z MONEY_BANKING_FRESH_INTEGRATION_OK books=12 library=2026.07.29-17 preserved_existing_books=11
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:40.0054013Z {"book": "computer-fundamentals", "version": "2026.07.29-1", "chapters": 20, "appendices": 3, "questions": 100, "search": 150, "figures": 20, "pre_books": 12, "post_books": 13}
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:40.0059449Z 2026.07.29-18
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:40.0091288Z COMPUTER_FUNDAMENTALS_RELEASE_QA_ROUND1_OK checks=757 chapters=20 appendices=3 questions=100 search=150 figures=20
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:40.0473811Z Traceback (most recent call last):
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:40.0475007Z   File "/home/runner/work/study-review-library/study-review-library/deploy/finalize_macroeconomics_v2_library.py", line 53, in <module>
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:40.0475836Z     main(sys.argv[1],sys.argv[2])
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:40.0476585Z   File "/home/runner/work/study-review-library/study-review-library/deploy/finalize_macroeconomics_v2_library.py", line 49, in main
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:40.0477517Z     final_version=integrate_computer_fundamentals(site_root,money_version)
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:40.0477967Z                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:40.0478590Z   File "/home/runner/work/study-review-library/study-review-library/deploy/integrate_computer_fundamentals.py", line 98, in integrate
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:40.0479207Z     qa_round2(str(site), expected_target)
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:40.0479762Z   File "/home/runner/work/study-review-library/study-review-library/deploy/qa_computer_fundamentals_release.py", line 108, in main
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:40.0480359Z     assert len(plain) >= 900, entry['id']; checks += 1
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:40.0480658Z            ^^^^^^^^^^^^^^^^^
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:40.0480892Z AssertionError: ch03
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T16:02:40.0751791Z ##[error]Process completed with exit code 1.
