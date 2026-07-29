@@ -1,0 +1,49 @@
+name: Stage nine-book canonical workflow v2
+
+on:
+  push:
+    branches:
+      - stage-nine-book-canonical-v2
+    paths:
+      - .github/workflows/stage-nine-book-canonical-v2.yml
+
+permissions:
+  contents: write
+
+jobs:
+  stage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout staging branch
+        uses: actions/checkout@v4
+        with:
+          ref: stage-nine-book-canonical-v2
+          fetch-depth: 0
+
+      - name: Generate and verify nine-book canonical workflow
+        run: |
+          python -m py_compile deploy/integrate_intermediate_accounting_workflow.py deploy/integrate_macroeconomics_workflow.py
+          python deploy/integrate_intermediate_accounting_workflow.py
+          ruby -e "require 'yaml'; YAML.load_file('deploy/generated-deploy-pages.intermediate-accounting.yml'); puts 'INTERMEDIATE_YAML_OK'"
+          cp deploy/generated-deploy-pages.intermediate-accounting.yml .github/workflows/deploy-pages.yml
+          python deploy/integrate_macroeconomics_workflow.py
+          ruby -e "require 'yaml'; YAML.load_file('.github/workflows/deploy-pages.yml'); puts 'NINE_BOOK_YAML_OK'"
+          grep -F "Generate and independently validate intermediate accounting textbook" .github/workflows/deploy-pages.yml
+          grep -F "Generate and independently validate macroeconomics textbook" .github/workflows/deploy-pages.yml
+          grep -F "'intermediate_accounting_version': '2026.07.29-1'" .github/workflows/deploy-pages.yml
+          grep -F "'macroeconomics_version': '2026.07.29-1'" .github/workflows/deploy-pages.yml
+          grep -F "docs/books/intermediate-accounting/status.md docs/books/macroeconomics/status.md" .github/workflows/deploy-pages.yml
+
+      - name: Commit staged canonical workflow
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add .github/workflows/deploy-pages.yml
+          git rm --ignore-unmatch .github/workflows/stage-nine-book-canonical-v2.yml
+          git rm --ignore-unmatch .github/workflows/integrate-pending-economics-books.yml
+          git rm --ignore-unmatch .github/workflows/validate-macroeconomics-integration.yml
+          git rm --ignore-unmatch .github/workflows/stage-intermediate-accounting-workflow.yml
+          git rm --ignore-unmatch .github/workflows/apply-intermediate-accounting-canonical-once.yml
+          rm -f deploy/generated-deploy-pages.intermediate-accounting.yml
+          git commit -m "Stage canonical nine-book deployment workflow"
+          git push origin HEAD:stage-nine-book-canonical-v2
