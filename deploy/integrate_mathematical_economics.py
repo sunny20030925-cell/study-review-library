@@ -7,7 +7,7 @@ from pathlib import Path
 from generate_mathematical_economics import main as generate_book
 from qa_mathematical_economics import main as qa_book
 
-BOOK='mathematical-economics'; EXPECTED_PREVIOUS='money-banking'
+BOOK='mathematical-economics'; EXPECTED_PREVIOUS='computer-fundamentals'; EXPECTED_EXISTING_BOOK_COUNT=13
 
 def next_version(v: str) -> str:
     m=re.fullmatch(r'(\d{4}\.\d{2}\.\d{2})-(\d+)',v)
@@ -69,7 +69,6 @@ def stage_structured_recorder_for_future_runs() -> None:
           done
           test "$pushed" = true
 '''
-    # If the workflow is already structured, avoid touching/staging it.
     if 'python deploy/record_successful_deployment.py _site' in text[idx:]: return
     p.write_text(text[:idx]+new,encoding='utf-8')
     subprocess.run(['git','add',str(p)],check=True)
@@ -78,7 +77,7 @@ def integrate(site_root: str, expected_before: str) -> str:
     site=Path(site_root); lp=site/'data/library.json'; pre=json.loads(lp.read_text(encoding='utf-8')); ids=[b['id'] for b in pre['books']]
     if pre['version']!=expected_before: raise AssertionError(f'pre-version expected {expected_before}, got {pre["version"]}')
     if BOOK in ids: raise AssertionError(f'{BOOK} already exists before integration')
-    if len(ids)!=12 or ids[-1]!=EXPECTED_PREVIOUS: raise AssertionError(f'mathematical economics requires twelve-book money-banking tail: {ids}')
+    if len(ids)!=EXPECTED_EXISTING_BOOK_COUNT or ids[-1]!=EXPECTED_PREVIOUS: raise AssertionError(f'mathematical economics requires thirteen-book computer-fundamentals tail: {ids}')
     before=hashes(site,ids); target=next_version(expected_before)
     buf=io.StringIO()
     with contextlib.redirect_stdout(buf): generate_book(str(site))
@@ -100,7 +99,7 @@ def integrate(site_root: str, expected_before: str) -> str:
     prepare_current_recorder_compatibility(); stage_structured_recorder_for_future_runs()
     final=json.loads(lp.read_text(encoding='utf-8'))
     if final['version']!=target or [b['id'] for b in final['books']]!=ids+[BOOK]: raise AssertionError('final library state drift')
-    print(f'MATHEMATICAL_ECONOMICS_INTEGRATION_OK books=13 library={target} preserved_existing_books=12',file=sys.stderr)
+    print(f'MATHEMATICAL_ECONOMICS_INTEGRATION_OK books=14 library={target} preserved_existing_books=13',file=sys.stderr)
     return target
 
 if __name__=='__main__':
