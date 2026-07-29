@@ -26,7 +26,7 @@ QUESTIONS_B = [
 {'id':'ch13-q05','chapterId':'ch13','question':'正機率到達的 on-path 資訊集合，其 belief 可以任意指定嗎？','answer':'不可以。','explanation':'只要 Bayes rule 可用，就必須依先驗與均衡策略更新。'},
 
 {'id':'ch14-q01','chapterId':'ch14','question':'signaling game 中通常是哪一方先知道自己的 type？','answer':'Sender。','explanation':'Sender 先知道私人型態並選可觀察訊號，Receiver 再更新信念並行動。'},
-{'id':'ch14-q02','chapterId':'ch14','question':'教育訊號例題中 H 的生產力10、教育成本 e；若 H 選 e=2.1 並拿工資10，淨報酬是多少？','answer':'7.9。','explanation':'10-2.1=7.9。'},
+{'id':'ch14-q02','chapterId':'ch14','question':'教育訊號例題中 H 的生產力10、教育成本 e；若 H 選 e=2.1 並拿工資10，淨報酬是多少？','answer':'7.9。','explanation':'高型態收到工資10並負擔教育成本2.1，所以淨報酬是10-2.1=7.9；這也是檢查其不模仿低型態時使用的效用。'},
 {'id':'ch14-q03','chapterId':'ch14','question':'同例 L 的教育成本為3e。若 L 模仿 e=2.1 並拿工資10，淨報酬是多少？','answer':'3.7。','explanation':'10-3×2.1=10-6.3=3.7，低於 L 不教育時的4。'},
 {'id':'ch14-q04','chapterId':'ch14','question':'若 separating 候選改成 H 選 e=1.5、L 選0，L 模仿 H 的淨報酬是多少？它會不會想模仿？','answer':'5.5，會想模仿。','explanation':'10-3×1.5=5.5>4，因此 IC_L 失敗，這個 separating 候選不能成立。'},
 {'id':'ch14-q05','chapterId':'ch14','question':'pooling PBE 是否一定通過所有更強的 equilibrium refinement？','answer':'不一定。','explanation':'某些 pooling 均衡依賴不合理 off-path beliefs，可能被 intuitive criterion 等精煉排除。'},
@@ -40,7 +40,7 @@ QUESTIONS_B = [
 {'id':'ch16-q01','chapterId':'ch16','question':'revelation principle 的主要用途是什麼？','answer':'把可實現結果的分析簡化為 truthful direct mechanism。','explanation':'它是分析工具，不代表任何社會目標都必然可實現。'},
 {'id':'ch16-q02','chapterId':'ch16','question':'單一物品 VCG 中三人價值 NT$100、NT$80、NT$50，效率配置給誰？','answer':'給價值 NT$100 的玩家。','explanation':'效率配置最大化總價值，因此把物品給最高價值者。'},
 {'id':'ch16-q03','chapterId':'ch16','question':'上題用 Clarke pivot/第二價支付時，得標者支付多少？','answer':'NT$80。','explanation':'沒有得標者時其他人可得到的最大福利是80；有他並由他取得物品時其他人福利0，因此外部性支付80。'},
-{'id':'ch16-q04','chapterId':'ch16','question':'上題得標者效用是多少？','answer':'NT$20。','explanation':'價值100減支付80等於20。'},
+{'id':'ch16-q04','chapterId':'ch16','question':'上題得標者效用是多少？','answer':'NT$20。','explanation':'準線性效用等於自己的物品價值減支付，因此得標者效用是 NT$100-NT$80=NT$20。'},
 {'id':'ch16-q05','chapterId':'ch16','question':'機制設計中 efficiency、IC、IR 與 budget balance 是否應分開檢查？','answer':'是。','explanation':'這些是不同性質；一個機制可能有效率且 truthful，卻不一定滿足其他要求。'},
 
 {'id':'ch17-q01','chapterId':'ch17','question':'合作賽局的 characteristic function v(S) 表示什麼？','answer':'聯盟 S 能自行創造或保證的總價值。','explanation':'合作賽局把不同 coalition 的可達價值作為基本資料。'},
