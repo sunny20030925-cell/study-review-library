@@ -48,9 +48,10 @@
 
 ## 整合 gate
 
-- 數理經濟學只接受 14 本且尾端為 `advanced-statistics → computer-fundamentals` 的正式 artifact。
-- 整合完成後必須形成 15 本書庫，尾端為 `advanced-statistics → computer-fundamentals → mathematical-economics`。
-- 整合前後逐本計算既有 14 本教材內容 SHA-256；任何既有教材內容變動都直接失敗。
+- 數理經濟學只接受 17 本且尾端為 `civil-law-overview → investments` 的正式 artifact。
+- 整合完成後必須形成 18 本書庫，尾端為 `civil-law-overview → investments → mathematical-economics`。
+- 整合前後逐本計算既有 17 本教材內容 SHA-256；任何既有教材內容變動都直接失敗。
+- 深層兩輪 QA 固定核對第一輪 777 項、第二輪 56 項，其中包含 23 個數值節點與 10 個高風險邏輯 gate；另外再驗證實際 18 本 registry 與最新正式尾端。
 - 正式發布成功仍以 canonical `Deploy study library`、Pages artifact、重新下載驗證與 deployment receipt 為準。
 
 ## 正式發布結果
