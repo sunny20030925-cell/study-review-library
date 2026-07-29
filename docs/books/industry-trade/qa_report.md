@@ -60,8 +60,8 @@ HHI、Lerner 指標、Cournot 最佳回應、CES markup、平均成本與規模�
 - Round 1：1495 項通過；Round 2：545 項通過。
 - 100 題逐題複核、20 題數值題獨立重算、12 個高風險章節重新判讀。
 - 既有 19 本內容 hash：整合前後完全一致。
-- 正式書庫：20 本，版本 `2026.07.30-6`。
-- Pages run：`30490416762`。
-- Pages artifact：`8739445998`；digest `sha256:20484896b21c43b9df209033ba0b93d5e0e20927a1647b9e5e3e6581894147b5`。
+- 正式書庫：20 本，版本 `2026.07.30-8`。
+- Pages run：`30490932468`。
+- Pages artifact：`8739640949`；digest `sha256:dfefd00509f0b661dc03bfc09bb98262ea762bab096769c7356256f09182d150`。
 - 部署後 artifact 重抓：23 份本書 HTML、100 題、160 搜尋、20 SVG 全數核對通過。
 - post-deploy recorder：`passed-structured-recorder`。

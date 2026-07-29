@@ -5,7 +5,7 @@
 ## 版本與範圍
 
 - Book ID：`computer-fundamentals`
-- 候選內容版本：`2026.07.29-1`
+- 正式內容版本：`2026.07.30-2`
 - 正文：20 章。
 - 附錄：3 份。
 - 題庫：100 題，每章 5 題。
@@ -59,3 +59,15 @@
 - Pages artifact：`8731105330`；digest `sha256:1b20af1baf726d1de0517df4e09c5796354b45f00e0a71c9b606793932b9029d`。
 - 部署後 artifact 重新下載：23 份本書 HTML、100 題、150 搜尋、20 SVG 全數核對通過。
 - post-deploy recorder：`passed-structured-recorder`。
+
+## 發布後第二次內容審計（v2）
+
+- 正式內容版本：`2026.07.30-2`。
+- 內容修正／補強區域：15 個；題庫精確化：12 題。
+- 獨立 QA：128 項通過；數值節點重新計算：36 項通過。
+- 高風險主題重新判讀：page fault／virtual memory、interrupt／exception、HTTP/3／QUIC／TLS、Big-O／Θ、binary search、foreign key／ACID、cryptographic hash／password KDF、NIST cloud／edge。
+- Book ID、章節 ID、題目 ID、題數與進度儲存鍵均未變。
+- 所有非目標教材內容 hash 在修正前後完全一致。
+- 正式書庫：20 本，版本 `2026.07.30-8`。
+- Pages run：`30490932468`；artifact：`8739640949`；digest `sha256:dfefd00509f0b661dc03bfc09bb98262ea762bab096769c7356256f09182d150`。
+- 部署後重新下載 artifact：23 份本書 HTML、100 題、150 搜尋、20 SVG 與 v2 QA 全數重驗通過。

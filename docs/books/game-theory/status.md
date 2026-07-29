@@ -6,7 +6,7 @@
 
 - Book ID：`game-theory`
 - 正式內容版本：`2026.07.30-2`
-- 正式書庫版本：`2026.07.30-6`
+- 正式書庫版本：`2026.07.30-8`
 - 正式書庫書籍數：20 本。
 - 狀態：v2 已部署。
 - 範圍文件：`docs/books/game-theory/scope.md`
@@ -25,8 +25,8 @@
 ## 部署
 
 - canonical workflow：`Deploy study library`
-- workflow run：`30490416762`
-- source commit：`b35ca95c8204f678778312d998bd2fd2f98d167d`
-- Pages artifact：`8739445998`
-- Artifact digest：`sha256:20484896b21c43b9df209033ba0b93d5e0e20927a1647b9e5e3e6581894147b5`
+- workflow run：`30490932468`
+- source commit：`3b5d3f894432810299bc30fc86fd741d3feb6ff8`
+- Pages artifact：`8739640949`
+- Artifact digest：`sha256:dfefd00509f0b661dc03bfc09bb98262ea762bab096769c7356256f09182d150`
 - 部署後重新下載 artifact 並再次執行 v2 artifact QA：PASS。

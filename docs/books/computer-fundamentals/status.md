@@ -1,30 +1,31 @@
 # 《計算機概論》製作狀態
 
-更新日期：2026-07-29
+更新日期：2026-07-30
 
 ## 正式識別
 
 - Book ID：`computer-fundamentals`
-- 正式內容版本：`2026.07.29-1`
-- 正式書庫版本：`2026.07.29-19`
-- 狀態：已部署。
+- 正式內容版本：`2026.07.30-2`
+- 正式書庫版本：`2026.07.30-8`
+- 狀態：已部署；發布後第二次內容複核與精確性修正完成。
 - 範圍文件：`docs/books/computer-fundamentals/scope.md`
 - QA 報告：`docs/books/computer-fundamentals/qa_report.md`
 
-## 成品與 QA
+## 成品與 v2 內容審計
 
 - 正文 20 章、附錄 3 份、題庫 100 題、搜尋索引 150 筆、自製 SVG 20 張。
-- 第一輪 release QA：757 項通過。
-- 第二輪獨立 QA：598 項通過；17 個數值節點獨立重算、26 個高風險概念重判。
-- 既有 13 本教材內容 hash 在整合前後完全一致。
-- 閱讀進度相容性：新增獨立 Book ID，不改既有章節 ID、題目 ID、儲存鍵或錯題紀錄。
+- 第二次內容審計共 15 個修正／補強區域，12 題題庫精確化。
+- v2 獨立 QA：128 項；獨立數值重算：36 項，全部通過。
+- 修正重點：page fault／virtual memory、interrupt vs exception、URL authority、HTTP/3 + QUIC/TLS 1.3、Big-O vs Θ、二分搜尋減半／比較次數、foreign key、ACID、password hashing、NIST cloud 與 edge security/privacy。
+- 全部非目標教材內容 hash 在修正前後完全一致。
+- Book ID、20 個章節 ID、100 個題目 ID、題數與進度儲存鍵均未變，既有閱讀進度與錯題紀錄相容。
 
 ## 部署
 
 - canonical workflow：`Deploy study library`
-- workflow run：`30469780777`
-- source commit：`85032444cfc17048117673e3c98546138771a88c`
-- Pages artifact：`8731105330`
-- Artifact digest：`sha256:1b20af1baf726d1de0517df4e09c5796354b45f00e0a71c9b606793932b9029d`
-- 正式書庫書籍數：14 本。
-- GitHub Pages 部署、artifact 下載重驗與 deployment receipt 均成功。
+- workflow run：`30490932468`
+- source commit：`3b5d3f894432810299bc30fc86fd741d3feb6ff8`
+- Pages artifact：`8739640949`
+- Artifact digest：`sha256:dfefd00509f0b661dc03bfc09bb98262ea762bab096769c7356256f09182d150`
+- 正式書庫書籍數：20 本。
+- Pages deployment、artifact 下載重驗與結構化 deployment receipt 均成功。

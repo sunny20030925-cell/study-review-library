@@ -6,7 +6,7 @@
 
 - Book ID：`advanced-statistics`
 - 正式內容版本：`2026.07.30-1`
-- 正式書庫版本：`2026.07.30-6`
+- 正式書庫版本：`2026.07.30-8`
 - 狀態：已部署。
 - 範圍文件：`docs/books/advanced-statistics/scope.md`
 - QA 報告：`docs/books/advanced-statistics/qa_report.md`
@@ -23,9 +23,9 @@
 ## 部署
 
 - canonical workflow：`Deploy study library`
-- workflow run：`30490416762`
-- source commit：`b35ca95c8204f678778312d998bd2fd2f98d167d`
-- Pages artifact：`8739445998`
-- Artifact digest：`sha256:20484896b21c43b9df209033ba0b93d5e0e20927a1647b9e5e3e6581894147b5`
-- 正式書庫：20 本，版本 `2026.07.30-6`。
+- workflow run：`30490932468`
+- source commit：`3b5d3f894432810299bc30fc86fd741d3feb6ff8`
+- Pages artifact：`8739640949`
+- Artifact digest：`sha256:dfefd00509f0b661dc03bfc09bb98262ea762bab096769c7356256f09182d150`
+- 正式書庫：20 本，版本 `2026.07.30-8`。
 - Pages deployment、artifact 下載後重驗與 deployment receipt 均成功。
