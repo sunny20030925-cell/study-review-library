@@ -1,0 +1,53 @@
+name: Stage microeconomics v2 deployment with macro deferral
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  stage:
+    if: >-
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.head.ref == 'stage-micro-v2-macro-deferral'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout controlled staging branch
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.ref }}
+          token: ${{ github.token }}
+          fetch-depth: 0
+
+      - name: Build and validate macro-deferred canonical candidate
+        run: |
+          AUDITED_SHA='4b2c4fb55c54657b9098da0db29aac9a1566b9d1'
+          git fetch origin agent/defer-broken-macro-for-micro-v2
+          test "$(git rev-parse FETCH_HEAD)" = "$AUDITED_SHA"
+          git checkout "$AUDITED_SHA" -- deploy/defer_broken_macroeconomics.py
+          python -m py_compile deploy/defer_broken_macroeconomics.py
+          cp .github/workflows/deploy-pages.yml deploy/staged-micro-v2-macro-deferred-deploy-pages.yml
+          python deploy/defer_broken_macroeconomics.py deploy/staged-micro-v2-macro-deferred-deploy-pages.yml
+          ruby -e "require 'yaml'; YAML.parse_file('deploy/staged-micro-v2-macro-deferred-deploy-pages.yml'); puts 'MACRO_DEFERRED_YAML_PARSE_OK'"
+          grep -F 'python deploy/patch_microeconomics_v2.py _site' deploy/staged-micro-v2-macro-deferred-deploy-pages.yml
+          grep -F "'microeconomics_independent_check_count': 1616" deploy/staged-micro-v2-macro-deferred-deploy-pages.yml
+          grep -F "'intermediate_accounting_version': '2026.07.29-1'" deploy/staged-micro-v2-macro-deferred-deploy-pages.yml
+          ! grep -F 'Generate and independently validate macroeconomics textbook' deploy/staged-micro-v2-macro-deferred-deploy-pages.yml
+          ! grep -F "'macroeconomics_version': '2026.07.29-1'" deploy/staged-micro-v2-macro-deferred-deploy-pages.yml
+          ! grep -F "Path('docs/books/macroeconomics/status.md').write_text" deploy/staged-micro-v2-macro-deferred-deploy-pages.yml
+
+      - name: Commit candidate to staging branch
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add deploy/defer_broken_macroeconomics.py deploy/staged-micro-v2-macro-deferred-deploy-pages.yml
+          if git diff --cached --quiet; then
+            echo 'Candidate already staged.'
+            exit 0
+          fi
+          git commit -m "Stage macro-deferred microeconomics v2 deployment"
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}
