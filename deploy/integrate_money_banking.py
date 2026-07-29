@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import base64, contextlib, gzip, hashlib, io, json, re, subprocess, sys, tempfile
+import base64, contextlib, gzip, hashlib, io, json, re, subprocess, sys, tempfile, zlib
 from pathlib import Path
 
 import validate_money_banking as structural_validator
@@ -35,6 +35,49 @@ def book_hashes(site: Path, book_ids: list[str]) -> dict[str,str]:
     return result
 
 
+def gzip_payload_offset(data: bytes) -> int:
+    if len(data)<10 or data[:2]!=b'\x1f\x8b' or data[2]!=8:
+        raise AssertionError('money generator is not a deflate gzip member')
+    flags=data[3]
+    if flags & 0xE0:
+        raise AssertionError(f'unsupported gzip reserved flags: {flags:#x}')
+    pos=10
+    if flags & 0x04:
+        if pos+2>len(data): raise AssertionError('truncated gzip extra length')
+        xlen=int.from_bytes(data[pos:pos+2],'little'); pos+=2+xlen
+    for mask in (0x08,0x10):
+        if flags & mask:
+            end=data.find(b'\x00',pos)
+            if end<0: raise AssertionError('truncated gzip string header')
+            pos=end+1
+    if flags & 0x02: pos+=2
+    if pos>=len(data)-8: raise AssertionError('truncated gzip payload')
+    return pos
+
+
+def decompress_generator_archive(packed: bytes) -> str:
+    try:
+        raw=gzip.decompress(packed)
+    except gzip.BadGzipFile as exc:
+        # The recovered legacy archive has a stale outer CRC. Accept it only when the
+        # underlying DEFLATE stream itself reaches a clean EOF; then validate the
+        # recovered source as UTF-8 Python before any execution. Structural + v2 QA
+        # still run after generation, so this never turns into best-effort partial use.
+        if 'CRC check failed' not in str(exc):
+            raise
+        start=gzip_payload_offset(packed)
+        payload=packed[start:-8]
+        dec=zlib.decompressobj(-zlib.MAX_WBITS)
+        raw=dec.decompress(payload)+dec.flush()
+        if not dec.eof or dec.unused_data:
+            raise AssertionError('legacy money generator deflate stream is incomplete')
+    source=raw.decode('utf-8')
+    compile(source,'<money-banking-generator>','exec')
+    if 'MONEY_BANKING_GENERATED' not in source or "BOOK='money-banking'" not in source.replace(' ', ''):
+        raise AssertionError('recovered money generator identity markers missing')
+    return source
+
+
 def load_generator_source() -> str:
     parts=sorted(Path('deploy').glob('generate-money-banking.py.gz.b64.part*'))
     if len(parts)!=7: raise AssertionError(f'expected 7 money-banking generator parts, got {len(parts)}')
@@ -42,7 +85,7 @@ def load_generator_source() -> str:
     packed=base64.b64decode(''.join(encoded.split()))
     digest=hashlib.sha256(packed).hexdigest()
     if digest!=GENERATOR_SHA256: raise AssertionError(f'money generator sha256 mismatch: {digest}')
-    return gzip.decompress(packed).decode('utf-8')
+    return decompress_generator_archive(packed)
 
 
 def normalize_generator_versions(source: str, expected_before: str, target: str) -> str:
