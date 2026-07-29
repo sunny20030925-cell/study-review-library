@@ -7,6 +7,7 @@ on:
       - 'deploy/generate_mathematical_economics_v2.py'
       - 'deploy/integrate_mathematical_economics_v2.py'
       - 'deploy/qa_mathematical_economics_v2.py'
+      - 'deploy/audit_mathematical_economics_v2_density.py'
       - 'docs/books/mathematical-economics/**'
       - '.github/workflows/validate-mathematical-economics-v2.yml'
   workflow_dispatch:
@@ -32,7 +33,8 @@ jobs:
             deploy/mathematical_economics_v2_questions.py \
             deploy/generate_mathematical_economics_v2.py \
             deploy/qa_mathematical_economics_v2.py \
-            deploy/integrate_mathematical_economics_v2.py
+            deploy/integrate_mathematical_economics_v2.py \
+            deploy/audit_mathematical_economics_v2_density.py
           PYTHONPATH=deploy python - <<'PY'
           from mathematical_economics_v2_corrections import CHAPTERS_V2
           from mathematical_economics_v2_questions import build_questions_v2
@@ -42,6 +44,7 @@ jobs:
           assert all(len(c['formulas'])>=3 for c in CHAPTERS_V2)
           print('MATHEMATICAL_ECONOMICS_V2_SOURCE_OK chapters=20 questions=100')
           PY
+          PYTHONPATH=deploy python deploy/audit_mathematical_economics_v2_density.py
 
       - name: Download current formal Pages artifact
         env:
