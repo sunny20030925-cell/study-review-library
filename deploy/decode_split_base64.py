@@ -6,10 +6,14 @@ import base64
 import binascii
 import glob
 import hashlib
+import multiprocessing as mp
+import os
 import string
 from pathlib import Path
 
 BASE64_ALPHABET = string.ascii_uppercase + string.ascii_lowercase + string.digits + '+/'
+_SEARCH_BASE = ''
+_SEARCH_EXPECTED = ''
 
 
 def decode_payload(encoded: str) -> bytes:
@@ -27,9 +31,52 @@ def digest_match(encoded: str, expected: str | None) -> bytes | None:
     return payload
 
 
+def _search_range(position_range: tuple[int, int]) -> tuple[int, str, bytes] | None:
+    start, stop = position_range
+    base = _SEARCH_BASE
+    expected = _SEARCH_EXPECTED
+    for position in range(start, stop):
+        prefix = base[:position]
+        suffix = base[position:]
+        for character in BASE64_ALPHABET:
+            candidate_text = prefix + character + suffix
+            try:
+                payload = base64.b64decode(candidate_text, validate=True)
+            except binascii.Error:
+                continue
+            if hashlib.sha256(payload).hexdigest() == expected:
+                return position, character, payload
+    return None
+
+
+def _full_verified_insertion_search(base: str, expected: str) -> tuple[int, str, bytes] | None:
+    global _SEARCH_BASE, _SEARCH_EXPECTED
+    _SEARCH_BASE = base
+    _SEARCH_EXPECTED = expected
+    data_end = base.find('=')
+    if data_end < 0:
+        data_end = len(base)
+    chunk_size = 192
+    ranges = [(start, min(start + chunk_size, data_end + 1)) for start in range(0, data_end + 1, chunk_size)]
+    process_count = max(1, min(4, os.cpu_count() or 1))
+    print(
+        f'FULL_INSERTION_SEARCH positions={data_end + 1} alphabet={len(BASE64_ALPHABET)} '
+        f'candidates={(data_end + 1) * len(BASE64_ALPHABET)} processes={process_count}',
+        flush=True,
+    )
+    context = mp.get_context('fork')
+    with context.Pool(processes=process_count) as pool:
+        for result in pool.imap_unordered(_search_range, ranges, chunksize=1):
+            if result is not None:
+                pool.terminate()
+                pool.join()
+                return result
+    return None
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description='Join ordered Base64 text parts, diagnose transformations and recover a verified payload.'
+        description='Join ordered Base64 text parts, diagnose corruption and recover only a checksum-verified payload.'
     )
     parser.add_argument('pattern', help='Glob pattern for ordered Base64 part files')
     parser.add_argument('output', help='Output binary path')
@@ -66,29 +113,35 @@ def main() -> None:
             break
 
     if decoded is None and expected:
-        boundaries = []
-        running = 0
-        for chunk in chunks[:-1]:
-            running += len(chunk)
-            boundaries.append(running)
-        positions = []
-        for boundary in boundaries:
-            for position in range(max(0, boundary - 64), min(len(encoded), boundary + 64) + 1):
-                if position not in positions:
-                    positions.append(position)
-        for position in positions:
-            prefix = encoded[:position]
-            suffix = encoded[position:]
+        gzip_header_repaired = 'H4sI' + encoded[4:]
+        cheap_positions = set(range(0, min(96, len(gzip_header_repaired) + 1)))
+        data_end = gzip_header_repaired.find('=')
+        if data_end < 0:
+            data_end = len(gzip_header_repaired)
+        for boundary in [sum(len(chunk) for chunk in chunks[:index]) for index in range(1, len(chunks))]:
+            cheap_positions.update(range(max(0, boundary - 96), min(data_end, boundary + 96) + 1))
+        cheap_positions.update(range(max(0, data_end - 96), data_end + 1))
+        for position in sorted(cheap_positions):
+            prefix = gzip_header_repaired[:position]
+            suffix = gzip_header_repaired[position:]
             for character in BASE64_ALPHABET:
                 repaired = prefix + character + suffix
                 candidate = digest_match(repaired, expected)
                 if candidate is not None:
                     decoded = candidate
                     encoded = repaired
-                    recovery = f'boundary-insertion position={position} character={character!r}'
+                    recovery = f'gzip-header-plus-selected-insertion position={position} character={character!r}'
                     break
             if decoded is not None:
                 break
+
+        if decoded is None:
+            result = _full_verified_insertion_search(gzip_header_repaired, expected)
+            if result is not None:
+                position, character, payload = result
+                decoded = payload
+                encoded = gzip_header_repaired[:position] + character + gzip_header_repaired[position:]
+                recovery = f'gzip-header-plus-full-insertion position={position} character={character!r}'
 
     if decoded is None:
         equals = [index for index, character in enumerate(encoded) if character == '=']
@@ -103,13 +156,8 @@ def main() -> None:
             f'chunk_tails={[chunk[-24:] for chunk in chunks]!r}',
             f'equals_count={len(equals)} equals_positions={equals[:20]!r}',
             f'H4sI_positions={[i for i in range(len(encoded)) if encoded.startswith("H4sI", i)][:20]!r}',
+            'full_checksum_verified_insertion_search=no_match',
         ]
-        for label, candidate_text in transformations:
-            try:
-                loose = base64.b64decode(candidate_text + ('=' * (-len(candidate_text) % 4)), validate=False)
-                diagnostic_lines.append(f'{label}_decoded_head={loose[:12].hex()} decoded_tail={loose[-12:].hex()}')
-            except Exception as exc:
-                diagnostic_lines.append(f'{label}_decode_error={type(exc).__name__}:{exc}')
         raise SystemExit('\n'.join(diagnostic_lines))
 
     output = Path(args.output)
