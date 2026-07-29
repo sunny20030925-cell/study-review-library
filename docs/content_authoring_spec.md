@@ -89,9 +89,11 @@
 - 高度依學校而異的主題要標示層級，例如核心、常見、選讀。
 - 若使用者沒有指定教材，以多個常見大學課程的交集與合理聯集建立範圍。
 
-## 9. QA 規格
+## 9. Internal QA 規格
 
-### 第一輪
+Internal QA 保留既有兩輪制度。
+
+### 第一輪：製作內檢
 
 - 章節完整性
 - 定義與符號一致
@@ -100,7 +102,7 @@
 - 圖片與排版
 - 題庫資料結構
 
-### 第二輪
+### 第二輪：獨立複核
 
 - 每個核心公式重新核對
 - 每道例題獨立重算
@@ -108,7 +110,7 @@
 - 搜尋前後矛盾、名詞混用與跨科偏移
 - 抽查平板直式閱讀、翻頁、搜尋、題庫與離線快取
 
-QA 報告至少記錄：
+Internal QA 報告至少記錄：
 
 - 檢查項目數
 - 通過數
@@ -116,9 +118,66 @@ QA 報告至少記錄：
 - 內容版本
 - 已知限制
 
-## 10. 發布與版本
+未完成兩輪 Internal QA，不得進入 External Audit。
 
-- 每本書有獨立 manifest、內容版本、題庫與 QA 報告。
+## 10. External Audit 規格
+
+External Audit 是 Internal QA 之後的第三階段，但不是對全書普通敘述再做一次全量重審。
+
+- 採風險式抽查。
+- 優先驗證高錯誤成本、高數值密度、成立條件複雜、容易過時、涉及研究證據或 Internal QA 曾修正過的區域。
+- 普通低風險基礎敘述不得為了形式上的第三輪 QA 大量消耗外部免費額度。
+
+內容路由：
+
+- 數學／公式／數值／統計推導：優先 Wolfram。
+- 實證研究、學術爭議、研究結論：優先 Consensus。
+- 重要論文的支持／反駁／引用脈絡：使用 Scite。
+- 法律：正式法規、主管機關官方資料、正式判決與必要修法沿革優先；不得以 Consensus／Scite 取代正式法律來源。
+- 會計：正式準則／規範與正式解釋優先；Wolfram 僅作計算驗證。
+- 其他制度／技術內容：優先第一手官方文件或標準文件。
+
+External Audit 的完整抽樣、通過門檻與記錄方式以 `docs/external_audit_workflow.md` 為準。
+
+若 External Audit 發現需要修改正文或題庫：
+
+1. 提高該書 content version。
+2. 只重跑受影響的 Internal QA gate 與必要全書 consistency gate。
+3. 保持 Book ID、chapter ID、question ID 與 progress storage 相容。
+4. 更新該書 status、audit record 與 `docs/audit_progress_manifest.json`。
+
+## 11. Visual Polish 規格
+
+只有 External Audit 通過後才可進入 Visual Polish。
+
+Canva 僅用於高價值視覺資產，例如：
+
+- 封面
+- 章末重點
+- 比較圖
+- 流程圖
+- 公式速查表
+- 考前速查表
+
+Visual Polish 不得把整本教材搬離現有 PWA 架構，也不得改寫正式資料模型來配合設計工具。
+
+視覺資產必須：
+
+- 真正降低理解成本，而不是裝飾。
+- 在平板直式閱讀下清楚可讀。
+- 保留可放大、替代文字與離線載入能力。
+- 不改 Book ID、chapter ID、question ID、閱讀進度、錯題資料與既有儲存鍵。
+
+## 12. 發布與版本
+
+正式工作流固定為：
+
+`Draft → Internal QA → External Audit → Visual Polish → Published`
+
+- 每本書有獨立 manifest／內容版本／題庫／QA report／status；External Audit 後另有 audit record。
+- 全書庫 stage 與 queue 由 `docs/audit_progress_manifest.json` 管理。
 - 每次內容修正都提高版本。
+- 純狀態文件或工作流文件更新，不得假裝成教材內容版本更新。
 - 更新後確認同一固定網址載入新版本。
 - service worker 快取名稱必須同步提高，避免平板持續讀到舊內容。
+- 任何新發布或重新發布都不得破壞既有 21 本書、Book ID、chapter ID、question ID、閱讀進度、錯題資料與 PWA 相容性。
