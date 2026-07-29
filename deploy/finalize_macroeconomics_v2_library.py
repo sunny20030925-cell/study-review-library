@@ -24,7 +24,7 @@ def main(site_root, expected_before):
  swp.write_text(sw,encoding='utf-8')
  # Canonical serialized tail:
  # macroeconomics -> international economics v1 -> public finance -> international economics v2
- # -> money & banking v2 -> computer fundamentals v1.
+ # -> money & banking v2 -> computer fundamentals v1 -> game theory v1.
  # Keep stdout clean because the workflow captures this script's single final-version line.
  from integrate_international_economics import integrate as integrate_international
  from integrate_public_finance import integrate as integrate_public_finance
@@ -33,6 +33,7 @@ def main(site_root, expected_before):
  from qa_international_economics_v2 import main as qa_international_v2
  from integrate_money_banking import integrate as integrate_money_banking
  from integrate_computer_fundamentals import integrate as integrate_computer_fundamentals
+ from integrate_game_theory import integrate as integrate_game_theory
  international_version=integrate_international(site_root,macro_version)
  public_finance_version=integrate_public_finance(site_root,international_version)
  buf=io.StringIO()
@@ -46,7 +47,8 @@ def main(site_root, expected_before):
  with contextlib.redirect_stdout(buf): qa_international_v2(site_root,international_v2_version)
  emit_stderr(buf)
  money_version=integrate_money_banking(site_root,international_v2_version)
- final_version=integrate_computer_fundamentals(site_root,money_version)
+ computer_version=integrate_computer_fundamentals(site_root,money_version)
+ final_version=integrate_game_theory(site_root,computer_version)
  print(final_version)
 if __name__=='__main__':
  if len(sys.argv)!=3: raise SystemExit('usage: finalize_macroeconomics_v2_library.py SITE_ROOT EXPECTED_BEFORE')
