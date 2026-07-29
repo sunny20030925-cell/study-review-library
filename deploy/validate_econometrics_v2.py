@@ -61,7 +61,7 @@ def main(site_root: str) -> None:
       'ch12':['AR(1)','serial correlation','HAC','只換標準誤不夠'],
       'ch13':['First Differences','Fixed Effects','Random Effects','個體 FE 中無法單獨估係數'],
       'ch14':['relevance','exogeneity／exclusion','weak instrument','第一階段資料可以支持 relevance，但不能證明 exclusion'],
-      'ch15':['Potential outcome','Average Treatment Effect','Intention-to-Treat','按原始隨機分派組別比較結果'],
+      'ch15':['Potential outcome','Average Treatment Effect','Intention-to-Treat','原始隨機分派組別比較結果'],
       'ch16':['parallel trends','2×2 DiD','event-study','不顯著」不是數學上的證明','cluster'],
       'ch17':['running variable','cutoff','local effect','精確操弄','Fuzzy RDD'],
       'ch18':['Training set','Test set','Overfitting','RMSE','MAE','Prediction 與 causal estimation'],
