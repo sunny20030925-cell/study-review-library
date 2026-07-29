@@ -4,38 +4,73 @@
 
 ## 目前狀態
 
-- 內容版本：`2026.07.29-1` 候選版。
-- 第一輪製作內檢：內容來源、100 題題庫、產生器與獨立 validator 已建立；等待 GitHub Actions 候選驗證回條。
-- 第二輪獨立複核：尚未執行。
-- 正式部署：尚未執行。
+- 內容版本：`2026.07.29-1`。
+- 第一輪候選驗證：PASS。
+- 第二輪獨立內容複核：PASS。
+- 正式部署：尚未執行；必須等來源 PR 合併後，以最新 `main` 與最新正式 Pages artifact 序列整合。
 
-因此本書目前仍是候選版，不能宣稱已完成兩輪校對或正式發布。
+## 第一輪候選驗證
 
-## 第一輪驗證範圍
+GitHub Actions run：`30468164830`
 
-候選 workflow 將獨立檢查：
+結果：
 
-1. 20 章、3 附錄、100 題、189 筆搜尋與 20 張 SVG 的結構完整性。
-2. 每章固定 5 題，題目 ID 唯一，difficulty 分布為基礎 20、標準 40、綜合 20、陷阱 20。
-3. 所有章節包含白話直覺、正式定義、公式／條件、完整例題、常見錯誤、考試判斷與理解檢查。
-4. 核心範圍涵蓋 best response、dominance、Nash、mixed strategy、minimax、Cournot／Bertrand、backward induction、SPNE、bargaining、repeated games、BNE、auctions、PBE、signaling、screening、cheap talk、mechanism design、VCG、core 與 Shapley value。
-5. 34 個高風險數值／均衡答案以固定 expected answer gate 重新核對。
-6. 禁止把 Nash 等同效率、把 weak dominance 當成順序無關、把 minimax 泛化到所有賽局、把第二價誠實出價泛化到所有資訊環境等典型過度敘述。
-7. 20 張 SVG 皆需有 `title`、`desc`、`viewBox`，且不得依賴遠端圖片。
-8. 共同 PWA 的 `app.js`、`sw.js` 語法與新書離線快取路徑必須有效。
-9. 候選產生前後，所有既有書籍逐檔 SHA-256 必須完全一致。
+- `GAME_THEORY_QA_OK checks=2385`
+- 候選基底：12 本正式書庫，候選加入後 13 本。
+- 候選 library version：`2026.07.29-18`（僅隔離驗證用，正式發布仍須重新由最新書庫計算）。
+- 20 章、3 附錄、100 題、189 筆搜尋、20 張 SVG 全部通過。
+- 34 個高風險答案 gate 全部通過。
+- 每章固定 5 題；difficulty 分布為基礎 20、標準 40、綜合 20、陷阱 20。
+- Python source、共同 `app.js`、`sw.js` 語法通過。
+- 候選產生前後，既有書籍逐檔 SHA-256 無差異。
+- 平板端 23 個章節／附錄 HTML、20 個 SVG、100 題與搜尋檔案路徑全部存在。
 
-## 第二輪獨立複核規劃
+## 第二輪獨立內容複核
 
-第一輪通過後，第二輪會另外重做而不是只重跑同一個 validator：
+同一成功 run 另執行 `qa_game_theory_second_pass.py`，不是重跑第一輪 validator。
 
-- 逐章重新核對核心定義與解概念適用條件。
-- 重算混合策略、零和、Cournot、Rubinstein、重複賽局折現、Bayes 更新、拍賣、訊號、screening、VCG 與 cooperative-game 數值節點。
-- 逐題重新判斷 100 題答案與詳解，特別檢查 Nash／SPNE／BNE／PBE 混稱、on-path／off-path belief、finite／infinite repetition、private／common value 等高風險區域。
-- 檢查章節之間符號、策略／行動用語、payoff 順序與機率定義是否一致。
-- 抽查平板直式閱讀、章節切換、搜尋、題庫、錯題紀錄與離線資產。
+結果：
 
-## 已知限制
+- `GAME_THEORY_SECOND_PASS_OK checks=360`
+- 獨立重算 24 個數值節點：混合策略、zero-sum、Cournot、Rubinstein bargaining、grim-trigger 折現門檻、Bayesian 期望值、第一價拍賣、Bayes posterior、signaling IC、screening utility、VCG 與 cooperative-game core。
+- 另做 19 個概念陷阱 gate：weak dominance、Nash 與效率、mixed-strategy 無差異方向、minimax 適用範圍、SPNE、Nash bargaining、folk theorem、Bayesian strategy、auction assumptions、PBE beliefs、equilibrium refinement、signaling/screening、mechanism properties、Shapley/core、social optimum、complete/perfect information。
+- 100 題題幹唯一、題目 ID 唯一，每題詳解皆通過最低推理完整度 gate。
 
-- 均衡存在的 fixed-point proof、高階 equilibrium refinement、Myerson optimal auction、完整 implementation theory、algorithmic game theory 等維持選讀／範圍外，不進核心題庫。
-- 應用案例只用來說明賽局結構，不取代個體經濟學、產業組織、財務或政治學專門課程。
+## 第二輪找到並修正的內容
+
+第二輪不是零缺陷直接放行；實際抓到 5 題詳解過短，已補強：
+
+- `ch05-q01`：補足零和報酬 `v` 與 `-v` 的關係與理由。
+- `ch08-q04`：補明承諾投資已扣成本後的淨報酬比較。
+- `ch09-q03`：補明 Rubinstein 份額乘上 NT$100 的換算與模型來源。
+- `ch14-q02`：補明 signaling 高型態的工資減教育成本與 IC 用途。
+- `ch16-q04`：補明準線性 VCG 效用為價值減支付。
+
+另有兩次早期 CI 失敗屬 validator 假陽性：
+
+- 把「Shapley value 一定在 core；一般賽局不保證」的反例提醒誤抓為過度宣稱。
+- 把 Bayesian strategy 的「型態映到行動」等價表述誤判為缺少固定字串。
+
+兩者都修正檢查器而未扭曲教材文字。
+
+## 精確性結論
+
+目前核心精確性 gate 已確認：
+
+- Nash equilibrium 不等於效率、公平、唯一或社會最佳。
+- 嚴格與弱劣勢刪除分開處理，弱劣勢順序可能影響結果。
+- 混合策略以對手無差異條件求自己的混合機率。
+- minimax theorem 不泛化至一般總和賽局。
+- SPNE 必須在每個真正子賽局皆為 Nash。
+- finite／infinite repeated games 與折現條件分開。
+- Bayesian strategy 是 type→action 的完整映射。
+- PBE 同時包含 strategy、belief、Bayes consistency 與 sequential rationality。
+- auction 結論明示 private/common value、risk neutrality 等適用條件。
+- Nash bargaining solution 與 Rubinstein equilibrium 不混稱。
+- IC、IR、efficiency、budget balance 分開檢查。
+- core、Shapley value 與 non-cooperative Nash equilibrium 不互相替代。
+
+## 已知範圍限制
+
+- fixed-point existence proof、高階 equilibrium refinement、Myerson optimal auction、完整 implementation theory、algorithmic game theory 等維持選讀／範圍外，不進核心題庫。
+- 應用案例只服務賽局結構理解，不取代個體經濟學、產業組織、財務或政治學專門課程。
