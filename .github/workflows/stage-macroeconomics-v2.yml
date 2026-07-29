@@ -1,0 +1,45 @@
+name: Stage macroeconomics v2 canonical workflow
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  stage:
+    if: >-
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.head.ref == 'stage-macroeconomics-v2-reaudit'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout controlled staging branch
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.ref }}
+          token: ${{ github.token }}
+          fetch-depth: 0
+
+      - name: Build and validate staged canonical workflow
+        run: |
+          python -m py_compile deploy/stage_macroeconomics_v2_workflow.py
+          python deploy/stage_macroeconomics_v2_workflow.py .github/workflows/deploy-pages.yml deploy/staged-macroeconomics-v2-deploy-pages.yml
+          ruby -e "require 'yaml'; YAML.load_file('deploy/staged-macroeconomics-v2-deploy-pages.yml'); puts 'MACRO_V2_YAML_OK'"
+          grep -F 'python deploy/patch_macroeconomics_v2.py _site' deploy/staged-macroeconomics-v2-deploy-pages.yml
+          grep -F "'macroeconomics_version': '2026.07.29-2'" deploy/staged-macroeconomics-v2-deploy-pages.yml
+          grep -F 'MACROECONOMICS_V2_QA' deploy/staged-macroeconomics-v2-deploy-pages.yml
+
+      - name: Commit staged workflow blob
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add deploy/staged-macroeconomics-v2-deploy-pages.yml
+          if git diff --cached --quiet; then
+            echo 'Macroeconomics v2 workflow already staged'
+            exit 0
+          fi
+          git commit -m "Stage macroeconomics v2 canonical workflow blob"
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}
