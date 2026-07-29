@@ -2,27 +2,29 @@
 
 更新日期：2026-07-29
 
-## 版本
+## 正式識別
 
 - Book ID：`investments`
-- 目標內容版本：`2026.07.29-1`
-- 狀態：候選內容與兩輪 QA 已通過；尚未宣稱正式部署。
-- 候選驗證 run：`30469054951`（success）。
+- 正式內容版本：`2026.07.29-1`
+- 正式書庫版本：`2026.07.29-22`
+- 狀態：已部署。
 - 範圍文件：`docs/books/investments/scope.md`
 - QA 報告：`docs/books/investments/qa_report.md`
 
-## 固定成品
+## 成品與 QA
 
-- 正文 22 章、附錄 3 份。
-- 題庫 110 題，每章 5 題。
-- 搜尋索引 165 筆。
-- 自製 SVG 22 張。
-- 內容從接近零基礎銜接一般大學投資學與考試。
+- 正文 22 章、附錄 3 份、題庫 110 題、搜尋索引 165 筆、自製 SVG 22 張。
 - 第一輪 QA：2,672／2,672。
-- 第二輪 QA：139／139；45 項量化重算、20 項高風險概念重判。
+- 第二輪 QA：139／139；45 項量化節點由原始輸入重算，20 項高風險概念獨立重判。
+- 正式內容涵蓋報酬與風險、投資組合、CAPM／APT、效率市場、行為財務、股票與債券估值、期貨與選擇權、基金／ETF、資產配置與績效評估。
+- 既有教材內容 hash 在整合前後完全一致；新增獨立 Book ID，不改既有章節 ID、題目 ID、儲存鍵或錯題紀錄。
 
-## 發布邊界
+## 部署
 
-- 正式整合必須重新以當下最新 Pages artifact／`main` 為基底，不能以候選驗證時的 12 本書快照覆蓋其他平行教材。
-- 新增本書不得修改既有 Book ID、章節 ID、題目 ID 或進度儲存鍵。
-- 正式 Pages artifact、deployment 與 deployment receipt 均核實後，才把本狀態改為「已部署」。
+- canonical workflow：`Deploy study library`
+- workflow run：`30471109923`
+- source commit：`63827e220a501c024ddd90482d7a798ac5995fad`
+- Pages artifact：`8731656857`
+- Artifact digest：`sha256:7835749bf24a53abfbe4a994d0fffd3b288928d2f6331b279ddfd4b1e99ba684`
+- 正式書庫書籍數：17 本。
+- GitHub Pages deployment、artifact 重新下載驗證與結構化 deployment receipt 均成功。
