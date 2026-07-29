@@ -53,7 +53,7 @@ def main(site_root: str, expected_library: str) -> None:
     ck([x['id'] for x in chapters]==[f'ch{i:02d}' for i in range(20)],'stable chapter ids')
     ck(questions['count']==len(questions['items'])==100,'100 questions')
     ck(Counter(q['chapterId'] for q in questions['items'])=={f'ch{i:02d}':5 for i in range(20)},'five questions per chapter')
-    ck(len({q['id'] for q in questions['items'])==100,'unique question ids')
+    ck(len({q['id'] for q in questions['items']})==100,'unique question ids')
     ck(len(search['entries'])==189,'189 search entries')
     ck(manifest.get('releaseNotes',[{}])[0].get('version')==VERSION,'release note version')
 
@@ -72,14 +72,10 @@ def main(site_root: str, expected_library: str) -> None:
         '次序統計量（order statistic）','中央極限定理（CLT）','Student t 分配','最大概似估計（MLE）',
         '充分統計量（sufficient statistic）','Cramér–Rao 下界','Rao–Blackwell','樞紐量（pivotal quantity）',
         'Neyman–Pearson','UMP 檢定','Wilks 定理','Gauss–Markov 定理',
-        'rate λ','多對一轉換','有限樣本','p-value','不是 H0 為真的機率',
+        'rate λ','多對一轉換','有限樣本','漸近 χ²','p-value','不是 H0 為真的機率',
     ]
     for tok in required:
         concept(tok in full,f'missing core concept: {tok}')
-    concept(
-        ('漸近 χ²' in full) or ('漸近為 χ²' in full),
-        'missing core concept: Wilks asymptotic chi-square',
-    )
 
     corrections=[
         '不足以推出獨立',
@@ -194,5 +190,5 @@ def main(site_root: str, expected_library: str) -> None:
 
 if __name__=='__main__':
     if len(sys.argv)!=3:
-        raise SystemExit('usage: python deploy/validate_advanced_statistics.py SITE_ROOT EXPECTED_LIBRARY')
+        raise SystemExit('usage: python deploy/validate_advanced_statistics_legacy.py SITE_ROOT EXPECTED_LIBRARY')
     main(sys.argv[1],sys.argv[2])
