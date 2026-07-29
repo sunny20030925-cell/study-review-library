@@ -14,10 +14,11 @@ def enriched_chapters():
     ch['formulas'].extend([
         (r'x=\frac{c_1b_2-c_2b_1}{D}', '二元線性系統在 D≠0 時的 Cramer 解。'),
         (r'y=\frac{a_1c_2-a_2c_1}{D}', '與上一式配對；D=a_1b_2-a_2b_1。'),
+        (r'\operatorname{rank}(A)=\operatorname{rank}([A\mid b])', 'Ax=b 有解的相容性條件；若共同 rank 又等於未知數個數 n，則解唯一；若共同 rank<n，則有自由變數而存在無限多解。'),
     ])
     ch['intuition'].append('當 D=0 時不能直接說「無解」：可能是兩條限制互相矛盾，也可能其實是同一條限制的倍數而有無限多解；此時要回到方程或比較係數矩陣與增廣矩陣的 rank。')
     ch['traps'] = ['只解出價格就不代回數量。', '看到 D=0 就直接宣稱無解；D=0 也可能有無限多解。', '消去變數或 Cramer 分子排列時符號錯誤。']
-    ch['exam'] = ['先數未知數與獨立方程。', 'D≠0 可直接判唯一解；D=0 時改看方程是否矛盾或 rank 是否一致。', '解完代回每一式，確認同時成立並符合經濟可行域。']
+    ch['exam'] = ['先數未知數與獨立方程。', 'D≠0 可直接判唯一解；D=0 時比較 rank(A) 與 rank([A|b])：不同則無解，相同再看共同 rank 是否等於未知數個數。', '解完代回每一式，確認同時成立並符合經濟可行域。']
 
     ch = by_id['ch03']
     ch['definitions'].extend([
@@ -32,6 +33,14 @@ def enriched_chapters():
     ch['example'].append('若 A 是 2×3、x 是 3×1，則 Ax 是 2×1；把 x 寫成欄向量後，Ax 也可看成 A 的三個欄向量按 x 的三個係數做線性組合。')
     ch['traps'] = ['逐元素相乘後說那是矩陣乘法。', '忽略列向量／欄向量與尺寸就直接相乘。', '把 AB=BA 當一般規則；即使 AB、BA 都存在，兩者通常也不同。']
     ch['exam'] = ['先在矩陣與向量旁標尺寸。', '矩陣乘法用「列乘欄」，向量內積則是同維逐項乘後加總。', '遇到轉置乘積用 (AB)^T=B^TA^T；遇到多個乘法可用結合律重新分組，但不可任意換順序。']
+
+    ch = by_id['ch12']
+    ch['definitions'].append(('bordered Hessian', '把等式限制的梯度「鑲邊」在 Lagrangian Hessian 外形成的矩陣；它是檢查受限制二階條件的常用行列式工具，但 max/min 的符號規則會隨限制數、變數數與符號慣例改變。'))
+    ch['formulas'].append((
+        r'B=\begin{pmatrix}0&g_x&g_y\\g_x&\mathcal L_{xx}&\mathcal L_{xy}\\g_y&\mathcal L_{yx}&\mathcal L_{yy}\end{pmatrix}',
+        '二變數、單一等式限制的 bordered Hessian 結構。考試若不確定行列式正負規則，回到「所有非零可行切方向 d 上檢查 d^T∇²_{xx}L d」最不容易混淆。',
+    ))
+    ch['exam'] = ['先統一把限制寫成固定格式並解 FOC。', '二階判斷先想「只沿可行切方向看 Lagrangian 曲率」；bordered Hessian 是這件事的行列式捷徑，不是另一套經濟理論。', '若題目問 λ 經濟意義，先說清楚 Lagrangian 的符號與限制右側參數的進入方式。']
 
     ch = by_id['ch16']
     ch['definitions'].append(('累積函數', '若 A(x)=∫_a^x f(t)dt，則在 f 連續處 A′(x)=f(x)；這是微積分基本定理的另一個方向。'))
