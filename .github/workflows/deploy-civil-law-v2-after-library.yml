@@ -1,0 +1,171 @@
+name: Deploy civil law v2 after library
+
+on:
+  workflow_run:
+    workflows: ['Deploy study library']
+    types: [completed]
+
+permissions:
+  contents: write
+  actions: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy-civil-v2:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Download triggering verified Pages artifact
+        id: prepare
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_RUN_ID: ${{ github.event.workflow_run.id }}
+        run: |
+          set -euo pipefail
+          ARTIFACT_ID="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${SOURCE_RUN_ID}/artifacts" --jq '.artifacts[] | select(.name == "github-pages") | .id' | tail -n 1)"
+          DIGEST="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${SOURCE_RUN_ID}/artifacts" --jq '.artifacts[] | select(.name == "github-pages") | .digest' | tail -n 1)"
+          test -n "$ARTIFACT_ID"
+          test -n "$DIGEST"
+          gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" > /tmp/base-pages.zip
+          BASE_SHA="$(sha256sum /tmp/base-pages.zip | awk '{print $1}')"
+          test "$BASE_SHA" = "${DIGEST#sha256:}"
+          mkdir -p /tmp/base-unpack _site
+          unzip -q /tmp/base-pages.zip -d /tmp/base-unpack
+          if [ -f /tmp/base-unpack/artifact.tar ]; then
+            tar -xf /tmp/base-unpack/artifact.tar -C _site
+          elif [ -f /tmp/base-unpack/artifact.tar.gz ]; then
+            tar -xzf /tmp/base-unpack/artifact.tar.gz -C _site
+          else
+            cp -a /tmp/base-unpack/. _site/
+          fi
+          CIVIL_VERSION="$(python -c "import json;print(json.load(open('_site/books/civil-law-overview/manifest.json'))['version'])")"
+          LIBRARY_VERSION="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"
+          BOOK_COUNT="$(python -c "import json;print(len(json.load(open('_site/data/library.json'))['books']))")"
+          if [ "$CIVIL_VERSION" = "2026.07.30-2" ]; then
+            echo "needs_update=false" >> "$GITHUB_OUTPUT"
+            echo "CIVIL_V2_ALREADY_FORMAL library=$LIBRARY_VERSION books=$BOOK_COUNT"
+          elif [ "$CIVIL_VERSION" = "2026.07.29-1" ]; then
+            echo "needs_update=true" >> "$GITHUB_OUTPUT"
+            echo "CIVIL_V2_UPDATE_REQUIRED library=$LIBRARY_VERSION books=$BOOK_COUNT"
+          else
+            echo "Unsupported civil-law-overview version: $CIVIL_VERSION" >&2
+            exit 1
+          fi
+
+      - name: Apply civil law v2 and preserve every other book
+        if: steps.prepare.outputs.needs_update == 'true'
+        run: |
+          set -euo pipefail
+          cp _site/data/library.json /tmp/pre-civil-library.json
+          find _site/books -type f ! -path '*/civil-law-overview/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-other-books.sha256
+          find _site/assets -type f ! -path '*/civil-law-overview-svg/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-other-assets.sha256
+          FINAL_LIBRARY_VERSION="$(PYTHONPATH=deploy python deploy/apply_civil_law_overview_v2.py _site | tail -n 1)"
+          CIVIL_REAUDIT_CHECKS="$(PYTHONPATH=deploy python deploy/qa_civil_law_overview_reaudit_v2.py _site "$FINAL_LIBRARY_VERSION" | tee /tmp/civil-v2.log | grep -oE '(^| )checks=[0-9]+' | head -n1 | cut -d= -f2)"
+          test "$CIVIL_REAUDIT_CHECKS" = "147"
+          find _site/books -type f ! -path '*/civil-law-overview/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-other-books.sha256
+          find _site/assets -type f ! -path '*/civil-law-overview-svg/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-other-assets.sha256
+          diff -u /tmp/pre-other-books.sha256 /tmp/post-other-books.sha256
+          diff -u /tmp/pre-other-assets.sha256 /tmp/post-other-assets.sha256
+          FINAL_LIBRARY_VERSION="$FINAL_LIBRARY_VERSION" python - <<'PY'
+          import json,os,re
+          pre=json.load(open('/tmp/pre-civil-library.json'))
+          post=json.load(open('_site/data/library.json'))
+          assert [b['id'] for b in pre['books']]==[b['id'] for b in post['books']]
+          assert post['version']==os.environ['FINAL_LIBRARY_VERSION']
+          def key(v):
+              m=re.fullmatch(r'(\d{4}\.\d{2}\.\d{2})-(\d+)',v); assert m
+              return m.group(1),int(m.group(2))
+          pd,pn=key(pre['version']); nd,nn=key(post['version'])
+          assert pd==nd and nn==pn+1,(pre['version'],post['version'])
+          root='_site/books/civil-law-overview'
+          m=json.load(open(root+'/manifest.json')); q=json.load(open(root+'/questions.json')); s=json.load(open(root+'/search.json'))
+          assert m['version']==q['version']=='2026.07.30-2'
+          assert len(m['chapters'])==23 and q['count']==100 and len(s['entries'])==150
+          print('CIVIL_V2_FOLLOWUP_READY',pre['version'],'->',post['version'],len(post['books']))
+          PY
+          echo "FINAL_LIBRARY_VERSION=$FINAL_LIBRARY_VERSION" >> "$GITHUB_ENV"
+          echo "CIVIL_REAUDIT_CHECKS=$CIVIL_REAUDIT_CHECKS" >> "$GITHUB_ENV"
+          node --check _site/app.js
+          node --check _site/sw.js
+
+      - uses: actions/upload-pages-artifact@v3
+        if: steps.prepare.outputs.needs_update == 'true'
+        with:
+          path: _site
+
+      - id: deployment
+        if: steps.prepare.outputs.needs_update == 'true'
+        uses: actions/deploy-pages@v4
+
+      - name: Re-download and verify civil v2 artifact
+        if: steps.prepare.outputs.needs_update == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DEPLOYED_PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          set -euo pipefail
+          ARTIFACT_ID="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts" --jq '.artifacts[] | select(.name == "github-pages") | .id' | tail -n 1)"
+          DIGEST="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts" --jq '.artifacts[] | select(.name == "github-pages") | .digest' | tail -n 1)"
+          test -n "$ARTIFACT_ID"
+          test -n "$DIGEST"
+          gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" > /tmp/deployed-pages.zip
+          SHA="$(sha256sum /tmp/deployed-pages.zip | awk '{print $1}')"
+          test "$SHA" = "${DIGEST#sha256:}"
+          rm -rf /tmp/deployed-unpack /tmp/deployed-site
+          mkdir -p /tmp/deployed-unpack /tmp/deployed-site
+          unzip -q /tmp/deployed-pages.zip -d /tmp/deployed-unpack
+          if [ -f /tmp/deployed-unpack/artifact.tar ]; then
+            tar -xf /tmp/deployed-unpack/artifact.tar -C /tmp/deployed-site
+          elif [ -f /tmp/deployed-unpack/artifact.tar.gz ]; then
+            tar -xzf /tmp/deployed-unpack/artifact.tar.gz -C /tmp/deployed-site
+          else
+            cp -a /tmp/deployed-unpack/. /tmp/deployed-site/
+          fi
+          PYTHONPATH=deploy python deploy/qa_civil_law_overview_reaudit_v2.py /tmp/deployed-site "$FINAL_LIBRARY_VERSION"
+          FINAL_LIBRARY_VERSION="$FINAL_LIBRARY_VERSION" python - <<'PY'
+          import json,os
+          from pathlib import Path
+          site=Path('/tmp/deployed-site')
+          lib=json.load(open(site/'data/library.json'))
+          assert lib['version']==os.environ['FINAL_LIBRARY_VERSION']
+          root=site/'books/civil-law-overview'
+          m=json.load(open(root/'manifest.json')); q=json.load(open(root/'questions.json')); s=json.load(open(root/'search.json'))
+          assert m['version']==q['version']=='2026.07.30-2'
+          assert len(m['chapters'])==23 and q['count']==100 and len(s['entries'])==150
+          assert len(list((site/'assets/civil-law-overview-svg').glob('*.svg')))==20
+          print('DEPLOYED_CIVIL_V2_RECHECK_OK',lib['version'],len(lib['books']))
+          PY
+          echo "PAGES_ARTIFACT_ID=$ARTIFACT_ID" >> "$GITHUB_ENV"
+          echo "PAGES_ARTIFACT_DIGEST=$DIGEST" >> "$GITHUB_ENV"
+          echo "PAGES_ARTIFACT_SHA256=$SHA" >> "$GITHUB_ENV"
+          echo "DEPLOYED_PAGE_URL=$DEPLOYED_PAGE_URL" >> "$GITHUB_ENV"
+
+      - name: Record civil v2 formal deployment
+        if: steps.prepare.outputs.needs_update == 'true'
+        env:
+          SOURCE_COMMIT: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          git checkout -B civil-v2-record origin/main
+          python deploy/record_civil_law_overview_v2_deployment.py _site
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add docs/deployment_receipt.json README.md docs/shared_checkpoint.md docs/books/civil-law-overview/status.md docs/books/civil-law-overview/qa_report.md
+          if ! git diff --cached --quiet; then
+            git commit -m "Record civil law v2 deployment [skip ci]"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
