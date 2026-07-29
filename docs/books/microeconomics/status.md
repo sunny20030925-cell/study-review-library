@@ -21,7 +21,7 @@
 ## 部署
 
 - canonical workflow：`Deploy study library`
-- workflow run：`30416484924`
-- source commit：`0afb91e82a1a9e0f529f7353ab64ca0a9b2255bb`
+- workflow run：`30416558956`
+- source commit：`a07c0e4f262d726fb30d7a7300ee60674516ff3d`
 - 正式書庫書籍數：8 本。
 - GitHub Pages 部署成功並已寫回 deployment receipt。
