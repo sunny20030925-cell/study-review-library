@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   actions: read
   pages: write
   id-token: write
@@ -22,94 +22,153 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
+      - uses: actions/configure-pages@v5
         with:
           enablement: true
 
-      - name: Download and verify latest formal Pages artifact
+      - name: Select newest verified formal Pages base
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          ARTIFACT_ID="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['pages_artifact_id'])")"
-          ARTIFACT_DIGEST="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['pages_artifact_digest'])")"
-          BASE_LIBRARY_VERSION="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['library_version'])")"
-          BASE_BOOK_COUNT="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['book_count'])")"
-          EXPECTED_SHA="${ARTIFACT_DIGEST#sha256:}"
-          gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" > /tmp/base-pages.zip
-          echo "${EXPECTED_SHA}  /tmp/base-pages.zip" | sha256sum --check -
-          mkdir -p /tmp/base-pages-artifact _site
-          unzip -q /tmp/base-pages.zip -d /tmp/base-pages-artifact
-          if [ -f /tmp/base-pages-artifact/artifact.tar ]; then
-            tar -xf /tmp/base-pages-artifact/artifact.tar -C _site
-          elif [ -f /tmp/base-pages-artifact/artifact.tar.gz ]; then
-            tar -xzf /tmp/base-pages-artifact/artifact.tar.gz -C _site
-          else
-            cp -a /tmp/base-pages-artifact/. _site/
+
+          extract_artifact() {
+            ZIP="$1"; OUT="$2"; TMP="$3"
+            rm -rf "$OUT" "$TMP"
+            mkdir -p "$OUT" "$TMP"
+            unzip -q "$ZIP" -d "$TMP"
+            if [ -f "$TMP/artifact.tar" ]; then
+              tar -xf "$TMP/artifact.tar" -C "$OUT"
+            elif [ -f "$TMP/artifact.tar.gz" ]; then
+              tar -xzf "$TMP/artifact.tar.gz" -C "$OUT"
+            else
+              cp -a "$TMP/." "$OUT/"
+            fi
+          }
+
+          RECEIPT_ID="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['pages_artifact_id'])")"
+          RECEIPT_DIGEST="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['pages_artifact_digest'])")"
+          RECEIPT_VERSION="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['library_version'])")"
+          RECEIPT_COUNT="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['book_count'])")"
+          RECEIPT_RUN="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json')).get('workflow_run_id',''))")"
+
+          gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${RECEIPT_ID}/zip" > /tmp/receipt-base.zip
+          echo "${RECEIPT_DIGEST#sha256:}  /tmp/receipt-base.zip" | sha256sum --check -
+          extract_artifact /tmp/receipt-base.zip /tmp/receipt-site /tmp/receipt-unpack
+          RECEIPT_VERSION="$RECEIPT_VERSION" RECEIPT_COUNT="$RECEIPT_COUNT" python - <<'PY'
+          import json,os
+          from pathlib import Path
+          site=Path('/tmp/receipt-site')
+          lib=json.load(open(site/'data/library.json'))
+          assert lib['version']==os.environ['RECEIPT_VERSION']
+          assert len(lib['books'])==int(os.environ['RECEIPT_COUNT'])
+          assert (site/'app.js').is_file() and (site/'sw.js').is_file()
+          PY
+
+          SELECTED_SITE=/tmp/receipt-site
+          SELECTED_SOURCE=deployment-receipt
+          SELECTED_ARTIFACT_ID="$RECEIPT_ID"
+          SELECTED_DIGEST="$RECEIPT_DIGEST"
+          SELECTED_VERSION="$RECEIPT_VERSION"
+          SELECTED_COUNT="$RECEIPT_COUNT"
+
+          WF_NAME="$(python -c "import json;print(json.load(open('docs/study_library_workflow_receipt.json')).get('workflow',''))")"
+          WF_CONCLUSION="$(python -c "import json;print(json.load(open('docs/study_library_workflow_receipt.json')).get('conclusion',''))")"
+          WF_RUN="$(python -c "import json;print(json.load(open('docs/study_library_workflow_receipt.json')).get('workflow_run_id',''))")"
+          if [ "$WF_NAME" = "Deploy study library" ] && [ "$WF_CONCLUSION" = "success" ] && [ -n "$WF_RUN" ] && [ "$WF_RUN" != "$RECEIPT_RUN" ]; then
+            WF_ID="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${WF_RUN}/artifacts" --jq '.artifacts[] | select(.name == "github-pages") | .id' | tail -n 1)"
+            WF_DIGEST="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${WF_RUN}/artifacts" --jq '.artifacts[] | select(.name == "github-pages") | .digest' | tail -n 1)"
+            if [ -n "$WF_ID" ] && [ -n "$WF_DIGEST" ]; then
+              gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${WF_ID}/zip" > /tmp/workflow-base.zip
+              echo "${WF_DIGEST#sha256:}  /tmp/workflow-base.zip" | sha256sum --check -
+              extract_artifact /tmp/workflow-base.zip /tmp/workflow-site /tmp/workflow-unpack
+              WF_VERSION="$(python -c "import json;print(json.load(open('/tmp/workflow-site/data/library.json'))['version'])")"
+              WF_COUNT="$(python -c "import json;print(len(json.load(open('/tmp/workflow-site/data/library.json'))['books']))")"
+              if RECEIPT_VERSION="$RECEIPT_VERSION" WF_VERSION="$WF_VERSION" python - <<'PY'
+          import os,re,sys
+          def key(v):
+              m=re.fullmatch(r'(\d{4})\.(\d{2})\.(\d{2})-(\d+)',v)
+              if not m: raise SystemExit(2)
+              return tuple(map(int,m.groups()))
+          sys.exit(0 if key(os.environ['WF_VERSION']) > key(os.environ['RECEIPT_VERSION']) else 1)
+          PY
+              then
+                SELECTED_SITE=/tmp/workflow-site
+                SELECTED_SOURCE=successful-workflow-artifact
+                SELECTED_ARTIFACT_ID="$WF_ID"
+                SELECTED_DIGEST="$WF_DIGEST"
+                SELECTED_VERSION="$WF_VERSION"
+                SELECTED_COUNT="$WF_COUNT"
+              fi
+            fi
           fi
-          BASE_LIBRARY_VERSION="$BASE_LIBRARY_VERSION" BASE_BOOK_COUNT="$BASE_BOOK_COUNT" python - <<'PY'
+
+          rm -rf _site
+          mkdir _site
+          cp -a "$SELECTED_SITE/." _site/
+          SELECTED_VERSION="$SELECTED_VERSION" SELECTED_COUNT="$SELECTED_COUNT" python - <<'PY'
           import json,os
           from pathlib import Path
           site=Path('_site')
-          library=json.load(open(site/'data/library.json'))
-          assert library['version']==os.environ['BASE_LIBRARY_VERSION']
-          assert len(library['books'])==int(os.environ['BASE_BOOK_COUNT'])
+          lib=json.load(open(site/'data/library.json'))
+          ids=[b['id'] for b in lib['books']]
+          assert lib['version']==os.environ['SELECTED_VERSION']
+          assert len(ids)==int(os.environ['SELECTED_COUNT'])
+          Path('/tmp/base_ids.json').write_text(json.dumps(ids))
           assert (site/'app.js').is_file() and (site/'sw.js').is_file()
-          print('FORMAL_ARTIFACT_BASE_OK',library['version'],len(library['books']))
+          print('FORMAL_ARTIFACT_BASE_OK',lib['version'],len(ids))
           PY
-          echo "BASE_LIBRARY_VERSION=$BASE_LIBRARY_VERSION" >> "$GITHUB_ENV"
-          echo "BASE_BOOK_COUNT=$BASE_BOOK_COUNT" >> "$GITHUB_ENV"
+          echo "FORMAL_BASE_SOURCE=$SELECTED_SOURCE" >> "$GITHUB_ENV"
+          echo "FORMAL_BASE_ARTIFACT_ID=$SELECTED_ARTIFACT_ID" >> "$GITHUB_ENV"
+          echo "FORMAL_BASE_DIGEST=$SELECTED_DIGEST" >> "$GITHUB_ENV"
 
-      - name: Append and validate econometrics
+      - name: Integrate or validate industrial economics
         run: |
           set -euo pipefail
           if python - <<'PY'
           import json,sys
-          library=json.load(open('_site/data/library.json'))
-          sys.exit(0 if any(b['id']=='econometrics' for b in library['books']) else 1)
+          d=json.load(open('_site/data/library.json'))
+          sys.exit(0 if any(b['id']=='industrial-economics' for b in d['books']) else 1)
           PY
           then
             FINAL_LIBRARY_VERSION="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"
-            FINAL_BOOK_COUNT="$BASE_BOOK_COUNT"
-            EXPECTED_LIBRARY_VERSION="$FINAL_LIBRARY_VERSION" python deploy/validate_econometrics.py _site
-            python deploy/validate_econometrics_v2.py _site
           else
-            cp _site/data/library.json /tmp/pre-econometrics-library.json
-            find _site/books -type f -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-econometrics-books.sha256
-            python deploy/generate_econometrics.py _site
-            FINAL_LIBRARY_VERSION="$(python deploy/finalize_econometrics_library.py _site /tmp/pre-econometrics-library.json)"
-            FINAL_BOOK_COUNT="$((BASE_BOOK_COUNT + 1))"
-            EXPECTED_LIBRARY_VERSION="$FINAL_LIBRARY_VERSION" PRE_LIBRARY_JSON=/tmp/pre-econometrics-library.json python deploy/validate_econometrics.py _site
-            python deploy/validate_econometrics_v2.py _site
-            find _site/books -type f ! -path '*/econometrics/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-econometrics-books.sha256
-            diff -u /tmp/pre-econometrics-books.sha256 /tmp/post-econometrics-books.sha256
+            BEFORE="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"
+            FINAL_LIBRARY_VERSION="$(PYTHONPATH=deploy python deploy/integrate_industrial_economics.py _site "$BEFORE")"
           fi
-          export FINAL_LIBRARY_VERSION FINAL_BOOK_COUNT
+          QA1="$(PYTHONPATH=deploy python deploy/validate_industrial_economics.py _site "$FINAL_LIBRARY_VERSION" | tee /tmp/qa1.log | sed -n 's/.*checks=\([0-9][0-9]*\).*/\1/p')"
+          QA2="$(PYTHONPATH=deploy python deploy/qa_industrial_economics.py _site "$FINAL_LIBRARY_VERSION" | tee /tmp/qa2.log | sed -n 's/.*checks=\([0-9][0-9]*\).*/\1/p')"
+          export FINAL_LIBRARY_VERSION
           echo "FINAL_LIBRARY_VERSION=$FINAL_LIBRARY_VERSION" >> "$GITHUB_ENV"
-          echo "FINAL_BOOK_COUNT=$FINAL_BOOK_COUNT" >> "$GITHUB_ENV"
+          echo "INDUSTRIAL_QA1_CHECKS=$QA1" >> "$GITHUB_ENV"
+          echo "INDUSTRIAL_QA2_CHECKS=$QA2" >> "$GITHUB_ENV"
           node --check _site/app.js
           node --check _site/sw.js
           python - <<'PY'
           import json,os
-          library=json.load(open('_site/data/library.json'))
-          ids=[b['id'] for b in library['books']]
-          assert library['version']==os.environ['FINAL_LIBRARY_VERSION']
-          assert len(ids)==int(os.environ['FINAL_BOOK_COUNT'])
-          assert 'econometrics' in ids
-          print('FINAL_LIBRARY_READY',library['version'],len(ids),ids[-1])
+          from pathlib import Path
+          lib=json.load(open('_site/data/library.json'))
+          ids=[b['id'] for b in lib['books']]
+          base=json.load(open('/tmp/base_ids.json'))
+          assert lib['version']==os.environ['FINAL_LIBRARY_VERSION']
+          assert ids[-1]=='industrial-economics' and ids.count('industrial-economics')==1
+          if 'industrial-economics' not in base:
+              assert ids==base+['industrial-economics']
+          root=Path('_site/books/industrial-economics')
+          assert len(json.load(open(root/'manifest.json'))['chapters'])==23
+          assert json.load(open(root/'questions.json'))['count']==100
+          assert len(json.load(open(root/'search.json'))['entries'])==150
+          assert len(list(Path('_site/assets/industrial-economics-svg').glob('*.svg')))==20
+          print('FINAL_LIBRARY_READY',lib['version'],len(ids))
           PY
 
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
 
-      - name: Deploy to GitHub Pages
-        id: deployment
+      - id: deployment
         uses: actions/deploy-pages@v4
 
       - name: Re-download and verify deployed artifact
@@ -119,13 +178,12 @@ jobs:
         run: |
           set -euo pipefail
           ARTIFACT_ID="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts" --jq '.artifacts[] | select(.name == "github-pages") | .id' | tail -n 1)"
-          ARTIFACT_DIGEST="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts" --jq '.artifacts[] | select(.name == "github-pages") | .digest' | tail -n 1)"
+          DIGEST="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts" --jq '.artifacts[] | select(.name == "github-pages") | .digest' | tail -n 1)"
           test -n "$ARTIFACT_ID"
-          test -n "$ARTIFACT_DIGEST"
+          test -n "$DIGEST"
           gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" > /tmp/deployed-pages.zip
-          ACTUAL_SHA="$(sha256sum /tmp/deployed-pages.zip | awk '{print $1}')"
-          EXPECTED_SHA="${ARTIFACT_DIGEST#sha256:}"
-          test "$ACTUAL_SHA" = "$EXPECTED_SHA"
+          SHA="$(sha256sum /tmp/deployed-pages.zip | awk '{print $1}')"
+          test "$SHA" = "${DIGEST#sha256:}"
           rm -rf /tmp/deployed-pages-artifact /tmp/deployed-site
           mkdir -p /tmp/deployed-pages-artifact /tmp/deployed-site
           unzip -q /tmp/deployed-pages.zip -d /tmp/deployed-pages-artifact
@@ -136,25 +194,39 @@ jobs:
           else
             cp -a /tmp/deployed-pages-artifact/. /tmp/deployed-site/
           fi
-          FINAL_LIBRARY_VERSION="$FINAL_LIBRARY_VERSION" FINAL_BOOK_COUNT="$FINAL_BOOK_COUNT" python - <<'PY'
+          FINAL_LIBRARY_VERSION="$FINAL_LIBRARY_VERSION" python - <<'PY'
           import json,os
           from pathlib import Path
           site=Path('/tmp/deployed-site')
-          library=json.load(open(site/'data/library.json'))
-          ids=[b['id'] for b in library['books']]
-          assert library['version']==os.environ['FINAL_LIBRARY_VERSION']
-          assert len(ids)==int(os.environ['FINAL_BOOK_COUNT'])
-          assert 'econometrics' in ids
-          root=site/'books/econometrics'
-          manifest=json.load(open(root/'manifest.json'))
-          questions=json.load(open(root/'questions.json'))
-          search=json.load(open(root/'search.json'))
-          assert len(manifest['chapters'])==23
-          assert questions['count']==100
-          assert len(search['entries'])==189
-          assert len(list((site/'assets/econometrics-svg').glob('*.svg')))==20
-          print('DEPLOYED_ARTIFACT_RECHECK_OK',library['version'],len(ids))
+          lib=json.load(open(site/'data/library.json'))
+          ids=[b['id'] for b in lib['books']]
+          assert lib['version']==os.environ['FINAL_LIBRARY_VERSION']
+          assert ids[-1]=='industrial-economics' and ids.count('industrial-economics')==1
+          root=site/'books/industrial-economics'
+          assert len(json.load(open(root/'manifest.json'))['chapters'])==23
+          assert json.load(open(root/'questions.json'))['count']==100
+          assert len(json.load(open(root/'search.json'))['entries'])==150
+          assert len(list((site/'assets/industrial-economics-svg').glob('*.svg')))==20
+          print('DEPLOYED_ARTIFACT_RECHECK_OK',lib['version'],len(ids))
           PY
-          EXPECTED_LIBRARY_VERSION="$FINAL_LIBRARY_VERSION" python deploy/validate_econometrics.py /tmp/deployed-site
-          python deploy/validate_econometrics_v2.py /tmp/deployed-site
-          echo "DEPLOYMENT_PROOF run=${GITHUB_RUN_ID} artifact=${ARTIFACT_ID} digest=${ARTIFACT_DIGEST} sha256=${ACTUAL_SHA} page=${DEPLOYED_PAGE_URL} library=${FINAL_LIBRARY_VERSION} books=${FINAL_BOOK_COUNT}"
+          echo "PAGES_ARTIFACT_ID=$ARTIFACT_ID" >> "$GITHUB_ENV"
+          echo "PAGES_ARTIFACT_DIGEST=$DIGEST" >> "$GITHUB_ENV"
+          echo "PAGES_ARTIFACT_SHA256=$SHA" >> "$GITHUB_ENV"
+          echo "DEPLOYED_PAGE_URL=$DEPLOYED_PAGE_URL" >> "$GITHUB_ENV"
+
+      - name: Record successful deployment structurally
+        run: |
+          set -euo pipefail
+          python deploy/record_industrial_economics_deployment.py _site
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add \
+            docs/deployment_receipt.json \
+            README.md \
+            docs/shared_checkpoint.md \
+            docs/books/industrial-economics/status.md \
+            docs/books/industrial-economics/qa_report.md
+          if ! git diff --cached --quiet; then
+            git commit -m "Record industrial economics deployment [skip ci]"
+            git push origin HEAD:main
+          fi
