@@ -6,7 +6,7 @@ on:
       - '.github/workflows/activate-mathematical-economics-v2-stage.yml'
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   activate:
@@ -17,10 +17,14 @@ jobs:
           fetch-depth: 0
 
       - name: Build validated canonical workflow from latest main
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           git fetch origin main
           git checkout -B stage-main origin/main
+          BASE_SHA="$(git rev-parse HEAD)"
+          BASE_TREE="$(git rev-parse HEAD^{tree})"
           python -m py_compile deploy/stage_mathematical_economics_v2_release.py
           python deploy/stage_mathematical_economics_v2_release.py
           python - <<'PY'
@@ -33,11 +37,20 @@ jobs:
           print('MATHEMATICAL_ECONOMICS_V2_MAIN_STAGE_READY')
           PY
           git diff --check
-          mkdir -p /tmp/math-econ-stage/.github/workflows
-          cp .github/workflows/deploy-pages.yml /tmp/math-econ-stage/.github/workflows/deploy-pages.yml
+
+          BLOB_SHA="$(jq -Rs '{content:.,encoding:"utf-8"}' .github/workflows/deploy-pages.yml | gh api --method POST "repos/${GITHUB_REPOSITORY}/git/blobs" --input - --jq .sha)"
+          TREE_SHA="$(jq -n --arg base "$BASE_TREE" --arg blob "$BLOB_SHA" '{base_tree:$base,tree:[{path:".github/workflows/deploy-pages.yml",mode:"100644",type:"blob",sha:$blob}]}' | gh api --method POST "repos/${GITHUB_REPOSITORY}/git/trees" --input - --jq .sha)"
+          COMMIT_SHA="$(jq -n --arg msg 'Stage mathematical economics v2 canonical deployment' --arg tree "$TREE_SHA" --arg parent "$BASE_SHA" '{message:$msg,tree:$tree,parents:[$parent]}' | gh api --method POST "repos/${GITHUB_REPOSITORY}/git/commits" --input - --jq .sha)"
+          test -n "$COMMIT_SHA"
+          printf '%s\n' "$BASE_SHA" > /tmp/math-econ-base-sha.txt
+          printf '%s\n' "$COMMIT_SHA" > /tmp/math-econ-commit-sha.txt
+          echo "MATHEMATICAL_ECONOMICS_V2_DETACHED_COMMIT=$COMMIT_SHA"
+          echo "MATHEMATICAL_ECONOMICS_V2_BASE_SHA=$BASE_SHA"
 
       - uses: actions/upload-artifact@v4
         with:
-          name: mathematical-economics-v2-canonical-workflow
-          path: /tmp/math-econ-stage/.github/workflows/deploy-pages.yml
+          name: mathematical-economics-v2-detached-commit
+          path: |
+            /tmp/math-econ-base-sha.txt
+            /tmp/math-econ-commit-sha.txt
           if-no-files-found: error
