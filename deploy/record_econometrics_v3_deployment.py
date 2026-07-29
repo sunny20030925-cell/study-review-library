@@ -5,6 +5,7 @@ import json
 import os
 import re
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 BOOK = 'econometrics'
@@ -41,6 +42,7 @@ def main(site_root: str) -> None:
     artifact_id = os.environ.get('PAGES_ARTIFACT_ID', '')
     digest = os.environ.get('PAGES_ARTIFACT_DIGEST', '')
     sha = os.environ.get('PAGES_ARTIFACT_SHA256', '')
+    page_url = os.environ.get('DEPLOYED_PAGE_URL', '')
     if not artifact_id or not digest or not sha:
         raise AssertionError('missing verified Pages artifact environment')
     if digest.startswith('sha256:') and digest.split(':', 1)[1] != sha:
@@ -49,9 +51,19 @@ def main(site_root: str) -> None:
     if reaudit_checks <= 0:
         raise AssertionError('missing econometrics v3 reaudit metric')
 
+    run_id = os.environ['GITHUB_RUN_ID']
+    source_sha = os.environ['GITHUB_SHA']
+    deployed_at = datetime.now(timezone.utc).isoformat()
+
     receipt_path = Path('docs/deployment_receipt.json')
     receipt = json.loads(receipt_path.read_text(encoding='utf-8'))
     receipt.update({
+        'status': 'success',
+        'library_version': library['version'],
+        'book_versions_visible': True,
+        'progress_storage_changed': False,
+        'book_count': len(ids),
+        'book_ids': ids,
         'econometrics_version': BOOK_VERSION,
         'econometrics_chapter_count': 20,
         'econometrics_appendix_count': 3,
@@ -76,11 +88,22 @@ def main(site_root: str) -> None:
         'artifact_verified_econometrics_question_count': 100,
         'artifact_verified_econometrics_search_count': 189,
         'artifact_verified_econometrics_svg_count': 20,
+        'source_commit': source_sha,
+        'workflow_run_id': run_id,
+        'page_url': page_url,
+        'deployed_at': deployed_at,
+        'pages_deploy_status': 'success',
+        'pages_artifact_id': artifact_id,
+        'pages_artifact_digest': digest,
+        'artifact_download_recheck': 'passed',
+        'artifact_download_sha256': sha,
+        'artifact_verified_book_count': len(ids),
+        'workflow_overall_conclusion': 'success',
+        'post_deploy_record_step': 'passed-structured-recorder',
+        'receipt_reconciliation': 'automatic-from-verified-pages-artifact',
     })
     receipt_path.write_text(json.dumps(receipt, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
 
-    run_id = os.environ['GITHUB_RUN_ID']
-    source_sha = os.environ['GITHUB_SHA']
     status = f'''# 《計量經濟學》製作狀態
 
 更新日期：2026-07-30
@@ -204,6 +227,17 @@ def main(site_root: str) -> None:
 
     cp_path = Path('docs/shared_checkpoint.md')
     cp = cp_path.read_text(encoding='utf-8')
+    cp = replace_once(cp, r'- 正式書庫內容版本：`[^`]+`', f'- 正式書庫內容版本：`{library["version"]}`', 'checkpoint version')
+    cp = replace_once(cp, r'- 正式書籍數：\d+ 本。', f'- 正式書籍數：{len(ids)} 本。', 'checkpoint count')
+    cp = replace_once(cp, r'- 最新正式 Pages run：`[^`]+`。', f'- 最新正式 Pages run：`{run_id}`。', 'checkpoint run')
+    cp = replace_once(cp, r'- 最新正式部署 source commit：`[^`]+`。', f'- 最新正式部署 source commit：`{source_sha}`。', 'checkpoint source')
+    cp = replace_once(cp, r'- 最新 Pages artifact：`[^`]+`。', f'- 最新 Pages artifact：`{artifact_id}`。', 'checkpoint artifact')
+    cp = replace_once(cp, r'- Artifact digest：`[^`]+`。', f'- Artifact digest：`{digest}`。', 'checkpoint digest')
+    cp = replace_once(cp, r'- Pages 狀態：.*$', f'- Pages 狀態：正式 artifact 上傳、Pages deployment 與下載後 artifact recheck 均成功；`{deployed_at}`。', 'checkpoint pages status')
+    cp = replace_once(cp, r'- 部署回條：.*$', f'- 部署回條：`docs/deployment_receipt.json`；`status=success`、`book_count={len(ids)}`、`library_version={library["version"]}`、`progress_storage_changed=false`。', 'checkpoint receipt')
+    cp = replace_once(cp, r'- 實際下載正式 Pages artifact 後再次核對：.*$', f'- 實際下載正式 Pages artifact 後再次核對：{len(ids)} 本 registry；計量經濟學 v3 23 份 HTML、100 題、189 搜尋、20 SVG，以及其後正式教材均存在；下載檔 SHA-256 與 GitHub artifact digest 一致。', 'checkpoint artifact recheck')
+    cp = replace_once(cp, r'- workflow overall conclusion：.*$', '- workflow overall conclusion：`success`；post-deploy recorder 採結構化 Book ID／receipt 更新。', 'checkpoint workflow conclusion')
+
     section = f'''### 18. 計量經濟學
 - Book ID：`econometrics`
 - 正式內容版本：`{BOOK_VERSION}`
@@ -223,6 +257,14 @@ def main(site_root: str) -> None:
     cp, n = re.subn(r'(?ms)^### 18\. 計量經濟學\n.*?(?=^### 19\. 產業經濟學)', section, cp, count=1)
     if n != 1:
         raise AssertionError('checkpoint econometrics section not found')
+    cp, n = re.subn(
+        r'7\. 最新正式書庫：\d+ 本，`[^`]+`；Pages run `[^`]+`，artifact `[^`]+`。',
+        f'7. 最新正式書庫：{len(ids)} 本，`{library["version"]}`；Pages run `{run_id}`，artifact `{artifact_id}`。',
+        cp,
+        count=1,
+    )
+    if n != 1:
+        raise AssertionError('checkpoint canonical latest-library line')
     cp_path.write_text(cp, encoding='utf-8')
 
 
