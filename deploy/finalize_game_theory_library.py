@@ -16,7 +16,7 @@ def next_library_version(version: str) -> str:
     return f'{match.group(1)}-{int(match.group(2)) + 1}'
 
 
-def main(site_root: str, pre_library_path: str) -> None:
+def main(site_root: str, pre_library_path: str) -> str:
     site = Path(site_root)
     library_path = site / 'data/library.json'
     pre = json.loads(Path(pre_library_path).read_text(encoding='utf-8'))
@@ -46,6 +46,7 @@ def main(site_root: str, pre_library_path: str) -> None:
     sw_path.write_text(sw, encoding='utf-8')
 
     print(final_version)
+    return final_version
 
 
 if __name__ == '__main__':
