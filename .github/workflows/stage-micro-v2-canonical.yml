@@ -25,7 +25,7 @@ jobs:
 
       - name: Stage exact audited correction files and canonical workflow
         run: |
-          AUDITED_SHA='fb523d8f22f82505e53649fc9fc913101f207d97'
+          AUDITED_SHA='bb5761e1d80948916b97d37d3208d1aeea8b46a3'
           git fetch origin agent/microeconomics-post-publication-reaudit-v2
           test "$(git rev-parse FETCH_HEAD)" = "$AUDITED_SHA"
           git checkout "$AUDITED_SHA" -- \
