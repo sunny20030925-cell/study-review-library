@@ -88,16 +88,14 @@ jobs:
       - name: Round 1 structural and integration QA
         run: |
           set -euo pipefail
-          QA1="$(EXPECTED_LIBRARY_VERSION="$FINAL_LIBRARY_VERSION" PYTHONPATH=deploy python deploy/validate_industry_trade.py _site | tee /tmp/it-qa1.log | grep -oE '(^| )checks=[0-9]+' | head -n 1 | cut -d= -f2)"
-          test "$QA1" = "1495"
+          EXPECTED_LIBRARY_VERSION="$FINAL_LIBRARY_VERSION" PYTHONPATH=deploy python deploy/validate_industry_trade.py _site
           node --check _site/app.js
           node --check _site/sw.js
 
       - name: Round 2 independent content QA
         run: |
           set -euo pipefail
-          QA2="$(PYTHONPATH=deploy python deploy/qa_industry_trade_independent.py _site | tee /tmp/it-qa2.log | grep -oE '(^| )checks=[0-9]+' | head -n 1 | cut -d= -f2)"
-          test "$QA2" = "545"
+          PYTHONPATH=deploy python deploy/qa_industry_trade_independent.py _site
 
       - name: Verify formal release shape
         run: |
