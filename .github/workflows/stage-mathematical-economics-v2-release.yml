@@ -57,3 +57,5 @@ jobs:
           git add .github/workflows/deploy-pages.yml
           git commit -m 'Stage mathematical economics v2 canonical deployment'
           git push origin HEAD:main
+
+# one-shot release trigger
