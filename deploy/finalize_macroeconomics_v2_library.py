@@ -18,10 +18,12 @@ def main(site_root, expected_before):
  swp=site/'sw.js'; sw=swp.read_text(); sw,n=re.subn(r"const VERSION = 'study-library-[^']+';",f"const VERSION = 'study-library-{macro_version}';",sw,count=1)
  if n!=1: raise AssertionError('sw version marker')
  swp.write_text(sw,encoding='utf-8')
- # The canonical tail currently adds International Economics immediately after macroeconomics.
+ # The canonical tail adds International Economics, then Money and Banking.
  # Keep stdout clean because the workflow captures this script's single final-version line.
- from integrate_international_economics import integrate
- final_version=integrate(site_root,macro_version)
+ from integrate_international_economics import integrate as integrate_international
+ international_version=integrate_international(site_root,macro_version)
+ from integrate_money_banking import integrate as integrate_money_banking
+ final_version=integrate_money_banking(site_root,international_version)
  print(final_version)
 if __name__=='__main__':
  if len(sys.argv)!=3: raise SystemExit('usage: finalize_macroeconomics_v2_library.py SITE_ROOT EXPECTED_BEFORE')
