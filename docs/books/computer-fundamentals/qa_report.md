@@ -48,3 +48,14 @@
 ## 目前結果
 
 目前為「候選內容與兩輪 QA gate 已建立，等待 PR workflow 實際執行」。在 workflow 與正式 Pages deployment 尚未完成前，不宣稱本書已校對完成或已上線。
+
+## 正式發布結果
+
+- 第一輪 release QA：757 項，通過。
+- 第二輪獨立 QA：598 項，通過；17 個數值節點重算、26 個高風險概念 gate。
+- 既有 13 本內容 hash：整合前後完全一致。
+- 正式書庫：14 本，版本 `2026.07.29-19`。
+- Pages run：`30469780777`。
+- Pages artifact：`8731105330`；digest `sha256:1b20af1baf726d1de0517df4e09c5796354b45f00e0a71c9b606793932b9029d`。
+- 部署後 artifact 重新下載：23 份本書 HTML、100 題、150 搜尋、20 SVG 全數核對通過。
+- post-deploy recorder：`passed-structured-recorder`。

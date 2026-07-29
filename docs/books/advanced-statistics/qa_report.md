@@ -49,7 +49,7 @@
 - 第二輪獨立 QA：27 個量化節點重算、45 個高風險概念 gate，全部通過。
 - 既有 12 本內容 hash：整合前後完全一致。
 - 正式書庫：13 本，版本 `2026.07.29-18`。
-- Pages run：`30469475874`。
-- Pages artifact：`8730980114`；digest `sha256:ace8585e67791f1cc65e540b084ab05c7757f4f6d18e9a4c9f8f37c81a222803`。
+- Pages run：`30469711077`。
+- Pages artifact：`8731080555`；digest `sha256:e94982473758beeee6234d33e0962b979267c9f46ab9e0a8b9926c9cce66a25b`。
 - 部署後 artifact 重新下載：23 份本書 HTML、100 題、189 搜尋、20 SVG 全數核對通過。
 - post-deploy recorder：`passed-structured-recorder`；已移除舊版依賴 checkpoint 自然語句的硬比對流程。
