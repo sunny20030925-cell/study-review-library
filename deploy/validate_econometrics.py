@@ -74,11 +74,11 @@ def main(site_root: str):
     corpus='\n'.join(chapter_text)+'\n'+'\n'.join(e['text'] for e in s['entries'])+'\n'+'\n'.join(x['question']+' '+x['answer']+' '+x['explanation'] for x in q['items'])
     required_precision=[
       '同一條迴歸線可以回答描述問題，卻未必能回答因果問題',
-      '同方差不是 OLS 係數無偏的必要條件',
+      '不是 OLS 係數無偏的必要條件',
       '控制變數可以減少混淆，但不是「越多越好」',
-      'robust standard errors 主要修正標準誤／推論',
-      '多重共線性在外生性成立時不會使 OLS 係數本身產生系統性偏誤',
-      'first stage 支持 relevance；exogeneity／exclusion 是另外的識別條件',
+      'Robust SE 修正的是抽樣變異估計',
+      '不會單靠共線性就製造系統性 OLS 偏誤',
+      'First stage 支持 relevance',
       '完全不隨時間變動的變數在個體 FE 中無法單獨估係數',
       '「所有 pre-trend 係數不顯著」不是數學上的證明',
       'cutoff 附近的 local effect',
