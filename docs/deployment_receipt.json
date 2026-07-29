@@ -1,9 +1,9 @@
 {
   "status": "success",
-  "library_version": "2026.07.29-10",
+  "library_version": "2026.07.29-11",
   "book_versions_visible": true,
   "progress_storage_changed": false,
-  "book_count": 8,
+  "book_count": 9,
   "accounting_version": "2026.07.27-2",
   "economics_version": "2026.07.27-2",
   "economics_question_count": 100,
@@ -61,8 +61,17 @@
   "intermediate_accounting_round1_check_count": 135,
   "intermediate_accounting_quantitative_recheck_count": 23,
   "intermediate_accounting_round2_check_count": 485,
-  "source_commit": "3d234364ca2659d52c73019b6e50e0bed1ca7d20",
-  "workflow_run_id": "30420812058",
+  "macroeconomics_version": "2026.07.29-1",
+  "macroeconomics_chapter_count": 20,
+  "macroeconomics_appendix_count": 3,
+  "macroeconomics_question_count": 100,
+  "macroeconomics_search_count": 143,
+  "macroeconomics_figure_count": 20,
+  "macroeconomics_content_audit": "passed",
+  "macroeconomics_numeric_recheck_count": 18,
+  "macroeconomics_two_round_qa": "passed",
+  "source_commit": "87ed697ae0b38d3cd67cb119cad5f828559fa59e",
+  "workflow_run_id": "30421041310",
   "page_url": "https://sunny20030925-cell.github.io/study-review-library/",
-  "deployed_at": "2026-07-29T03:54:40.526140+00:00"
+  "deployed_at": "2026-07-29T04:00:04.525883+00:00"
 }
