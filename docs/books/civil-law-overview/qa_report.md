@@ -39,5 +39,8 @@
 ## 發布門檻
 
 - 內容與兩輪 QA：通過。
-- 最新正式 artifact 實際整合驗證：通過。
-- 正式 Pages 部署：待本次 serialized release 完成後由結構化 recorder 寫回實際 library version、run、artifact digest 與閱讀進度相容性。
+- 正式 Pages 部署：通過。
+- 正式書庫版本：`2026.07.29-21`；書籍數：16。
+- Pages run：`30470779444`；artifact：`8731523172`；digest：`sha256:0660f7d5846c0d66731247c9c816f11514d63ddbf760f5461562cad0bbb0957c`。
+- 下載後 artifact 再驗證：通過。
+- 既有 15 本教材逐書 hash 保持一致；`progress_storage_changed=false`。

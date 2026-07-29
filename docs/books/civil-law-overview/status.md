@@ -29,3 +29,15 @@
 ## 狀態
 
 **內容、題庫、圖解、兩輪 QA 與最新正式 artifact 整合驗證均已完成；等待本次 serialized Pages release 寫回正式部署回條。**
+
+## 正式部署
+
+- 正式書庫版本：`2026.07.29-21`。
+- 正式書籍數：16 本。
+- Pages run：`30470779444`。
+- Source commit：`34a0db9e8444bad4ac1b689c37bf5ea2bd679aa9`。
+- Pages artifact：`8731523172`。
+- Artifact digest：`sha256:0660f7d5846c0d66731247c9c816f11514d63ddbf760f5461562cad0bbb0957c`。
+- 下載後複核：23 份章節／附錄 HTML、100 題、150 搜尋、20 SVG 全數存在。
+- 既有 15 本教材內容 hash：整合前後一致。
+- 閱讀／題庫進度儲存鍵：未變更。
