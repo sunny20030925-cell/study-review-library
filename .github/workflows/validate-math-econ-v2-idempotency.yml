@@ -1,0 +1,54 @@
+name: Validate math economics v2 idempotency
+
+on:
+  pull_request:
+    paths:
+      - 'deploy/make_mathematical_economics_v2_step_idempotent.py'
+      - '.github/workflows/validate-math-econ-v2-idempotency.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Build idempotent canonical workflow from latest main
+        run: |
+          set -euo pipefail
+          git fetch origin main finalize-math-econ-v2-idempotency
+          git checkout -B stage-main origin/main
+          BASE_SHA="$(git rev-parse HEAD)"
+          BASE_TREE="$(git rev-parse HEAD^{tree})"
+          python -m py_compile deploy/make_mathematical_economics_v2_step_idempotent.py
+          python deploy/make_mathematical_economics_v2_step_idempotent.py
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('.github/workflows/deploy-pages.yml').read_text()
+          assert p.count('Integrate mathematical economics v2 audited release')==1
+          assert "assert ids.count('mathematical-economics') in {0,1}" in p
+          assert 'already_present=' in p
+          assert "if 'mathematical-economics' in pre:" in p
+          assert "FINAL_LIBRARY_VERSION=\"$BEFORE\"" in p
+          assert 'MATHEMATICAL_ECONOMICS_V2_QA_CHECKS' in p
+          print('MATHEMATICAL_ECONOMICS_V2_IDEMPOTENCY_VALIDATED')
+          PY
+          git diff --check
+          cp .github/workflows/deploy-pages.yml /tmp/math-econ-idempotent-deploy-pages.yml
+
+          git checkout -B finalize-math-econ-v2-idempotency origin/finalize-math-econ-v2-idempotency
+          mkdir -p staged
+          cp /tmp/math-econ-idempotent-deploy-pages.yml staged/mathematical-economics-v2-idempotent-deploy-pages.yml
+          printf '%s\n' "$BASE_SHA" > staged/mathematical-economics-v2-idempotent-base-sha.txt
+          printf '%s\n' "$BASE_TREE" > staged/mathematical-economics-v2-idempotent-base-tree-sha.txt
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add staged/mathematical-economics-v2-idempotent-deploy-pages.yml staged/mathematical-economics-v2-idempotent-base-sha.txt staged/mathematical-economics-v2-idempotent-base-tree-sha.txt
+          if ! git diff --cached --quiet; then
+            git commit -m 'Store validated math economics idempotent workflow blob'
+            git push origin HEAD:finalize-math-econ-v2-idempotency
+          fi
