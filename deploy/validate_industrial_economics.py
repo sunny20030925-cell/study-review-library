@@ -12,7 +12,7 @@ def main(site_root:str,expected_library:str)->int:
   nonlocal checks; checks+=1
   if not cond: raise AssertionError(msg)
  ck(m['id']==BOOK,'manifest id'); ck(m['version']==VERSION,'manifest version'); ck(q['bookId']==BOOK,'question book id'); ck(q['version']==VERSION,'question version'); ck(lib['version']==expected_library,'library version')
- ids=[b['id'] for b in lib['books']]; ck(len(ids)>=13 and ids[-1]==BOOK,'industrial economics must be the appended tail'); ck(ids.count(BOOK)==1,'single industrial economics registry entry')
+ ids=[b['id'] for b in lib['books']]; ck(len(ids)>=13 and BOOK in ids,'industrial economics present'); ck(ids.count(BOOK)==1,'single industrial economics registry entry'); ck('industry-trade' not in ids or ids.index(BOOK)<ids.index('industry-trade'),'industrial economics precedes industry trade')
  chapters=[x for x in m['chapters'] if x['kind']=='chapter']; apps=[x for x in m['chapters'] if x['kind']=='appendix']
  ck(len(chapters)==20,'chapter count'); ck([x['id'] for x in chapters]==[f'ch{i:02d}' for i in range(20)],'chapter ids'); ck(len(apps)==3,'appendix count'); ck([x['id'] for x in apps]==['appendix-a','appendix-b','appendix-c'],'appendix ids')
  ck(q['count']==len(q['items'])==100,'question count'); ck(len({x['id'] for x in q['items']})==100,'unique qids'); ck(Counter(x['chapterId'] for x in q['items'])=={f'ch{i:02d}':5 for i in range(20)},'five questions per chapter'); ck(len(s['entries'])==150,'search count')
