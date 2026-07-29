@@ -5,15 +5,15 @@
 ## 版本與範圍
 
 - Book ID：`econometrics`
-- 目標內容版本：`2026.07.29-1`
+- 正式內容版本：`2026.07.29-1`
 - 範圍：一般大學 introductory econometrics，共 20 章、3 附錄、100 題、189 筆搜尋索引與 20 張自製 SVG。
-- 候選 QA：兩輪均已通過；正式發布仍需在當下最新共同書庫基底重跑。
+- 狀態：候選兩輪 QA、正式部署前兩輪 QA、Pages 部署與部署後 artifact 重驗均已完成。
 
 ## 第一輪：結構、公式、數值與整合檢查
 
 執行器：`deploy/validate_econometrics.py`
 
-結果：`ECONOMETRICS_QA_OK checks=384 chapters=20 appendices=3 questions=100 search=189 figures=20 numeric_rechecks=29`
+候選／正式部署前結果：`ECONOMETRICS_QA_OK checks=384 chapters=20 appendices=3 questions=100 search=189 figures=20 numeric_rechecks=29`
 
 主要覆核：
 
@@ -26,7 +26,7 @@
 7. tablet-facing chapter 與 SVG 檔案均存在且非空。
 8. 29 個數值節點由原始輸入獨立重算，不只比對顯示答案。
 9. `app.js` 與 `sw.js` 語法檢查通過。
-10. 候選生成前後既有 12 本 `books/**` hash 完全一致。
+10. 候選生成前後既有書籍 hash 保護通過。
 
 ## 第二輪：獨立內容與高風險答案複核
 
@@ -66,7 +66,7 @@
 
 ## 高風險負面 gate
 
-候選已確認不把下列錯誤口號當成正確結論：
+已確認不把下列錯誤口號當成正確結論：
 
 - 「顯著迴歸係數就代表因果」。
 - 「R² 越高模型一定越正確」。
@@ -79,9 +79,9 @@
 - 「時間序列高 R² 就不可能是虛假迴歸」。
 - 「預測較準即可證明係數具有因果意義」。
 
-## 候選整合保護結果
+## 早期候選整合紀錄
 
-本輪候選以 `docs/deployment_receipt.json` 指定的正式 Pages artifact 為唯一基底：
+候選階段曾以當時 `docs/deployment_receipt.json` 指定的 12 本正式 Pages artifact 驗證：
 
 - 基底：12 本，shared library `2026.07.29-17`。
 - 加入 `econometrics` 後：13 本。
@@ -91,6 +91,24 @@
 - 閱讀進度、錯題與其他本機儲存鍵未改名。
 - 平板端 chapter／SVG／search／questions／offline cache 路徑全部驗證通過。
 
+以上僅為候選期歷史紀錄，正式發布並未使用這個舊 12 本基底。
+
+## 正式發布與部署後重驗
+
+正式發布以當時最新共同書庫為基底：
+
+- 正式基底：17 本、shared library `2026.07.29-22`。
+- 加入 `econometrics`：18 本、shared library `2026.07.29-23`。
+- 正式 Pages run：`30471586965`。
+- Source commit：`4bdca45ab4772982a812017b34984aff19a9a6c1`。
+- Pages artifact：`8731859754`。
+- Artifact digest／下載 SHA-256：`sha256:f53bf4979a85a0ff96e9e253cad04f97d37062d368195a97ce4189f8e934edf5`。
+- 部署前：Round 1 = 384、Round 2 = 675。
+- Pages 部署成功後重新下載 artifact：`DEPLOYED_ARTIFACT_RECHECK_OK 2026.07.29-23 18`。
+- 部署後：Round 1 = 382、Round 2 = 675；29 個數值重算與 32 個高風險答案 gate 仍通過。
+- 最終 deployment proof：`run=30471586965 artifact=8731859754 ... library=2026.07.29-23 books=18`。
+- 後續《產業經濟學》正式發布後，最新 19 本／`2026.07.29-24` registry 仍包含 `econometrics`，證明本書未被後續序列發布覆蓋。
+
 ## 發布狀態
 
-候選內容與兩輪 QA 已完成，但目前仍不宣稱正式部署。發布前必須重新同步當下最新 `main`、shared checkpoint、registry 與 deployment receipt，修正／驗證 post-deploy recorder，並在最新共同書庫基底重跑兩輪 QA。正式 Pages run、artifact 與新的 deployment receipt 全部核實後再改為「已部署」。
+已部署。先前 QA 報告尾段仍寫成「正式發布仍需重跑」屬 post-deploy 文件回寫漏項；現已依正式 run、artifact、下載後重驗與最新 registry 校正。
