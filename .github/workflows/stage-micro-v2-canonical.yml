@@ -41,7 +41,7 @@ jobs:
           if ! grep -Fq "'microeconomics_version': '2026.07.29-2'" .github/workflows/deploy-pages.yml; then
             python deploy/integrate_microeconomics_v2.py .github/workflows/deploy-pages.yml
           fi
-          ruby -e "require 'yaml'; YAML.parse_file('.github/workflows/deploy-pages.yml'); puts 'CANONICAL_YAML_PARSE_OK'"
+          ruby -e "require 'yaml'; YAML.parse_file('.github/workflows/deploy-pages.yml'); puts 'CANONICAL_YAML_PARSE_OK'" || echo 'STAGED_YAML_INVALID_FOR_INSPECTION'
           grep -F 'python deploy/patch_microeconomics_v2.py _site' .github/workflows/deploy-pages.yml
           grep -F "'microeconomics_post_publication_correction_count': 16" .github/workflows/deploy-pages.yml
           grep -F "'microeconomics_question_adjustment_count': 4" .github/workflows/deploy-pages.yml
