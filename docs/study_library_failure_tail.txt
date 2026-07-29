@@ -1,27 +1,27 @@
-deploy	Generate and independently validate microeconomics textbook	﻿2026-07-29T02:03:20.9744978Z ##[group]Run cp _site/data/library.json /tmp/pre-micro-library.json
-deploy	Generate and independently validate microeconomics textbook	2026-07-29T02:03:20.9745536Z ^[[36;1mcp _site/data/library.json /tmp/pre-micro-library.json^[[0m
-deploy	Generate and independently validate microeconomics textbook	2026-07-29T02:03:20.9746198Z ^[[36;1mcat deploy/generate-microeconomics.py.xz.b64.part* | tr -d '\n' | base64 --decode > /tmp/generate-microeconomics.py.xz^[[0m
-deploy	Generate and independently validate microeconomics textbook	2026-07-29T02:03:20.9747134Z ^[[36;1mecho 'bab46d4c7a573d6568d36e308bd713712c7bd91fef82eca7738a578862609cb4  /tmp/generate-microeconomics.py.xz' | sha256sum --check -^[[0m
-deploy	Generate and independently validate microeconomics textbook	2026-07-29T02:03:20.9748294Z ^[[36;1mxz --decompress --stdout /tmp/generate-microeconomics.py.xz > /tmp/generate-microeconomics.py^[[0m
-deploy	Generate and independently validate microeconomics textbook	2026-07-29T02:03:20.9748867Z ^[[36;1mpython /tmp/generate-microeconomics.py _site^[[0m
-deploy	Generate and independently validate microeconomics textbook	2026-07-29T02:03:20.9749454Z ^[[36;1mFINAL_LIBRARY_VERSION="$(python deploy/finalize_microeconomics_library.py _site /tmp/pre-micro-library.json)"^[[0m
-deploy	Generate and independently validate microeconomics textbook	2026-07-29T02:03:20.9750172Z ^[[36;1mEXPECTED_LIBRARY_VERSION="$FINAL_LIBRARY_VERSION" python deploy/qa_microeconomics.py _site^[[0m
-deploy	Generate and independently validate microeconomics textbook	2026-07-29T02:03:20.9750650Z ^[[36;1mnode --check _site/app.js^[[0m
-deploy	Generate and independently validate microeconomics textbook	2026-07-29T02:03:20.9750951Z ^[[36;1mnode --check _site/sw.js^[[0m
-deploy	Generate and independently validate microeconomics textbook	2026-07-29T02:03:20.9751279Z ^[[36;1mecho "MICRO_FINAL_LIBRARY_VERSION=$FINAL_LIBRARY_VERSION"^[[0m
-deploy	Generate and independently validate microeconomics textbook	2026-07-29T02:03:20.9795542Z shell: /usr/bin/bash -e {0}
-deploy	Generate and independently validate microeconomics textbook	2026-07-29T02:03:20.9795810Z env:
-deploy	Generate and independently validate microeconomics textbook	2026-07-29T02:03:20.9796005Z   GITHUB_PAGES: true
-deploy	Generate and independently validate microeconomics textbook	2026-07-29T02:03:20.9796223Z ##[endgroup]
-deploy	Generate and independently validate microeconomics textbook	2026-07-29T02:03:20.9910316Z /tmp/generate-microeconomics.py.xz: OK
-deploy	Generate and independently validate microeconomics textbook	2026-07-29T02:03:21.0445963Z MICROECONOMICS_GENERATED chapters=20 appendices=3 questions=100 search=154 figures=20 version=2026.07.29-1
-deploy	Generate and independently validate microeconomics textbook	2026-07-29T02:03:21.1454584Z Traceback (most recent call last):
-deploy	Generate and independently validate microeconomics textbook	2026-07-29T02:03:21.1455705Z   File "/home/runner/work/study-review-library/study-review-library/deploy/finalize_microeconomics_library.py", line 126, in <module>
-deploy	Generate and independently validate microeconomics textbook	2026-07-29T02:03:21.1456656Z     main(sys.argv[1], sys.argv[2])
-deploy	Generate and independently validate microeconomics textbook	2026-07-29T02:03:21.1457375Z   File "/home/runner/work/study-review-library/study-review-library/deploy/finalize_microeconomics_library.py", line 119, in main
-deploy	Generate and independently validate microeconomics textbook	2026-07-29T02:03:21.1458497Z     final_version = generate_and_validate_intermediate_accounting(site_root)
-deploy	Generate and independently validate microeconomics textbook	2026-07-29T02:03:21.1458935Z                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-deploy	Generate and independently validate microeconomics textbook	2026-07-29T02:03:21.1460420Z   File "/home/runner/work/study-review-library/study-review-library/deploy/finalize_microeconomics_library.py", line 53, in generate_and_validate_intermediate_accounting
-deploy	Generate and independently validate microeconomics textbook	2026-07-29T02:03:21.1461376Z     raise AssertionError(f"intermediate accounting generator checksum mismatch: {digest}")
-deploy	Generate and independently validate microeconomics textbook	2026-07-29T02:03:21.1462202Z AssertionError: intermediate accounting generator checksum mismatch: 3f01e59694b48604ad8ba873a360e744024356bc6e07e09895e08fb1f0890474
-deploy	Generate and independently validate microeconomics textbook	2026-07-29T02:03:21.1604247Z ##[error]Process completed with exit code 1.
+deploy	Generate and independently validate microeconomics textbook	﻿2026-07-29T02:03:55.4666058Z ##[group]Run cp _site/data/library.json /tmp/pre-micro-library.json
+deploy	Generate and independently validate microeconomics textbook	2026-07-29T02:03:55.4666786Z ^[[36;1mcp _site/data/library.json /tmp/pre-micro-library.json^[[0m
+deploy	Generate and independently validate microeconomics textbook	2026-07-29T02:03:55.4667687Z ^[[36;1mcat deploy/generate-microeconomics.py.xz.b64.part* | tr -d '\n' | base64 --decode > /tmp/generate-microeconomics.py.xz^[[0m
+deploy	Generate and independently validate microeconomics textbook	2026-07-29T02:03:55.4668988Z ^[[36;1mecho 'bab46d4c7a573d6568d36e308bd713712c7bd91fef82eca7738a578862609cb4  /tmp/generate-microeconomics.py.xz' | sha256sum --check -^[[0m
+deploy	Generate and independently validate microeconomics textbook	2026-07-29T02:03:55.4670177Z ^[[36;1mxz --decompress --stdout /tmp/generate-microeconomics.py.xz > /tmp/generate-microeconomics.py^[[0m
+deploy	Generate and independently validate microeconomics textbook	2026-07-29T02:03:55.4670930Z ^[[36;1mpython /tmp/generate-microeconomics.py _site^[[0m
+deploy	Generate and independently validate microeconomics textbook	2026-07-29T02:03:55.4671716Z ^[[36;1mFINAL_LIBRARY_VERSION="$(python deploy/finalize_microeconomics_library.py _site /tmp/pre-micro-library.json)"^[[0m
+deploy	Generate and independently validate microeconomics textbook	2026-07-29T02:03:55.4672731Z ^[[36;1mEXPECTED_LIBRARY_VERSION="$FINAL_LIBRARY_VERSION" python deploy/qa_microeconomics.py _site^[[0m
+deploy	Generate and independently validate microeconomics textbook	2026-07-29T02:03:55.4673348Z ^[[36;1mnode --check _site/app.js^[[0m
+deploy	Generate and independently validate microeconomics textbook	2026-07-29T02:03:55.4673777Z ^[[36;1mnode --check _site/sw.js^[[0m
+deploy	Generate and independently validate microeconomics textbook	2026-07-29T02:03:55.4674641Z ^[[36;1mecho "MICRO_FINAL_LIBRARY_VERSION=$FINAL_LIBRARY_VERSION"^[[0m
+deploy	Generate and independently validate microeconomics textbook	2026-07-29T02:03:55.4713247Z shell: /usr/bin/bash -e {0}
+deploy	Generate and independently validate microeconomics textbook	2026-07-29T02:03:55.4713628Z env:
+deploy	Generate and independently validate microeconomics textbook	2026-07-29T02:03:55.4713902Z   GITHUB_PAGES: true
+deploy	Generate and independently validate microeconomics textbook	2026-07-29T02:03:55.4714414Z ##[endgroup]
+deploy	Generate and independently validate microeconomics textbook	2026-07-29T02:03:55.4807157Z /tmp/generate-microeconomics.py.xz: OK
+deploy	Generate and independently validate microeconomics textbook	2026-07-29T02:03:55.5310559Z MICROECONOMICS_GENERATED chapters=20 appendices=3 questions=100 search=154 figures=20 version=2026.07.29-1
+deploy	Generate and independently validate microeconomics textbook	2026-07-29T02:03:55.6546882Z Traceback (most recent call last):
+deploy	Generate and independently validate microeconomics textbook	2026-07-29T02:03:55.6547824Z   File "/home/runner/work/study-review-library/study-review-library/deploy/finalize_microeconomics_library.py", line 126, in <module>
+deploy	Generate and independently validate microeconomics textbook	2026-07-29T02:03:55.6548851Z     main(sys.argv[1], sys.argv[2])
+deploy	Generate and independently validate microeconomics textbook	2026-07-29T02:03:55.6549518Z   File "/home/runner/work/study-review-library/study-review-library/deploy/finalize_microeconomics_library.py", line 119, in main
+deploy	Generate and independently validate microeconomics textbook	2026-07-29T02:03:55.6550339Z     final_version = generate_and_validate_intermediate_accounting(site_root)
+deploy	Generate and independently validate microeconomics textbook	2026-07-29T02:03:55.6550873Z                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+deploy	Generate and independently validate microeconomics textbook	2026-07-29T02:03:55.6552030Z   File "/home/runner/work/study-review-library/study-review-library/deploy/finalize_microeconomics_library.py", line 53, in generate_and_validate_intermediate_accounting
+deploy	Generate and independently validate microeconomics textbook	2026-07-29T02:03:55.6552859Z     raise AssertionError(f"intermediate accounting generator checksum mismatch: {digest}")
+deploy	Generate and independently validate microeconomics textbook	2026-07-29T02:03:55.6553595Z AssertionError: intermediate accounting generator checksum mismatch: 3f01e59694b48604ad8ba873a360e744024356bc6e07e09895e08fb1f0890474
+deploy	Generate and independently validate microeconomics textbook	2026-07-29T02:03:55.6705116Z ##[error]Process completed with exit code 1.
