@@ -1,72 +1,32 @@
 # 《成本會計學》製作狀態
 
-更新日期：2026-07-29
+更新日期：2026-07-30
 
-## 版本
+## 正式識別
 
 - Book ID：`cost-accounting`
 - 正式內容版本：`2026.07.29-2`
-- 正式書庫版本：`2026.07.29-10`
+- 正式書庫版本：`2026.07.30-9`
+- 目前 stage：`VP`
+- Task ID：`cost-accounting:VP`
+- 下一階段：`PUB`
+- Published：workflow v2 前既有正式版本維持 `passed`。
+- Internal QA：`docs/books/cost-accounting/qa_report.md`
+- External Audit：`docs/books/cost-accounting/external_audit.md`
 
-## 成品結構
+## Internal QA 證據
 
-- 19 個正文章節。
-- 3 個附錄。
-- 95 題題庫，每章 5 題。
-- 150 筆全文搜尋索引。
-- 19 張自製成本會計圖解。
+- 正文 19 章、附錄 3 份、題庫 95 題、搜尋索引 150 筆、SVG 19 張。
+- 95／95 題重查；44／44 數值答案獨立重算；新版 validator 857／857。
+- 已修正 materials flow、CVP 邊界、WA/FIFO process costing、spoilage、by-products、variances、absorption costing normal-capacity 等高風險節點。
 
-## 發布後獨立二次內容審計
+## External Audit
 
-本輪不沿用初版 QA 的通過結論，直接讀取正式部署成品，重新檢查全部正文、附錄與題庫。
-
-### 主要修正
-
-1. 補入主要成本與加工成本，並避免直接人工重複計算。
-2. 材料耗用公式補明定淨進料與進貨運費、退回、折讓的調整。
-3. CVP 補固定銷售組合與吸收成本法存貨變動的適用邊界。
-4. 加權平均分步成本制改為各成本成分分別計算約當產量與單位成本。
-5. FIFO 轉入成本補分清前期成本與本期轉入成本。
-6. 正常損壞補檢驗點與期末在製品是否吸收成本的條件。
-7. 補齊物量法與原章名已有、正文卻不足的副產品處理。
-8. 材料價格差異拆分實際購買量 `AQP` 與實際使用量 `AQU`；`ch14-q01` 由 NT$5,200 U 修正為 NT$5,400 U。
-9. 吸收成本法補合理分攤、正常產能、異常低產量未分攤固定製造費用當期認列與異常高產量降低單位率。
-10. 吸收／變動利益調節改用期末與期初存貨內含固定製造費用的一般式。
-
-## 新版 QA
-
-- 95／95 題重新檢查。
-- 9 題同步精確化題幹、答案或詳解，題目 ID 與題數不變。
-- 44／44 個數值答案由原始輸入重新計算通過。
-- 獨立驗證器：857／857 項通過。
-- 搜尋索引：150／150 筆通過章節、頁碼、內容與唯一鍵檢查。
-- SVG：19／19 張通過可存取性與無遠端素材檢查。
-- Service Worker 離線快取與 JavaScript 語法檢查通過。
-
-詳細結果見 `docs/books/cost-accounting/qa_report.md`。
+- 結果：`passed`
+- 路由：正式會計準則／規範 + Wolfram calculation only。
+- 抽查 IAS 2 normal-capacity／unallocated overhead 邊界，以及 cost flow、CVP、EUP、ABC、joint cost、variances、absorption/variable costing 計算。
+- 核心答案錯誤：0；需要升版：否；unresolved blocker：0。
 
 ## 相容性
 
-- 章節 ID：不變。
-- 題目 ID：不變。
-- 題數：仍為 95 題。
-- 既有閱讀進度與錯題紀錄：保留。
-- 搜尋索引新增 4 筆，不改變閱讀進度儲存鍵。
-- 沿用同一套平板 PWA 與 canonical Pages 部署流程。
-
-## 正式部署
-
-- 修正與驗證 source commit：`914331452581fb7b8441dc46bfa4d3019a34c412`。
-- GitHub Pages 成功部署 run：`30416637787`。
-- 正式 job log 已確認 `COST_ACCOUNTING_V2_PATCH_OK search=150`。
-- 正式 job log 已確認 `COST_ACCOUNTING_V2_QA_OK checks=857 chapters=19 appendices=3 questions=95 search=150 figures=19 numeric_rechecks=44`。
-- 本次內容版本已實際部署；後續書庫整體建置若因其他科目失敗，不影響本次成本會計 v2 成品與上述成功部署證據。
-
-## 目前狀態
-
-- 正文二次審計：完成。
-- 題庫二次審計：完成。
-- 糾錯修正：完成。
-- 新版獨立 QA：完成。
-- Canonical integration：完成。
-- 正式部署：完成。
+章節／題目 ID、題數、PWA、閱讀進度與錯題資料均不變；正式 21 本 artifact 維持 `2026.07.30-9`。
