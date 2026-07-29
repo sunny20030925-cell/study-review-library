@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import json
-import re
 import sys
 from collections import Counter
 from pathlib import Path
@@ -70,11 +69,12 @@ def main(site_root: str, expected_library: str) -> None:
         for token in tokens:
             ck(token in compact, f'{gate} missing {token}')
 
+    # These are only phrases that would be wrong even without surrounding context.
+    # Do not blacklist wording that may legitimately appear inside a warning such as
+    # 「不得誤解成……已全面失效」.
     forbidden = [
         '兄弟姊妹已無特留分',
         '兄弟姊妹沒有特留分',
-        '第 1052 條第 2 項但書已全面失效',
-        '唯一有責配偶永遠不得請求裁判離婚',
         '修法期限尚未屆滿',
         '使有效契約關係依法溯及消滅並發生回復原狀等效果',
         '共有物整體處分適用共有人過半數且應有部分過半數',
@@ -104,9 +104,9 @@ def main(site_root: str, expected_library: str) -> None:
     ck('沒有把第 1052 條第 2 項但書全面宣告失效' in qmap['ch17-q03']['explanation'], 'constitutional nuance')
     ck('原則應以書面通知' in qmap['ch19-q03']['answer'], 'renunciation notice answer')
 
-    search_corpus = '\n'.join(e['title'] + ' ' + e['text'] for e in search['entries'])
+    search_corpus = '\n'.join(e['title'] + ' ' + e['text'] for e in search['entries']).replace(' ', '')
     for token in ['民法第130條', '第191-2條', '第819條', '112年憲判字第4號', '2025-03-24', '2026-06-02草案', '第801條與第948條']:
-        ck(token in search_corpus.replace(' ', ''), f'search contains {token}')
+        ck(token in search_corpus, f'search contains {token}')
 
     release = manifest.get('releaseNotes', [])[0]
     ck(release.get('version') == VERSION, 'release note v2')
