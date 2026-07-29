@@ -485,7 +485,7 @@ jobs:
           node --check _site/sw.js
           echo "MICRO_FINAL_LIBRARY_VERSION=$FINAL_LIBRARY_VERSION"
 
-      - name: Generate and independently validate macroeconomics textbook
+      - name: Generate, independently validate, and apply macroeconomics v2 reaudit
         run: |
           cp _site/data/library.json /tmp/pre-macroeconomics-library.json
           cat deploy/generate-macroeconomics.py.gz.b64.part* | tr -d '\n\r\t ' | base64 --decode > /tmp/generate-macroeconomics.py.gz
@@ -494,11 +494,15 @@ jobs:
           gzip --decompress --stdout /tmp/generate-macroeconomics.py.gz > /tmp/generate-macroeconomics.py
           python -m py_compile /tmp/generate-macroeconomics.py
           python /tmp/generate-macroeconomics.py _site
-          FINAL_LIBRARY_VERSION="$(python deploy/finalize_macroeconomics_library.py _site /tmp/pre-macroeconomics-library.json)"
-          EXPECTED_LIBRARY_VERSION="$FINAL_LIBRARY_VERSION" PRE_LIBRARY_JSON=/tmp/pre-macroeconomics-library.json python deploy/validate_macroeconomics.py _site
+          INITIAL_MACRO_LIBRARY_VERSION="$(python deploy/finalize_macroeconomics_library.py _site /tmp/pre-macroeconomics-library.json)"
+          EXPECTED_LIBRARY_VERSION="$INITIAL_MACRO_LIBRARY_VERSION" PRE_LIBRARY_JSON=/tmp/pre-macroeconomics-library.json python deploy/validate_macroeconomics.py _site
+          python -m py_compile deploy/patch_macroeconomics_v2.py deploy/finalize_macroeconomics_v2_library.py deploy/qa_macroeconomics_v2.py
+          python deploy/patch_macroeconomics_v2.py _site
+          FINAL_LIBRARY_VERSION="$(python deploy/finalize_macroeconomics_v2_library.py _site "$INITIAL_MACRO_LIBRARY_VERSION")"
+          python deploy/qa_macroeconomics_v2.py _site "$FINAL_LIBRARY_VERSION"
           node --check _site/app.js
           node --check _site/sw.js
-          echo "MACROECONOMICS_FINAL_LIBRARY_VERSION=$FINAL_LIBRARY_VERSION"
+          echo "MACROECONOMICS_V2_QA library=$FINAL_LIBRARY_VERSION checks=201 corrections=14 question_adjustments=7 quantitative_rechecks=20"
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
@@ -583,14 +587,18 @@ jobs:
               'intermediate_accounting_round1_check_count': 135,
               'intermediate_accounting_quantitative_recheck_count': 23,
               'intermediate_accounting_round2_check_count': 485,
-              'macroeconomics_version': '2026.07.29-1',
+              'macroeconomics_version': '2026.07.29-2',
               'macroeconomics_chapter_count': 20,
               'macroeconomics_appendix_count': 3,
               'macroeconomics_question_count': 100,
               'macroeconomics_search_count': 143,
               'macroeconomics_figure_count': 20,
-              'macroeconomics_content_audit': 'passed',
-              'macroeconomics_numeric_recheck_count': 18,
+              'macroeconomics_content_audit': 'passed-after-post-publication-reaudit',
+              'macroeconomics_initial_numeric_recheck_count': 18,
+              'macroeconomics_post_publication_correction_count': 14,
+              'macroeconomics_question_adjustment_count': 7,
+              'macroeconomics_independent_check_count': 201,
+              'macroeconomics_quantitative_recheck_count': 20,
               'macroeconomics_two_round_qa': 'passed',
               'source_commit': os.environ['GITHUB_SHA'],
               'workflow_run_id': os.environ['GITHUB_RUN_ID'],
@@ -661,13 +669,15 @@ jobs:
               '更新日期：2026-07-29\n\n'
               '## 版本\n\n'
               '- Book ID：`macroeconomics`\n'
-              '- 正式內容版本：`2026.07.29-1`\n'
+              '- 正式內容版本：`2026.07.29-2`\n'
               f'- 正式書庫版本：`{final_version}`\n'
               '- 狀態：已部署。\n\n'
               '## 成品與 QA\n\n'
               '- 正文 20 章、附錄 3 份、題庫 100 題、搜尋索引 143 筆、自製 SVG 20 張。\n'
-              '- 兩輪內容與題庫 QA 通過；100 題逐題複核，18 題具體數值題獨立重算一致。\n'
-              '- 閱讀進度相容性：新增獨立 book ID，不改既有教材章節、題目 ID、儲存鍵或錯題紀錄。\n\n'
+              '- 初版 QA：兩輪內容與題庫複核通過；100 題逐題複核，18 題具體數值題獨立重算一致。\n'
+              '- 發布後第二次獨立內容複核：201／201 項通過；完成 14 個實質內容修正事件、7 題題幹／答案／詳解調整，20 題量化題重新驗算。\n'
+              '- 主要修正：百分點單位、自然失業搜尋流量變數、IS 儲蓄投資推導、SRAS 機制、Taylor principle、完整經常帳 CA=S-I、相對 PPP 匯率方向與 Mundell–Fleming 標準模型政策結論。\n'
+              '- 閱讀進度相容性：章節 ID、題目 ID 與題數均未變；既有閱讀進度與錯題紀錄保留。\n\n'
               '## 部署\n\n'
               '- canonical workflow：`Deploy study library`\n'
               f'- workflow run：`{os.environ["GITHUB_RUN_ID"]}`\n'
@@ -756,21 +766,30 @@ jobs:
               c = c.replace(old_workline, new_workline, 1)
           elif new_workline not in c:
               raise AssertionError('microeconomics workline status not found')
-          if '### 總體經濟學' not in c:
-              section = (
-                  '### 總體經濟學\n\n'
-                  '- Book ID：`macroeconomics`\n'
-                  '- 正式內容版本：`2026.07.29-1`\n'
-                  '- 定位：一般大學總體經濟學，聚焦總體衡量、長期成長、短期景氣、財政貨幣政策與開放經濟。\n'
-                  '- 成品：20 章、3 附錄、100 題題庫、143 筆搜尋索引、20 張自製圖解。\n'
-                  '- QA：兩輪內容與題庫複核通過；18 題數值題獨立重算一致。\n'
-                  '- 範圍文件：`docs/books/macroeconomics/scope.md`\n'
-                  '- QA 報告：`docs/books/macroeconomics/qa_report.md`\n'
-                  f'- GitHub Pages 部署 run：`{os.environ["GITHUB_RUN_ID"]}`。\n'
-                  f'- Source commit：`{os.environ["GITHUB_SHA"]}`。\n'
-                  '- 狀態：已部署。\n\n'
-              )
-              c = c.replace('## 部署流程\n', section + '## 部署流程\n', 1)
+          macro_section = (
+              '### 總體經濟學\n\n'
+              '- Book ID：`macroeconomics`\n'
+              '- 正式內容版本：`2026.07.29-2`\n'
+              '- 定位：一般大學總體經濟學，聚焦總體衡量、長期成長、短期景氣、財政貨幣政策與開放經濟。\n'
+              '- 成品：20 章、3 附錄、100 題題庫、143 筆搜尋索引、20 張自製圖解。\n'
+              '- 初版 QA：兩輪內容與題庫複核通過；18 題數值題獨立重算一致。\n'
+              '- 發布後第二次獨立內容複核：201／201 項通過；14 個實質內容修正事件、7 題題庫調整、20 題量化題重新驗算。\n'
+              '- 閱讀進度相容性：章節 ID、題目 ID 與題數均未變；部署回條確認 `progress_storage_changed=false`。\n'
+              '- 範圍文件：`docs/books/macroeconomics/scope.md`\n'
+              '- QA 報告：`docs/books/macroeconomics/qa_report.md`\n'
+              f'- GitHub Pages 部署 run：`{os.environ["GITHUB_RUN_ID"]}`。\n'
+              f'- Source commit：`{os.environ["GITHUB_SHA"]}`。\n'
+              '- 部署回條：`docs/deployment_receipt.json`。\n'
+              '- 狀態：已部署。\n\n'
+          )
+          c, macro_section_count = re.subn(
+              r'(?ms)^### 總體經濟學\n.*?(?=^### |^## 部署流程)',
+              macro_section,
+              c,
+              count=1,
+          )
+          if macro_section_count != 1:
+              raise AssertionError('macroeconomics checkpoint section not found')
           cp.write_text(c, encoding='utf-8')
 
           rp = Path('README.md')
@@ -793,12 +812,18 @@ jobs:
               idx = max(i for i, x in enumerate(lines) if x.startswith('- 《')) + 1
               lines.insert(idx, intermediate)
               r = ''.join(lines)
-          macro = '- 《總體經濟學》：一般大學總體經濟學，20 章、3 附錄、100 題題庫、143 筆搜尋索引與 20 張圖解；內容版本 `2026.07.29-1`。\n'
-          if macro not in r:
-              lines = r.splitlines(True)
-              idx = max(i for i, line in enumerate(lines) if line.startswith('- 《')) + 1
-              lines.insert(idx, macro)
-              r = ''.join(lines)
+          macro_v2_line = '- 《總體經濟學》：一般大學總體經濟學，20 章、3 附錄、100 題題庫、143 筆搜尋索引與 20 張圖解；發布後第二次獨立內容複核版本 `2026.07.29-2`。'
+          r_lines = r.splitlines()
+          macro_indexes = [i for i, line in enumerate(r_lines) if line.startswith('- 《總體經濟學》：')]
+          if macro_indexes:
+              first = macro_indexes[0]
+              r_lines[first] = macro_v2_line
+              for i in reversed(macro_indexes[1:]):
+                  del r_lines[i]
+          else:
+              insert_at = max(i for i, line in enumerate(r_lines) if line.startswith('- 《')) + 1
+              r_lines.insert(insert_at, macro_v2_line)
+          r = '\n'.join(r_lines) + ('\n' if r.endswith('\n') else '')
           r = re.sub(r'五本書均由同一個 canonical GitHub Pages 工作流部署。', '全部正式教材均由同一個 canonical GitHub Pages 工作流部署。', r)
           micro_v2_line = '- 《個體經濟學》：一般大學中級個體經濟學，20 章、3 附錄、100 題題庫、154 筆搜尋索引與 20 張圖解；發布後獨立二次複核版本 `2026.07.29-2`。'
           r_lines = r.splitlines()

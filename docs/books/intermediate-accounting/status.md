@@ -6,7 +6,7 @@
 
 - Book ID：`intermediate-accounting`
 - 正式內容版本：`2026.07.29-1`
-- 正式書庫版本：`2026.07.29-11`
+- 正式書庫版本：`2026.07.29-12`
 - 狀態：已部署。
 
 ## 成品與 QA
@@ -19,7 +19,7 @@
 ## 部署
 
 - canonical workflow：`Deploy study library`
-- workflow run：`30435914365`
-- source commit：`161f2a4f8684f62919aded9c21640dda25d09172`
+- workflow run：`30436480706`
+- source commit：`f79a2cd31636ab8d74acfee50998e848f035a357`
 - 正式書庫書籍數：9 本。
 - GitHub Pages 部署成功並已寫回 deployment receipt。
