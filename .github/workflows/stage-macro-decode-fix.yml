@@ -23,6 +23,16 @@ jobs:
           token: ${{ github.token }}
           fetch-depth: 0
 
+      - name: Upload original macro generator parts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macro-generator-parts-${{ github.run_id }}
+          path: |
+            deploy/generate-macroeconomics.py.gz.b64.part00
+            deploy/generate-macroeconomics.py.gz.b64.part01
+          if-no-files-found: error
+          retention-days: 1
+
       - name: Validate split Base64 decoder and stage workflow
         run: |
           python -m py_compile deploy/decode_split_base64.py
