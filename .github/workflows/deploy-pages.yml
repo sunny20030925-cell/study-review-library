@@ -171,28 +171,45 @@ jobs:
           echo "ECONOMETRICS_REAUDIT_CHECKS=$ECON_REAUDIT_CHECKS" >> "$GITHUB_ENV"
           echo "ECON_LIBRARY_VERSION=$ECON_LIBRARY_VERSION" >> "$GITHUB_ENV"
 
-      - name: Integrate or validate industrial economics
+      - name: Validate industrial economics already in formal base
+        run: |
+          set -euo pipefail
+          INDUSTRIAL_LIBRARY_VERSION="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"
+          QA1="$(PYTHONPATH=deploy python deploy/validate_industrial_economics.py _site "$INDUSTRIAL_LIBRARY_VERSION" | tee /tmp/industrial-qa1.log | grep -oE '(^| )checks=[0-9]+' | head -n 1 | cut -d= -f2)"
+          QA2="$(PYTHONPATH=deploy python deploy/qa_industrial_economics.py _site "$INDUSTRIAL_LIBRARY_VERSION" | tee /tmp/industrial-qa2.log | grep -oE '(^| )checks=[0-9]+' | head -n 1 | cut -d= -f2)"
+          test "$QA1" = "935"
+          test "$QA2" = "479"
+          python - <<'PY'
+          import json
+          d=json.load(open('_site/data/library.json'))
+          ids=[b['id'] for b in d['books']]
+          assert ids[-1]=='industrial-economics' and ids.count('industrial-economics')==1
+          PY
+          node --check _site/app.js
+          node --check _site/sw.js
+
+      - name: Integrate or validate industry and trade
         run: |
           set -euo pipefail
           if python - <<'PY'
           import json,sys
           d=json.load(open('_site/data/library.json'))
-          sys.exit(0 if any(b['id']=='industrial-economics' for b in d['books']) else 1)
+          sys.exit(0 if any(b['id']=='industry-trade' for b in d['books']) else 1)
           PY
           then
             FINAL_LIBRARY_VERSION="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"
           else
             BEFORE="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"
-            FINAL_LIBRARY_VERSION="$(PYTHONPATH=deploy python deploy/integrate_industrial_economics.py _site "$BEFORE")"
+            FINAL_LIBRARY_VERSION="$(PYTHONPATH=deploy python deploy/integrate_industry_trade.py _site "$BEFORE")"
           fi
-          QA1="$(PYTHONPATH=deploy python deploy/validate_industrial_economics.py _site "$FINAL_LIBRARY_VERSION" | tee /tmp/qa1.log | grep -oE '(^| )checks=[0-9]+' | head -n 1 | cut -d= -f2)"
-          QA2="$(PYTHONPATH=deploy python deploy/qa_industrial_economics.py _site "$FINAL_LIBRARY_VERSION" | tee /tmp/qa2.log | grep -oE '(^| )checks=[0-9]+' | head -n 1 | cut -d= -f2)"
-          test "$QA1" = "935"
-          test "$QA2" = "479"
+          IT_QA1="$(EXPECTED_LIBRARY_VERSION="$FINAL_LIBRARY_VERSION" PYTHONPATH=deploy python deploy/validate_industry_trade.py _site | tee /tmp/industry-trade-qa1.log | grep -oE '(^| )checks=[0-9]+' | head -n 1 | cut -d= -f2)"
+          IT_QA2="$(PYTHONPATH=deploy python deploy/qa_industry_trade_independent.py _site | tee /tmp/industry-trade-qa2.log | grep -oE '(^| )checks=[0-9]+' | head -n 1 | cut -d= -f2)"
+          test "$IT_QA1" = "1495"
+          test "$IT_QA2" = "545"
           export FINAL_LIBRARY_VERSION
           echo "FINAL_LIBRARY_VERSION=$FINAL_LIBRARY_VERSION" >> "$GITHUB_ENV"
-          echo "INDUSTRIAL_QA1_CHECKS=$QA1" >> "$GITHUB_ENV"
-          echo "INDUSTRIAL_QA2_CHECKS=$QA2" >> "$GITHUB_ENV"
+          echo "INDUSTRY_TRADE_QA1_CHECKS=$IT_QA1" >> "$GITHUB_ENV"
+          echo "INDUSTRY_TRADE_QA2_CHECKS=$IT_QA2" >> "$GITHUB_ENV"
           node --check _site/app.js
           node --check _site/sw.js
           python - <<'PY'
@@ -202,16 +219,17 @@ jobs:
           ids=[b['id'] for b in lib['books']]
           base=json.load(open('/tmp/base_ids.json'))
           assert lib['version']==os.environ['FINAL_LIBRARY_VERSION']
-          assert ids[-1]=='industrial-economics' and ids.count('industrial-economics')==1
-          if 'industrial-economics' not in base:
-              assert ids==base+['industrial-economics']
+          assert ids[-1]=='industry-trade' and ids.count('industry-trade')==1
+          assert ids.count('industrial-economics')==1 and ids.index('industrial-economics') < ids.index('industry-trade')
+          if 'industry-trade' not in base:
+              assert ids==base+['industry-trade']
           else:
               assert ids==base
-          root=Path('_site/books/industrial-economics')
+          root=Path('_site/books/industry-trade')
           assert len(json.load(open(root/'manifest.json'))['chapters'])==23
           assert json.load(open(root/'questions.json'))['count']==100
-          assert len(json.load(open(root/'search.json'))['entries'])==150
-          assert len(list(Path('_site/assets/industrial-economics-svg').glob('*.svg')))==20
+          assert len(json.load(open(root/'search.json'))['entries'])==160
+          assert len(list(Path('_site/assets/industry-trade-svg').glob('*.svg')))==20
           print('FINAL_LIBRARY_READY',lib['version'],len(ids))
           PY
 
@@ -252,22 +270,30 @@ jobs:
           lib=json.load(open(site/'data/library.json'))
           ids=[b['id'] for b in lib['books']]
           assert lib['version']==os.environ['FINAL_LIBRARY_VERSION']
-          assert ids[-1]=='industrial-economics' and ids.count('industrial-economics')==1
+          assert ids[-1]=='industry-trade' and ids.count('industry-trade')==1
+          assert ids.count('industrial-economics')==1 and ids.index('industrial-economics') < ids.index('industry-trade')
           assert ids.count('econometrics')==1 and ids.index('econometrics') < ids.index('industrial-economics')
           econ=site/'books/econometrics'
           em=json.load(open(econ/'manifest.json')); eq=json.load(open(econ/'questions.json')); es=json.load(open(econ/'search.json'))
           assert em['version']==eq['version']=='2026.07.30-1'
           assert len(em['chapters'])==23 and eq['count']==100 and len(es['entries'])==189
           assert len(list((site/'assets/econometrics-svg').glob('*.svg')))==20
-          root=site/'books/industrial-economics'
-          assert len(json.load(open(root/'manifest.json'))['chapters'])==23
-          assert json.load(open(root/'questions.json'))['count']==100
-          assert len(json.load(open(root/'search.json'))['entries'])==150
+          industrial=site/'books/industrial-economics'
+          assert len(json.load(open(industrial/'manifest.json'))['chapters'])==23
+          assert json.load(open(industrial/'questions.json'))['count']==100
+          assert len(json.load(open(industrial/'search.json'))['entries'])==150
           assert len(list((site/'assets/industrial-economics-svg').glob('*.svg')))==20
-          print('DEPLOYED_ARTIFACT_RECHECK_OK',lib['version'],len(ids),'econometrics=2026.07.30-1')
+          trade=site/'books/industry-trade'
+          assert len(json.load(open(trade/'manifest.json'))['chapters'])==23
+          assert json.load(open(trade/'questions.json'))['count']==100
+          assert len(json.load(open(trade/'search.json'))['entries'])==160
+          assert len(list((site/'assets/industry-trade-svg').glob('*.svg')))==20
+          print('DEPLOYED_ARTIFACT_RECHECK_OK',lib['version'],len(ids),'industry-trade=2026.07.29-1')
           PY
           PYTHONPATH=deploy python deploy/validate_econometrics_v2.py /tmp/deployed-site
           PYTHONPATH=deploy python deploy/qa_econometrics_reaudit_v2.py /tmp/deployed-site "$FINAL_LIBRARY_VERSION"
+          EXPECTED_LIBRARY_VERSION="$FINAL_LIBRARY_VERSION" PYTHONPATH=deploy python deploy/validate_industry_trade.py /tmp/deployed-site
+          PYTHONPATH=deploy python deploy/qa_industry_trade_independent.py /tmp/deployed-site
           echo "PAGES_ARTIFACT_ID=$ARTIFACT_ID" >> "$GITHUB_ENV"
           echo "PAGES_ARTIFACT_DIGEST=$DIGEST" >> "$GITHUB_ENV"
           echo "PAGES_ARTIFACT_SHA256=$SHA" >> "$GITHUB_ENV"
@@ -276,19 +302,19 @@ jobs:
       - name: Record successful deployment structurally
         run: |
           set -euo pipefail
-          python deploy/record_industrial_economics_deployment.py _site
           python deploy/record_econometrics_v2_deployment.py _site
+          python deploy/record_industry_trade_deployment.py _site
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add \
             docs/deployment_receipt.json \
             README.md \
             docs/shared_checkpoint.md \
-            docs/books/industrial-economics/status.md \
-            docs/books/industrial-economics/qa_report.md \
+            docs/books/industry-trade/status.md \
+            docs/books/industry-trade/qa_report.md \
             docs/books/econometrics/status.md \
             docs/books/econometrics/qa_report.md
           if ! git diff --cached --quiet; then
-            git commit -m "Record econometrics v2 reaudit deployment [skip ci]"
+            git commit -m "Record industry trade deployment [skip ci]"
             git push origin HEAD:main
           fi
