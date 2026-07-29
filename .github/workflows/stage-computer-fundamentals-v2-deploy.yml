@@ -1,4 +1,5 @@
 # One-shot stager: patch the latest canonical Pages workflow after pulling current main.
+# Triggered after the workflow already exists on main so GitHub can execute it reliably.
 name: Stage computer fundamentals v2 deployment
 
 on:
