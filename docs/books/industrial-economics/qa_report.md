@@ -38,6 +38,6 @@ HHI 3,000；Delta HHI 1,500 與 1,200；平均成本 NT$300；範疇經濟 NT$20
 - 其他 19 本教材內容 hash：整合前後完全一致。
 - 本書章節／附錄／題目 ID：全部保持不變；閱讀進度與錯題資料相容。
 - 正式書庫：20 本，版本 `2026.07.30-4`。
-- Pages run：`30489306339`；artifact：`8738999051`；digest：`sha256:d21d233e589919d29631074724231a16cdda4cc9f2881543e75f61a6e3903ec4`。
+- Pages run：`30489368806`；artifact：`8739025051`；digest：`sha256:a5d6907a2c230e9767822c53c7a9ed16254e37f2fa4458ac9bea05d778f6c18c`。
 - 部署後重新下載 artifact，23 份本書 HTML、100 題、150 搜尋、20 SVG 全數核對通過。
 - 詳細糾錯：`docs/books/industrial-economics/v2_audit_report.md`。
