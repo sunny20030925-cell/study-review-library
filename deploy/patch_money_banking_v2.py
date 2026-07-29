@@ -18,7 +18,7 @@ CORRECTIONS = {
 <section class="callout precision-note" id="v2-duration-precision">
 <h2>二次複核：存續期間與殖利率曲線</h2>
 <p>以存續期間估計債券價格變動，是對<strong>小幅殖利率變動</strong>的一階近似；殖利率變動較大時，凸性等二階效果會使近似誤差擴大。</p>
-<p>殖利率曲線反轉可包含未來短率預期與期限溢酬的資訊，歷史上常被視為景氣訊號，但不能寫成「必然造成」或「必然預告」衰退。</p>
+<p>殖利率曲線反轉可包含未來短率預期與期限溢酬的資訊，歷史上常被視為景氣訊號，但不能把它寫成對衰退的無條件必然預測。</p>
 </section>
 ''',
     'ch08': '''
@@ -26,20 +26,20 @@ CORRECTIONS = {
 <h2>二次複核：銀行監理、金融穩定與最後貸款者</h2>
 <p><strong>個體審慎監理</strong>著重單一金融機構的資本、槓桿、流動性與風險管理；<strong>總體審慎政策</strong>則著重金融體系共同曝險、順循環與系統性風險。兩者相關但目的層次不同。</p>
 <p>Basel III 在本課只掌握資本、槓桿與流動性要求（如 LCR、NSFR）的經濟意義，不把完整法遵計算列為核心。</p>
-<p>最後貸款者的經典核心情境，是對<strong>具償付／還款能力但暫時流動性不足、且難以從其他來源籌資的銀行</strong>提供緊急流動性；它不是「任何資不抵債銀行都應由央行無條件救助」。存款保險與最後貸款者能降低擠兌風險，也可能增加道德危險。</p>
+<p>最後貸款者的經典核心情境，是對<strong>具償付／還款能力但暫時流動性不足、且難以從其他來源籌資的銀行</strong>提供緊急流動性；不能把這項功能解讀成對已喪失償付能力機構的無條件救助。存款保險與最後貸款者能降低擠兌風險，也可能增加道德危險。</p>
 </section>
 ''',
     'ch09': '''
 <section class="callout precision-note" id="v2-base-money-credit-creation">
 <h2>二次複核：準備貨幣、銀行準備與放款創造存款</h2>
 <p><strong>準備貨幣（reserve money／base money，常稱貨幣基數）</strong>不是「銀行準備金」的另一個獨立總量；銀行存放央行的準備只是準備貨幣的組成之一，另一重要部分是流通中通貨。</p>
-<p>銀行核貸時可以同時形成借款人的存款，但這不代表銀行能無限制憑空放款。個別銀行仍須面對跨行清算、流動性、資本、信用風險、資金成本與監理約束；整體銀行體系的信用與貨幣也同時受借款需求與中央銀行操作環境影響。</p>
+<p>銀行核貸時可以同時形成借款人的存款，但這不代表放款不受限制。個別銀行仍須面對跨行清算、流動性、資本、信用風險、資金成本與監理約束；整體銀行體系的信用與貨幣也同時受借款需求與中央銀行操作環境影響。</p>
 </section>
 ''',
     'ch10': '''
 <section class="callout precision-note" id="v2-multiplier-boundary">
 <h2>二次複核：貨幣乘數是模型，不是機械定律</h2>
-<p><code>1/rr</code> 只能稱為<strong>簡單存款乘數</strong>。它需要沒有通貨外流、沒有超額準備、銀行願意放款且借款人願意借款等嚴格條件；不能拿來斷言準備金增加 1 元，現實世界的 M2 就必定增加固定倍數。</p>
+<p><code>1/rr</code> 只能稱為<strong>簡單存款乘數</strong>。它需要沒有通貨外流、沒有超額準備、銀行願意放款且借款人願意借款等嚴格條件；因此不能把準備金與現實世界 M2 之間寫成固定倍數關係。</p>
 <p>較一般的貨幣乘數把通貨—存款比率與超額準備等行為納入，但這仍是會隨制度、利率、風險與行為改變的關係，而不是中央銀行可以固定指定的常數。</p>
 </section>
 ''',
@@ -110,7 +110,6 @@ def main(site_root: str) -> None:
     manifest_path = root / 'manifest.json'
     questions_path = root / 'questions.json'
     search_path = root / 'search.json'
-
     manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
     questions = json.loads(questions_path.read_text(encoding='utf-8'))
     search = json.loads(search_path.read_text(encoding='utf-8'))
