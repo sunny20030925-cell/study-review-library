@@ -78,9 +78,10 @@ def main(site_root: str, expected_library: str) -> int:
         '次序統計量（order statistic）', '中央極限定理（CLT）', 'Student t 分配', '最大概似估計（MLE）',
         '充分統計量（sufficient statistic）', 'Cramér–Rao 下界', 'Rao–Blackwell', '樞紐量（pivotal quantity）',
         'Neyman–Pearson', 'UMP 檢定', 'Wilks 定理', 'Gauss–Markov 定理',
-        '不是 H0 為真的機率', 'R² 高仍不等於因果關係成立',
+        'R² 高仍不等於因果關係成立',
     ]:
         ck(token in corpus, f'core/corrective concept {token}')
+    ck(('不是 H0 為真的機率' in corpus) or ('不是 P(H0|data)' in corpus), 'p-value is not posterior probability of H0')
 
     if version == '2026.07.30-1':
         for token in ['負二項分配（Negative Binomial）', 'Slutsky 定理', 'MLE 不變性（invariance）', '兩者一般互不推出', 'level-α 檢定', '單調概似比（MLR）']:
