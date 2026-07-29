@@ -12,7 +12,7 @@ step = '''      - name: Generate and independently validate intermediate account
         run: |
           cp _site/data/library.json /tmp/pre-intermediate-accounting-library.json
           cat deploy/generate-intermediate-accounting.py.gz.b64.part* | tr -d '\\n' | base64 --decode > /tmp/generate-intermediate-accounting.py.gz
-          echo 'b60133689f2ede497597295688b82646ba070b787ea94a78e950da5603b8bf34  /tmp/generate-intermediate-accounting.py.gz' | sha256sum --check -
+          echo '3f01e59694b48604ad8ba873a360e744024356bc6e07e09895e08fb1f0890474  /tmp/generate-intermediate-accounting.py.gz' | sha256sum --check -
           gzip --decompress --stdout /tmp/generate-intermediate-accounting.py.gz > /tmp/generate-intermediate-accounting.py
           python /tmp/generate-intermediate-accounting.py _site
           FINAL_LIBRARY_VERSION="$(python deploy/finalize_intermediate_accounting_library.py _site /tmp/pre-intermediate-accounting-library.json)"
@@ -29,15 +29,15 @@ if 'Generate and independently validate intermediate accounting textbook' not in
     text = text.replace(marker, step + marker, 1)
 
 metrics = '''              'intermediate_accounting_version': '2026.07.29-1',
-              'intermediate_accounting_chapter_count': 22,
-              'intermediate_accounting_appendix_count': 3,
-              'intermediate_accounting_question_count': 110,
-              'intermediate_accounting_search_count': 145,
-              'intermediate_accounting_figure_count': 22,
-              'intermediate_accounting_content_audit': 'passed',
-              'intermediate_accounting_round1_check_count': 135,
-              'intermediate_accounting_quantitative_recheck_count': 23,
-              'intermediate_accounting_round2_check_count': 485,
+               'intermediate_accounting_chapter_count': 22,
+               'intermediate_accounting_appendix_count': 3,
+               'intermediate_accounting_question_count': 110,
+               'intermediate_accounting_search_count': 145,
+               'intermediate_accounting_figure_count': 22,
+               'intermediate_accounting_content_audit': 'passed',
+               'intermediate_accounting_round1_check_count': 135,
+               'intermediate_accounting_quantitative_recheck_count': 23,
+               'intermediate_accounting_round2_check_count': 485,
 '''
 metric_marker = "              'source_commit': os.environ['GITHUB_SHA'],\n"
 if "'intermediate_accounting_version':" not in text:
@@ -46,26 +46,26 @@ if "'intermediate_accounting_version':" not in text:
     text = text.replace(metric_marker, metrics + metric_marker, 1)
 
 ia_status = """          ia_status = (
-              '# 《中級會計學》製作狀態\\n\\n'
-              '更新日期：2026-07-29\\n\\n'
-              '## 版本\\n\\n'
-              '- Book ID：`intermediate-accounting`\\n'
-              '- 正式內容版本：`2026.07.29-1`\\n'
-              f'- 正式書庫版本：`{final_version}`\\n'
-              '- 狀態：已部署。\\n\\n'
-              '## 成品與 QA\\n\\n'
-              '- 正文 22 章、附錄 3 份、題庫 110 題、搜尋索引 145 筆、自製 SVG 22 張。\\n'
-              '- 第一輪 QA：135 項通過；獨立數值與公式重算 23 項通過。\\n'
-              '- 第二輪 QA：485 項通過；110 題逐題複核。\\n'
-              '- 閱讀進度相容性：新增獨立 book ID，不改既有教材章節、題目 ID、儲存鍵或錯題紀錄。\\n\\n'
-              '## 部署\\n\\n'
-              '- canonical workflow：`Deploy study library`\\n'
-              f'- workflow run：`{os.environ["GITHUB_RUN_ID"]}`\\n'
-              f'- source commit：`{os.environ["GITHUB_SHA"]}`\\n'
-              f'- 正式書庫書籍數：{book_count} 本。\\n'
-              '- GitHub Pages 部署成功並已寫回 deployment receipt。\\n'
-          )
-          Path('docs/books/intermediate-accounting/status.md').write_text(ia_status, encoding='utf-8')
+               '# 《中級會計學》製作狀態\\n\\n'
+               '更新日期：2026-07-29\\n\\n'
+               '## 版本\\n\\n'
+               '- Book ID：`intermediate-accounting`\\n'
+               '- 正式內容版本：`2026.07.29-1`\\n'
+               f'- 正式書庫版本：`{final_version}`\\n'
+               '- 狀態：已部署。\\n\\n'
+               '## 成品與 QA\\n\\n'
+               '- 正文 22 章、附錄 3 份、題庫 110 題、搜尋索引 145 筆、自製 SVG 22 張。\\n'
+               '- 第一輪 QA：135 項通過；獨立數值與公式重算 23 項通過。\\n'
+               '- 第二輪 QA：485 項通過；110 題逐題複核。\\n'
+               '- 閱讀進度相容性：新增獨立 book ID，不改既有教材章節、題目 ID、儲存鍵或錯題紀錄。\\n\\n'
+               '## 部署\\n\\n'
+               '- canonical workflow：`Deploy study library`\\n'
+               f'- workflow run：`{os.environ["GITHUB_RUN_ID"]}`\\n'
+               f'- source commit：`{os.environ["GITHUB_SHA"]}`\\n'
+               f'- 正式書庫書籍數：{book_count} 本。\\n'
+               '- GitHub Pages 部署成功並已寫回 deployment receipt。\\n'
+           )
+           Path('docs/books/intermediate-accounting/status.md').write_text(ia_status, encoding='utf-8')
 
 """
 status_marker = "          cp = Path('docs/shared_checkpoint.md')\n"
@@ -75,20 +75,20 @@ if "ia_status = (" not in text:
     text = text.replace(status_marker, ia_status + status_marker, 1)
 
 checkpoint = """          if '### 中級會計學' not in c:
-              section = (
-                  '### 中級會計學\\n\\n'
-                  '- Book ID：`intermediate-accounting`\\n'
-                  '- 正式內容版本：`2026.07.29-1`\\n'
-                  '- 定位：一般大學中級會計學，銜接基礎會計，核心聚焦 IFRS／TIFRS 的認列、衡量、現值、金融工具、收入、租賃、所得稅、EPS 與現金流量。\\n'
-                  '- 成品：22 章、3 附錄、110 題題庫、145 筆搜尋索引、22 張自製圖解。\\n'
-                  '- QA：第一輪 135 項、數值與公式獨立重算 23 項、第二輪 485 項，全數通過。\\n'
-                  '- 範圍文件：`docs/books/intermediate-accounting/scope.md`\\n'
-                  '- QA 報告：`docs/books/intermediate-accounting/qa_report.md`\\n'
-                  f'- GitHub Pages 部署 run：`{os.environ["GITHUB_RUN_ID"]}`。\\n'
-                  f'- Source commit：`{os.environ["GITHUB_SHA"]}`。\\n'
-                  '- 狀態：已部署。\\n\\n'
-              )
-              c = c.replace('## 部署流程\\n', section + '## 部署流程\\n', 1)
+               section = (
+                   '### 中級會計學\\n\\n'
+                   '- Book ID：`intermediate-accounting`\\n'
+                   '- 正式內容版本：`2026.07.29-1`\\n'
+                   '- 定位：一般大學中級會計學，銜接基礎會計，核心聚焦 IFRS／TIFRS 的認列、衡量、現值、金融工具、收入、租賃、所得稅、EPS 與現金流量。\\n'
+                   '- 成品：22 章、3 附錄、110 題題庫、145 筆搜尋索引、22 張自製圖解。\\n'
+                   '- QA：第一輪 135 項、數值與公式獨立重算 23 項、第二輪 485 項，全數通過。\\n'
+                   '- 範圍文件：`docs/books/intermediate-accounting/scope.md`\\n'
+                   '- QA 報告：`docs/books/intermediate-accounting/qa_report.md`\\n'
+                   f'- GitHub Pages 部署 run：`{os.environ["GITHUB_RUN_ID"]}`。\\n'
+                   f'- Source commit：`{os.environ["GITHUB_SHA"]}`。\\n'
+                   '- 狀態：已部署。\\n\\n'
+               )
+               c = c.replace('## 部署流程\\n', section + '## 部署流程\\n', 1)
 """
 checkpoint_marker = "          c = c.replace('同一個 canonical `Deploy study library` 工作流先完成既有五本書驗證，再生成並獨立驗證 `cost-accounting`，最終部署六本書。',\n"
 if "if '### 中級會計學' not in c:" not in text:
