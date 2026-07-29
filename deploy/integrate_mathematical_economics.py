@@ -50,7 +50,10 @@ def main(site_root: str, expected_before: str) -> str:
     if n!=1: raise AssertionError('service worker version marker missing')
     swp.write_text(sw,encoding='utf-8')
 
-    qa_book(str(site),target)
+    buf=io.StringIO()
+    with contextlib.redirect_stdout(buf): qa_book(str(site),target)
+    if buf.getvalue(): print(buf.getvalue(),end='',file=sys.stderr)
+
     after_hashes=book_hashes(site,ids)
     changed=[bid for bid in ids if before_hashes[bid]!=after_hashes[bid]]
     if changed: raise AssertionError(f'existing book hashes changed: {changed}')
