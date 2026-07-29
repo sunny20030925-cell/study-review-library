@@ -1,0 +1,93 @@
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	﻿2026-07-29T20:58:05.1557684Z ##[group]Run set -euo pipefail
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1558046Z ^[[36;1mset -euo pipefail^[[0m
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1558292Z ^[[36;1mpython -m py_compile \^[[0m
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1558590Z ^[[36;1m  deploy/patch_computer_fundamentals_v2.py \^[[0m
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1558975Z ^[[36;1m  deploy/finalize_computer_fundamentals_v2_library.py \^[[0m
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1559348Z ^[[36;1m  deploy/qa_computer_fundamentals_v2.py \^[[0m
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1559678Z ^[[36;1m  deploy/apply_computer_fundamentals_v2.py \^[[0m
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1560038Z ^[[36;1m  deploy/record_computer_fundamentals_v2_deployment.py^[[0m
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1560378Z ^[[36;1m^[[0m
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1560574Z ^[[36;1mpython - <<'PY'^[[0m
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1560799Z ^[[36;1mimport json^[[0m
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1561058Z ^[[36;1md=json.load(open('_site/data/library.json'))^[[0m
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1561511Z ^[[36;1mjson.dump([b['id'] for b in d['books']],open('/tmp/pre-computer-v2-ids.json','w'))^[[0m
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1561976Z ^[[36;1mprint('COMPUTER_V2_BASE',d['version'],len(d['books']))^[[0m
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1562324Z ^[[36;1mPY^[[0m
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1562875Z ^[[36;1mfind _site/books -type f ! -path '*/computer-fundamentals/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-computer-v2-other-books.sha256^[[0m
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1563453Z ^[[36;1m^[[0m
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1563836Z ^[[36;1mBEFORE="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"^[[0m
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1564563Z ^[[36;1mFINAL_LIBRARY_VERSION="$(PYTHONPATH=deploy python deploy/apply_computer_fundamentals_v2.py _site "$BEFORE")"^[[0m
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1565659Z ^[[36;1mQA_LINE="$(PYTHONPATH=deploy python deploy/qa_computer_fundamentals_v2.py _site "$FINAL_LIBRARY_VERSION" | tee /tmp/computer-v2-qa.log | tail -n 1)"^[[0m
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1566517Z ^[[36;1mecho "$QA_LINE"^[[0m
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1566925Z ^[[36;1mCOMPUTER_V2_QA_CHECKS="$(printf '%s\n' "$QA_LINE" | grep -oE 'checks=[0-9]+' | cut -d= -f2)"^[[0m
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1567569Z ^[[36;1mCOMPUTER_V2_NUMERIC_RECHECKS="$(printf '%s\n' "$QA_LINE" | grep -oE 'numeric_rechecks=[0-9]+' | cut -d= -f2)"^[[0m
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1568067Z ^[[36;1mtest "$COMPUTER_V2_QA_CHECKS" = "128"^[[0m
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1568386Z ^[[36;1mtest "$COMPUTER_V2_NUMERIC_RECHECKS" = "36"^[[0m
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1568672Z ^[[36;1m^[[0m
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1569217Z ^[[36;1mfind _site/books -type f ! -path '*/computer-fundamentals/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-computer-v2-other-books.sha256^[[0m
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1570004Z ^[[36;1mdiff -u /tmp/pre-computer-v2-other-books.sha256 /tmp/post-computer-v2-other-books.sha256^[[0m
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1570449Z ^[[36;1m^[[0m
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1570782Z ^[[36;1mexport FINAL_LIBRARY_VERSION COMPUTER_V2_QA_CHECKS COMPUTER_V2_NUMERIC_RECHECKS^[[0m
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1571309Z ^[[36;1mecho "FINAL_LIBRARY_VERSION=$FINAL_LIBRARY_VERSION" >> "$GITHUB_ENV"^[[0m
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1571816Z ^[[36;1mecho "COMPUTER_V2_QA_CHECKS=$COMPUTER_V2_QA_CHECKS" >> "$GITHUB_ENV"^[[0m
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1572317Z ^[[36;1mecho "COMPUTER_V2_NUMERIC_RECHECKS=$COMPUTER_V2_NUMERIC_RECHECKS" >> "$GITHUB_ENV"^[[0m
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1572737Z ^[[36;1mpython - <<'PY'^[[0m
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1572968Z ^[[36;1mimport json,os^[[0m
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1573207Z ^[[36;1mfrom pathlib import Path^[[0m
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1573469Z ^[[36;1msite=Path('_site')^[[0m
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1573752Z ^[[36;1mlib=json.load(open(site/'data/library.json'))^[[0m
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1574072Z ^[[36;1mids=[b['id'] for b in lib['books']]^[[0m
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1574424Z ^[[36;1mpre=json.load(open('/tmp/pre-computer-v2-ids.json'))^[[0m
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1574770Z ^[[36;1massert ids==pre, (pre,ids)^[[0m
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1575130Z ^[[36;1massert lib['version']==os.environ['FINAL_LIBRARY_VERSION']^[[0m
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1575548Z ^[[36;1massert ids.count('computer-fundamentals')==1^[[0m
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1575900Z ^[[36;1mroot=site/'books/computer-fundamentals'^[[0m
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1576729Z ^[[36;1mm=json.load(open(root/'manifest.json')); q=json.load(open(root/'questions.json')); s=json.load(open(root/'search.json'))^[[0m
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1577502Z ^[[36;1massert m['version']==q['version']=='2026.07.30-2'^[[0m
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1577914Z ^[[36;1massert len(m['chapters'])==23 and q['count']==100 and len(s['entries'])==150^[[0m
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1578329Z ^[[36;1massert len({x['id'] for x in q['items']})==100^[[0m
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1578757Z ^[[36;1massert len(list((site/'assets/computer-fundamentals-svg').glob('*.svg')))==20^[[0m
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1579384Z ^[[36;1massert '章節 ID、題目 ID、Book ID、題數與進度儲存鍵均未變' in m['releaseNotes'][0]['progressImpact']^[[0m
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1580000Z ^[[36;1mprint('COMPUTER_FUNDAMENTALS_V2_IN_PLACE_OK',lib['version'],len(ids))^[[0m
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1580379Z ^[[36;1mPY^[[0m
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1580594Z ^[[36;1mnode --check _site/app.js^[[0m
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1580858Z ^[[36;1mnode --check _site/sw.js^[[0m
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1628097Z shell: /usr/bin/bash -e {0}
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1628364Z env:
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1628574Z   GITHUB_PAGES: true
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1628820Z   FORMAL_BASE_SOURCE: deployment-receipt
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1629133Z   FORMAL_BASE_ARTIFACT_ID: 8739459664
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1629569Z   FORMAL_BASE_DIGEST: sha256:ab39fa993f97b2b5fe130ab31e51289023a1c5d13fc9d150eaf5b088c506ab2d
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1630017Z   ADVSTAT_REAUDIT_CHECKS: 1059
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1630259Z   ADVSTAT_NUMERIC_RECHECKS: 20
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1630499Z   ADVSTAT_LIBRARY_VERSION: 2026.07.30-7
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1630767Z   ECONOMETRICS_REAUDIT_CHECKS: 57
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1631017Z   ECON_LIBRARY_VERSION: 2026.07.30-7
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1631270Z   INDUSTRIAL_V2_QA1_CHECKS: 186
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1631666Z   INDUSTRIAL_V2_QA2_CHECKS: 481
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1631909Z   INDUSTRIAL_LIBRARY_VERSION: 2026.07.30-7
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1632186Z   GAME_THEORY_V2_ARTIFACT_CHECKS: 504
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1632449Z   GAME_THEORY_V2_SOURCE_CHECKS: 375
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1632711Z   GAME_THEORY_LIBRARY_VERSION: 2026.07.30-7
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1632994Z   INVESTMENTS_REAUDIT_CHECKS: 730
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1633258Z   INVESTMENTS_NUMERIC_RECHECKS: 45
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1633527Z   INVESTMENTS_LIBRARY_VERSION: 2026.07.30-7
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1633805Z   FINAL_LIBRARY_VERSION: 2026.07.30-7
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1634065Z   INDUSTRY_TRADE_QA1_CHECKS: 1495
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1634309Z   INDUSTRY_TRADE_QA2_CHECKS: 545
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.1634546Z ##[endgroup]
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.2302586Z COMPUTER_V2_BASE 2026.07.30-7 20
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.3712557Z {"book": "computer-fundamentals", "source_version": "2026.07.29-1", "target_version": "2026.07.30-2", "chapters": 20, "appendices": 3, "questions": 100, "search": 150, "correction_areas": 15, "question_adjustments": 12}
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.3719651Z 2026.07.30-8
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.4216241Z Traceback (most recent call last):
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.4217593Z   File "/home/runner/work/study-review-library/study-review-library/deploy/apply_computer_fundamentals_v2.py", line 87, in <module>
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.4218639Z     print(apply(sys.argv[1],sys.argv[2]))
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.4219119Z           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.4220020Z   File "/home/runner/work/study-review-library/study-review-library/deploy/apply_computer_fundamentals_v2.py", line 65, in apply
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.4220954Z     qa_v2(site_root,target_library)
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.4221771Z   File "/home/runner/work/study-review-library/study-review-library/deploy/qa_computer_fundamentals_v2.py", line 149, in main
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.4223064Z     ck('HTTP/3 使用 QUIC' in q['ch10-q04']['answer'],'HTTP/3 transport')
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.4224052Z   File "/home/runner/work/study-review-library/study-review-library/deploy/qa_computer_fundamentals_v2.py", line 19, in ck
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.4224937Z     raise AssertionError(msg)
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.4225310Z AssertionError: HTTP/3 transport
+deploy	Apply or validate computer fundamentals post-publication v2 reaudit	2026-07-29T20:58:05.4378300Z ##[error]Process completed with exit code 1.
