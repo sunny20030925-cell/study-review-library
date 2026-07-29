@@ -153,7 +153,7 @@ def main(arg):
     ck('一般賽局不保證' in full, 'Shapley/core caveat')
     ck('NT$' in full, 'TWD examples')
     ck('SPNE ⇒ NE' in full, 'SPNE implication')
-    ck('策略是「型態 → 行動」' in full or '型態到行動' in full, 'Bayesian strategy mapping')
+    ck('型態映到行動' in full or '型態到行動' in full, 'Bayesian strategy mapping')
 
     figures = sorted((site / 'assets/game-theory-svg').glob('*.svg'))
     ck(len(figures) == 20, 'figure count')
