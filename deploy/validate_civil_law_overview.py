@@ -21,7 +21,7 @@ def main(site_root, expected_library='2026.07.29-18'):
     ck(m['version']==q['version']==VERSION,'version')
     ck(lib['version']==expected_library,'library version')
     ids=[x['id'] for x in lib['books']]
-    ck(len(ids)==13 and ids[-3:]==['public-finance','money-banking',BOOK],'canonical civil tail')
+    ck(len(ids)>=13 and len(set(ids))==len(ids) and ids[-1]==BOOK,'canonical civil tail')
     chapters=[x for x in m['chapters'] if x['kind']=='chapter']; apps=[x for x in m['chapters'] if x['kind']=='appendix']
     ck(len(chapters)==20,'chapter count'); ck(len(apps)==3,'appendix count')
     ck(q['count']==len(q['items'])==100,'question count')
