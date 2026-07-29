@@ -473,13 +473,22 @@ jobs:
           import json
           d=json.load(open('_site/data/library.json'))
           ids=[b['id'] for b in d['books']]
-          assert 'mathematical-economics' not in ids, ids
+          assert ids.count('mathematical-economics') in {0,1}, ids
           json.dump(ids,open('/tmp/pre-math-v2-ids.json','w'))
-          print('MATHEMATICAL_ECONOMICS_V2_BASE',d['version'],len(ids),ids[-1])
+          print('MATHEMATICAL_ECONOMICS_V2_BASE',d['version'],len(ids),ids[-1], 'already_present=' + str('mathematical-economics' in ids).lower())
           PY
 
           BEFORE="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"
-          FINAL_LIBRARY_VERSION="$(PYTHONPATH=deploy python deploy/integrate_mathematical_economics_v2.py _site "$BEFORE")"
+          if python - <<'PY'
+          import json,sys
+          ids=[b['id'] for b in json.load(open('_site/data/library.json'))['books']]
+          sys.exit(0 if 'mathematical-economics' in ids else 1)
+          PY
+          then
+            FINAL_LIBRARY_VERSION="$BEFORE"
+          else
+            FINAL_LIBRARY_VERSION="$(PYTHONPATH=deploy python deploy/integrate_mathematical_economics_v2.py _site "$BEFORE")"
+          fi
           test -n "$FINAL_LIBRARY_VERSION"
           QA_LINE="$(PYTHONPATH=deploy python deploy/qa_mathematical_economics_v2.py _site "$FINAL_LIBRARY_VERSION" | tail -n 1)"
           echo "$QA_LINE"
@@ -503,7 +512,11 @@ jobs:
           lib=json.load(open(site/'data/library.json'))
           ids=[b['id'] for b in lib['books']]
           pre=json.load(open('/tmp/pre-math-v2-ids.json'))
-          assert ids==pre+['mathematical-economics'], (pre,ids)
+          if 'mathematical-economics' in pre:
+              assert ids==pre, (pre,ids)
+          else:
+              assert ids==pre+['mathematical-economics'], (pre,ids)
+          assert ids.count('mathematical-economics')==1
           assert lib['version']==os.environ['FINAL_LIBRARY_VERSION']
           root=site/'books/mathematical-economics'
           m=json.load(open(root/'manifest.json')); q=json.load(open(root/'questions.json')); s=json.load(open(root/'search.json'))
