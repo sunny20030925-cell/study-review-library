@@ -1,0 +1,120 @@
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1775600Z ^[[36;1massert ids.count('industrial-economics')==1 and ids.index('industrial-economics') < ids.index('industry-trade')^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1776163Z ^[[36;1massert ids.count('econometrics')==1 and ids.index('econometrics') < ids.index('industrial-economics')^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1776568Z ^[[36;1massert ids.count('advanced-statistics')==1^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1776833Z ^[[36;1massert ids.count('game-theory')==1^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1777271Z ^[[36;1massert ids.count('investments')==1 and ids.index('civil-law-overview') < ids.index('investments') < ids.index('econometrics')^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1777737Z ^[[36;1massert ids.count('computer-fundamentals')==1^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1778017Z ^[[36;1madvanced=site/'books/advanced-statistics'^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1778698Z ^[[36;1mam=json.load(open(advanced/'manifest.json')); aq=json.load(open(advanced/'questions.json')); ass=json.load(open(advanced/'search.json'))^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1779204Z ^[[36;1massert am['version']==aq['version']=='2026.07.30-1'^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1779557Z ^[[36;1massert len(am['chapters'])==23 and aq['count']==100 and len(ass['entries'])==189^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1779970Z ^[[36;1massert len(list((site/'assets/advanced-statistics-svg').glob('*.svg')))==20^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1780314Z ^[[36;1minvestments=site/'books/investments'^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1780806Z ^[[36;1mvm=json.load(open(investments/'manifest.json')); vq=json.load(open(investments/'questions.json')); vs=json.load(open(investments/'search.json'))^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1781507Z ^[[36;1massert vm['version']==vq['version']=='2026.07.30-1'^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1781877Z ^[[36;1massert len(vm['chapters'])==25 and vq['count']==110 and len(vs['entries'])==165^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1782274Z ^[[36;1massert len(list((site/'assets/investments-svg').glob('*.svg')))==22^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1782726Z ^[[36;1massert [x['id'] for x in vq['items']]==[f'ch{i:02d}-q{j:02d}' for i in range(22) for j in range(1,6)]^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1783099Z ^[[36;1mecon=site/'books/econometrics'^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1783532Z ^[[36;1mem=json.load(open(econ/'manifest.json')); eq=json.load(open(econ/'questions.json')); es=json.load(open(econ/'search.json'))^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1783987Z ^[[36;1massert em['version']==eq['version']=='2026.07.30-1'^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1784335Z ^[[36;1massert len(em['chapters'])==23 and eq['count']==100 and len(es['entries'])==189^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1784715Z ^[[36;1massert len(list((site/'assets/econometrics-svg').glob('*.svg')))==20^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1785058Z ^[[36;1mindustrial=site/'books/industrial-economics'^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1785569Z ^[[36;1mim=json.load(open(industrial/'manifest.json')); iq=json.load(open(industrial/'questions.json')); isearch=json.load(open(industrial/'search.json'))^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1786080Z ^[[36;1massert im['version']==iq['version']=='2026.07.30-2'^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1786427Z ^[[36;1massert len(im['chapters'])==23 and iq['count']==100 and len(isearch['entries'])==150^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1786852Z ^[[36;1massert len(list((site/'assets/industrial-economics-svg').glob('*.svg')))==20^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1787319Z ^[[36;1massert [x['id'] for x in im['chapters']]==[f'ch{i:02d}' for i in range(20)]+['appendix-a','appendix-b','appendix-c']^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1787791Z ^[[36;1massert [x['id'] for x in iq['items']]==[f'ch{i:02d}-q{j:02d}' for i in range(20) for j in range(1,6)]^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1788135Z ^[[36;1mgame=site/'books/game-theory'^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1788841Z ^[[36;1mgm=json.load(open(game/'manifest.json')); gq=json.load(open(game/'questions.json')); gs=json.load(open(game/'search.json'))^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1789316Z ^[[36;1massert gm['version']==gq['version']=='2026.07.30-2'^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1789658Z ^[[36;1massert len(gm['chapters'])==23 and gq['count']==100 and len(gs['entries'])==189^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1790057Z ^[[36;1massert len(list((site/'assets/game-theory-svg').glob('*.svg')))==20^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1790501Z ^[[36;1mtrade=site/'books/industry-trade'^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1790811Z ^[[36;1massert len(json.load(open(trade/'manifest.json'))['chapters'])==23^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1791167Z ^[[36;1massert json.load(open(trade/'questions.json'))['count']==100^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1791553Z ^[[36;1massert len(json.load(open(trade/'search.json'))['entries'])==160^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1791927Z ^[[36;1massert len(list((site/'assets/industry-trade-svg').glob('*.svg')))==20^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1792251Z ^[[36;1mcomp=site/'books/computer-fundamentals'^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1792695Z ^[[36;1mcm=json.load(open(comp/'manifest.json')); cq=json.load(open(comp/'questions.json')); cs=json.load(open(comp/'search.json'))^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1793155Z ^[[36;1massert cm['version']==cq['version']=='2026.07.30-2'^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1793497Z ^[[36;1massert len(cm['chapters'])==23 and cq['count']==100 and len(cs['entries'])==150^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1793839Z ^[[36;1massert len({x['id'] for x in cq['items']})==100^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1794185Z ^[[36;1massert len(list((site/'assets/computer-fundamentals-svg').glob('*.svg')))==20^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1794548Z ^[[36;1mmathroot=site/'books/mathematical-economics'^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1795021Z ^[[36;1mmm=json.load(open(mathroot/'manifest.json')); mq=json.load(open(mathroot/'questions.json')); ms=json.load(open(mathroot/'search.json'))^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1795501Z ^[[36;1massert mm['version']==mq['version']=='2026.07.30-2'^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1795829Z ^[[36;1massert len(mm['chapters'])==23 and mq['count']==100 and len(ms['entries'])==150^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1796474Z ^[[36;1massert [x['id'] for x in mm['chapters']]==[f'ch{i:02d}' for i in range(20)]+['appendix-a','appendix-b','appendix-c']^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1796959Z ^[[36;1massert [x['id'] for x in mq['items']]==[f'ch{i:02d}-q{j:02d}' for i in range(20) for j in range(1,6)]^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1797407Z ^[[36;1massert len(list((site/'assets/mathematical-economics-svg').glob('*.svg')))==20^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1798654Z ^[[36;1mprint('DEPLOYED_ARTIFACT_RECHECK_OK',lib['version'],len(ids),'mathematical-economics=2026.07.30-2')^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1799105Z ^[[36;1mPY^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1799540Z ^[[36;1mPYTHONPATH=deploy python deploy/qa_advanced_statistics_reaudit_v2.py /tmp/deployed-site "$FINAL_LIBRARY_VERSION"^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1800150Z ^[[36;1mPYTHONPATH=deploy python deploy/qa_investments_reaudit_v2.py /tmp/deployed-site "$FINAL_LIBRARY_VERSION"^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1800663Z ^[[36;1mPYTHONPATH=deploy python deploy/validate_econometrics_v2.py /tmp/deployed-site^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1801184Z ^[[36;1mPYTHONPATH=deploy python deploy/qa_econometrics_reaudit_v2.py /tmp/deployed-site "$FINAL_LIBRARY_VERSION"^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1801769Z ^[[36;1mPYTHONPATH=deploy python deploy/validate_industrial_economics_v2.py /tmp/deployed-site "$FINAL_LIBRARY_VERSION"^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1802354Z ^[[36;1mPYTHONPATH=deploy python deploy/qa_industrial_economics_v2.py /tmp/deployed-site "$FINAL_LIBRARY_VERSION"^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1802948Z ^[[36;1mPYTHONPATH=deploy python deploy/qa_game_theory_v2.py /tmp/deployed-site "$FINAL_LIBRARY_VERSION"^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1803392Z ^[[36;1mPYTHONPATH=deploy python deploy/qa_game_theory_second_pass.py^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1803917Z ^[[36;1mEXPECTED_LIBRARY_VERSION="$FINAL_LIBRARY_VERSION" PYTHONPATH=deploy python deploy/validate_industry_trade.py /tmp/deployed-site^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1804502Z ^[[36;1mPYTHONPATH=deploy python deploy/qa_industry_trade_independent.py /tmp/deployed-site^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1805028Z ^[[36;1mPYTHONPATH=deploy python deploy/qa_computer_fundamentals_v2.py /tmp/deployed-site "$FINAL_LIBRARY_VERSION"^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1805593Z ^[[36;1mPYTHONPATH=deploy python deploy/qa_mathematical_economics_v2.py /tmp/deployed-site "$FINAL_LIBRARY_VERSION"^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1806040Z ^[[36;1mecho "PAGES_ARTIFACT_ID=$ARTIFACT_ID" >> "$GITHUB_ENV"^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1806361Z ^[[36;1mecho "PAGES_ARTIFACT_DIGEST=$DIGEST" >> "$GITHUB_ENV"^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1806791Z ^[[36;1mecho "PAGES_ARTIFACT_SHA256=$SHA" >> "$GITHUB_ENV"^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1807111Z ^[[36;1mecho "DEPLOYED_PAGE_URL=$DEPLOYED_PAGE_URL" >> "$GITHUB_ENV"^[[0m
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1845420Z shell: /usr/bin/bash -e {0}
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1845636Z env:
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1845807Z   GITHUB_PAGES: true
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1846009Z   FORMAL_BASE_SOURCE: deployment-receipt
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1846252Z   FORMAL_BASE_ARTIFACT_ID: 8740844265
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1846603Z   FORMAL_BASE_DIGEST: sha256:a0d6b573084f870eb4fbd6416d46585ecca5b980f5e35534f2ab676e0c847cf7
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1846988Z   ADVSTAT_REAUDIT_CHECKS: 1059
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1847191Z   ADVSTAT_NUMERIC_RECHECKS: 20
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1847401Z   ADVSTAT_LIBRARY_VERSION: 2026.07.30-8
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1847629Z   ECONOMETRICS_REAUDIT_CHECKS: 57
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1847838Z   ECON_LIBRARY_VERSION: 2026.07.30-8
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1848062Z   INDUSTRIAL_V2_QA1_CHECKS: 186
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1848259Z   INDUSTRIAL_V2_QA2_CHECKS: 481
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1848714Z   INDUSTRIAL_LIBRARY_VERSION: 2026.07.30-8
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1848952Z   GAME_THEORY_V2_ARTIFACT_CHECKS: 504
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1849166Z   GAME_THEORY_V2_SOURCE_CHECKS: 375
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1849393Z   GAME_THEORY_LIBRARY_VERSION: 2026.07.30-8
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1849623Z   INVESTMENTS_REAUDIT_CHECKS: 730
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1849846Z   INVESTMENTS_NUMERIC_RECHECKS: 45
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1850063Z   INVESTMENTS_LIBRARY_VERSION: 2026.07.30-8
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1850288Z   FINAL_LIBRARY_VERSION: 2026.07.30-9
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1850641Z   INDUSTRY_TRADE_QA1_CHECKS: 1495
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1850850Z   INDUSTRY_TRADE_QA2_CHECKS: 545
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1851047Z   COMPUTER_V2_QA_CHECKS: 128
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1851247Z   COMPUTER_V2_NUMERIC_RECHECKS: 36
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1851470Z   MATHEMATICAL_ECONOMICS_V2_QA_CHECKS: 855
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1851712Z   MATHEMATICAL_ECONOMICS_V2_NUMERIC_RECHECKS: 23
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1851963Z   MATHEMATICAL_ECONOMICS_V2_LOGIC_GATES: 10
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1854164Z   GH_TOKEN: ***
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1854491Z   DEPLOYED_PAGE_URL: https://sunny20030925-cell.github.io/study-review-library/
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:00.1854817Z ##[endgroup]
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:01.2957252Z DEPLOYED_ARTIFACT_RECHECK_OK 2026.07.30-9 21 mathematical-economics=2026.07.30-2
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:01.3220373Z ADVANCED_STATISTICS_V2_QA_OK checks=1059 numerical_rechecks=20 books=21 library=2026.07.30-9 corrections=10 question_adjustments=7 chapters=20 appendices=3 questions=100 search=189
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:01.3517598Z INVESTMENTS_REAUDIT_V2_OK checks=730 chapters=22 appendices=3 questions=110 search=165 figures=22 quantitative_rechecks=45 correction_areas=7 question_explanations_adjusted=6 ids_preserved=true
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:01.3802225Z ECONOMETRICS_QA_V2_OK checks=675 chapters=20 questions=100 search=189 high_risk_answer_gates=32
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:01.4079340Z ECONOMETRICS_REAUDIT_V2_OK checks=57 chapters=20 appendices=3 questions=100 search=189 figures=20 corrections=2 ids_preserved=true
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:01.4355181Z INDUSTRIAL_ECONOMICS_V2_QA1_OK checks=186 books=21 library=2026.07.30-9 chapters=20 appendices=3 questions=100 search=150 figures=20 correction_areas=12
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:01.4628677Z INDUSTRIAL_ECONOMICS_V2_QA2_OK checks=481 books=21 quantitative_rechecks=26 questions_rechecked=100 high_risk_concepts=16 correction_areas=12
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:01.4892373Z GAME_THEORY_V2_AUDIT_OK checks=504 quantitative_rechecks=21 conceptual_rechecks=19 chapters=20 questions=100 search=189 figures=20
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:01.5065289Z GAME_THEORY_SECOND_PASS_OK checks=375 chapters=20 questions=100 quantitative_rechecks=24 concept_rechecks=23
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:01.6003529Z Traceback (most recent call last):
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:01.6004313Z   File "/home/runner/work/study-review-library/study-review-library/deploy/validate_industry_trade.py", line 65, in <module>
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:01.6004970Z     main(sys.argv[1])
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:01.6005367Z   File "/home/runner/work/study-review-library/study-review-library/deploy/validate_industry_trade.py", line 23, in main
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:01.6006155Z     ck(ids.count(BOOK)==1 and ids[-1]==BOOK,'candidate appended once at tail')
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:01.6009267Z   File "/home/runner/work/study-review-library/study-review-library/deploy/validate_industry_trade.py", line 11, in ck
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:01.6009724Z     if not c: raise AssertionError(msg)
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:01.6009941Z               ^^^^^^^^^^^^^^^^^^^^^^^^^
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:01.6010180Z AssertionError: candidate appended once at tail
+deploy	Re-download and verify deployed artifact	2026-07-29T22:02:01.6142616Z ##[error]Process completed with exit code 1.
