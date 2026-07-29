@@ -61,7 +61,7 @@ HHI、Lerner 指標、Cournot 最佳回應、CES markup、平均成本與規模�
 - 100 題逐題複核、20 題數值題獨立重算、12 個高風險章節重新判讀。
 - 既有 19 本內容 hash：整合前後完全一致。
 - 正式書庫：20 本，版本 `2026.07.30-6`。
-- Pages run：`30490197263`。
-- Pages artifact：`8739358772`；digest `sha256:6936173acc641daef1c2e369a09407f2ee4533499735b78f5cbb280a147440ce`。
+- Pages run：`30490416762`。
+- Pages artifact：`8739445998`；digest `sha256:20484896b21c43b9df209033ba0b93d5e0e20927a1647b9e5e3e6581894147b5`。
 - 部署後 artifact 重抓：23 份本書 HTML、100 題、160 搜尋、20 SVG 全數核對通過。
 - post-deploy recorder：`passed-structured-recorder`。

@@ -22,10 +22,10 @@
 ## 部署
 
 - canonical workflow：`Deploy study library`
-- workflow run：`30490197263`
-- source commit：`92506854f20bc7caa8a77b2e9774f2be11fbb9be`
-- Pages artifact：`8739358772`
-- Artifact digest：`sha256:6936173acc641daef1c2e369a09407f2ee4533499735b78f5cbb280a147440ce`
+- workflow run：`30490416762`
+- source commit：`b35ca95c8204f678778312d998bd2fd2f98d167d`
+- Pages artifact：`8739445998`
+- Artifact digest：`sha256:20484896b21c43b9df209033ba0b93d5e0e20927a1647b9e5e3e6581894147b5`
 - Pages deployment、artifact 下載重驗與結構化 deployment receipt 均成功。
 
 ## 文件
