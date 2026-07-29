@@ -59,7 +59,12 @@ def integrate(site_root: str,expected_before: str) -> str:
     before_hashes=book_hashes(site,pre_ids)
     target=next_version(expected_before)
 
-    generate_fresh(str(site))
+    # finalize_macroeconomics_v2_library.py is executed inside shell command substitution.
+    # Keep all diagnostic output off stdout so that only the final library-version token
+    # is captured by the workflow variable.
+    buf=io.StringIO()
+    with contextlib.redirect_stdout(buf): generate_fresh(str(site))
+    emit_stderr(buf)
     post_gen=json.loads(lp.read_text(encoding='utf-8')); post_ids=[b['id'] for b in post_gen['books']]
     if post_ids!=pre_ids+[BOOK]: raise AssertionError(f'money fresh generator book order drift: {post_ids}')
 
@@ -101,7 +106,7 @@ def integrate(site_root: str,expected_before: str) -> str:
     final=json.loads(lp.read_text(encoding='utf-8'))
     if final['version']!=target or [b['id'] for b in final['books']]!=pre_ids+[BOOK]:
         raise AssertionError('money final library state drift')
-    print(f'MONEY_BANKING_FRESH_INTEGRATION_OK books=12 library={target} preserved_existing_books={len(pre_ids)}')
+    print(f'MONEY_BANKING_FRESH_INTEGRATION_OK books=12 library={target} preserved_existing_books={len(pre_ids)}',file=sys.stderr)
     return target
 
 if __name__=='__main__':
