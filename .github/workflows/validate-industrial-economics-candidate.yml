@@ -23,36 +23,101 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Download verified formal Pages base
+      - name: Select newest verified formal Pages base
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          ARTIFACT_ID="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['pages_artifact_id'])")"
-          DIGEST="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['pages_artifact_digest'])")"
-          gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" > /tmp/base.zip
-          echo "${DIGEST#sha256:}  /tmp/base.zip" | sha256sum --check -
-          mkdir -p /tmp/base _site
-          unzip -q /tmp/base.zip -d /tmp/base
-          if [ -f /tmp/base/artifact.tar ]; then
-            tar -xf /tmp/base/artifact.tar -C _site
-          elif [ -f /tmp/base/artifact.tar.gz ]; then
-            tar -xzf /tmp/base/artifact.tar.gz -C _site
-          else
-            cp -a /tmp/base/. _site/
-          fi
-          python - <<'PY'
-          import json
+
+          extract_artifact() {
+            ZIP="$1"; OUT="$2"; TMP="$3"
+            rm -rf "$OUT" "$TMP"
+            mkdir -p "$OUT" "$TMP"
+            unzip -q "$ZIP" -d "$TMP"
+            if [ -f "$TMP/artifact.tar" ]; then
+              tar -xf "$TMP/artifact.tar" -C "$OUT"
+            elif [ -f "$TMP/artifact.tar.gz" ]; then
+              tar -xzf "$TMP/artifact.tar.gz" -C "$OUT"
+            else
+              cp -a "$TMP/." "$OUT/"
+            fi
+          }
+
+          RECEIPT_ID="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['pages_artifact_id'])")"
+          RECEIPT_DIGEST="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['pages_artifact_digest'])")"
+          RECEIPT_VERSION="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['library_version'])")"
+          RECEIPT_COUNT="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['book_count'])")"
+          RECEIPT_RUN="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json')).get('workflow_run_id',''))")"
+
+          gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${RECEIPT_ID}/zip" > /tmp/receipt-base.zip
+          echo "${RECEIPT_DIGEST#sha256:}  /tmp/receipt-base.zip" | sha256sum --check -
+          extract_artifact /tmp/receipt-base.zip /tmp/receipt-site /tmp/receipt-unpack
+          RECEIPT_VERSION="$RECEIPT_VERSION" RECEIPT_COUNT="$RECEIPT_COUNT" python - <<'PY'
+          import json,os
           from pathlib import Path
-          receipt=json.load(open('docs/deployment_receipt.json'))
-          library=json.load(open('_site/data/library.json'))
-          ids=[b['id'] for b in library['books']]
-          assert library['version']==receipt['library_version']
-          assert len(ids)==receipt['book_count']
+          site=Path('/tmp/receipt-site')
+          lib=json.load(open(site/'data/library.json'))
+          assert lib['version']==os.environ['RECEIPT_VERSION']
+          assert len(lib['books'])==int(os.environ['RECEIPT_COUNT'])
+          assert (site/'app.js').is_file() and (site/'sw.js').is_file()
+          PY
+
+          SELECTED_SITE=/tmp/receipt-site
+          SELECTED_SOURCE=deployment-receipt
+          SELECTED_ARTIFACT_ID="$RECEIPT_ID"
+          SELECTED_DIGEST="$RECEIPT_DIGEST"
+          SELECTED_VERSION="$RECEIPT_VERSION"
+          SELECTED_COUNT="$RECEIPT_COUNT"
+
+          WF_NAME="$(python -c "import json;print(json.load(open('docs/study_library_workflow_receipt.json')).get('workflow',''))")"
+          WF_CONCLUSION="$(python -c "import json;print(json.load(open('docs/study_library_workflow_receipt.json')).get('conclusion',''))")"
+          WF_RUN="$(python -c "import json;print(json.load(open('docs/study_library_workflow_receipt.json')).get('workflow_run_id',''))")"
+          if [ "$WF_NAME" = "Deploy study library" ] && [ "$WF_CONCLUSION" = "success" ] && [ -n "$WF_RUN" ] && [ "$WF_RUN" != "$RECEIPT_RUN" ]; then
+            WF_ID="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${WF_RUN}/artifacts" --jq '.artifacts[] | select(.name == "github-pages") | .id' | tail -n 1)"
+            WF_DIGEST="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${WF_RUN}/artifacts" --jq '.artifacts[] | select(.name == "github-pages") | .digest' | tail -n 1)"
+            if [ -n "$WF_ID" ] && [ -n "$WF_DIGEST" ]; then
+              gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${WF_ID}/zip" > /tmp/workflow-base.zip
+              echo "${WF_DIGEST#sha256:}  /tmp/workflow-base.zip" | sha256sum --check -
+              extract_artifact /tmp/workflow-base.zip /tmp/workflow-site /tmp/workflow-unpack
+              WF_VERSION="$(python -c "import json;print(json.load(open('/tmp/workflow-site/data/library.json'))['version'])")"
+              WF_COUNT="$(python -c "import json;print(len(json.load(open('/tmp/workflow-site/data/library.json'))['books']))")"
+              if RECEIPT_VERSION="$RECEIPT_VERSION" WF_VERSION="$WF_VERSION" python - <<'PY'
+          import os,re,sys
+          def key(v):
+              m=re.fullmatch(r'(\d{4})\.(\d{2})\.(\d{2})-(\d+)',v)
+              if not m: raise SystemExit(2)
+              return tuple(map(int,m.groups()))
+          sys.exit(0 if key(os.environ['WF_VERSION']) > key(os.environ['RECEIPT_VERSION']) else 1)
+          PY
+              then
+                SELECTED_SITE=/tmp/workflow-site
+                SELECTED_SOURCE=successful-workflow-artifact
+                SELECTED_ARTIFACT_ID="$WF_ID"
+                SELECTED_DIGEST="$WF_DIGEST"
+                SELECTED_VERSION="$WF_VERSION"
+                SELECTED_COUNT="$WF_COUNT"
+              fi
+            fi
+          fi
+
+          rm -rf _site
+          mkdir _site
+          cp -a "$SELECTED_SITE/." _site/
+          SELECTED_VERSION="$SELECTED_VERSION" SELECTED_COUNT="$SELECTED_COUNT" python - <<'PY'
+          import json,os
+          from pathlib import Path
+          site=Path('_site')
+          lib=json.load(open(site/'data/library.json'))
+          ids=[b['id'] for b in lib['books']]
+          assert lib['version']==os.environ['SELECTED_VERSION']
+          assert len(ids)==int(os.environ['SELECTED_COUNT'])
           assert 'industrial-economics' not in ids
           Path('/tmp/base_ids.json').write_text(json.dumps(ids))
-          print('FORMAL_BASE_OK',library['version'],len(ids))
+          print('FORMAL_BASE_OK',lib['version'],len(ids))
           PY
+          echo "FORMAL_BASE_SOURCE=$SELECTED_SOURCE"
+          echo "FORMAL_BASE_ARTIFACT=$SELECTED_ARTIFACT_ID"
+          echo "FORMAL_BASE_DIGEST=$SELECTED_DIGEST"
 
       - name: Integrate and independently validate candidate
         run: |
