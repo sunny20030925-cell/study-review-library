@@ -20,6 +20,13 @@ def sub_once(text: str, pattern: str, replacement: str, label: str, *, flags: in
     return text
 
 
+def ensure_yaml_block_indent(block: str) -> str:
+    return "\n".join(
+        line if not line or line.startswith("          ") else f"          {line}"
+        for line in block.split("\n")
+    )
+
+
 def main(workflow_path: str) -> None:
     path = Path(workflow_path)
     text = path.read_text(encoding="utf-8")
@@ -91,6 +98,7 @@ def main(workflow_path: str) -> None:
 
           status = f'''# 《個體經濟學》狀態
 """
+    status_inject = ensure_yaml_block_indent(status_inject)
     text = replace_once(text, status_marker, status_inject, "write deployed cost accounting status")
 
     checkpoint_marker = """          cp.write_text(c, encoding='utf-8')
@@ -140,6 +148,7 @@ def main(workflow_path: str) -> None:
               raise AssertionError('cost accounting workline status not found')
           cp.write_text(c, encoding='utf-8')
 """
+    checkpoint_inject = ensure_yaml_block_indent(checkpoint_inject)
     text = replace_once(
         text,
         checkpoint_marker,
@@ -172,6 +181,7 @@ def main(workflow_path: str) -> None:
           r = '\\n'.join(r_lines) + ('\\n' if r.endswith('\\n') else '')
           r = re.sub(r'五本書均由同一個 canonical GitHub Pages 工作流部署。', '全部正式教材均由同一個 canonical GitHub Pages 工作流部署。', r)
 """
+    readme_inject = ensure_yaml_block_indent(readme_inject)
     text = replace_once(text, readme_marker, readme_inject, "deduplicate cost accounting README entry")
 
     git_add_pattern = r"(?m)^          git add (?P<paths>docs/deployment_receipt\.json README\.md docs/shared_checkpoint\.md[^\n]*)$"
