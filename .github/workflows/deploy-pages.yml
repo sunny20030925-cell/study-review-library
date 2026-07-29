@@ -138,8 +138,10 @@ jobs:
             BEFORE="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"
             FINAL_LIBRARY_VERSION="$(PYTHONPATH=deploy python deploy/integrate_industrial_economics.py _site "$BEFORE")"
           fi
-          QA1="$(PYTHONPATH=deploy python deploy/validate_industrial_economics.py _site "$FINAL_LIBRARY_VERSION" | tee /tmp/qa1.log | sed -n 's/.*checks=\([0-9][0-9]*\).*/\1/p')"
-          QA2="$(PYTHONPATH=deploy python deploy/qa_industrial_economics.py _site "$FINAL_LIBRARY_VERSION" | tee /tmp/qa2.log | sed -n 's/.*checks=\([0-9][0-9]*\).*/\1/p')"
+          QA1="$(PYTHONPATH=deploy python deploy/validate_industrial_economics.py _site "$FINAL_LIBRARY_VERSION" | tee /tmp/qa1.log | grep -oE '(^| )checks=[0-9]+' | head -n 1 | cut -d= -f2)"
+          QA2="$(PYTHONPATH=deploy python deploy/qa_industrial_economics.py _site "$FINAL_LIBRARY_VERSION" | tee /tmp/qa2.log | grep -oE '(^| )checks=[0-9]+' | head -n 1 | cut -d= -f2)"
+          test "$QA1" = "935"
+          test "$QA2" = "479"
           export FINAL_LIBRARY_VERSION
           echo "FINAL_LIBRARY_VERSION=$FINAL_LIBRARY_VERSION" >> "$GITHUB_ENV"
           echo "INDUSTRIAL_QA1_CHECKS=$QA1" >> "$GITHUB_ENV"
