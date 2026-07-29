@@ -43,6 +43,8 @@ def main(arg):
     ck(entry['id'] == BOOK, 'library entry id')
     ck(entry.get('title') == '財政學', 'library entry title')
     ck('公共支出' in entry.get('subtitle','') and '租稅' in entry.get('subtitle',''), 'library entry subtitle')
+    ck(entry.get('cover') == '財', 'library cover')
+    ck(entry.get('status') == 'available', 'library status')
 
     for existing_id in pre_ids:
         existing_root = site / 'books' / existing_id
@@ -59,22 +61,32 @@ def main(arg):
     search = json.loads((root / 'search.json').read_text(encoding='utf-8'))
     ck(manifest['id'] == BOOK, 'manifest id')
     ck(manifest['title'] == '財政學', 'manifest title')
+    ck(manifest['cover'] == '財', 'manifest cover')
+    ck(manifest.get('accent') == entry.get('accent'), 'manifest/library accent')
     ck(manifest['version'] == questions['version'] == VERSION, 'book version')
+    ck(questions.get('bookId') == BOOK, 'questions book id')
     chapters = [x for x in manifest['chapters'] if x['kind'] == 'chapter']
     appendices = [x for x in manifest['chapters'] if x['kind'] == 'appendix']
     ck(len(chapters) == 20, 'chapter count')
     ck([x['id'] for x in chapters] == [f'ch{i:02d}' for i in range(20)], 'chapter ids')
+    ck([x.get('number') for x in chapters] == [str(i) for i in range(20)], 'chapter display numbers')
     ck(len(appendices) == 3, 'appendix count')
+    ck([x.get('number') for x in appendices] == ['A','B','C'], 'appendix display numbers')
     ck(questions['count'] == 100 == len(questions['items']), 'question count')
     ck(Counter(q['chapterId'] for q in questions['items']) == {f'ch{i:02d}': 5 for i in range(20)}, 'five questions each chapter')
     ck(len({q['id'] for q in questions['items']}) == 100, 'unique question ids')
+    ck(Counter(q.get('difficulty') for q in questions['items']) == {'基礎':20,'標準':40,'綜合':20,'陷阱':20}, 'difficulty distribution')
     ck(len(search['entries']) == 189, f'search count {len(search["entries"])}')
 
     ids = {x['id'] for x in manifest['chapters']}
+    chapter_title_map = {x['id']: x['title'] for x in chapters}
     for q in questions['items']:
-        ck(q['chapterId'] in ids, f'question chapter {q["id"]}')
-        for field in ('id','question','answer','explanation'):
+        ck(q['chapterId'] in chapter_title_map, f'question chapter {q["id"]}')
+        for field in ('id','bookId','chapterId','chapterTitle','topic','difficulty','question','answer','explanation','source'):
             ck(bool(str(q.get(field,'')).strip()), f'question field {q["id"]} {field}')
+        ck(q['bookId'] == BOOK, f'question book id {q["id"]}')
+        ck(chapter_title_map[q['chapterId']] in q['chapterTitle'], f'question chapter title {q["id"]}')
+        ck(q['source'] == '本書自編標準題型', f'question source {q["id"]}')
 
     expected = {
         'ch00-q03':'NT$300 萬。', 'ch01-q03':'NT$200 萬。', 'ch02-q02':'NT$110。',
@@ -107,6 +119,7 @@ def main(arg):
         if ch['kind'] == 'chapter':
             for token in ['白話直覺','正式定義與核心概念','核心公式與成立條件','完整標準例題','常見錯誤','考試判斷方法','理解檢查']:
                 ck(token in text, f'{ch["id"]} missing {token}')
+            ck('loading="lazy"' in text and 'assets/public-finance-svg/' in text, f'figure markup {ch["id"]}')
 
     full = '\n'.join(text_all)
     for token in [
