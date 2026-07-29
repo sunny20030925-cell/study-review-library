@@ -5,8 +5,9 @@
 ## 版本
 
 - Book ID：`intermediate-accounting`
-- 初版內容版本：`2026.07.29-1`
-- 書庫版本：於整合當下依最新正式書庫版本順延，不硬編號覆蓋其他同步教材工作線。
+- 正式內容版本：`2026.07.29-1`
+- 目前正式書庫版本：`2026.07.29-10`
+- 狀態：已部署。
 
 ## 已完成內容
 
@@ -28,17 +29,27 @@
 - 既有教材內容目錄逐書 SHA-256 樹雜湊比對：未被新書產生器改動。
 - `app.js`、`styles.css`：與部署前正式成品位元組一致。
 - service worker 已加入新書 manifest、題庫、搜尋、25 份章節／附錄及 22 張 SVG 離線資產路徑，並通過 JavaScript 語法檢查。
-- 本地執行環境無法對自身 localhost 建立可連線的 HTTP 測試；此項不宣稱通過，改由正式 GitHub Pages workflow 的部署 gate 驗證。
+- 正式 GitHub Pages run `30416484924` 重新生成並獨立驗證：8 本書、22 章、3 附錄、110 題、145 筆搜尋、22 張圖解，驗證通過。
 
 ## 製作中修正
 
 - 首次生成時發現附錄 LaTeX 反斜線被 Python 字串解讀為控制字元；已改為 raw string，重新產生全書，再重跑兩輪 QA。
+- canonical 整合初次執行時發現產生器分片的固定 SHA-256 與實際解碼檔不一致；已依實際解碼檔修正門檻，並保留完整內容驗證，未跳過雜湊檢查。
 
 ## 相容性
 
 - 新增獨立 Book ID，不改動既有教材 chapter ID、question ID 或題數。
 - 既有閱讀進度與錯題紀錄儲存格式不變。
 - 不建立平行 Pages 工作流；直接整合既有 canonical `Deploy study library`。
+- 部署回條確認 `progress_storage_changed=false`。
+
+## 正式部署
+
+- 首次成功部署 source commit：`0afb91e82a1a9e0f529f7353ab64ca0a9b2255bb`。
+- 首次成功部署 run：`30416484924`。
+- 最新重新驗證部署 source commit：`914331452581fb7b8441dc46bfa4d3019a34c412`。
+- 最新重新驗證部署 run：`30416637787`。
+- 固定入口：`https://sunny20030925-cell.github.io/study-review-library/`。
 
 ## 目前狀態
 
@@ -47,5 +58,5 @@
 - 題庫：完成。
 - 圖解與搜尋：完成。
 - 兩輪 QA：完成。
-- GitHub 整合：待本次提交。
-- 正式 Pages 部署：待 canonical workflow 成功後才能標記完成。
+- GitHub 整合：完成。
+- 正式 Pages 部署：完成。
