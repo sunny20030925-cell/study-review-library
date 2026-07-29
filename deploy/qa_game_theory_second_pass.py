@@ -177,6 +177,7 @@ def main():
         [c['problem'] for c in CHAPTERS]
         + [x for c in CHAPTERS for x in c['intuition']]
         + [d for c in CHAPTERS for _,d in c['definitions']]
+        + [x for c in CHAPTERS for x in c['example']]
         + [x for c in CHAPTERS for x in c['traps']]
         + [x for c in CHAPTERS for x in c['exam']]
         + [n for c in CHAPTERS for _,n in c['formulas']]
