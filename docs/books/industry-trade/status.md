@@ -6,7 +6,7 @@
 
 - Book ID：`industry-trade`
 - 正式內容版本：`2026.07.29-1`
-- 正式書庫版本：`2026.07.30-4`
+- 正式書庫版本：`2026.07.30-5`
 - 狀態：已部署。
 
 ## 成品與 QA
@@ -20,9 +20,9 @@
 ## 部署
 
 - canonical workflow：`Deploy study library`
-- workflow run：`30489368806`
-- source commit：`854b646097e71d383ff848dad7c0a1c1cdc854fa`
-- Pages artifact：`8739025051`
-- Artifact digest：`sha256:a5d6907a2c230e9767822c53c7a9ed16254e37f2fa4458ac9bea05d778f6c18c`
+- workflow run：`30489962137`
+- source commit：`e31e3b79327ca38986e4d1a2cdf517c69c3df06d`
+- Pages artifact：`8739266866`
+- Artifact digest：`sha256:f79df76813ac8ccfc28f8aa910919f5e4fc98e42bd649aa797b5ddba925679c5`
 - 正式書庫書籍數：20 本。
 - Pages deployment、artifact 下載重驗與結構化 deployment receipt 均成功。
