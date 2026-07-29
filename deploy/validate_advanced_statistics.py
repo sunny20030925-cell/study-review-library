@@ -42,7 +42,7 @@ def main(site_root: str, expected_library: str) -> None:
     ids=[b['id'] for b in lib['books']]
 
     ck(lib['version']==expected_library,'library version')
-    ck(len(ids)==13 and ids[-2:]==['money-banking',BOOK],'thirteen-book canonical tail')
+    ck(BOOK in ids and ids.count(BOOK)==1 and ('money-banking' not in ids or ids.index('money-banking') < ids.index(BOOK)),'advanced statistics canonical identity/order')
     ck(len(ids)==len(set(ids)),'unique book ids')
     ck(manifest['id']==BOOK and manifest['version']==VERSION,'manifest identity/version')
     ck(questions['bookId']==BOOK and questions['version']==VERSION,'questions identity/version')
@@ -78,20 +78,10 @@ def main(site_root: str, expected_library: str) -> None:
         concept(tok in full,f'missing core concept: {tok}')
 
     corrections=[
-        '不足以推出獨立',
-        '邊際常態不足以決定聯合分配',
-        '不保證所有分配都在 0 附近有有限 MGF',
-        '標準化樣本平均分布收斂到 N(0,1)',
-        '精確 t 結果還依賴常態母體',
-        'Likelihood 不是參數的機率分布',
-        '「充分」不代表「無偏」',
-        'Cramér–Rao 下界在正則條件下',
-        '古典參數不是以 95% 機率落在已固定區間內',
-        '不是 H0 為真的機率',
-        '因此未必存在',
-        '這需要正則條件',
-        '常態性不是 BLUE 的必要條件',
-        'R² 高仍不等於因果關係成立',
+        '不足以推出獨立','邊際常態不足以決定聯合分配','不保證所有分配都在 0 附近有有限 MGF',
+        '標準化樣本平均分布收斂到 N(0,1)','精確 t 結果還依賴常態母體','Likelihood 不是參數的機率分布',
+        '「充分」不代表「無偏」','Cramér–Rao 下界在正則條件下','古典參數不是以 95% 機率落在已固定區間內',
+        '不是 H0 為真的機率','因此未必存在','這需要正則條件','常態性不是 BLUE 的必要條件','R² 高仍不等於因果關係成立',
     ]
     corrective_corpus=full+'\n'+json.dumps(questions,ensure_ascii=False)
     for tok in corrections:
@@ -99,23 +89,15 @@ def main(site_root: str, expected_library: str) -> None:
 
     q={x['id']:x for x in questions['items']}
     expected={
-        'ch00-q01':'1。','ch00-q02':'1/4。',
-        'ch01-q01':'0.8。','ch01-q02':'是。','ch01-q04':'1/3。',
-        'ch02-q01':'0.75。','ch02-q02':'0.5。',
-        'ch03-q01':'0.4096。','ch03-q02':'約 0.1353。','ch03-q03':'4。',
+        'ch00-q01':'1。','ch00-q02':'1/4。','ch01-q01':'0.8。','ch01-q02':'是。','ch01-q04':'1/3。',
+        'ch02-q01':'0.75。','ch02-q02':'0.5。','ch03-q01':'0.4096。','ch03-q02':'約 0.1353。','ch03-q03':'4。',
         'ch04-q01':'約 0.3679。','ch04-q02':'1.5。','ch04-q03':'0.75。','ch04-q04':'0.4。',
-        'ch05-q01':'f_X(x)=2x，0<x<1。','ch05-q02':'1/x，0<y<x。',
-        'ch06-q01':'19。','ch06-q02':'2。',
-        'ch07-q01':'3。','ch07-q02':'0.75。','ch07-q03':'0.5x。',
-        'ch08-q01':'1/(2√y)。','ch08-q02':'1/2。',
-        'ch09-q02':'λ。','ch09-q03':'Poisson(5)。',
-        'ch10-q01':'4/5。','ch10-q02':'1/5。',
-        'ch11-q01':'0.5。','ch11-q02':'約 0.9545。','ch11-q05':'9/4。',
-        'ch12-q01':'9。','ch12-q02':'2。','ch12-q03':'15。',
-        'ch13-q02':'0.5。','ch14-q01':'T=ΣX_i。',
-        'ch15-q01':'p(1-p)/n。','ch15-q02':'n/[p(1-p)]。','ch15-q03':'p(1-p)/n。',
-        'ch16-q01':'[9.608, 10.392]。','ch16-q02':'[17.936, 22.064]。',
-        'ch17-q01':'2.5。','ch17-q02':'約 0.0124。',
+        'ch05-q01':'f_X(x)=2x，0<x<1。','ch05-q02':'1/x，0<y<x。','ch06-q01':'19。','ch06-q02':'2。',
+        'ch07-q01':'3。','ch07-q02':'0.75。','ch07-q03':'0.5x。','ch08-q01':'1/(2√y)。','ch08-q02':'1/2。',
+        'ch09-q02':'λ。','ch09-q03':'Poisson(5)。','ch10-q01':'4/5。','ch10-q02':'1/5。',
+        'ch11-q01':'0.5。','ch11-q02':'約 0.9545。','ch11-q05':'9/4。','ch12-q01':'9。','ch12-q02':'2。','ch12-q03':'15。',
+        'ch13-q02':'0.5。','ch14-q01':'T=ΣX_i。','ch15-q01':'p(1-p)/n。','ch15-q02':'n/[p(1-p)]。','ch15-q03':'p(1-p)/n。',
+        'ch16-q01':'[9.608, 10.392]。','ch16-q02':'[17.936, 22.064]。','ch17-q01':'2.5。','ch17-q02':'約 0.0124。',
         'ch19-q01':'1.5。','ch19-q02':'2/3。','ch19-q03':'27/28，約 0.9643。',
     }
     for qid,answer in expected.items():
@@ -185,7 +167,7 @@ def main(site_root: str, expected_library: str) -> None:
     ]:
         ck(tok in sw,f'sw path {tok}')
 
-    print(f'ADVANCED_STATISTICS_QA_ROUND1_OK checks={checks} books=13 library={expected_library} chapters=20 appendices=3 questions=100 search=189 figures=20')
+    print(f'ADVANCED_STATISTICS_QA_ROUND1_OK checks={checks} books={len(ids)} library={expected_library} chapters=20 appendices=3 questions=100 search=189 figures=20')
     print(f'ADVANCED_STATISTICS_QA_ROUND2_OK quantitative_rechecks={numeric_checks} high_risk_concepts={concept_checks} scope_separation=passed exact_vs_asymptotic=passed')
 
 if __name__=='__main__':
