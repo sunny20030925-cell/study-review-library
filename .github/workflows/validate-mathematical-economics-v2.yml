@@ -1,0 +1,108 @@
+name: Validate mathematical economics v2
+
+on:
+  pull_request:
+    paths:
+      - 'deploy/mathematical_economics_v2_*.py'
+      - 'deploy/generate_mathematical_economics_v2.py'
+      - 'deploy/integrate_mathematical_economics_v2.py'
+      - 'deploy/qa_mathematical_economics_v2.py'
+      - 'deploy/audit_mathematical_economics_v2_density.py'
+      - 'docs/books/mathematical-economics/**'
+      - '.github/workflows/validate-mathematical-economics-v2.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compile v2 audit sources
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            deploy/mathematical_economics_content.py \
+            deploy/mathematical_economics_questions.py \
+            deploy/generate_mathematical_economics.py \
+            deploy/mathematical_economics_v2_corrections.py \
+            deploy/mathematical_economics_v2_enrichment.py \
+            deploy/mathematical_economics_v2_questions.py \
+            deploy/generate_mathematical_economics_v2.py \
+            deploy/qa_mathematical_economics_v2.py \
+            deploy/integrate_mathematical_economics_v2.py \
+            deploy/audit_mathematical_economics_v2_density.py
+          PYTHONPATH=deploy python - <<'PY'
+          from mathematical_economics_v2_enrichment import CHAPTERS_V2
+          from mathematical_economics_v2_questions import build_questions_v2
+          assert len(CHAPTERS_V2)==20
+          assert len(build_questions_v2())==100
+          assert all(len(c['definitions'])>=4 for c in CHAPTERS_V2)
+          assert all(len(c['formulas'])>=3 for c in CHAPTERS_V2)
+          print('MATHEMATICAL_ECONOMICS_V2_SOURCE_OK chapters=20 questions=100')
+          PY
+          PYTHONPATH=deploy python deploy/audit_mathematical_economics_v2_density.py
+
+      - name: Download current formal Pages artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          ARTIFACT_ID="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['pages_artifact_id'])")"
+          ARTIFACT_DIGEST="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['pages_artifact_digest'])")"
+          gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" > /tmp/formal-pages.zip
+          echo "${ARTIFACT_DIGEST#sha256:}  /tmp/formal-pages.zip" | sha256sum --check -
+          mkdir /tmp/formal-unpack _site
+          unzip -q /tmp/formal-pages.zip -d /tmp/formal-unpack
+          if [ -f /tmp/formal-unpack/artifact.tar ]; then
+            tar -xf /tmp/formal-unpack/artifact.tar -C _site
+          elif [ -f /tmp/formal-unpack/artifact.tar.gz ]; then
+            tar -xzf /tmp/formal-unpack/artifact.tar.gz -C _site
+          else
+            cp -a /tmp/formal-unpack/. _site/
+          fi
+          python - <<'PY'
+          import json
+          d=json.load(open('_site/data/library.json'))
+          ids=[b['id'] for b in d['books']]
+          assert 'mathematical-economics' not in ids
+          assert (open('_site/app.js').read()) is not None
+          print('FORMAL_BASE_OK library='+d['version']+' books='+str(len(ids))+' tail='+ids[-1])
+          PY
+
+      - name: Generate corrected book and run independent v2 QA
+        run: |
+          set -euo pipefail
+          BASE_VERSION="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"
+          BASE_COUNT="$(python -c "import json;print(len(json.load(open('_site/data/library.json'))['books']))")"
+          python -c "import json;json.dump([b['id'] for b in json.load(open('_site/data/library.json'))['books']],open('/tmp/base_ids.json','w'))"
+          FINAL_VERSION="$(PYTHONPATH=deploy python deploy/integrate_mathematical_economics_v2.py _site "$BASE_VERSION")"
+          test -n "$FINAL_VERSION"
+          QA_LINE="$(PYTHONPATH=deploy python deploy/qa_mathematical_economics_v2.py _site "$FINAL_VERSION" | tail -n 1)"
+          echo "$QA_LINE"
+          CHECKS="$(printf '%s\n' "$QA_LINE" | grep -oE '(^|[[:space:]])checks=[0-9]+' | head -n 1 | grep -oE '[0-9]+')"
+          test -n "$CHECKS"
+          test "$CHECKS" -ge 700
+          BASE_COUNT="$BASE_COUNT" FINAL_VERSION="$FINAL_VERSION" python - <<'PY'
+          import json,os
+          from pathlib import Path
+          site=Path('_site')
+          d=json.load(open(site/'data/library.json'))
+          ids=[b['id'] for b in d['books']]
+          base=json.load(open('/tmp/base_ids.json'))
+          assert ids==base+['mathematical-economics'], (base,ids)
+          assert len(ids)==int(os.environ['BASE_COUNT'])+1
+          assert d['version']==os.environ['FINAL_VERSION']
+          root=site/'books/mathematical-economics'
+          m=json.load(open(root/'manifest.json')); q=json.load(open(root/'questions.json')); s=json.load(open(root/'search.json'))
+          assert m['version']==q['version']=='2026.07.30-2'
+          assert len(m['chapters'])==23 and q['count']==100 and len(s['entries'])==150
+          assert len(list((site/'assets/mathematical-economics-svg').glob('*.svg')))==20
+          print('MATHEMATICAL_ECONOMICS_V2_FORMAL_ARTIFACT_CANDIDATE_OK',d['version'],len(ids))
+          PY
+          node --check _site/app.js
+          node --check _site/sw.js
