@@ -1,0 +1,55 @@
+name: Stage money banking workflow
+
+on:
+  push:
+    branches:
+      - agent/money-banking-textbook-20260729
+    paths:
+      - .github/workflows/stage-money-banking.yml
+      - deploy/stage_money_banking_workflow.py
+      - deploy/validate_money_banking.py
+      - deploy/generate-money-banking.py.gz.b64.part*
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  stage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/money-banking-textbook-20260729
+          fetch-depth: 0
+      - name: Verify generator package
+        run: |
+          cat deploy/generate-money-banking.py.gz.b64.part* | tr -d '\n\r\t ' | base64 --decode > /tmp/generate-money-banking.py.gz
+          echo 'e31937c06988a26fd52e8f056eb7432ae2cac136e4aebb1ab7fab6ccf15b96bb  /tmp/generate-money-banking.py.gz' | sha256sum --check -
+          gzip --test /tmp/generate-money-banking.py.gz
+          gzip --decompress --stdout /tmp/generate-money-banking.py.gz > /tmp/generate-money-banking.py
+          python -m py_compile /tmp/generate-money-banking.py deploy/validate_money_banking.py deploy/stage_money_banking_workflow.py
+      - name: Stage canonical workflow candidate
+        run: |
+          python deploy/stage_money_banking_workflow.py
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('deploy/generated-deploy-pages.money-banking.yml')
+          s=p.read_text(encoding='utf-8')
+          assert s.count('Generate and independently validate money and banking textbook') == 1
+          assert "'money_banking_version': '2026.07.29-1'" in s
+          assert "Path('docs/books/money-banking/status.md')" in s
+          assert 'docs/books/money-banking/status.md' in s
+          print('MONEY_BANKING_WORKFLOW_CANDIDATE_OK', p.stat().st_size)
+          PY
+      - name: Commit candidate
+        run: |
+          if git diff --quiet -- deploy/generated-deploy-pages.money-banking.yml; then
+            echo 'Candidate unchanged.'
+            exit 0
+          fi
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add deploy/generated-deploy-pages.money-banking.yml
+          git commit -m 'Stage money and banking deployment workflow [skip ci]'
+          git push origin HEAD:agent/money-banking-textbook-20260729
