@@ -1,120 +1,36 @@
-deploy	Record successful deployment	2026-07-29T09:28:19.1044289Z ^[[36;1m    raise AssertionError('macroeconomics checkpoint section not found')^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1044799Z ^[[36;1mia_section_v2 = (^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1045021Z ^[[36;1m    '### 中級會計學\n\n'^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1045280Z ^[[36;1m    '- Book ID：`intermediate-accounting`\n'^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1045565Z ^[[36;1m    '- 正式內容版本：`2026.07.29-2`\n'^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1045861Z ^[[36;1m    '- 定位：一般大學中級會計學，銜接基礎會計，聚焦 IFRS／TIFRS 下的認列、衡量、表達、分錄與財務報導判斷。\n'^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1046308Z ^[[36;1m    '- 範圍：現值與攤銷、ECL、存貨、PPE、借款成本、無形資產、減損、投資性不動產、金融工具、公司債、負債準備、權益、EPS、收入、租賃、所得稅、員工福利、會計變動、期後事項與現金流量。\n'^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1046729Z ^[[36;1m    '- 成品：22 章、3 附錄、110 題題庫、145 筆搜尋索引、22 張自製圖解。\n'^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1047067Z ^[[36;1m    '- 初版 QA：第一輪 135 項、獨立數值與公式重算 23 項、第二輪 485 項。\n'^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1047435Z ^[[36;1m    '- 發布後獨立二次內容審計：修正 12 個內容節點／10 份章節與附錄，4 題題幹或詳解同步精確化；v2 獨立驗證 1,110 項、量化重算 28 項全數通過。\n'^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1047872Z ^[[36;1m    '- 閱讀進度相容性：章節 ID、題目 ID 與題數未變；部署回條確認 `progress_storage_changed=false`。\n'^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1048288Z ^[[36;1m    '- 範圍文件：`docs/books/intermediate-accounting/scope.md`\n'^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1048699Z ^[[36;1m    '- QA 報告：`docs/books/intermediate-accounting/qa_report.md`\n'^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1049111Z ^[[36;1m    f'- GitHub Pages 部署 run：`{os.environ["GITHUB_RUN_ID"]}`。\n'^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1049510Z ^[[36;1m    f'- Source commit：`{os.environ["GITHUB_SHA"]}`。\n'^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1049849Z ^[[36;1m    '- 部署回條：`docs/deployment_receipt.json`。\n'^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1050129Z ^[[36;1m    '- 狀態：已部署。\n\n'^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1050337Z ^[[36;1m)^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1050533Z ^[[36;1mc, ia_section_count = re.subn(^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1050966Z ^[[36;1m    r'(?ms)^### 中級會計學\n.*?(?=^### |^## 部署流程)',^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1051351Z ^[[36;1m    ia_section_v2,^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1051564Z ^[[36;1m    c,^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1051751Z ^[[36;1m    count=1,^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1051949Z ^[[36;1m)^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1052139Z ^[[36;1mif ia_section_count != 1:^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1052534Z ^[[36;1m    raise AssertionError('intermediate accounting checkpoint section not found')^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1053106Z ^[[36;1mold_ia_flow = '11. 中級會計學額外驗證 22 章、3 附錄、110 題、145 筆搜尋索引、22 張 SVG，並執行 135 項第一輪檢查、23 項獨立數值與公式重算及 485 項第二輪檢查。'^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1053688Z ^[[36;1mnew_ia_flow = '11. 中級會計學先完成初版 QA，再套用發布後獨立二次內容審計修正；額外驗證 22 章、3 附錄、110 題、145 筆搜尋索引、22 張 SVG、1,110 項 v2 獨立檢查與 28 項量化重算。'^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1054123Z ^[[36;1mif old_ia_flow in c:^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1054393Z ^[[36;1m    c = c.replace(old_ia_flow, new_ia_flow, 1)^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1054801Z ^[[36;1melif new_ia_flow not in c:^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1055220Z ^[[36;1m    raise AssertionError('intermediate accounting deployment-flow line not found')^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1055769Z ^[[36;1mold_ia_workline = '- 中級會計學初版內容、兩輪 QA、canonical integration 與正式 Pages 部署均已完成。'^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1056243Z ^[[36;1mnew_ia_workline = '- 中級會計學初版、發布後獨立二次內容審計、糾錯修正與新版 Pages 部署均已完成；章節 ID、題目 ID 與題數未變。'^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1056612Z ^[[36;1mif old_ia_workline in c:^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1056909Z ^[[36;1m    c = c.replace(old_ia_workline, new_ia_workline, 1)^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1057227Z ^[[36;1melif new_ia_workline not in c:^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1057609Z ^[[36;1m    raise AssertionError('intermediate accounting workline status not found')^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1058023Z ^[[36;1mcp.write_text(c, encoding='utf-8')^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1058286Z ^[[36;1m^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1058478Z ^[[36;1mrp = Path('README.md')^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1058734Z ^[[36;1mr = rp.read_text(encoding='utf-8')^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1059076Z ^[[36;1mr = re.sub(r'目前內容版本：`[^`]+`', f'目前內容版本：`{final_version}`', r, count=1)^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1059533Z ^[[36;1mcost = '- 《成本會計學》：一般大學成本會計，19 章、3 附錄、95 題題庫、146 筆搜尋索引與 19 張圖解；內容版本 `2026.07.29-1`。\n'^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1059996Z ^[[36;1mmicro = '- 《個體經濟學》：一般大學中級個體經濟學，20 章、3 附錄、100 題題庫、154 筆搜尋索引與 20 張圖解；內容版本 `2026.07.29-1`。\n'^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1060490Z ^[[36;1mintermediate = '- 《中級會計學》：一般大學中級會計學，22 章、3 附錄、110 題題庫、145 筆搜尋索引與 22 張圖解；內容版本 `2026.07.29-1`。\n'^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1060882Z ^[[36;1mif cost not in r:^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1061293Z ^[[36;1m    r = r.replace('- 《商事法》：以公司法與證券交易法為核心，18 章、3 附錄、90 題題庫、111 筆搜尋索引與 18 張圖解；發布後獨立內容複核與公司法第 8 條現行法 follow-up 版本 `2026.07.29-2`。\n',^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1061927Z ^[[36;1m                  '- 《商事法》：以公司法與證券交易法為核心，18 章、3 附錄、90 題題庫、111 筆搜尋索引與 18 張圖解；發布後獨立內容複核與公司法第 8 條現行法 follow-up 版本 `2026.07.29-2`。\n' + cost)^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1062373Z ^[[36;1mif micro not in r:^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1062639Z ^[[36;1m    anchor = cost if cost in r else '- 《商事法》：'^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1063076Z ^[[36;1m    if anchor == cost:^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1063346Z ^[[36;1m        r = r.replace(cost, cost + micro, 1)^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1063737Z ^[[36;1m    else:^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1064243Z ^[[36;1m        lines=r.splitlines(True); idx=max(i for i,x in enumerate(lines) if x.startswith('- 《'))+1; lines.insert(idx,micro); r=''.join(lines)^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1065080Z ^[[36;1mif intermediate not in r:^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1065351Z ^[[36;1m    lines = r.splitlines(True)^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1065704Z ^[[36;1m    idx = max(i for i, x in enumerate(lines) if x.startswith('- 《')) + 1^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1066084Z ^[[36;1m    lines.insert(idx, intermediate)^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1066354Z ^[[36;1m    r = ''.join(lines)^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1066738Z ^[[36;1mmacro_v2_line = '- 《總體經濟學》：一般大學總體經濟學，20 章、3 附錄、100 題題庫、143 筆搜尋索引與 20 張圖解；發布後第二次獨立內容複核版本 `2026.07.29-2`。'^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1067163Z ^[[36;1mr_lines = r.splitlines()^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1067562Z ^[[36;1mmacro_indexes = [i for i, line in enumerate(r_lines) if line.startswith('- 《總體經濟學》：')]^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1068003Z ^[[36;1mif macro_indexes:^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1068238Z ^[[36;1m    first = macro_indexes[0]^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1068520Z ^[[36;1m    r_lines[first] = macro_v2_line^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1068824Z ^[[36;1m    for i in reversed(macro_indexes[1:]):^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1069115Z ^[[36;1m        del r_lines[i]^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1069345Z ^[[36;1melse:^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1069688Z ^[[36;1m    insert_at = max(i for i, line in enumerate(r_lines) if line.startswith('- 《')) + 1^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1070133Z ^[[36;1m    r_lines.insert(insert_at, macro_v2_line)^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1070491Z ^[[36;1mr = '\n'.join(r_lines) + ('\n' if r.endswith('\n') else '')^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1070991Z ^[[36;1mr = re.sub(r'五本書均由同一個 canonical GitHub Pages 工作流部署。', '全部正式教材均由同一個 canonical GitHub Pages 工作流部署。', r)^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1071571Z ^[[36;1mmicro_v2_line = '- 《個體經濟學》：一般大學中級個體經濟學，20 章、3 附錄、100 題題庫、154 筆搜尋索引與 20 張圖解；發布後獨立二次複核版本 `2026.07.29-2`。'^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1071993Z ^[[36;1mr_lines = r.splitlines()^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1072398Z ^[[36;1mmicro_indexes = [i for i, line in enumerate(r_lines) if line.startswith('- 《個體經濟學》：')]^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1072809Z ^[[36;1mif micro_indexes:^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1073048Z ^[[36;1m    first = micro_indexes[0]^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1073316Z ^[[36;1m    r_lines[first] = micro_v2_line^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1073610Z ^[[36;1m    for i in reversed(micro_indexes[1:]):^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1073895Z ^[[36;1m        del r_lines[i]^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1074124Z ^[[36;1melse:^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1074457Z ^[[36;1m    insert_at = max(i for i, line in enumerate(r_lines) if line.startswith('- 《')) + 1^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1075011Z ^[[36;1m    r_lines.insert(insert_at, micro_v2_line)^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1075362Z ^[[36;1mr = '\n'.join(r_lines) + ('\n' if r.endswith('\n') else '')^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1075853Z ^[[36;1mintermediate_v2_line = '- 《中級會計學》：一般大學中級會計學，22 章、3 附錄、110 題題庫、145 筆搜尋索引與 22 張圖解；發布後獨立二次內容審計版本 `2026.07.29-2`。'^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1076489Z ^[[36;1mr_lines = r.splitlines()^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1076871Z ^[[36;1mia_indexes = [i for i, line in enumerate(r_lines) if line.startswith('- 《中級會計學》：')]^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1077271Z ^[[36;1mif ia_indexes:^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1077495Z ^[[36;1m    first = ia_indexes[0]^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1077775Z ^[[36;1m    r_lines[first] = intermediate_v2_line^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1078079Z ^[[36;1m    for i in reversed(ia_indexes[1:]):^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1078358Z ^[[36;1m        del r_lines[i]^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1078585Z ^[[36;1melse:^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1078912Z ^[[36;1m    insert_at = max(i for i, line in enumerate(r_lines) if line.startswith('- 《')) + 1^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1079372Z ^[[36;1m    r_lines.insert(insert_at, intermediate_v2_line)^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1079741Z ^[[36;1mr = '\n'.join(r_lines) + ('\n' if r.endswith('\n') else '')^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1080081Z ^[[36;1mrp.write_text(r, encoding='utf-8')^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1080469Z ^[[36;1mPY^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1080698Z ^[[36;1mgit config user.name github-actions[bot]^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1081135Z ^[[36;1mgit config user.email 41898282+github-actions[bot]@users.noreply.github.com^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1082076Z ^[[36;1mgit add docs/deployment_receipt.json README.md docs/shared_checkpoint.md docs/books/microeconomics/status.md docs/books/intermediate-accounting/status.md docs/books/macroeconomics/status.md^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1082994Z ^[[36;1mgit commit -m "Record successful study library deployment [skip ci]"^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1083390Z ^[[36;1mgit push origin HEAD:main^[[0m
-deploy	Record successful deployment	2026-07-29T09:28:19.1126246Z shell: /usr/bin/bash -e {0}
-deploy	Record successful deployment	2026-07-29T09:28:19.1126497Z env:
-deploy	Record successful deployment	2026-07-29T09:28:19.1126686Z   GITHUB_PAGES: true
-deploy	Record successful deployment	2026-07-29T09:28:19.1127352Z   DEPLOYED_PAGE_URL: https://sunny20030925-cell.github.io/study-review-library/
-deploy	Record successful deployment	2026-07-29T09:28:19.1128083Z ##[endgroup]
-deploy	Record successful deployment	2026-07-29T09:28:19.1667534Z [main 9c61e40] Record successful study library deployment [skip ci]
-deploy	Record successful deployment	2026-07-29T09:28:19.1668303Z  5 files changed, 16 insertions(+), 16 deletions(-)
-deploy	Record successful deployment	2026-07-29T09:28:19.5423993Z To https://github.com/sunny20030925-cell/study-review-library
-deploy	Record successful deployment	2026-07-29T09:28:19.5424964Z  ! [rejected]        HEAD -> main (fetch first)
-deploy	Record successful deployment	2026-07-29T09:28:19.5425734Z error: failed to push some refs to 'https://github.com/sunny20030925-cell/study-review-library'
-deploy	Record successful deployment	2026-07-29T09:28:19.5435570Z hint: Updates were rejected because the remote contains work that you do not
-deploy	Record successful deployment	2026-07-29T09:28:19.5436441Z hint: have locally. This is usually caused by another repository pushing to
-deploy	Record successful deployment	2026-07-29T09:28:19.5436972Z hint: the same ref. If you want to integrate the remote changes, use
-deploy	Record successful deployment	2026-07-29T09:28:19.5437336Z hint: 'git pull' before pushing again.
-deploy	Record successful deployment	2026-07-29T09:28:19.5437716Z hint: See the 'Note about fast-forwards' in 'git push --help' for details.
-deploy	Record successful deployment	2026-07-29T09:28:19.5450994Z ##[error]Process completed with exit code 1.
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	﻿2026-07-29T10:01:47.8138651Z ##[group]Run cp _site/data/library.json /tmp/pre-macroeconomics-library.json
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T10:01:47.8139716Z ^[[36;1mcp _site/data/library.json /tmp/pre-macroeconomics-library.json^[[0m
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T10:01:47.8141010Z ^[[36;1mcat deploy/generate-macroeconomics.py.gz.b64.part* | tr -d '\n\r\t ' | base64 --decode > /tmp/generate-macroeconomics.py.gz^[[0m
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T10:01:47.8142697Z ^[[36;1mecho 'c3643675f863883a429d492334b291d430ebfa87bf0b1cbf49806dfe790b6b34  /tmp/generate-macroeconomics.py.gz' | sha256sum --check -^[[0m
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T10:01:47.8144020Z ^[[36;1mgzip --test /tmp/generate-macroeconomics.py.gz^[[0m
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T10:01:47.8145079Z ^[[36;1mgzip --decompress --stdout /tmp/generate-macroeconomics.py.gz > /tmp/generate-macroeconomics.py^[[0m
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T10:01:47.8146261Z ^[[36;1mpython -m py_compile /tmp/generate-macroeconomics.py^[[0m
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T10:01:47.8147331Z ^[[36;1mpython /tmp/generate-macroeconomics.py _site^[[0m
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T10:01:47.8148571Z ^[[36;1mINITIAL_MACRO_LIBRARY_VERSION="$(python deploy/finalize_macroeconomics_library.py _site /tmp/pre-macroeconomics-library.json)"^[[0m
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T10:01:47.8150618Z ^[[36;1mEXPECTED_LIBRARY_VERSION="$INITIAL_MACRO_LIBRARY_VERSION" PRE_LIBRARY_JSON=/tmp/pre-macroeconomics-library.json python deploy/validate_macroeconomics.py _site^[[0m
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T10:01:47.8152639Z ^[[36;1mpython -m py_compile deploy/patch_macroeconomics_v2.py deploy/finalize_macroeconomics_v2_library.py deploy/qa_macroeconomics_v2.py^[[0m
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T10:01:47.8153946Z ^[[36;1mpython deploy/patch_macroeconomics_v2.py _site^[[0m
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T10:01:47.8155076Z ^[[36;1mFINAL_LIBRARY_VERSION="$(python deploy/finalize_macroeconomics_v2_library.py _site "$INITIAL_MACRO_LIBRARY_VERSION")"^[[0m
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T10:01:47.8156710Z ^[[36;1mpython deploy/qa_macroeconomics_v2.py _site "$FINAL_LIBRARY_VERSION"^[[0m
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T10:01:47.8157504Z ^[[36;1mnode --check _site/app.js^[[0m
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T10:01:47.8157997Z ^[[36;1mnode --check _site/sw.js^[[0m
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T10:01:47.8159094Z ^[[36;1mecho "MACROECONOMICS_V2_QA library=$FINAL_LIBRARY_VERSION checks=201 corrections=14 question_adjustments=7 quantitative_rechecks=20"^[[0m
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T10:01:47.8222854Z shell: /usr/bin/bash -e {0}
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T10:01:47.8223228Z env:
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T10:01:47.8223509Z   GITHUB_PAGES: true
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T10:01:47.8223826Z ##[endgroup]
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T10:01:47.8359871Z /tmp/generate-macroeconomics.py.gz: OK
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T10:01:47.9199737Z MACROECONOMICS_GENERATED chapters=20 appendices=3 questions=100 search=143 figures=20 version=2026.07.29-1
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T10:01:47.9918001Z MACROECONOMICS_QA_OK checks=656 books=9 library=2026.07.29-11 chapters=20 appendices=3 questions=100 search=143 figures=20 numeric_rechecks=18
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T10:01:48.0751671Z MACRO_V2_PATCH_OK content_replacements=14 question_adjustments=7
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T10:01:48.1835218Z Traceback (most recent call last):
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T10:01:48.1836945Z   File "/home/runner/work/study-review-library/study-review-library/deploy/finalize_macroeconomics_v2_library.py", line 28, in <module>
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T10:01:48.1838439Z     main(sys.argv[1],sys.argv[2])
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T10:01:48.1839845Z   File "/home/runner/work/study-review-library/study-review-library/deploy/finalize_macroeconomics_v2_library.py", line 24, in main
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T10:01:48.1841348Z     final_version=integrate(site_root,macro_version)
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T10:01:48.1842055Z                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T10:01:48.1843041Z   File "/home/runner/work/study-review-library/study-review-library/deploy/integrate_international_economics.py", line 29, in integrate
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T10:01:48.1844102Z     if hashlib.sha256(gz).hexdigest()!=GENERATOR_SHA256: raise AssertionError('international generator sha256 mismatch')
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T10:01:48.1844819Z                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T10:01:48.1845289Z AssertionError: international generator sha256 mismatch
+deploy	Generate, independently validate, and apply macroeconomics v2 reaudit	2026-07-29T10:01:48.1993568Z ##[error]Process completed with exit code 1.
