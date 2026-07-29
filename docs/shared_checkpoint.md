@@ -9,8 +9,8 @@
 - 固定入口：`https://sunny20030925-cell.github.io/study-review-library/`
 - 形式：平板直式 PWA 書庫，可持續加入新科目。
 - 使用者操作限制：只使用平板；不得要求終端機、Git、電腦檔案管理、手動部署或多檔案上傳操作。
-- 正式書庫內容版本：`2026.07.29-12`
-- 正式書籍數：9 本。
+- 正式書庫內容版本：`2026.07.29-13`
+- 正式書籍數：10 本。
 
 ## 正式規格
 
@@ -136,8 +136,8 @@
 - 閱讀進度相容性：章節 ID、題目 ID 與題數未變；部署回條確認 `progress_storage_changed=false`。
 - 範圍文件：`docs/books/microeconomics/scope.md`
 - QA 報告：`docs/books/microeconomics/qa_report.md`
-- GitHub Pages 部署 run：`30437610043`。
-- Source commit：`eaf8136594b1a4f8992502588794aeaa5602d337`。
+- GitHub Pages 部署 run：`30442682452`。
+- Source commit：`00cf9286eb7bbe3b2d8e2b6165cc163fd64a4e72`。
 - 部署回條：`docs/deployment_receipt.json`。
 - 狀態：已部署。
 
@@ -153,8 +153,8 @@
 - 閱讀進度相容性：章節 ID、題目 ID 與題數未變；部署回條確認 `progress_storage_changed=false`。
 - 範圍文件：`docs/books/intermediate-accounting/scope.md`
 - QA 報告：`docs/books/intermediate-accounting/qa_report.md`
-- GitHub Pages 部署 run：`30437610043`。
-- Source commit：`eaf8136594b1a4f8992502588794aeaa5602d337`。
+- GitHub Pages 部署 run：`30442682452`。
+- Source commit：`00cf9286eb7bbe3b2d8e2b6165cc163fd64a4e72`。
 - 部署回條：`docs/deployment_receipt.json`。
 - 狀態：已部署。
 
@@ -169,8 +169,8 @@
 - 閱讀進度相容性：章節 ID、題目 ID 與題數均未變；部署回條確認 `progress_storage_changed=false`。
 - 範圍文件：`docs/books/macroeconomics/scope.md`
 - QA 報告：`docs/books/macroeconomics/qa_report.md`
-- GitHub Pages 部署 run：`30437610043`。
-- Source commit：`eaf8136594b1a4f8992502588794aeaa5602d337`。
+- GitHub Pages 部署 run：`30442682452`。
+- Source commit：`00cf9286eb7bbe3b2d8e2b6165cc163fd64a4e72`。
 - 部署回條：`docs/deployment_receipt.json`。
 - 狀態：已部署。
 
@@ -189,7 +189,7 @@
 11. 中級會計學先完成初版 QA，再套用發布後獨立二次內容審計修正；額外驗證 22 章、3 附錄、110 題、145 筆搜尋索引、22 張 SVG、1,110 項 v2 獨立檢查與 28 項量化重算。
 12. JavaScript、service worker 與全部正式檢查通過後，才上傳 Pages artifact。
 13. Pages 部署成功後寫回 `docs/deployment_receipt.json`。
-14. 最新9本書成功部署 run：`30437610043`；書庫內容版本：`2026.07.29-12`。
+14. 最新10本書成功部署 run：`30442682452`；書庫內容版本：`2026.07.29-13`。
 15. 使用者不需要執行 Git、終端機、手動上傳或部署。
 
 ## 工作線狀態

@@ -3,7 +3,7 @@ from __future__ import annotations
 import base64, contextlib, gzip, hashlib, importlib.util, io, json, os, sys, tempfile
 from pathlib import Path
 
-GENERATOR_SHA256='877c4f92f5cb914a6ba0ca900dd9ef6e4c7bbe4ae2eac9db80741ae29a5c5192'
+GENERATOR_SOURCE_SHA256='05c760972b8c444c69c35b6e597ebf2d78241be2ea8e3ad83b1981c5a19f9e2a'
 BOOK='international-economics'
 
 def load_module(path: Path, name: str):
@@ -26,8 +26,10 @@ def integrate(site_root: str, expected_before: str) -> str:
     if not parts: raise AssertionError('international economics generator parts missing')
     encoded=''.join(p.read_text(encoding='utf-8').strip() for p in parts)
     gz=base64.b64decode(encoded,validate=True)
-    if hashlib.sha256(gz).hexdigest()!=GENERATOR_SHA256: raise AssertionError('international generator sha256 mismatch')
     source=gzip.decompress(gz)
+    actual_source_sha256=hashlib.sha256(source).hexdigest()
+    if actual_source_sha256!=GENERATOR_SOURCE_SHA256:
+        raise AssertionError(f'international generator source sha256 mismatch: {actual_source_sha256}')
     tmpgen=Path(tempfile.gettempdir())/'generate-international-economics.py'
     tmpgen.write_bytes(source)
     compile(source,str(tmpgen),'exec')

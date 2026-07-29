@@ -1,9 +1,10 @@
 # 《國際經濟學》QA 報告
 
-- 候選內容版本：`2026.07.29-1`
+- 正式內容版本：`2026.07.29-1`
 - 檢查日期：2026-07-29
-- 正式書庫版本：待部署後寫回
-- 正式部署 run：待部署後寫回
+- 正式書庫版本：`2026.07.29-13`
+- 正式部署 run：`30442682452`
+- Source commit：`00cf9286eb7bbe3b2d8e2b6165cc163fd64a4e72`
 
 ## 第一輪：製作內檢
 
@@ -35,15 +36,14 @@
 
 第二輪結果：`1,383／1,383` 通過；17 題量化題重算通過。
 
-## 整合測試
+## 整合與正式部署驗證
 
-- 以成功部署的正式九書 Pages artifact 為基底生成第 10 本候選書。
-- 候選整合結果：10 本書、20 章、3 附錄、100 題、144 搜尋、20 SVG。
-- 本地候選書庫版本由 `2026.07.29-12` 順延為 `2026.07.29-13`，僅作整合驗證；正式版本仍以發布當下最新 `main` 為準。
-- `app.js`：Node 語法檢查通過。
-- `sw.js`：Node 語法檢查通過。
-- 新書 manifest、questions、search、23 份章節／附錄 HTML 與 20 張 SVG 均存在，並納入離線快取清單。
-- 既有 9 本書 manifest、題庫與搜尋資料保持存在，未刪除既有 Book ID。
+- 先以成功部署的正式九書 Pages artifact 為基底模擬生成第 10 本，確認書庫由 `2026.07.29-12` 順延至 `2026.07.29-13`。
+- 正式 canonical Pages 部署最終成功：10 本書；本書 20 章、3 附錄、100 題、144 搜尋、20 SVG。
+- 正式 workflow artifact `8720104216` 已下載並實際解開終檢：`data/library.json` 為 `2026.07.29-13`、Book ID 順序保留原 9 本並在尾端加入 `international-economics`。
+- 本書 `manifest.json` 版本為 `2026.07.29-1`，23 份章節／附錄檔全部存在；`questions.json` 為 100／100；`search.json` 為 144 筆；SVG 為 20 張。
+- `sw.js` 已包含本書 manifest、questions、search、章節與圖解離線快取路徑；`app.js` 與 `sw.js` 均已通過正式工作流語法檢查。
+- 正式 deployment receipt：`status=success`、`book_count=10`、`progress_storage_changed=false`、run `30442682452`。
 
 ## 已知限制
 
@@ -52,6 +52,6 @@
 - DD–AA、H–O、PPP、UIP、J 曲線等結論均依正文列明的模型假設；現實資料可能因風險、摩擦、價格僵固程度與制度差異偏離。
 - 圖解為理解與考試判讀用途，不用於精確讀取未標示數值。
 
-## 正式完成門檻
+## 結論
 
-只有在依 `docs/concurrent_book_workflow.md` 重新同步最新 `main`、完成 canonical Pages 部署、deployment receipt 顯示新增書籍且全部既有書籍版本未倒退後，才把本報告改為正式完成。
+《國際經濟學》已完成範圍固定、內容製作、兩輪 QA、canonical 整合、正式 Pages 部署與部署 artifact 終檢，可列為正式已部署教材。
