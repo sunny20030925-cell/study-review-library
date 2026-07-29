@@ -109,6 +109,7 @@ def main(arg):
     qmap = {q['id']:q for q in questions['items']}
     for qid, ans in expected.items():
         ck(qmap[qid]['answer'] == ans, f'{qid}: {qmap[qid]["answer"]!r} != {ans!r}')
+    ck(qmap['ch17-q05']['answer'] == '不一定。', 'Shapley/core trap answer')
 
     text_all = []
     for ch in manifest['chapters']:
@@ -147,9 +148,9 @@ def main(arg):
         'minimax theorem 適用於所有賽局',
         '第二價拍賣在任何資訊環境都應誠實出價',
         '有限次重複賽局一定可以靠未來懲罰維持合作',
-        'Shapley value 一定在 core',
     ]:
         ck(overclaim not in full, f'forbidden overclaim {overclaim}')
+    ck('一般賽局不保證' in full, 'Shapley/core caveat')
     ck('NT$' in full, 'TWD examples')
     ck('SPNE ⇒ NE' in full, 'SPNE implication')
     ck('策略是「型態 → 行動」' in full or '型態到行動' in full, 'Bayesian strategy mapping')
