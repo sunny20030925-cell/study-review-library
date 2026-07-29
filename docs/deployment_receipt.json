@@ -37,8 +37,8 @@
   "cost_accounting_content_audit": "passed",
   "cost_accounting_independent_check_count": 655,
   "cost_accounting_quantitative_recheck_count": 44,
-  "source_commit": "851630a76bfa18137b9049f7745030750462832b",
-  "workflow_run_id": "30408806893",
+  "source_commit": "593f52cbde1447a24f4367f57b22463c20048974",
+  "workflow_run_id": "30410024456",
   "page_url": "https://sunny20030925-cell.github.io/study-review-library/",
-  "deployed_at": "2026-07-28T23:42:32.470582+00:00"
+  "deployed_at": "2026-07-29T00:05:12.741308+00:00"
 }
