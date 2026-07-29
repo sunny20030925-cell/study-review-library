@@ -9,7 +9,7 @@
 - 固定入口：`https://sunny20030925-cell.github.io/study-review-library/`
 - 形式：平板直式 PWA 書庫，可持續加入新科目。
 - 使用者操作限制：只使用平板；不得要求終端機、Git、電腦檔案管理、手動部署或多檔案上傳操作。
-- 正式書庫內容版本：`2026.07.29-11`
+- 正式書庫內容版本：`2026.07.29-12`
 - 正式書籍數：9 本。
 
 ## 正式規格
@@ -136,8 +136,8 @@
 - 閱讀進度相容性：章節 ID、題目 ID 與題數未變；部署回條確認 `progress_storage_changed=false`。
 - 範圍文件：`docs/books/microeconomics/scope.md`
 - QA 報告：`docs/books/microeconomics/qa_report.md`
-- GitHub Pages 部署 run：`30435914365`。
-- Source commit：`161f2a4f8684f62919aded9c21640dda25d09172`。
+- GitHub Pages 部署 run：`30436480706`。
+- Source commit：`f79a2cd31636ab8d74acfee50998e848f035a357`。
 - 部署回條：`docs/deployment_receipt.json`。
 - 狀態：已部署。
 
@@ -161,14 +161,17 @@
 ### 總體經濟學
 
 - Book ID：`macroeconomics`
-- 正式內容版本：`2026.07.29-1`
+- 正式內容版本：`2026.07.29-2`
 - 定位：一般大學總體經濟學，聚焦總體衡量、長期成長、短期景氣、財政貨幣政策與開放經濟。
 - 成品：20 章、3 附錄、100 題題庫、143 筆搜尋索引、20 張自製圖解。
-- QA：兩輪內容與題庫複核通過；18 題數值題獨立重算一致。
+- 初版 QA：兩輪內容與題庫複核通過；18 題數值題獨立重算一致。
+- 發布後第二次獨立內容複核：201／201 項通過；14 個實質內容修正事件、7 題題庫調整、20 題量化題重新驗算。
+- 閱讀進度相容性：章節 ID、題目 ID 與題數均未變；部署回條確認 `progress_storage_changed=false`。
 - 範圍文件：`docs/books/macroeconomics/scope.md`
 - QA 報告：`docs/books/macroeconomics/qa_report.md`
-- GitHub Pages 部署 run：`30421041310`。
-- Source commit：`87ed697ae0b38d3cd67cb119cad5f828559fa59e`。
+- GitHub Pages 部署 run：`30436480706`。
+- Source commit：`f79a2cd31636ab8d74acfee50998e848f035a357`。
+- 部署回條：`docs/deployment_receipt.json`。
 - 狀態：已部署。
 
 ## 部署流程
@@ -186,7 +189,7 @@
 11. 中級會計學額外驗證 22 章、3 附錄、110 題、145 筆搜尋索引、22 張 SVG，並執行 135 項第一輪檢查、23 項獨立數值與公式重算及 485 項第二輪檢查。
 12. JavaScript、service worker 與全部正式檢查通過後，才上傳 Pages artifact。
 13. Pages 部署成功後寫回 `docs/deployment_receipt.json`。
-14. 最新9本書成功部署 run：`30435914365`；書庫內容版本：`2026.07.29-11`。
+14. 最新9本書成功部署 run：`30436480706`；書庫內容版本：`2026.07.29-12`。
 15. 使用者不需要執行 Git、終端機、手動上傳或部署。
 
 ## 工作線狀態
