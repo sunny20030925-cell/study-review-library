@@ -9,16 +9,16 @@
 - 固定入口：`https://sunny20030925-cell.github.io/study-review-library/`
 - 形式：平板直式 PWA 書庫，可持續加入新科目。
 - 使用者操作限制：只使用平板；不得要求終端機、Git、電腦檔案管理、手動部署或多檔案上傳操作。
-- 正式書庫內容版本：`2026.07.29-17`
-- 正式書籍數：12 本。
-- 最新正式 Pages run：`30460567595`。
-- 最新正式部署 source commit：`2a2fff311c76a6e05a8a93fee9f3d5daaa474574`。
-- 最新 Pages artifact：`8727395112`。
-- Artifact digest：`sha256:0d3dffa1e6b57d41f3ae8181d599f337b545d3f6ec92a0b677d65c7366104ba8`。
+- 正式書庫內容版本：`2026.07.29-18`
+- 正式書籍數：13 本。
+- 最新正式 Pages run：`30469475874`。
+- 最新正式部署 source commit：`555840467da800c006cdcc11351d3dbabc1e3463`。
+- 最新 Pages artifact：`8730980114`。
+- Artifact digest：`sha256:ace8585e67791f1cc65e540b084ab05c7757f4f6d18e9a4c9f8f37c81a222803`。
 - Pages 狀態：Upload artifact 與 Deploy to GitHub Pages 均成功；2026-07-29T14:23:09.128492+00:00 回報 success。
-- 部署回條：`docs/deployment_receipt.json`；`status=success`、`book_count=12`、`library_version=2026.07.29-17`、`progress_storage_changed=false`。
+- 部署回條：`docs/deployment_receipt.json`；`status=success`、`book_count=13`、`library_version=2026.07.29-18`、`progress_storage_changed=false`。
 - 實際下載正式 Pages artifact 後再次核對：12 本 registry、本書 23 份章節／附錄 HTML、100 題、150 搜尋、20 SVG 均存在；下載檔 SHA-256 與 GitHub artifact digest 完全一致。
-- workflow overall conclusion 仍為 `failure-after-successful-pages-deploy`：唯一失敗發生在 Pages 成功後的舊 repo 記錄器，原因為過時的 `microeconomics deployment-flow` 字串匹配；不影響已部署 artifact。正式 receipt、status、QA 與本 checkpoint 已依 workflow job 與下載 artifact 手動校正。
+- workflow overall conclusion：`success`；post-deploy recorder 已改為結構化更新，不再依賴舊章節自然語句硬比對。
 
 ## 正式規格與讀取順序
 
@@ -132,15 +132,26 @@
 - 文件：`docs/books/money-banking/scope.md`、`docs/books/money-banking/qa_report.md`、`docs/books/money-banking/status.md`。
 - 狀態：已部署。
 
+### 13. 高等統計學
+- Book ID：`advanced-statistics`
+- 正式內容版本：`2026.07.29-1`
+- 定位：一般大學高等統計／數理統計核心；承接基礎統計，聚焦機率模型、多元分配、極限定理、抽樣分配、估計與檢定理論。
+- 成品：20 章、3 附錄、100 題、189 搜尋、20 圖解。
+- QA：兩輪通過；27 個量化節點獨立重算、45 個高風險概念 gate。
+- 既有 12 本教材內容 hash 在整合前後完全一致。
+- 正式 Pages run：`30469475874`；Source commit：`555840467da800c006cdcc11351d3dbabc1e3463`。
+- 文件：`docs/books/advanced-statistics/scope.md`、`docs/books/advanced-statistics/qa_report.md`、`docs/books/advanced-statistics/status.md`。
+- 狀態：已部署。
+
 ## Canonical 部署流程
 
 1. 從正式基礎網站 artifact 開始，先驗證既有書庫與版本。
-2. 依 canonical `Deploy study library` 既定順序套用既有書籍修正層並逐書驗證。
+2. 直接下載 deployment receipt 指定的最新正式 Pages artifact，核對 digest、版本與書籍數；不再重播歷史書籍 generator／patch 鏈。
 3. 新增或修正版教材只可接在當下最新正式尾端，且必須確認所有既有 Book ID、內容版本與進度相容性未倒退。
 4. 各書內容／題庫／搜尋／SVG 與高風險公式／法律要件驗證通過後，再檢查 `app.js` 與 `sw.js`。
 5. 全部正式檢查通過後才上傳單一完整 Pages artifact。
-6. Pages deployment 成功後核對 artifact，再寫回 deployment receipt、各書 status／QA 與本 checkpoint。
-7. 最新正式書庫：12 本，`2026.07.29-17`；Pages run `30460567595`，artifact `8727395112`。
+6. Pages deployment 成功後重新下載本次 artifact 驗證，再由結構化 recorder 寫回 deployment receipt、目標書 status／QA、README 與本 checkpoint。
+7. 最新正式書庫：13 本，`2026.07.29-18`；Pages run `30469475874`，artifact `8730980114`。
 8. 使用者不需要執行 Git、終端機、手動上傳或部署。
 
 ## 多書並行／發布規則
