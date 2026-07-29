@@ -5,6 +5,7 @@ import contextlib, hashlib, io, json, re, subprocess, sys
 from pathlib import Path
 
 from generate_mathematical_economics import main as generate_book
+from normalize_mathematical_economics_output import main as normalize_output
 from qa_mathematical_economics import main as qa_book
 
 BOOK='mathematical-economics'; EXPECTED_PREVIOUS='computer-fundamentals'; EXPECTED_EXISTING_BOOK_COUNT=13
@@ -25,9 +26,6 @@ def hashes(site: Path, ids: list[str]) -> dict[str,str]:
     return out
 
 def prepare_current_recorder_compatibility() -> None:
-    # The current run was loaded from the historical inline recorder. Make only this
-    # already-loaded run compatible; the same integration also stages the structured
-    # recorder for all subsequent runs.
     path=Path('docs/shared_checkpoint.md'); text=path.read_text(encoding='utf-8')
     for title in ('個體經濟學','中級會計學','總體經濟學'):
         text=re.sub(rf'^###\s+\d+\.\s+{re.escape(title)}\s*$',f'### {title}',text,flags=re.M)
@@ -82,6 +80,7 @@ def integrate(site_root: str, expected_before: str) -> str:
     buf=io.StringIO()
     with contextlib.redirect_stdout(buf): generate_book(str(site))
     if buf.getvalue(): print(buf.getvalue(),end='',file=sys.stderr)
+    normalize_output(str(site))
     post=json.loads(lp.read_text(encoding='utf-8')); post_ids=[b['id'] for b in post['books']]
     if post_ids!=ids+[BOOK]: raise AssertionError(f'book order drift: {post_ids}')
     post['version']=target
