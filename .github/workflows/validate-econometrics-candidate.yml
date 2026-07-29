@@ -1,6 +1,6 @@
 name: Validate econometrics candidate
 
-# Integration validation always rebuilds from the receipt-authoritative deployed artifact.
+# Integration validation always rebuilds from the current receipt-authoritative deployed artifact.
 on:
   pull_request:
     paths:
