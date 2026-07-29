@@ -1,0 +1,23 @@
+name: Diagnose study library workflow
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Validate canonical workflow syntax and microeconomics insertion
+        run: |
+          ruby -e "require 'yaml'; YAML.parse_file('.github/workflows/deploy-pages.yml'); puts 'CANONICAL_YAML_PARSE_OK'"
+          grep -F 'Generate and independently validate microeconomics textbook' .github/workflows/deploy-pages.yml
+          grep -F "'microeconomics_round1_check_count': 1321" .github/workflows/deploy-pages.yml
+          grep -F 'git add docs/deployment_receipt.json README.md docs/shared_checkpoint.md docs/books/microeconomics/status.md' .github/workflows/deploy-pages.yml
+          echo 'CANONICAL_MICRO_MARKERS_OK'
