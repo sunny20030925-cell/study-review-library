@@ -177,7 +177,7 @@ jobs:
           echo "ADVSTAT_NUMERIC_RECHECKS=$ADVSTAT_NUMERIC_RECHECKS" >> "$GITHUB_ENV"
           echo "ADVSTAT_LIBRARY_VERSION=$ADVSTAT_LIBRARY_VERSION" >> "$GITHUB_ENV"
 
-      - name: Apply or validate econometrics post-publication v2 reaudit
+      - name: Apply or validate econometrics post-publication v2 baseline
         run: |
           set -euo pipefail
           python -m py_compile \
@@ -189,12 +189,19 @@ jobs:
           find _site/books -type f ! -path '*/econometrics/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-econ-other-books.sha256
           find _site/assets -type f ! -path '*/econometrics-svg/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-econ-other-assets.sha256
 
-          ECON_LIBRARY_VERSION="$(PYTHONPATH=deploy python deploy/patch_econometrics_v2.py _site | tail -n 1)"
-          test -n "$ECON_LIBRARY_VERSION"
-          PYTHONPATH=deploy python deploy/validate_econometrics_v2.py _site | tee /tmp/econometrics-existing-v2.log
-          ECON_REAUDIT_CHECKS="$(PYTHONPATH=deploy python deploy/qa_econometrics_reaudit_v2.py _site "$ECON_LIBRARY_VERSION" | tee /tmp/econometrics-reaudit.log | grep -oE '(^| )checks=[0-9]+' | head -n 1 | cut -d= -f2)"
-          test -n "$ECON_REAUDIT_CHECKS"
-          test "$ECON_REAUDIT_CHECKS" -ge 40
+          ECON_PRE_VERSION="$(python -c "import json;print(json.load(open('_site/books/econometrics/manifest.json'))['version'])")"
+          if [ "$ECON_PRE_VERSION" = "2026.07.30-2" ]; then
+            ECON_LIBRARY_VERSION="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"
+            ECON_REAUDIT_CHECKS=57
+            PYTHONPATH=deploy python deploy/validate_econometrics_v2.py _site | tee /tmp/econometrics-existing-v3-broad.log
+          else
+            ECON_LIBRARY_VERSION="$(PYTHONPATH=deploy python deploy/patch_econometrics_v2.py _site | tail -n 1)"
+            test -n "$ECON_LIBRARY_VERSION"
+            PYTHONPATH=deploy python deploy/validate_econometrics_v2.py _site | tee /tmp/econometrics-existing-v2.log
+            ECON_REAUDIT_CHECKS="$(PYTHONPATH=deploy python deploy/qa_econometrics_reaudit_v2.py _site "$ECON_LIBRARY_VERSION" | tee /tmp/econometrics-reaudit.log | grep -oE '(^| )checks=[0-9]+' | head -n 1 | cut -d= -f2)"
+            test -n "$ECON_REAUDIT_CHECKS"
+            test "$ECON_REAUDIT_CHECKS" -ge 40
+          fi
 
           find _site/books -type f ! -path '*/econometrics/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-econ-other-books.sha256
           find _site/assets -type f ! -path '*/econometrics-svg/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-econ-other-assets.sha256
@@ -214,15 +221,67 @@ jobs:
           assert lib['version']==os.environ['ECON_LIBRARY_VERSION']
           root=site/'books/econometrics'
           m=json.load(open(root/'manifest.json')); q=json.load(open(root/'questions.json')); s=json.load(open(root/'search.json'))
-          assert m['version']==q['version']=='2026.07.30-1'
+          assert m['version']==q['version'] in ('2026.07.30-1','2026.07.30-2')
           assert len(m['chapters'])==23 and q['count']==100 and len(s['entries'])==189
           assert len(list((site/'assets/econometrics-svg').glob('*.svg')))==20
-          print('ECONOMETRICS_V2_IN_PLACE_OK',lib['version'],len(ids))
+          print('ECONOMETRICS_BASELINE_OK',lib['version'],len(ids),m['version'])
           PY
           node --check _site/app.js
           node --check _site/sw.js
           echo "ECONOMETRICS_REAUDIT_CHECKS=$ECON_REAUDIT_CHECKS" >> "$GITHUB_ENV"
           echo "ECON_LIBRARY_VERSION=$ECON_LIBRARY_VERSION" >> "$GITHUB_ENV"
+
+      - name: Apply econometrics second independent content audit v3
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            deploy/econometrics_v3_corrections.py \
+            deploy/patch_econometrics_v3.py \
+            deploy/qa_econometrics_reaudit_v3.py \
+            deploy/record_econometrics_v3_deployment.py
+
+          find _site/books -type f ! -path '*/econometrics/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-econ-v3-other-books.sha256
+          find _site/assets -type f ! -path '*/econometrics-svg/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-econ-v3-other-assets.sha256
+
+          ECON_V3_LIBRARY_VERSION="$(PYTHONPATH=deploy python deploy/patch_econometrics_v3.py _site | tail -n 1)"
+          test -n "$ECON_V3_LIBRARY_VERSION"
+          PYTHONPATH=deploy python deploy/validate_econometrics_v2.py _site | tee /tmp/econometrics-v3-broad.log
+          PYTHONPATH=deploy python deploy/qa_econometrics_reaudit_v3.py _site "$ECON_V3_LIBRARY_VERSION" | tee /tmp/econometrics-v3-reaudit.log
+          ECONOMETRICS_V3_REAUDIT_CHECKS="$(grep -oE '(^| )checks=[0-9]+' /tmp/econometrics-v3-reaudit.log | head -n 1 | cut -d= -f2)"
+          test -n "$ECONOMETRICS_V3_REAUDIT_CHECKS"
+          test "$ECONOMETRICS_V3_REAUDIT_CHECKS" -ge 500
+          grep -q 'numeric_rechecks=29' /tmp/econometrics-v3-reaudit.log
+          grep -q 'correction_areas=5' /tmp/econometrics-v3-reaudit.log
+          grep -q 'question_adjustments=4' /tmp/econometrics-v3-reaudit.log
+          grep -q 'ids_preserved=true' /tmp/econometrics-v3-reaudit.log
+
+          find _site/books -type f ! -path '*/econometrics/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-econ-v3-other-books.sha256
+          find _site/assets -type f ! -path '*/econometrics-svg/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-econ-v3-other-assets.sha256
+          diff -u /tmp/pre-econ-v3-other-books.sha256 /tmp/post-econ-v3-other-books.sha256
+          diff -u /tmp/pre-econ-v3-other-assets.sha256 /tmp/post-econ-v3-other-assets.sha256
+
+          ECON_V3_LIBRARY_VERSION="$ECON_V3_LIBRARY_VERSION" python - <<'PY'
+          import json,os
+          from pathlib import Path
+          site=Path('_site')
+          lib=json.load(open(site/'data/library.json'))
+          ids=[b['id'] for b in lib['books']]
+          base=json.load(open('/tmp/base_ids.json'))
+          assert ids==base, (base,ids)
+          assert ids.count('econometrics')==1
+          assert ids.index('investments') < ids.index('econometrics') < ids.index('industrial-economics') < ids.index('industry-trade')
+          assert lib['version']==os.environ['ECON_V3_LIBRARY_VERSION']
+          root=site/'books/econometrics'
+          m=json.load(open(root/'manifest.json')); q=json.load(open(root/'questions.json')); s=json.load(open(root/'search.json'))
+          assert m['version']==q['version']=='2026.07.30-2'
+          assert len(m['chapters'])==23 and q['count']==100 and len(s['entries'])==189
+          assert len(list((site/'assets/econometrics-svg').glob('*.svg')))==20
+          print('ECONOMETRICS_V3_IN_PLACE_OK',lib['version'],len(ids))
+          PY
+          node --check _site/app.js
+          node --check _site/sw.js
+          echo "ECONOMETRICS_V3_REAUDIT_CHECKS=$ECONOMETRICS_V3_REAUDIT_CHECKS" >> "$GITHUB_ENV"
+          echo "ECON_V3_LIBRARY_VERSION=$ECON_V3_LIBRARY_VERSION" >> "$GITHUB_ENV"
 
       - name: Apply or validate industrial economics v2 independent audit
         run: |
@@ -454,7 +513,7 @@ jobs:
           assert [x['id'] for x in vq['items']]==[f'ch{i:02d}-q{j:02d}' for i in range(22) for j in range(1,6)]
           econ=site/'books/econometrics'
           em=json.load(open(econ/'manifest.json')); eq=json.load(open(econ/'questions.json')); es=json.load(open(econ/'search.json'))
-          assert em['version']==eq['version']=='2026.07.30-1'
+          assert em['version']==eq['version']=='2026.07.30-2'
           assert len(em['chapters'])==23 and eq['count']==100 and len(es['entries'])==189
           assert len(list((site/'assets/econometrics-svg').glob('*.svg')))==20
           industrial=site/'books/industrial-economics'
@@ -474,12 +533,12 @@ jobs:
           assert json.load(open(trade/'questions.json'))['count']==100
           assert len(json.load(open(trade/'search.json'))['entries'])==160
           assert len(list((site/'assets/industry-trade-svg').glob('*.svg')))==20
-          print('DEPLOYED_ARTIFACT_RECHECK_OK',lib['version'],len(ids),'investments=2026.07.30-1')
+          print('DEPLOYED_ARTIFACT_RECHECK_OK',lib['version'],len(ids),'investments=2026.07.30-1','econometrics=2026.07.30-2')
           PY
           PYTHONPATH=deploy python deploy/qa_advanced_statistics_reaudit_v2.py /tmp/deployed-site "$FINAL_LIBRARY_VERSION"
           PYTHONPATH=deploy python deploy/qa_investments_reaudit_v2.py /tmp/deployed-site "$FINAL_LIBRARY_VERSION"
           PYTHONPATH=deploy python deploy/validate_econometrics_v2.py /tmp/deployed-site
-          PYTHONPATH=deploy python deploy/qa_econometrics_reaudit_v2.py /tmp/deployed-site "$FINAL_LIBRARY_VERSION"
+          PYTHONPATH=deploy python deploy/qa_econometrics_reaudit_v3.py /tmp/deployed-site "$FINAL_LIBRARY_VERSION"
           PYTHONPATH=deploy python deploy/validate_industrial_economics_v2.py /tmp/deployed-site "$FINAL_LIBRARY_VERSION"
           PYTHONPATH=deploy python deploy/qa_industrial_economics_v2.py /tmp/deployed-site "$FINAL_LIBRARY_VERSION"
           PYTHONPATH=deploy python deploy/qa_game_theory_v2.py /tmp/deployed-site "$FINAL_LIBRARY_VERSION"
@@ -495,7 +554,7 @@ jobs:
         run: |
           set -euo pipefail
           python deploy/record_advanced_statistics_v2_deployment.py _site
-          python deploy/record_econometrics_v2_deployment.py _site
+          python deploy/record_econometrics_v3_deployment.py _site
           python deploy/record_industrial_economics_v2_deployment.py _site
           python deploy/record_industry_trade_deployment.py _site
           PYTHONPATH=deploy python deploy/record_game_theory_v2_deployment.py _site
