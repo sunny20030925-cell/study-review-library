@@ -59,7 +59,7 @@ def main(site_root: str) -> None:
       'ch10':['Linear Probability Model','百分點','p(1-p)','邊際效果會依當下 X 而變'],
       'ch11':['Weak stationarity','Random walk','spurious regression','高 R² 與顯著 t'],
       'ch12':['AR(1)','serial correlation','HAC','只換標準誤不夠'],
-      'ch13':['First Differences','Fixed Effects','Random Effects','時間不變變數在個體 FE 中無法單獨估係數'],
+      'ch13':['First Differences','Fixed Effects','Random Effects','個體 FE 中無法單獨估係數'],
       'ch14':['relevance','exogeneity／exclusion','weak instrument','第一階段資料可以支持 relevance，但不能證明 exclusion'],
       'ch15':['Potential outcome','Average Treatment Effect','Intention-to-Treat','按原始隨機分派組別比較結果'],
       'ch16':['parallel trends','2×2 DiD','event-study','不顯著」不是數學上的證明','cluster'],
