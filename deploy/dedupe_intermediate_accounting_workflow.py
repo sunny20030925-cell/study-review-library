@@ -28,7 +28,7 @@ safe_step = '''      - name: Generate and independently validate intermediate ac
           else
             cp _site/data/library.json /tmp/pre-intermediate-accounting-library.json
             cat deploy/generate-intermediate-accounting.py.gz.b64.part* | tr -d '\\n' | base64 --decode > /tmp/generate-intermediate-accounting.py.gz
-            echo 'b60133689f2ede497597295688b82646ba070b787ea94a78e950da5603b8bf34  /tmp/generate-intermediate-accounting.py.gz' | sha256sum --check -
+            echo '3f01e59694b48604ad8ba873a360e744024356bc6e07e09895e08fb1f0890474  /tmp/generate-intermediate-accounting.py.gz' | sha256sum --check -
             gzip --decompress --stdout /tmp/generate-intermediate-accounting.py.gz > /tmp/generate-intermediate-accounting.py
             python /tmp/generate-intermediate-accounting.py _site
             FINAL_LIBRARY_VERSION="$(python deploy/finalize_intermediate_accounting_library.py _site /tmp/pre-intermediate-accounting-library.json)"
