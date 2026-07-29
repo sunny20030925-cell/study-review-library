@@ -10,7 +10,7 @@ def main(site_root:str,expected_library:str)->int:
  def ck(cond,msg):
   nonlocal checks; checks+=1
   if not cond: raise AssertionError(msg)
- ck(m['version']==q['version']==VERSION,'book versions'); ck(lib['version']==expected_library,'library version'); ids=[b['id'] for b in lib['books']]; ck(ids[-1]==BOOK and ids.count(BOOK)==1,'book order'); ck(len([x for x in m['chapters'] if x['kind']=='chapter'])==20,'chapters'); ck(len([x for x in m['chapters'] if x['kind']=='appendix'])==3,'appendices'); ck(q['count']==len(q['items'])==100,'questions'); ck(len(s['entries'])==150,'search')
+ ck(m['version']==q['version']==VERSION,'book versions'); ck(lib['version']==expected_library,'library version'); ids=[b['id'] for b in lib['books']]; ck(ids.count(BOOK)==1 and ('industry-trade' not in ids or ids.index(BOOK)<ids.index('industry-trade')),'book order'); ck(len([x for x in m['chapters'] if x['kind']=='chapter'])==20,'chapters'); ck(len([x for x in m['chapters'] if x['kind']=='appendix'])==3,'appendices'); ck(q['count']==len(q['items'])==100,'questions'); ck(len(s['entries'])==150,'search')
  qmap={x['id']:x for x in q['items']}; ck(len(qmap)==100,'unique qids')
  for item in q['items']:
   ck(len(item['question'].strip())>=8,f'question length {item["id"]}'); ck(len(item['answer'].strip())>=2,f'answer length {item["id"]}'); ck(len(item['explanation'].strip())>=6,f'explanation length {item["id"]}'); ck(item['answer'].strip()!=item['explanation'].strip(),f'answer/explanation duplicate {item["id"]}')
