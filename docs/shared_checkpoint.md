@@ -11,10 +11,10 @@
 - 使用者操作限制：只使用平板；不得要求終端機、Git、電腦檔案管理、手動部署或多檔案上傳操作。
 - 正式書庫內容版本：`2026.07.30-6`
 - 正式書籍數：20 本。
-- 最新正式 Pages run：`30490416762`。
+- 最新正式 Pages run：`30490452524`。
 - 最新正式部署 source commit：`b35ca95c8204f678778312d998bd2fd2f98d167d`。
-- 最新 Pages artifact：`8739445998`。
-- Artifact digest：`sha256:20484896b21c43b9df209033ba0b93d5e0e20927a1647b9e5e3e6581894147b5`。
+- 最新 Pages artifact：`8739459664`。
+- Artifact digest：`sha256:ab39fa993f97b2b5fe130ab31e51289023a1c5d13fc9d150eaf5b088c506ab2d`。
 - Pages 狀態：正式 artifact 上傳、Pages deployment 與下載後 artifact recheck 均成功；`2026-07-29T20:57:06.761127+00:00`。
 - 部署回條：`docs/deployment_receipt.json`；`status=success`、`book_count=20`、`library_version=2026.07.30-6`、`progress_storage_changed=false`。
 - 實際下載正式 Pages artifact 後再次核對：20 本 registry；產業及貿易 23 份章節／附錄 HTML、100 題、160 搜尋、20 SVG 與既有正式教材均存在；下載檔 SHA-256 與 GitHub artifact digest 一致。
@@ -172,13 +172,14 @@
 
 ### 16. 民法概要
 - Book ID：`civil-law-overview`
-- 正式內容版本：`2026.07.29-1`
+- 正式內容版本：`2026.07.30-2`
 - 定位：一般大學民法概要；總則、債、物權、親屬、繼承，以請求權基礎與案例解題為主。
 - 成品：20 章、3 附錄、100 題、150 搜尋、20 圖解。
-- QA：第一輪 157 項、第二輪 670 項；14 組現行法高風險 gate、19 個高風險題目精確 gate。
-- 現行法基準：2026-07-29；民法第 166-1 條保持「施行日期尚未另定」警示。
-- 正式 Pages run：`30470779444`；Source commit：`34a0db9e8444bad4ac1b689c37bf5ea2bd679aa9`。
-- 狀態：已部署。
+- 初版 QA：第一輪 157 項、第二輪 670 項。
+- 2026-07-30 第二次獨立內容複核：147 項、12 組現行法 gate、9 題修正；其他 19 本 hash 保持一致。
+- 現行法基準：2026-07-30；第 166-1 條仍未施行；112 年憲判字第 4 號與兄弟姊妹特留分草案狀態已納入。
+- 正式 Pages follow-up run：`30490452524`；Source commit：`b35ca95c8204f678778312d998bd2fd2f98d167d`；artifact：`8739459664`。
+- 狀態：已部署 v2。
 
 ### 17. 投資學
 - Book ID：`investments`
