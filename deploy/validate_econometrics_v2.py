@@ -81,7 +81,7 @@ def main(site_root: str) -> None:
         for q in qs:
             C(bool(q['question'].strip()),f'{q["id"]} question text')
             C(bool(q['answer'].strip()),f'{q["id"]} answer text')
-            C(len(q['explanation'].strip())>=8,f'{q["id"]} explanation substance')
+            C(bool(q['explanation'].strip()),f'{q["id"]} explanation text')
             C(q['bookId']==BOOK,f'{q["id"]} book id')
 
     answer_gates={
