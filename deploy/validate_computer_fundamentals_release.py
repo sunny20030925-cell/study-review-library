@@ -85,7 +85,7 @@ def main(site_root: str, expected_library_version: str) -> int:
     all_text = '\n'.join(rendered.values())
     safeguards = [
         '1 byte = 8 bits', '1 KiB = 1024', '二補數', '只能近似許多實數',
-        '效能因素之一，但不是唯一因素', '並行（concurrency）不必然同時執行',
+        '效能因素之一，但不是唯一因素', '單核心上，多個工作可快速交錯產生並行',
         '虛擬記憶體的概念比「用硬碟補 RAM」更廣', 'TCP 提供可靠、有序的位元組串流',
         'UDP 提供較精簡的資料報服務', '不代表 UDP 在任何情況都一定比較快',
         '不保證網站內容本身一定真實可信', 'Big-O 不是某次計時器結果',
