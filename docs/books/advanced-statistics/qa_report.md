@@ -82,5 +82,5 @@
 - 獨立數值重算：20 項通過；含 Negative Binomial、Slutsky 尺度轉換、Delta、χ²、t、Gamma、多元常態、次序統計量、Bayes、CI、p-value、OLS／R² 等。
 - 其他正式教材逐檔 hash 比對：無變更。
 - Book version：`2026.07.30-1`；shared library：`2026.07.30-8`，20 本。
-- Pages run：`30490932468`；artifact：`8739640949`；digest `sha256:dfefd00509f0b661dc03bfc09bb98262ea762bab096769c7356256f09182d150`。
+- Pages run：`30493853637`；artifact：`8740798612`；digest `sha256:c863a5421710c55696d1b62492d4dfb2d8ed2ecc2f15b37137efd03e1f9e7f94`。
 - 部署後重新下載 artifact，再次核對本書 23 份 HTML、100 題、189 搜尋、20 SVG 與 v2 QA 全部通過。

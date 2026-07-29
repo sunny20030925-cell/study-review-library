@@ -136,8 +136,8 @@ v2 內容與候選 artifact QA 已通過；尚待來源 PR 合併與正式 Pages
 
 - 正式內容版本：`2026.07.30-2`。
 - 正式 shared library：`2026.07.30-8`；正式書籍數：20 本。
-- Pages run：`30490932468`；source commit：`3b5d3f894432810299bc30fc86fd741d3feb6ff8`。
-- Pages artifact：`8739640949`；digest：`sha256:dfefd00509f0b661dc03bfc09bb98262ea762bab096769c7356256f09182d150`。
+- Pages run：`30493853637`；source commit：`d6a83769482eb2fcfc9fcf93a08aa037b4abdddd`。
+- Pages artifact：`8740798612`；digest：`sha256:c863a5421710c55696d1b62492d4dfb2d8ed2ecc2f15b37137efd03e1f9e7f94`。
 - 部署後重新下載 artifact：23 HTML、100 題、189 搜尋、20 SVG 全數存在。
 - 部署後 `GAME_THEORY_V2_AUDIT_OK` 再次通過；其他教材與 shared `app.js` 維持不變。
 - `progress_storage_changed=false`；Book／chapter／question IDs 未改，平板閱讀進度與錯題紀錄相容。

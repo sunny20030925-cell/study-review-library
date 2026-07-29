@@ -32,9 +32,9 @@
 ## 正式發布證據
 
 - canonical workflow：`Deploy study library`
-- workflow run：`30490932468`
-- source commit：`3b5d3f894432810299bc30fc86fd741d3feb6ff8`
-- Pages artifact：`8739640949`
-- Artifact digest：`sha256:dfefd00509f0b661dc03bfc09bb98262ea762bab096769c7356256f09182d150`
+- workflow run：`30493853637`
+- source commit：`d6a83769482eb2fcfc9fcf93a08aa037b4abdddd`
+- Pages artifact：`8740798612`
+- Artifact digest：`sha256:c863a5421710c55696d1b62492d4dfb2d8ed2ecc2f15b37137efd03e1f9e7f94`
 - 正式書庫：20 本，版本 `2026.07.30-8`。
 - Pages deployment、artifact 下載後重驗與 deployment receipt 均成功。
