@@ -79,7 +79,7 @@ def main(site_root: str):
       'Robust SE 修正的是抽樣變異估計',
       '不會單靠共線性就製造系統性 OLS 偏誤',
       'First stage 支持 relevance',
-      '完全不隨時間變動的變數在個體 FE 中無法單獨估係數',
+      '完全不隨時間變動的主效果係數',
       '「所有 pre-trend 係數不顯著」不是數學上的證明',
       'cutoff 附近的 local effect',
       'Prediction 與 causal estimation 是不同 estimand／loss',
