@@ -1,0 +1,97 @@
+name: Validate econometrics v2 reaudit
+
+on:
+  pull_request:
+    paths:
+      - 'deploy/econometrics_v2_corrections.py'
+      - 'deploy/patch_econometrics_v2.py'
+      - 'deploy/qa_econometrics_reaudit_v2.py'
+      - 'deploy/record_econometrics_v2_deployment.py'
+      - '.github/workflows/deploy-pages.yml'
+      - '.github/workflows/validate-econometrics-v2-reaudit.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compile correction and deployment helpers
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            deploy/econometrics_v2_corrections.py \
+            deploy/patch_econometrics_v2.py \
+            deploy/qa_econometrics_reaudit_v2.py \
+            deploy/record_econometrics_v2_deployment.py
+
+      - name: Download receipt-backed formal artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          ARTIFACT_ID="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['pages_artifact_id'])")"
+          DIGEST="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['pages_artifact_digest'])")"
+          gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" > /tmp/base.zip
+          echo "${DIGEST#sha256:}  /tmp/base.zip" | sha256sum --check -
+          rm -rf _site /tmp/unpack
+          mkdir _site /tmp/unpack
+          unzip -q /tmp/base.zip -d /tmp/unpack
+          if [ -f /tmp/unpack/artifact.tar ]; then
+            tar -xf /tmp/unpack/artifact.tar -C _site
+          elif [ -f /tmp/unpack/artifact.tar.gz ]; then
+            tar -xzf /tmp/unpack/artifact.tar.gz -C _site
+          else
+            cp -a /tmp/unpack/. _site/
+          fi
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          lib=json.load(open('_site/data/library.json'))
+          ids=[b['id'] for b in lib['books']]
+          assert len(ids)==19, ids
+          assert ids[-3:]==['investments','econometrics','industrial-economics'], ids[-3:]
+          assert lib['version']=='2026.07.29-24', lib['version']
+          Path('/tmp/base_ids.json').write_text(json.dumps(ids))
+          print('REAUDIT_BASE_OK',lib['version'],len(ids),ids[-3:])
+          PY
+
+      - name: Patch only econometrics and run independent QA
+        run: |
+          set -euo pipefail
+          find _site/books -type f ! -path '*/econometrics/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-books.sha256
+          find _site/assets -type f ! -path '*/econometrics-svg/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-assets.sha256
+
+          FINAL_LIBRARY_VERSION="$(PYTHONPATH=deploy python deploy/patch_econometrics_v2.py _site | tail -n 1)"
+          test "$FINAL_LIBRARY_VERSION" = '2026.07.30-1'
+          PYTHONPATH=deploy python deploy/validate_econometrics_v2.py _site
+          PYTHONPATH=deploy python deploy/qa_econometrics_reaudit_v2.py _site "$FINAL_LIBRARY_VERSION"
+
+          find _site/books -type f ! -path '*/econometrics/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-books.sha256
+          find _site/assets -type f ! -path '*/econometrics-svg/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-assets.sha256
+          diff -u /tmp/pre-books.sha256 /tmp/post-books.sha256
+          diff -u /tmp/pre-assets.sha256 /tmp/post-assets.sha256
+
+          FINAL_LIBRARY_VERSION="$FINAL_LIBRARY_VERSION" python - <<'PY'
+          import json,os
+          from pathlib import Path
+          site=Path('_site')
+          lib=json.load(open(site/'data/library.json'))
+          ids=[b['id'] for b in lib['books']]
+          assert ids==json.load(open('/tmp/base_ids.json'))
+          assert lib['version']==os.environ['FINAL_LIBRARY_VERSION']
+          root=site/'books/econometrics'
+          m=json.load(open(root/'manifest.json')); q=json.load(open(root/'questions.json')); s=json.load(open(root/'search.json'))
+          assert m['version']==q['version']=='2026.07.30-1'
+          assert len(m['chapters'])==23 and q['count']==100 and len(s['entries'])==189
+          qids=[x['id'] for x in q['items']]
+          assert qids==[f'ch{i:02d}-q{j:02d}' for i in range(20) for j in range(1,6)]
+          assert len(list((site/'assets/econometrics-svg').glob('*.svg')))==20
+          print('ECONOMETRICS_V2_PR_VALIDATION_OK',lib['version'],len(ids))
+          PY
+          node --check _site/app.js
+          node --check _site/sw.js
