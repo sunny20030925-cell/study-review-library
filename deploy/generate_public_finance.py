@@ -19,8 +19,17 @@ TITLE = '財政學'
 SUBTITLE = '公共支出・租稅・分配・地方財政'
 VERSION = '2026.07.29-1'
 UPDATED_AT = '2026-07-29'
+COVER = '財'
+ACCENT = '#7c3aed'
 CHAPTERS = CHAPTERS_A + CHAPTERS_B
 QUESTIONS = QUESTIONS_A + QUESTIONS_B
+DIFFICULTY_BY_SLOT = {
+    'q01': '基礎',
+    'q02': '標準',
+    'q03': '標準',
+    'q04': '綜合',
+    'q05': '陷阱',
+}
 
 
 def jdump(obj):
@@ -57,7 +66,7 @@ def chapter_html(ch):
     return f'''<p class="chapter-kicker">第 {int(ch['id'][2:])} 章</p>
 <h1>{html.escape(ch['title'])}</h1>
 <p class="lead">{html.escape(ch['problem'])}</p>
-<figure class="chapter-figure"><img src="./assets/public-finance-svg/{fig}" alt="{html.escape(ch['figure'][0])}"><figcaption>{html.escape(ch['figure'][0])}</figcaption></figure>
+<figure class="chapter-figure"><img loading="lazy" src="assets/public-finance-svg/{fig}" alt="{html.escape(ch['figure'][0])}"><figcaption>{html.escape(ch['figure'][0])}</figcaption></figure>
 <h2 id="本章要解決的問題">本章要解決的問題</h2>
 <p>{html.escape(ch['problem'])}</p>
 <h2 id="白話直覺">白話直覺</h2>
@@ -220,6 +229,9 @@ def main(site_root):
     template_entry['id'] = BOOK
     template_entry['title'] = TITLE
     template_entry['subtitle'] = SUBTITLE
+    template_entry['cover'] = COVER
+    template_entry['accent'] = ACCENT
+    template_entry['status'] = 'available'
     for key in ('description','summary'):
         if key in template_entry:
             template_entry[key] = '一般大學財政學：公共支出、市場失靈、分配、社會保險、租稅、地方財政與公債。'
@@ -237,26 +249,31 @@ def main(site_root):
     figdir.mkdir(parents=True, exist_ok=False)
 
     chapter_meta = []
+    chapter_titles = {}
     for ch in CHAPTERS:
+        number = str(int(ch['id'][2:]))
         rel = f'chapters/{ch["id"]}.html'
         (root / rel).write_text(chapter_html(ch), encoding='utf-8')
         (figdir / f'{ch["slug"]}.svg').write_text(render_svg(ch), encoding='utf-8')
-        chapter_meta.append({'id':ch['id'],'title':ch['title'],'file':rel,'kind':'chapter'})
+        chapter_meta.append({'id':ch['id'],'number':number,'title':ch['title'],'file':rel,'kind':'chapter'})
+        chapter_titles[ch['id']] = f'第 {number} 章 {ch["title"]}'
 
     appendices = [
-        ('appendix-a','附錄 A　核心公式與圖形速查','chapters/appendix-a.html', appendix_a(CHAPTERS)),
-        ('appendix-b','附錄 B　財政學解題路線','chapters/appendix-b.html', appendix_b()),
-        ('appendix-c','附錄 C　中英名詞對照','chapters/appendix-c.html', appendix_c()),
+        ('appendix-a','A','核心公式與圖形速查','chapters/appendix-a.html', appendix_a(CHAPTERS)),
+        ('appendix-b','B','財政學解題路線','chapters/appendix-b.html', appendix_b()),
+        ('appendix-c','C','中英名詞對照','chapters/appendix-c.html', appendix_c()),
     ]
-    for ch_id, title, rel, body in appendices:
+    for ch_id, number, title, rel, body in appendices:
         (root / rel).write_text(body, encoding='utf-8')
-        chapter_meta.append({'id':ch_id,'title':title,'file':rel,'kind':'appendix'})
+        chapter_meta.append({'id':ch_id,'number':number,'title':title,'file':rel,'kind':'appendix'})
 
     manifest = deep_replace(copy.deepcopy(old_manifest), old_id, BOOK)
     manifest['id'] = BOOK
     manifest['title'] = TITLE
     manifest['subtitle'] = SUBTITLE
     manifest['version'] = VERSION
+    manifest['cover'] = COVER
+    manifest['accent'] = ACCENT
     manifest['updatedAt'] = UPDATED_AT
     manifest['chapters'] = chapter_meta
     manifest['releaseNotes'] = [{
@@ -277,26 +294,32 @@ def main(site_root):
     (root / 'manifest.json').write_text(jdump(manifest), encoding='utf-8')
 
     qtop = deep_replace(copy.deepcopy(old_questions), old_id, BOOK)
+    qtop['bookId'] = BOOK
     qtop['version'] = VERSION
-    if 'bookId' in qtop:
-        qtop['bookId'] = BOOK
-    template_q = copy.deepcopy(old_questions['items'][0]) if old_questions.get('items') else {}
     qitems = []
     for src in QUESTIONS:
-        item = copy.deepcopy(template_q)
-        for key in list(item):
-            if key not in {'type','difficulty'}:
-                item.pop(key, None)
-        item.update(src)
+        slot = src['id'].rsplit('-', 1)[-1]
+        item = {
+            'id': src['id'],
+            'bookId': BOOK,
+            'chapterId': src['chapterId'],
+            'chapterTitle': chapter_titles[src['chapterId']],
+            'topic': next(ch['title'] for ch in CHAPTERS if ch['id'] == src['chapterId']),
+            'difficulty': DIFFICULTY_BY_SLOT[slot],
+            'question': src['question'],
+            'answer': src['answer'],
+            'explanation': src['explanation'],
+            'source': '本書自編標準題型',
+        }
         qitems.append(item)
     qtop['count'] = len(qitems)
     qtop['items'] = qitems
     (root / 'questions.json').write_text(jdump(qtop), encoding='utf-8')
 
     appendix_meta = [
-        ('appendix-a','附錄 A　核心公式與圖形速查','公共財、外部性、成本效益、租稅歸宿、超額負擔與債務動態的核心公式。'),
-        ('appendix-b','附錄 B　財政學解題路線','市場失靈、租稅、公共支出、地方財政與公債的判斷流程。'),
-        ('appendix-c','附錄 C　中英名詞對照','公共經濟學與財政學常見英文術語對照。'),
+        ('appendix-a','核心公式與圖形速查','公共財、外部性、成本效益、租稅歸宿、超額負擔與債務動態的核心公式。'),
+        ('appendix-b','財政學解題路線','市場失靈、租稅、公共支出、地方財政與公債的判斷流程。'),
+        ('appendix-c','中英名詞對照','公共經濟學與財政學常見英文術語對照。'),
     ]
     entries = search_entries(CHAPTERS, appendix_meta)
     (root / 'search.json').write_text(jdump({'entries':entries}), encoding='utf-8')
