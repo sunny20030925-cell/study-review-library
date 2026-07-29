@@ -72,7 +72,7 @@ def main(site_root: str, expected_library: str) -> None:
         '次序統計量（order statistic）','中央極限定理（CLT）','Student t 分配','最大概似估計（MLE）',
         '充分統計量（sufficient statistic）','Cramér–Rao 下界','Rao–Blackwell','樞紐量（pivotal quantity）',
         'Neyman–Pearson','UMP 檢定','Wilks 定理','Gauss–Markov 定理',
-        'rate λ','多對一轉換','有限樣本','漸近結果','p-value','不是 H0 為真的機率',
+        'rate λ','多對一轉換','有限樣本','漸近 χ²','p-value','不是 H0 為真的機率',
     ]
     for tok in required:
         concept(tok in full,f'missing core concept: {tok}')
