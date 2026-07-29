@@ -18,7 +18,8 @@ def main(site_root, expected_library='2026.07.29-15'):
  ids=[x['id'] for x in lib['books']]
  legacy_order=(len(ids)==11 and ids[-3:]==['macroeconomics','international-economics','public-finance'])
  money_order=(len(ids)==12 and ids[-4:]==['macroeconomics','international-economics','public-finance','money-banking'])
- ck(legacy_order or money_order,'canonical book order')
+ math_order=(len(ids)==13 and ids[-5:]==['macroeconomics','international-economics','public-finance','money-banking','mathematical-economics'])
+ ck(legacy_order or money_order or math_order,'canonical book order')
  chapters=[x for x in m['chapters'] if x['kind']=='chapter']; apps=[x for x in m['chapters'] if x['kind']=='appendix']
  ck(len(chapters)==20,'chapters'); ck(len(apps)==3,'appendices'); ck(q['count']==len(q['items'])==100,'questions'); ck(len(s['entries'])==143,'search'); ck(len({x['id'] for x in q['items']})==100,'unique qids'); ck(Counter(x['chapterId'] for x in q['items'])=={f'ch{i:02d}':5 for i in range(20)},'five each')
  qmap={x['id']:x for x in q['items']}
@@ -80,5 +81,5 @@ def main(site_root, expected_library='2026.07.29-15'):
  print(f'MACROECONOMICS_V2_QA_OK checks={checks} books={len(ids)} library={expected_library} chapters=20 appendices=3 questions=100 search=143 figures=20 quantitative_rechecks={len(expected)} content_corrections=14 question_adjustments=7')
 
 if __name__=='__main__':
- if len(sys.argv) not in (2,3): raise SystemExit('usage: qa_macroeconomics_v2.py SITE_ROOT [EXPECTED_LIBRARY]')
- main(sys.argv[1],sys.argv[2] if len(sys.argv)==3 else '2026.07.29-15')
+ if len(sys.argv)!=3: raise SystemExit('usage: qa_macroeconomics_v2.py SITE_ROOT EXPECTED_LIBRARY')
+ main(sys.argv[1],sys.argv[2])
