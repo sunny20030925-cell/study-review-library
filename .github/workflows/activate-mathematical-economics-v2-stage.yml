@@ -17,11 +17,9 @@ jobs:
           fetch-depth: 0
 
       - name: Build validated canonical workflow from latest main
-        env:
-          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          git fetch origin main
+          git fetch origin main activate-math-econ-v2-stage
           git checkout -B stage-main origin/main
           BASE_SHA="$(git rev-parse HEAD)"
           BASE_TREE="$(git rev-parse HEAD^{tree})"
@@ -37,20 +35,19 @@ jobs:
           print('MATHEMATICAL_ECONOMICS_V2_MAIN_STAGE_READY')
           PY
           git diff --check
+          cp .github/workflows/deploy-pages.yml /tmp/math-econ-deploy-pages.yml
 
-          BLOB_SHA="$(jq -Rs '{content:.,encoding:"utf-8"}' .github/workflows/deploy-pages.yml | gh api --method POST "repos/${GITHUB_REPOSITORY}/git/blobs" --input - --jq .sha)"
-          TREE_SHA="$(jq -n --arg base "$BASE_TREE" --arg blob "$BLOB_SHA" '{base_tree:$base,tree:[{path:".github/workflows/deploy-pages.yml",mode:"100644",type:"blob",sha:$blob}]}' | gh api --method POST "repos/${GITHUB_REPOSITORY}/git/trees" --input - --jq .sha)"
-          COMMIT_SHA="$(jq -n --arg msg 'Stage mathematical economics v2 canonical deployment' --arg tree "$TREE_SHA" --arg parent "$BASE_SHA" '{message:$msg,tree:$tree,parents:[$parent]}' | gh api --method POST "repos/${GITHUB_REPOSITORY}/git/commits" --input - --jq .sha)"
-          test -n "$COMMIT_SHA"
-          printf '%s\n' "$BASE_SHA" > /tmp/math-econ-base-sha.txt
-          printf '%s\n' "$COMMIT_SHA" > /tmp/math-econ-commit-sha.txt
-          echo "MATHEMATICAL_ECONOMICS_V2_DETACHED_COMMIT=$COMMIT_SHA"
+          git checkout -B activate-math-econ-v2-stage origin/activate-math-econ-v2-stage
+          mkdir -p staged
+          cp /tmp/math-econ-deploy-pages.yml staged/mathematical-economics-v2-deploy-pages.yml
+          printf '%s\n' "$BASE_SHA" > staged/mathematical-economics-v2-base-sha.txt
+          printf '%s\n' "$BASE_TREE" > staged/mathematical-economics-v2-base-tree-sha.txt
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add staged/mathematical-economics-v2-deploy-pages.yml staged/mathematical-economics-v2-base-sha.txt staged/mathematical-economics-v2-base-tree-sha.txt
+          if ! git diff --cached --quiet; then
+            git commit -m 'Store validated mathematical economics v2 workflow blob'
+            git push origin HEAD:activate-math-econ-v2-stage
+          fi
           echo "MATHEMATICAL_ECONOMICS_V2_BASE_SHA=$BASE_SHA"
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: mathematical-economics-v2-detached-commit
-          path: |
-            /tmp/math-econ-base-sha.txt
-            /tmp/math-econ-commit-sha.txt
-          if-no-files-found: error
+          echo "MATHEMATICAL_ECONOMICS_V2_BASE_TREE=$BASE_TREE"
