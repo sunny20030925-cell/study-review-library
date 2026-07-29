@@ -1,0 +1,51 @@
+name: Apply microeconomics v2 canonical integration
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/apply-microeconomics-v2.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  integrate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout latest main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Validate and integrate post-publication corrections
+        run: |
+          python -m py_compile \
+            deploy/patch_microeconomics_v2.py \
+            deploy/qa_microeconomics_v2.py \
+            deploy/integrate_microeconomics_v2.py
+          python deploy/integrate_microeconomics_v2.py .github/workflows/deploy-pages.yml
+          ruby -e "require 'yaml'; YAML.parse_file('.github/workflows/deploy-pages.yml'); puts 'CANONICAL_YAML_PARSE_OK'"
+          grep -F 'python deploy/patch_microeconomics_v2.py _site' .github/workflows/deploy-pages.yml
+          grep -F "'microeconomics_version': '2026.07.29-2'" .github/workflows/deploy-pages.yml
+          grep -F "'microeconomics_independent_check_count': 1616" .github/workflows/deploy-pages.yml
+          grep -F '發布後獨立二次複核' .github/workflows/deploy-pages.yml
+
+      - name: Commit canonical workflow and retire temporary integrator
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          rm .github/workflows/apply-microeconomics-v2.yml
+          git add .github/workflows/deploy-pages.yml .github/workflows/apply-microeconomics-v2.yml
+          git commit -m "Integrate microeconomics post-publication corrections"
+          for attempt in 1 2 3; do
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            git fetch origin main
+            git rebase origin/main
+          done
+          echo 'Unable to push canonical workflow after three attempts.' >&2
+          exit 1
