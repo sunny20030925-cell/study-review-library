@@ -1,5 +1,6 @@
 name: Replay audited microeconomics v2 on latest main
 
+# retrigger audited replay after merge event produced no workflow run
 on:
   push:
     branches: [main]
