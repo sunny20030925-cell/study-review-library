@@ -26,7 +26,7 @@ jobs:
       - name: Validate split Base64 decoder and stage workflow
         run: |
           python -m py_compile deploy/decode_split_base64.py
-          python deploy/decode_split_base64.py 'deploy/generate-macroeconomics.py.gz.b64.part*' /tmp/generate-macroeconomics.py.gz
+          python deploy/decode_split_base64.py 'deploy/generate-macroeconomics.py.gz.b64.part*' /tmp/generate-macroeconomics.py.gz --expected-sha256 05259f866024c5e442207ae2e9d448f4511c33db3868f14d504424b103fb058e
           echo '05259f866024c5e442207ae2e9d448f4511c33db3868f14d504424b103fb058e  /tmp/generate-macroeconomics.py.gz' | sha256sum --check -
           gzip --test /tmp/generate-macroeconomics.py.gz
           gzip --decompress --stdout /tmp/generate-macroeconomics.py.gz > /tmp/generate-macroeconomics.py
@@ -38,7 +38,7 @@ jobs:
           target = Path('deploy/staged-macro-decode-deploy-pages.yml')
           text = source.read_text(encoding='utf-8')
           old = "          cat deploy/generate-macroeconomics.py.gz.b64.part* | tr -d '\\n' | base64 --decode > /tmp/generate-macroeconomics.py.gz\n"
-          new = "          python deploy/decode_split_base64.py 'deploy/generate-macroeconomics.py.gz.b64.part*' /tmp/generate-macroeconomics.py.gz\n"
+          new = "          python deploy/decode_split_base64.py 'deploy/generate-macroeconomics.py.gz.b64.part*' /tmp/generate-macroeconomics.py.gz --expected-sha256 05259f866024c5e442207ae2e9d448f4511c33db3868f14d504424b103fb058e\n"
           assert text.count(old) == 1
           text = text.replace(old, new, 1)
           assert old not in text
@@ -46,7 +46,7 @@ jobs:
           target.write_text(text, encoding='utf-8')
           PY
           ruby -e "require 'yaml'; YAML.load_file('deploy/staged-macro-decode-deploy-pages.yml'); puts 'MACRO_DECODE_YAML_OK'"
-          grep -F "python deploy/decode_split_base64.py 'deploy/generate-macroeconomics.py.gz.b64.part*' /tmp/generate-macroeconomics.py.gz" deploy/staged-macro-decode-deploy-pages.yml
+          grep -F "python deploy/decode_split_base64.py 'deploy/generate-macroeconomics.py.gz.b64.part*' /tmp/generate-macroeconomics.py.gz --expected-sha256 05259f866024c5e442207ae2e9d448f4511c33db3868f14d504424b103fb058e" deploy/staged-macro-decode-deploy-pages.yml
 
       - name: Commit non-workflow staging blob
         run: |
