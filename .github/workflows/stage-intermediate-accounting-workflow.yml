@@ -3,12 +3,6 @@ name: Stage intermediate accounting canonical workflow
 on:
   push:
     branches:
-      - agent/intermediate-accounting-book
-    paths:
-      - .github/workflows/stage-intermediate-accounting-workflow.yml
-      - deploy/integrate_intermediate_accounting_workflow.py
-  pull_request:
-    branches:
       - main
     paths:
       - .github/workflows/stage-intermediate-accounting-workflow.yml
@@ -21,19 +15,21 @@ jobs:
   stage:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout branch
+      - name: Checkout intermediate accounting branch
         uses: actions/checkout@v4
         with:
           ref: agent/intermediate-accounting-book
+          fetch-depth: 0
 
       - name: Generate and syntax-check canonical workflow
         run: |
+          git show origin/main:.github/workflows/deploy-pages.yml > .github/workflows/deploy-pages.yml
           python deploy/integrate_intermediate_accounting_workflow.py
           ruby -e "require 'yaml'; YAML.load_file('deploy/generated-deploy-pages.intermediate-accounting.yml'); puts 'YAML_OK'"
           grep -F "Generate and independently validate intermediate accounting textbook" deploy/generated-deploy-pages.intermediate-accounting.yml
           grep -F "'intermediate_accounting_version': '2026.07.29-1'" deploy/generated-deploy-pages.intermediate-accounting.yml
 
-      - name: Commit staged canonical workflow
+      - name: Commit staged canonical workflow to integration branch
         run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
