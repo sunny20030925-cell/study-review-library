@@ -54,3 +54,14 @@ HHI、Lerner 指標、Cournot 最佳回應、CES markup、平均成本與規模�
 1. GitHub candidate workflow 必須從執行當下最新成功 Pages artifact 重建候選並重跑兩輪 QA。
 2. 正式發布前重新同步最新 `main` 與 shared checkpoint；若其他平行教材先發布，重新整合而非使用舊基底。
 3. 正式共同書庫部署後，核對 Pages artifact、deployment receipt、書籍數、版本與 progress storage，再更新本報告為正式發布版。
+
+## 正式發布結果
+
+- Round 1：1495 項通過；Round 2：545 項通過。
+- 100 題逐題複核、20 題數值題獨立重算、12 個高風險章節重新判讀。
+- 既有 19 本內容 hash：整合前後完全一致。
+- 正式書庫：20 本，版本 `2026.07.30-2`。
+- Pages run：`30487070814`。
+- Pages artifact：`8738081884`；digest `sha256:674accfd19678ab1b16463af54c3b7d87060bb697712698b215cd1455bfea8e5`。
+- 部署後 artifact 重抓：23 份本書 HTML、100 題、160 搜尋、20 SVG 全數核對通過。
+- post-deploy recorder：`passed-structured-recorder`。

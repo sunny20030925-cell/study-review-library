@@ -9,15 +9,15 @@
 - 固定入口：`https://sunny20030925-cell.github.io/study-review-library/`
 - 形式：平板直式 PWA 書庫，可持續加入新科目。
 - 使用者操作限制：只使用平板；不得要求終端機、Git、電腦檔案管理、手動部署或多檔案上傳操作。
-- 正式書庫內容版本：`2026.07.30-1`
-- 正式書籍數：19 本。
-- 最新正式 Pages run：`30486206718`。
-- 最新正式部署 source commit：`731a4f51298fe80ce5ac0ba3f07f9f4cf8db2780`。
-- 最新 Pages artifact：`8737722771`。
-- Artifact digest：`sha256:10098e7b8467cb9572515f77e02cc31344850ec253acd2afc69a625d8d033d4a`。
-- Pages 狀態：正式 artifact 上傳、Pages deployment 與下載後 artifact recheck 均成功；`2026-07-29T19:51:33.721553+00:00`。
-- 部署回條：`docs/deployment_receipt.json`；`status=success`、`book_count=19`、`library_version=2026.07.30-1`、`progress_storage_changed=false`。
-- 實際下載正式 Pages artifact 後再次核對：19 本 registry；計量經濟學 v2 23 份 HTML、100 題、189 搜尋、20 SVG 與產業經濟學正式資產均存在；下載檔 SHA-256 與 GitHub artifact digest 一致。
+- 正式書庫內容版本：`2026.07.30-2`
+- 正式書籍數：20 本。
+- 最新正式 Pages run：`30487070814`。
+- 最新正式部署 source commit：`551c4c906e33f7537cc416ef41e8cb4e0ad823f6`。
+- 最新 Pages artifact：`8738081884`。
+- Artifact digest：`sha256:674accfd19678ab1b16463af54c3b7d87060bb697712698b215cd1455bfea8e5`。
+- Pages 狀態：正式 artifact 上傳、Pages deployment 與下載後 artifact recheck 均成功；`2026-07-29T20:05:24.181337+00:00`。
+- 部署回條：`docs/deployment_receipt.json`；`status=success`、`book_count=20`、`library_version=2026.07.30-2`、`progress_storage_changed=false`。
+- 實際下載正式 Pages artifact 後再次核對：20 本 registry；產業及貿易 23 份章節／附錄 HTML、100 題、160 搜尋、20 SVG 與既有正式教材均存在；下載檔 SHA-256 與 GitHub artifact digest 一致。
 - workflow overall conclusion：`success`；post-deploy recorder 採結構化 Book ID／receipt 更新。
 
 ## 正式規格與讀取順序
@@ -195,8 +195,8 @@
 - 2026-07-30 發布後獨立內容審計：2 個精確化修正；v2 reaudit validator 57 項通過。
 - 修正重點：FE／FD 明列 strict exogeneity；隨機實驗分開 SATE 與 PATE／external validity。
 - 章節 ID、題目 ID、題數與閱讀／錯題儲存相容性均保持不變。
-- 正式 Pages run：`30486206718`；Source commit：`731a4f51298fe80ce5ac0ba3f07f9f4cf8db2780`；artifact：`8737722771`。
-- Artifact digest／下載 SHA-256：`sha256:10098e7b8467cb9572515f77e02cc31344850ec253acd2afc69a625d8d033d4a`。
+- 正式 Pages run：`30487070814`；Source commit：`551c4c906e33f7537cc416ef41e8cb4e0ad823f6`；artifact：`8738081884`。
+- Artifact digest／下載 SHA-256：`sha256:674accfd19678ab1b16463af54c3b7d87060bb697712698b215cd1455bfea8e5`。
 - 文件：`docs/books/econometrics/scope.md`、`docs/books/econometrics/qa_report.md`、`docs/books/econometrics/status.md`。
 - 狀態：已部署。
 
@@ -210,6 +210,16 @@
 - 正式 Pages run：`30486206718`；Source commit：`731a4f51298fe80ce5ac0ba3f07f9f4cf8db2780`。
 - 狀態：已部署。
 
+### 20. 產業及貿易
+- Book ID：`industry-trade`
+- 正式內容版本：`2026.07.29-1`
+- 定位：產業組織 × 國際貿易；市場結構、跨國生產、政策與福利。
+- 成品：20 章、3 附錄、100 題、160 搜尋、20 圖解。
+- QA：Round 1 = 1495、Round 2 = 545；20 題數值題獨立重算、12 個高風險章節重判。
+- 既有 19 本教材 hash 在整合前後完全一致。
+- 正式 Pages run：`30487070814`；Source commit：`551c4c906e33f7537cc416ef41e8cb4e0ad823f6`。
+- 狀態：已部署。
+
 ## Canonical 部署流程
 
 1. 從正式基礎網站 artifact 開始，先驗證既有書庫與版本。
@@ -218,7 +228,7 @@
 4. 各書內容／題庫／搜尋／SVG 與高風險公式／法律要件驗證通過後，再檢查 `app.js` 與 `sw.js`。
 5. 全部正式檢查通過後才上傳單一完整 Pages artifact。
 6. Pages deployment 成功後重新下載本次 artifact 驗證，再由結構化 recorder 寫回 deployment receipt、目標書 status／QA、README 與本 checkpoint。
-7. 最新正式書庫：19 本，`2026.07.30-1`；Pages run `30486206718`，artifact `8737722771`。
+7. 最新正式書庫：20 本，`2026.07.30-2`；Pages run `30487070814`，artifact `8738081884`。
 8. 使用者不需要執行 Git、終端機、手動上傳或部署。
 
 ## 多書並行／發布規則
