@@ -9,7 +9,7 @@ from qa_money_banking_v2 import main as qa_v2
 
 BOOK='money-banking'
 EXPECTED_PREVIOUS_BOOK='public-finance'
-GENERATOR_SHA256='e31937c06988a26fd52e8f056eb7432ae2cac136e4aebb1ab7fab6ccf15b96bb'
+GENERATOR_SHA256='d033b4ee1870f621642d2c32b73ee47d6ebe642cd6bf776db28bffb6de4e2ee3'
 
 
 def next_version(v: str) -> str:
