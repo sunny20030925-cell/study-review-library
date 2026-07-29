@@ -1,3 +1,4 @@
+# One-shot trigger for the industrial-economics v2 canonical deployment patch.
 name: Stage industrial economics v2 deployment
 
 on:
