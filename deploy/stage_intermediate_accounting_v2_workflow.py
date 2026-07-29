@@ -78,7 +78,6 @@ def main(src: str, dst: str) -> None:
     if count != 1:
         raise AssertionError(f'ia status block: expected 1, got {count}')
 
-    checkpoint_anchor = "          if '### 總體經濟學' not in c:\n"
     checkpoint_runtime = """          ia_section_v2 = (
               '### 中級會計學\\n\\n'
               '- Book ID：`intermediate-accounting`\\n'
@@ -117,11 +116,12 @@ def main(src: str, dst: str) -> None:
           elif new_ia_workline not in c:
               raise AssertionError('intermediate accounting workline status not found')
 """
+    checkpoint_anchor = "          cp.write_text(c, encoding='utf-8')\n"
     if 'ia_section_v2 = (' not in text:
         text = replace_once(text, checkpoint_anchor, checkpoint_runtime + checkpoint_anchor, 'checkpoint v2 runtime')
 
-    readme_anchor = "          micro_v2_line = '- 《個體經濟學》：一般大學中級個體經濟學，20 章、3 附錄、100 題題庫、154 筆搜尋索引與 20 張圖解；發布後獨立二次複核版本 `2026.07.29-2`。'\n"
     readme_runtime = """          intermediate_v2_line = '- 《中級會計學》：一般大學中級會計學，22 章、3 附錄、110 題題庫、145 筆搜尋索引與 22 張圖解；發布後獨立二次內容審計版本 `2026.07.29-2`。'
+          r_lines = r.splitlines()
           ia_indexes = [i for i, line in enumerate(r_lines) if line.startswith('- 《中級會計學》：')]
           if ia_indexes:
               first = ia_indexes[0]
@@ -131,9 +131,9 @@ def main(src: str, dst: str) -> None:
           else:
               insert_at = max(i for i, line in enumerate(r_lines) if line.startswith('- 《')) + 1
               r_lines.insert(insert_at, intermediate_v2_line)
+          r = '\\n'.join(r_lines) + ('\\n' if r.endswith('\\n') else '')
 """
-    # Insert after r_lines exists, immediately after the micro v2 normalization block.
-    readme_insert_anchor = "          r = '\\n'.join(r_lines) + ('\\n' if r.endswith('\\n') else '')\n"
+    readme_insert_anchor = "          rp.write_text(r, encoding='utf-8')\n"
     if 'intermediate_v2_line =' not in text:
         text = replace_once(text, readme_insert_anchor, readme_runtime + readme_insert_anchor, 'README v2 runtime')
 
