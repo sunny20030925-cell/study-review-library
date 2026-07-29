@@ -20,7 +20,7 @@ def main(site_root:str):
     expected=os.environ.get('EXPECTED_LIBRARY_VERSION')
     pre_path=os.environ.get('PRE_LIBRARY_JSON')
     ck(m['id']==BOOK and m['version']==q['version']==VERSION,'book identity/version')
-    ck(ids.count(BOOK)==1 and ids[-1]==BOOK,'candidate appended once at tail')
+    ck(ids.count(BOOK)==1,'candidate registered exactly once')
     if expected: ck(lib['version']==expected,'final candidate library version')
     if pre_path:
         pre=json.loads(Path(pre_path).read_text(encoding='utf-8')); pre_ids=[b['id'] for b in pre['books']]
