@@ -8,8 +8,8 @@ from generate_mathematical_economics import main as generate_book
 from qa_mathematical_economics import main as qa_book
 
 BOOK='mathematical-economics'
-PREVIOUS='computer-fundamentals'
-PRE_COUNT=14
+PREVIOUS='game-theory'
+PRE_COUNT=15
 
 
 def next_version(v: str) -> str:
@@ -35,7 +35,7 @@ def main(site_root: str, expected_before: str) -> str:
     before_doc=json.loads(lp.read_text(encoding='utf-8')); ids=[b['id'] for b in before_doc['books']]
     if before_doc['version']!=expected_before: raise AssertionError((before_doc['version'],expected_before))
     if BOOK in ids: raise AssertionError(f'{BOOK} already exists')
-    if len(ids)!=PRE_COUNT or ids[-2:]!=['advanced-statistics',PREVIOUS]: raise AssertionError(f'expected 14-book advanced-statistics -> computer-fundamentals tail, got {ids}')
+    if len(ids)!=PRE_COUNT or ids[-2:]!=['computer-fundamentals',PREVIOUS]: raise AssertionError(f'expected 15-book computer-fundamentals -> game-theory tail, got {ids}')
     before_hashes=book_hashes(site,ids)
     target=next_version(expected_before)
 
@@ -55,8 +55,8 @@ def main(site_root: str, expected_before: str) -> str:
     changed=[bid for bid in ids if before_hashes[bid]!=after_hashes[bid]]
     if changed: raise AssertionError(f'existing book hashes changed: {changed}')
     final=json.loads(lp.read_text(encoding='utf-8'))
-    if final['version']!=target or len(final['books'])!=15 or final['books'][-1]['id']!=BOOK: raise AssertionError('final mathematical economics state drift')
-    print(f'MATHEMATICAL_ECONOMICS_INTEGRATION_OK books=15 library={target} preserved_existing_books=14',file=sys.stderr)
+    if final['version']!=target or len(final['books'])!=16 or final['books'][-1]['id']!=BOOK: raise AssertionError('final mathematical economics state drift')
+    print(f'MATHEMATICAL_ECONOMICS_INTEGRATION_OK books=16 library={target} preserved_existing_books=15',file=sys.stderr)
     return target
 
 
