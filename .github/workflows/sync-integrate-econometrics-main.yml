@@ -1,0 +1,49 @@
+name: Resync econometrics deployment branch with main
+
+on:
+  push:
+    branches:
+      - integrate-econometrics
+    paths:
+      - '.github/workflows/sync-integrate-econometrics-main.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout integration branch
+        uses: actions/checkout@v4
+        with:
+          ref: integrate-econometrics
+          fetch-depth: 0
+
+      - name: Merge latest main and preserve econometrics workflow files
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git fetch origin main
+          set +e
+          git merge --no-commit --no-ff origin/main
+          MERGE_EXIT=$?
+          set -e
+          if [ "$MERGE_EXIT" -ne 0 ]; then
+            for path in .github/workflows/deploy-pages.yml .github/workflows/validate-econometrics-candidate.yml; do
+              if git diff --name-only --diff-filter=U | grep -qx "$path"; then
+                git checkout --ours "$path"
+                git add "$path"
+              fi
+            done
+            REMAINING="$(git diff --name-only --diff-filter=U)"
+            if [ -n "$REMAINING" ]; then
+              echo "Unresolved conflicts remain:"
+              echo "$REMAINING"
+              exit 1
+            fi
+          fi
+          git rm .github/workflows/sync-integrate-econometrics-main.yml
+          git commit -m 'Resync econometrics deployment with latest main'
+          git push origin HEAD:integrate-econometrics
