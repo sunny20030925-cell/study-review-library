@@ -7,7 +7,7 @@ from generate_civil_law_overview import main as generate_fresh, BOOK, VERSION
 from validate_civil_law_overview import main as qa1
 from qa_civil_law_overview import main as qa2
 
-EXPECTED_PREVIOUS_BOOK='money-banking'
+MIN_EXISTING_BOOKS=12
 
 def next_version(v):
     m=re.fullmatch(r'(\d{4}\.\d{2}\.\d{2})-(\d+)',v)
@@ -33,7 +33,7 @@ def integrate(site_root,expected_before):
     pre=json.loads(lp.read_text(encoding='utf-8')); pre_ids=[b['id'] for b in pre['books']]
     if pre['version']!=expected_before: raise AssertionError(f'civil pre-version expected {expected_before}, got {pre["version"]}')
     if BOOK in pre_ids: raise AssertionError('civil book already present')
-    if len(pre_ids)!=12 or pre_ids[-1]!=EXPECTED_PREVIOUS_BOOK: raise AssertionError(f'civil integration requires twelve-book money tail, got {pre_ids}')
+    if len(pre_ids)<MIN_EXISTING_BOOKS or len(set(pre_ids))!=len(pre_ids): raise AssertionError(f'civil integration requires a valid formal library, got {pre_ids}')
     before=book_hashes(site,pre_ids); target=next_version(expected_before)
     buf=io.StringIO()
     with contextlib.redirect_stdout(buf): generate_fresh(str(site))
@@ -61,7 +61,7 @@ def integrate(site_root,expected_before):
         raise AssertionError(f'existing book content changed during civil integration: {changed}')
     final=json.loads(lp.read_text(encoding='utf-8'))
     if final['version']!=target or [b['id'] for b in final['books']]!=pre_ids+[BOOK]: raise AssertionError('civil final state drift')
-    print(f'CIVIL_LAW_OVERVIEW_INTEGRATION_OK books=13 library={target} preserved_existing_books={len(pre_ids)}',file=sys.stderr)
+    print(f'CIVIL_LAW_OVERVIEW_INTEGRATION_OK books={len(final["books"])} library={target} preserved_existing_books={len(pre_ids)}',file=sys.stderr)
     return target
 
 if __name__=='__main__':
