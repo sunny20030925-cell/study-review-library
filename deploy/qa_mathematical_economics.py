@@ -49,7 +49,7 @@ def main(site_root: str, expected_library: str) -> None:
     full='\n'.join(corpus)
     required=['反矩陣','特徵值','Taylor 近似','全微分','Jacobian','比較靜態','彈性','Hessian','Lagrange','KKT','互補鬆弛','包絡定理','Euler 定理','微積分基本定理','差分方程','微分方程','穩定性']
     for token in required: ck(token in full,f'missing topic {token}')
-    logic_tokens=['FOC','必要條件','比較靜態不是時間','互補鬆弛','|b|<1','F′(x*)<0']
+    logic_tokens=['FOC','必要條件','不是追時間路徑','互補鬆弛','|b|<1','F′(x*)<0']
     for token in logic_tokens: ck(token in full,f'missing logic guard {token}')
     valid={x['id'] for x in manifest['chapters']}
     for e in search['entries']:
