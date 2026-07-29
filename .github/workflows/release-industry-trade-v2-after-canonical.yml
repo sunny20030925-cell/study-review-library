@@ -1,0 +1,195 @@
+name: Release Industry and Trade v2 after canonical
+
+on:
+  workflow_run:
+    workflows: ["Deploy study library"]
+    types: [completed]
+
+permissions:
+  contents: write
+  actions: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  release:
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Decide whether v2 release is still needed
+        run: |
+          set -euo pipefail
+          CURRENT="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json')).get('industry_trade_version',''))")"
+          REAUDIT="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json')).get('industry_trade_post_publication_reaudit',''))")"
+          if [ "$CURRENT" = "2026.07.30-1" ] && [ "$REAUDIT" = "passed" ]; then
+            echo "SKIP_INDUSTRY_TRADE_V2=true" >> "$GITHUB_ENV"
+            echo "INDUSTRY_TRADE_V2_ALREADY_RELEASED"
+          else
+            echo "SKIP_INDUSTRY_TRADE_V2=false" >> "$GITHUB_ENV"
+          fi
+
+      - name: Download latest formally recorded Pages artifact
+        if: env.SKIP_INDUSTRY_TRADE_V2 != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          ARTIFACT_ID="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['pages_artifact_id'])")"
+          DIGEST="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['pages_artifact_digest'])")"
+          EXPECTED_VERSION="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['library_version'])")"
+          EXPECTED_COUNT="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['book_count'])")"
+          gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" > /tmp/formal.zip
+          echo "${DIGEST#sha256:}  /tmp/formal.zip" | sha256sum --check -
+          rm -rf /tmp/formal-unpack _site
+          mkdir /tmp/formal-unpack _site
+          unzip -q /tmp/formal.zip -d /tmp/formal-unpack
+          if [ -f /tmp/formal-unpack/artifact.tar ]; then
+            tar -xf /tmp/formal-unpack/artifact.tar -C _site
+          elif [ -f /tmp/formal-unpack/artifact.tar.gz ]; then
+            tar -xzf /tmp/formal-unpack/artifact.tar.gz -C _site
+          else
+            cp -a /tmp/formal-unpack/. _site/
+          fi
+          EXPECTED_VERSION="$EXPECTED_VERSION" EXPECTED_COUNT="$EXPECTED_COUNT" python - <<'PY'
+          import json,os
+          from pathlib import Path
+          site=Path('_site'); lib=json.load(open(site/'data/library.json')); ids=[b['id'] for b in lib['books']]
+          assert lib['version']==os.environ['EXPECTED_VERSION']
+          assert len(ids)==int(os.environ['EXPECTED_COUNT'])
+          assert ids.count('industry-trade')==1
+          assert (site/'app.js').is_file() and (site/'sw.js').is_file()
+          m=json.load(open(site/'books/industry-trade/manifest.json'))
+          q=json.load(open(site/'books/industry-trade/questions.json'))
+          assert m['version']==q['version']=='2026.07.29-1'
+          Path('/tmp/base_ids.json').write_text(json.dumps(ids))
+          print('INDUSTRY_TRADE_V2_RELEASE_BASE_OK',lib['version'],len(ids))
+          PY
+
+      - name: Apply v2 corrections and independent reaudit
+        if: env.SKIP_INDUSTRY_TRADE_V2 != 'true'
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            deploy/patch_industry_trade_v2.py \
+            deploy/qa_industry_trade_reaudit_v2.py \
+            deploy/record_industry_trade_v2_deployment.py
+          find _site/books -type f ! -path '*/industry-trade/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-other-books.sha256
+          find _site/assets -type f ! -path '*/industry-trade-svg/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-other-assets.sha256
+          FINAL_LIBRARY_VERSION="$(PYTHONPATH=deploy python deploy/patch_industry_trade_v2.py _site | tail -n 1)"
+          test -n "$FINAL_LIBRARY_VERSION"
+          PYTHONPATH=deploy python deploy/qa_industry_trade_reaudit_v2.py _site "$FINAL_LIBRARY_VERSION" | tee /tmp/reaudit.log
+          REAUDIT_CHECKS="$(python - <<'PY'
+          import re
+          s=open('/tmp/reaudit.log',encoding='utf-8').read()
+          m=re.search(r'checks=(\d+)',s)
+          if not m: raise SystemExit(1)
+          print(m.group(1))
+          PY
+          )"
+          test "$REAUDIT_CHECKS" -ge 1500
+          find _site/books -type f ! -path '*/industry-trade/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-other-books.sha256
+          find _site/assets -type f ! -path '*/industry-trade-svg/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-other-assets.sha256
+          diff -u /tmp/pre-other-books.sha256 /tmp/post-other-books.sha256
+          diff -u /tmp/pre-other-assets.sha256 /tmp/post-other-assets.sha256
+          FINAL_LIBRARY_VERSION="$FINAL_LIBRARY_VERSION" python - <<'PY'
+          import json,os
+          from pathlib import Path
+          site=Path('_site'); lib=json.load(open(site/'data/library.json')); ids=[b['id'] for b in lib['books']]
+          base=json.load(open('/tmp/base_ids.json'))
+          assert ids==base
+          assert lib['version']==os.environ['FINAL_LIBRARY_VERSION']
+          root=site/'books/industry-trade'
+          m=json.load(open(root/'manifest.json')); q=json.load(open(root/'questions.json')); s=json.load(open(root/'search.json'))
+          assert m['version']==q['version']=='2026.07.30-1'
+          assert len(m['chapters'])==23 and q['count']==100 and len(s['entries'])==160
+          assert len(list((site/'assets/industry-trade-svg').glob('*.svg')))==20
+          print('INDUSTRY_TRADE_V2_RELEASE_READY',lib['version'],len(ids))
+          PY
+          node --check _site/app.js
+          node --check _site/sw.js
+          echo "FINAL_LIBRARY_VERSION=$FINAL_LIBRARY_VERSION" >> "$GITHUB_ENV"
+          echo "INDUSTRY_TRADE_V2_REAUDIT_CHECKS=$REAUDIT_CHECKS" >> "$GITHUB_ENV"
+
+      - uses: actions/upload-pages-artifact@v3
+        if: env.SKIP_INDUSTRY_TRADE_V2 != 'true'
+        with:
+          path: _site
+
+      - id: deployment
+        if: env.SKIP_INDUSTRY_TRADE_V2 != 'true'
+        uses: actions/deploy-pages@v4
+
+      - name: Re-download and verify deployed v2 artifact
+        if: env.SKIP_INDUSTRY_TRADE_V2 != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DEPLOYED_PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          set -euo pipefail
+          ARTIFACT_ID="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts" --jq '.artifacts[] | select(.name == "github-pages") | .id' | tail -n 1)"
+          DIGEST="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts" --jq '.artifacts[] | select(.name == "github-pages") | .digest' | tail -n 1)"
+          test -n "$ARTIFACT_ID" && test -n "$DIGEST"
+          gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" > /tmp/deployed.zip
+          SHA="$(sha256sum /tmp/deployed.zip | awk '{print $1}')"
+          test "$SHA" = "${DIGEST#sha256:}"
+          rm -rf /tmp/deployed-unpack /tmp/deployed-site
+          mkdir /tmp/deployed-unpack /tmp/deployed-site
+          unzip -q /tmp/deployed.zip -d /tmp/deployed-unpack
+          if [ -f /tmp/deployed-unpack/artifact.tar ]; then
+            tar -xf /tmp/deployed-unpack/artifact.tar -C /tmp/deployed-site
+          elif [ -f /tmp/deployed-unpack/artifact.tar.gz ]; then
+            tar -xzf /tmp/deployed-unpack/artifact.tar.gz -C /tmp/deployed-site
+          else
+            cp -a /tmp/deployed-unpack/. /tmp/deployed-site/
+          fi
+          PYTHONPATH=deploy python deploy/qa_industry_trade_reaudit_v2.py /tmp/deployed-site "$FINAL_LIBRARY_VERSION"
+          FINAL_LIBRARY_VERSION="$FINAL_LIBRARY_VERSION" python - <<'PY'
+          import json,os
+          from pathlib import Path
+          site=Path('/tmp/deployed-site'); lib=json.load(open(site/'data/library.json'))
+          ids=[b['id'] for b in lib['books']]
+          assert lib['version']==os.environ['FINAL_LIBRARY_VERSION']
+          assert len(ids)==len(json.load(open('/tmp/base_ids.json')))
+          assert ids==json.load(open('/tmp/base_ids.json'))
+          root=site/'books/industry-trade'
+          m=json.load(open(root/'manifest.json')); q=json.load(open(root/'questions.json')); s=json.load(open(root/'search.json'))
+          assert m['version']==q['version']=='2026.07.30-1'
+          assert len(m['chapters'])==23 and q['count']==100 and len(s['entries'])==160
+          assert len(list((site/'assets/industry-trade-svg').glob('*.svg')))==20
+          print('INDUSTRY_TRADE_V2_DEPLOYED_ARTIFACT_OK',lib['version'],len(ids))
+          PY
+          echo "PAGES_ARTIFACT_ID=$ARTIFACT_ID" >> "$GITHUB_ENV"
+          echo "PAGES_ARTIFACT_DIGEST=$DIGEST" >> "$GITHUB_ENV"
+          echo "PAGES_ARTIFACT_SHA256=$SHA" >> "$GITHUB_ENV"
+          echo "DEPLOYED_PAGE_URL=$DEPLOYED_PAGE_URL" >> "$GITHUB_ENV"
+
+      - name: Record successful Industry and Trade v2 deployment
+        if: env.SKIP_INDUSTRY_TRADE_V2 != 'true'
+        run: |
+          set -euo pipefail
+          python deploy/record_industry_trade_v2_deployment.py _site
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add \
+            docs/deployment_receipt.json \
+            README.md \
+            docs/shared_checkpoint.md \
+            docs/books/industry-trade/status.md \
+            docs/books/industry-trade/qa_report.md
+          if ! git diff --cached --quiet; then
+            git commit -m "Record Industry and Trade v2 reaudit deployment [skip ci]"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
