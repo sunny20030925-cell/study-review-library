@@ -43,7 +43,8 @@ def main():
     ck(len({q['id'] for q in QUESTIONS}) == 100, 'unique question ids')
     ck(Counter(q['chapterId'] for q in QUESTIONS) == {f'ch{i:02d}':5 for i in range(20)}, 'five per chapter')
     ck(len({q['question'] for q in QUESTIONS}) == 100, 'unique question text')
-    ck(all(len(q['explanation']) >= 18 for q in QUESTIONS), 'nontrivial explanations')
+    short_explanations = [(q['id'], q['explanation']) for q in QUESTIONS if len(q['explanation']) < 18]
+    ck(not short_explanations, f'nontrivial explanations: {short_explanations}')
 
     for ch in CHAPTERS:
         for key in ('problem','intuition','definitions','formulas','example','traps','exam','checks','figure'):
@@ -56,7 +57,6 @@ def main():
 
     qmap = {q['id']: q for q in QUESTIONS}
 
-    # Independent arithmetic reconstruction rather than copying the validator's constants.
     q = 2 / 5
     p = 3 / 5
     ck(math.isclose(q, 0.4) and math.isclose(p, 0.6), 'mixed equilibrium arithmetic')
@@ -142,7 +142,6 @@ def main():
     ck(equal_share*2 == pair_value, 'cooperative-game core reconstruction')
     qcheck(qmap, 'ch17-q04', '(30,30,30)。')
 
-    # Independent conceptual traps.
     ccheck(qmap, 'ch02-q03', '是。')
     ccheck(qmap, 'ch03-q05', '不保證。')
     ccheck(qmap, 'ch04-q05', '因 A 的 p 決定 B 面對各純策略的期望報酬。')
