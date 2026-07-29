@@ -9,6 +9,8 @@ from pathlib import Path
 
 BOOK = 'industry-trade'
 BOOK_VERSION = '2026.07.29-1'
+BOOK_ORDINAL = 20
+PREEXISTING_AT_RELEASE = 19
 
 
 def replace_once(text: str, pattern: str, replacement: str, label: str) -> str:
@@ -22,8 +24,8 @@ def main(site_root: str) -> None:
     site = Path(site_root)
     library = json.loads((site / 'data/library.json').read_text(encoding='utf-8'))
     ids = [book['id'] for book in library['books']]
-    if not ids or ids[-1] != BOOK or ids.count(BOOK) != 1:
-        raise AssertionError(f'industry trade not unique tail: {ids}')
+    if ids.count(BOOK) != 1:
+        raise AssertionError(f'industry trade not unique: {ids}')
     if 'industrial-economics' not in ids or ids.index('industrial-economics') > ids.index(BOOK):
         raise AssertionError('industrial economics must precede industry trade')
 
@@ -104,6 +106,7 @@ def main(site_root: str) -> None:
 - Book ID：`{BOOK}`
 - 正式內容版本：`{BOOK_VERSION}`
 - 正式書庫版本：`{library["version"]}`
+- 正式位置：第 {BOOK_ORDINAL} 本。
 - 狀態：已部署。
 
 ## 成品與 QA
@@ -111,17 +114,17 @@ def main(site_root: str) -> None:
 - 正文 20 章、附錄 3 份、題庫 100 題、搜尋索引 160 筆、自製 SVG 20 張。
 - 正式部署前 Round 1：{qa1} 項；Round 2：{qa2} 項，均通過。
 - 100 題逐題複核、20 題數值題獨立重算、12 個高風險章節重新判讀。
-- 發布前既有 {count-1} 本教材內容 hash 在整合前後完全一致。
+- 本書首次整合時既有 {PREEXISTING_AT_RELEASE} 本教材內容 hash 完全一致；後續新增教材不改變此歷史 gate。
 - 新 Book ID 不改既有章節 ID、題目 ID、閱讀進度或錯題儲存鍵。
 
 ## 部署
 
 - canonical workflow：`Deploy study library`
-- workflow run：`{os.environ["GITHUB_RUN_ID"]}`
+- 最新重驗 workflow run：`{os.environ["GITHUB_RUN_ID"]}`
 - source commit：`{os.environ["GITHUB_SHA"]}`
 - Pages artifact：`{artifact_id}`
 - Artifact digest：`{digest}`
-- 正式書庫書籍數：{count} 本。
+- 目前正式書庫書籍數：{count} 本。
 - Pages deployment、artifact 下載重驗與結構化 deployment receipt 均成功。
 '''
     Path('docs/books/industry-trade/status.md').write_text(status, encoding='utf-8')
@@ -132,9 +135,9 @@ def main(site_root: str) -> None:
 
 - Round 1：{qa1} 項通過；Round 2：{qa2} 項通過。
 - 100 題逐題複核、20 題數值題獨立重算、12 個高風險章節重新判讀。
-- 既有 {count-1} 本內容 hash：整合前後完全一致。
-- 正式書庫：{count} 本，版本 `{library["version"]}`。
-- Pages run：`{os.environ["GITHUB_RUN_ID"]}`。
+- 本書首次整合時既有 {PREEXISTING_AT_RELEASE} 本內容 hash：整合前後完全一致。
+- 本書正式位置：第 {BOOK_ORDINAL} 本；目前正式書庫：{count} 本，版本 `{library["version"]}`。
+- 最新重驗 Pages run：`{os.environ["GITHUB_RUN_ID"]}`。
 - Pages artifact：`{artifact_id}`；digest `{digest}`。
 - 部署後 artifact 重抓：23 份本書 HTML、100 題、160 搜尋、20 SVG 全數核對通過。
 - post-deploy recorder：`passed-structured-recorder`。
@@ -178,14 +181,14 @@ def main(site_root: str) -> None:
     checkpoint = replace_once(checkpoint, r'- 實際下載正式 Pages artifact 後再次核對：.*$', f'- 實際下載正式 Pages artifact 後再次核對：{count} 本 registry；產業及貿易 23 份章節／附錄 HTML、100 題、160 搜尋、20 SVG 與既有正式教材均存在；下載檔 SHA-256 與 GitHub artifact digest 一致。', 'checkpoint artifact recheck')
     checkpoint = replace_once(checkpoint, r'- workflow overall conclusion：.*$', '- workflow overall conclusion：`success`；post-deploy recorder 採結構化 Book ID／receipt 更新。', 'checkpoint workflow conclusion')
 
-    section = f'''### {count}. 產業及貿易
+    section = f'''### {BOOK_ORDINAL}. 產業及貿易
 - Book ID：`{BOOK}`
 - 正式內容版本：`{BOOK_VERSION}`
 - 定位：產業組織 × 國際貿易；市場結構、跨國生產、政策與福利。
 - 成品：20 章、3 附錄、100 題、160 搜尋、20 圖解。
 - QA：Round 1 = {qa1}、Round 2 = {qa2}；20 題數值題獨立重算、12 個高風險章節重判。
-- 既有 {count-1} 本教材 hash 在整合前後完全一致。
-- 正式 Pages run：`{os.environ["GITHUB_RUN_ID"]}`；Source commit：`{os.environ["GITHUB_SHA"]}`。
+- 本書首次整合時既有 {PREEXISTING_AT_RELEASE} 本教材 hash 在整合前後完全一致。
+- 最新重驗 Pages run：`{os.environ["GITHUB_RUN_ID"]}`；Source commit：`{os.environ["GITHUB_SHA"]}`。
 - 狀態：已部署。
 
 '''
