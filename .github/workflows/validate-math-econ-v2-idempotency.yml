@@ -21,11 +21,12 @@ jobs:
         run: |
           set -euo pipefail
           git fetch origin main finalize-math-econ-v2-idempotency
+          git show origin/finalize-math-econ-v2-idempotency:deploy/make_mathematical_economics_v2_step_idempotent.py > /tmp/make_math_econ_idempotent.py
           git checkout -B stage-main origin/main
           BASE_SHA="$(git rev-parse HEAD)"
           BASE_TREE="$(git rev-parse HEAD^{tree})"
-          python -m py_compile deploy/make_mathematical_economics_v2_step_idempotent.py
-          python deploy/make_mathematical_economics_v2_step_idempotent.py
+          python -m py_compile /tmp/make_math_econ_idempotent.py
+          python /tmp/make_math_econ_idempotent.py
           python - <<'PY'
           from pathlib import Path
           p=Path('.github/workflows/deploy-pages.yml').read_text()
@@ -52,5 +53,3 @@ jobs:
             git commit -m 'Store validated math economics idempotent workflow blob'
             git push origin HEAD:finalize-math-econ-v2-idempotency
           fi
-
-# trigger validation
