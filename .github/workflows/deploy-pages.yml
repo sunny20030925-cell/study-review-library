@@ -30,6 +30,21 @@ jobs:
         with:
           enablement: true
 
+      - name: Compile civil law release sources
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            deploy/civil_law_overview_content.py \
+            deploy/civil_law_overview_content_a.py \
+            deploy/civil_law_overview_content_b.py \
+            deploy/civil_law_overview_content_c.py \
+            deploy/civil_law_overview_questions.py \
+            deploy/generate_civil_law_overview.py \
+            deploy/integrate_civil_law_overview.py \
+            deploy/validate_civil_law_overview.py \
+            deploy/qa_civil_law_overview.py \
+            deploy/record_civil_law_overview_deployment.py
+
       - name: Download and verify latest formal Pages artifact
         env:
           GH_TOKEN: ${{ github.token }}
@@ -49,68 +64,69 @@ jobs:
           else
             cp -a /tmp/base-pages-artifact/. _site/
           fi
+          cp _site/data/library.json /tmp/pre-civil-library.json
           python - <<'PY'
-          import json
+          import json, os
           from pathlib import Path
-          site=Path('_site')
-          receipt=json.load(open('docs/deployment_receipt.json'))
-          library=json.load(open(site/'data/library.json'))
+          receipt=json.loads(Path('docs/deployment_receipt.json').read_text(encoding='utf-8'))
+          library=json.loads(Path('_site/data/library.json').read_text(encoding='utf-8'))
+          assert receipt['status']=='success'
+          assert receipt['pages_deploy_status']=='success'
           assert library['version']==receipt['library_version'], (library['version'],receipt['library_version'])
           assert len(library['books'])==receipt['book_count']
-          assert (site/'app.js').is_file() and (site/'sw.js').is_file()
+          assert len({b['id'] for b in library['books']})==len(library['books'])
+          assert (Path('_site')/'app.js').is_file() and (Path('_site')/'sw.js').is_file()
           print('FORMAL_ARTIFACT_BASE_OK',library['version'],len(library['books']))
+          with open(os.environ['GITHUB_ENV'],'a',encoding='utf-8') as f:
+              f.write(f"BASE_LIBRARY_VERSION={library['version']}\n")
+              f.write(f"BASE_BOOK_COUNT={len(library['books'])}\n")
           PY
 
-      - name: Validate formal advanced statistics tail
-        run: |
-          set -euo pipefail
-          BEFORE="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"
-          python deploy/validate_advanced_statistics.py _site "$BEFORE"
-          python - <<'PY'
-          import json
-          d=json.load(open('_site/data/library.json'))
-          ids=[b['id'] for b in d['books']]
-          assert len(ids)==13 and ids[-2:]==['money-banking','advanced-statistics'], ids
-          print('ADVANCED_STATISTICS_FORMAL_BASE_OK',d['version'],len(ids))
-          PY
-
-      - name: Integrate or validate computer fundamentals
+      - name: Integrate or validate civil law overview
         run: |
           set -euo pipefail
           if python - <<'PY'
           import json,sys
           d=json.load(open('_site/data/library.json'))
-          sys.exit(0 if any(b['id']=='computer-fundamentals' for b in d['books']) else 1)
+          sys.exit(0 if any(b['id']=='civil-law-overview' for b in d['books']) else 1)
           PY
           then
             FINAL_LIBRARY_VERSION="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"
-            python deploy/validate_computer_fundamentals_release.py _site "$FINAL_LIBRARY_VERSION"
-            python deploy/qa_computer_fundamentals_release.py _site "$FINAL_LIBRARY_VERSION"
+            EXPECTED_FINAL_BOOK_COUNT="$BASE_BOOK_COUNT"
+            python deploy/validate_civil_law_overview.py _site "$FINAL_LIBRARY_VERSION"
+            python deploy/qa_civil_law_overview.py _site "$FINAL_LIBRARY_VERSION"
           else
             BEFORE="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"
-            FINAL_LIBRARY_VERSION="$(python deploy/integrate_computer_fundamentals.py _site "$BEFORE")"
+            FINAL_LIBRARY_VERSION="$(python deploy/integrate_civil_law_overview.py _site "$BEFORE")"
+            EXPECTED_FINAL_BOOK_COUNT="$((BASE_BOOK_COUNT + 1))"
           fi
-          export FINAL_LIBRARY_VERSION
           echo "FINAL_LIBRARY_VERSION=$FINAL_LIBRARY_VERSION" >> "$GITHUB_ENV"
+          echo "EXPECTED_FINAL_BOOK_COUNT=$EXPECTED_FINAL_BOOK_COUNT" >> "$GITHUB_ENV"
           node --check _site/app.js
           node --check _site/sw.js
           python - <<'PY'
           import json,os
           from pathlib import Path
           site=Path('_site')
-          library=json.load(open(site/'data/library.json'))
-          assert library['version']==os.environ['FINAL_LIBRARY_VERSION']
-          ids=[b['id'] for b in library['books']]
-          assert len(ids)==14 and ids[-2:]==['advanced-statistics','computer-fundamentals'], ids
-          root=site/'books/computer-fundamentals'
+          pre=json.loads(Path('/tmp/pre-civil-library.json').read_text(encoding='utf-8'))
+          final=json.loads((site/'data/library.json').read_text(encoding='utf-8'))
+          pre_ids=[b['id'] for b in pre['books']]
+          ids=[b['id'] for b in final['books']]
+          assert final['version']==os.environ['FINAL_LIBRARY_VERSION']
+          assert len(ids)==int(os.environ['EXPECTED_FINAL_BOOK_COUNT'])
+          if 'civil-law-overview' in pre_ids:
+              assert ids==pre_ids
+          else:
+              assert ids==pre_ids+['civil-law-overview'], (pre_ids,ids)
+          root=site/'books/civil-law-overview'
           manifest=json.load(open(root/'manifest.json'))
           questions=json.load(open(root/'questions.json'))
           search=json.load(open(root/'search.json'))
           assert len(manifest['chapters'])==23
           assert questions['count']==100
           assert len(search['entries'])==150
-          assert len(list((site/'assets/computer-fundamentals-svg').glob('*.svg')))==20
-          print('FINAL_LIBRARY_READY',library['version'],len(ids))
+          assert len(list((site/'assets/civil-law-overview-svg').glob('*.svg')))==20
+          print('CIVIL_LIBRARY_READY',final['version'],len(ids))
           PY
 
       - name: Upload Pages artifact
@@ -146,47 +162,47 @@ jobs:
           else
             cp -a /tmp/deployed-pages-artifact/. /tmp/deployed-site/
           fi
-          FINAL_LIBRARY_VERSION="$FINAL_LIBRARY_VERSION" python - <<'PY'
+          python deploy/validate_civil_law_overview.py /tmp/deployed-site "$FINAL_LIBRARY_VERSION"
+          python deploy/qa_civil_law_overview.py /tmp/deployed-site "$FINAL_LIBRARY_VERSION"
+          python - <<'PY'
           import json,os
           from pathlib import Path
           site=Path('/tmp/deployed-site')
-          library=json.load(open(site/'data/library.json'))
-          assert library['version']==os.environ['FINAL_LIBRARY_VERSION']
+          pre=json.loads(Path('/tmp/pre-civil-library.json').read_text(encoding='utf-8'))
+          library=json.loads((site/'data/library.json').read_text(encoding='utf-8'))
           ids=[b['id'] for b in library['books']]
-          assert len(ids)==14 and ids[-2:]==['advanced-statistics','computer-fundamentals'], ids
-          adv=site/'books/advanced-statistics'
-          assert len(json.load(open(adv/'manifest.json'))['chapters'])==23
-          assert json.load(open(adv/'questions.json'))['count']==100
-          assert len(json.load(open(adv/'search.json'))['entries'])==189
-          assert len(list((site/'assets/advanced-statistics-svg').glob('*.svg')))==20
-          root=site/'books/computer-fundamentals'
-          manifest=json.load(open(root/'manifest.json'))
-          questions=json.load(open(root/'questions.json'))
-          search=json.load(open(root/'search.json'))
-          assert len(manifest['chapters'])==23
-          assert questions['count']==100
-          assert len(search['entries'])==150
-          assert len(list((site/'assets/computer-fundamentals-svg').glob('*.svg')))==20
-          print('DEPLOYED_ARTIFACT_RECHECK_OK',library['version'],len(ids))
+          pre_ids=[b['id'] for b in pre['books']]
+          assert library['version']==os.environ['FINAL_LIBRARY_VERSION']
+          assert len(ids)==int(os.environ['EXPECTED_FINAL_BOOK_COUNT'])
+          if 'civil-law-overview' in pre_ids:
+              assert ids==pre_ids
+          else:
+              assert ids==pre_ids+['civil-law-overview']
+          root=site/'books/civil-law-overview'
+          assert len(list((root/'chapters').glob('*.html')))==23
+          assert json.load(open(root/'questions.json'))['count']==100
+          assert len(json.load(open(root/'search.json'))['entries'])==150
+          assert len(list((site/'assets/civil-law-overview-svg').glob('*.svg')))==20
+          print('DEPLOYED_CIVIL_ARTIFACT_RECHECK_OK',library['version'],len(ids))
           PY
           echo "PAGES_ARTIFACT_ID=$ARTIFACT_ID" >> "$GITHUB_ENV"
           echo "PAGES_ARTIFACT_DIGEST=$ARTIFACT_DIGEST" >> "$GITHUB_ENV"
           echo "PAGES_ARTIFACT_SHA256=$ACTUAL_SHA" >> "$GITHUB_ENV"
           echo "DEPLOYED_PAGE_URL=$DEPLOYED_PAGE_URL" >> "$GITHUB_ENV"
 
-      - name: Record successful deployment structurally
+      - name: Record successful civil law deployment structurally
         run: |
           set -euo pipefail
-          python deploy/record_computer_fundamentals_deployment.py _site
+          python deploy/record_civil_law_overview_deployment.py _site
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add \
             docs/deployment_receipt.json \
             README.md \
             docs/shared_checkpoint.md \
-            docs/books/computer-fundamentals/status.md \
-            docs/books/computer-fundamentals/qa_report.md
+            docs/books/civil-law-overview/status.md \
+            docs/books/civil-law-overview/qa_report.md
           if ! git diff --cached --quiet; then
-            git commit -m "Record computer fundamentals deployment [skip ci]"
+            git commit -m "Record civil law overview deployment [skip ci]"
             git push origin HEAD:main
           fi
