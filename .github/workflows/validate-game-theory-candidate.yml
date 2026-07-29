@@ -5,9 +5,12 @@ on:
     paths:
       - 'deploy/game_theory_*.py'
       - 'deploy/generate_game_theory.py'
+      - 'deploy/patch_game_theory_v2.py'
       - 'deploy/finalize_game_theory_library.py'
+      - 'deploy/finalize_game_theory_v2_library.py'
       - 'deploy/validate_game_theory.py'
       - 'deploy/qa_game_theory_second_pass.py'
+      - 'deploy/qa_game_theory_v2.py'
       - 'docs/books/game-theory/**'
       - '.github/workflows/validate-game-theory-candidate.yml'
   workflow_dispatch:
@@ -31,23 +34,25 @@ jobs:
             deploy/game_theory_questions_a.py \
             deploy/game_theory_questions_b.py \
             deploy/generate_game_theory.py \
+            deploy/patch_game_theory_v2.py \
             deploy/finalize_game_theory_library.py \
+            deploy/finalize_game_theory_v2_library.py \
             deploy/validate_game_theory.py \
-            deploy/qa_game_theory_second_pass.py
+            deploy/qa_game_theory_second_pass.py \
+            deploy/qa_game_theory_v2.py
 
-      - name: Download formal deployed Pages artifact from receipt
+      - name: Download latest formal Pages artifact
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           ARTIFACT_ID="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['pages_artifact_id'])")"
+          ARTIFACT_DIGEST="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['pages_artifact_digest'])")"
           RECEIPT_LIBRARY="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['library_version'])")"
           RECEIPT_BOOKS="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['book_count'])")"
-          test -n "$ARTIFACT_ID"
-          echo "BASE_ARTIFACT_ID=$ARTIFACT_ID"
-          echo "RECEIPT_LIBRARY=$RECEIPT_LIBRARY"
-          echo "RECEIPT_BOOKS=$RECEIPT_BOOKS"
+          EXPECTED_SHA="${ARTIFACT_DIGEST#sha256:}"
           gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" > /tmp/pages.zip
+          echo "${EXPECTED_SHA}  /tmp/pages.zip" | sha256sum --check -
           mkdir /tmp/pages-artifact _site
           unzip -q /tmp/pages.zip -d /tmp/pages-artifact
           if [ -f /tmp/pages-artifact/artifact.tar ]; then
@@ -57,58 +62,64 @@ jobs:
           else
             cp -a /tmp/pages-artifact/. _site/
           fi
-          test -f _site/data/library.json
-          test -f _site/sw.js
-          test -f _site/app.js
           RECEIPT_LIBRARY="$RECEIPT_LIBRARY" RECEIPT_BOOKS="$RECEIPT_BOOKS" python - <<'PY'
           import json, os
           from pathlib import Path
-          lib=json.loads(Path('_site/data/library.json').read_text(encoding='utf-8'))
+          site=Path('_site')
+          lib=json.loads((site/'data/library.json').read_text(encoding='utf-8'))
           ids=[b['id'] for b in lib['books']]
           assert lib['version']==os.environ['RECEIPT_LIBRARY'], (lib['version'],os.environ['RECEIPT_LIBRARY'])
           assert len(ids)==int(os.environ['RECEIPT_BOOKS']), ids
-          assert 'game-theory' not in ids, ids
-          print(f"FORMAL_GAME_THEORY_BASE_OK books={len(ids)} library={lib['version']} tail={ids[-3:]}")
+          assert ids.count('game-theory')==1, ids
+          m=json.loads((site/'books/game-theory/manifest.json').read_text(encoding='utf-8'))
+          assert m['version'] in {'2026.07.29-1','2026.07.30-2'}, m['version']
+          print(f"FORMAL_GAME_THEORY_V2_BASE_OK books={len(ids)} library={lib['version']} content={m['version']}")
           PY
 
-      - name: Generate isolated candidate on deployed library copy
+      - name: Patch isolated formal artifact to game theory v2
         run: |
           set -euo pipefail
-          cp _site/data/library.json /tmp/pre-game-theory-library.json
-          find _site/books -type f -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-existing-books.sha256
-          python deploy/generate_game_theory.py _site
-          FINAL_LIBRARY_VERSION="$(python deploy/finalize_game_theory_library.py _site /tmp/pre-game-theory-library.json)"
+          BEFORE="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"
+          echo "BEFORE_LIBRARY_VERSION=$BEFORE" >> "$GITHUB_ENV"
+          find _site/books -type f ! -path '_site/books/game-theory/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-other-books.sha256
+          sha256sum _site/app.js > /tmp/pre-app.sha256
+          python deploy/patch_game_theory_v2.py _site
+          FINAL_LIBRARY_VERSION="$(python deploy/finalize_game_theory_v2_library.py _site "$BEFORE" | tail -n 1)"
           echo "FINAL_LIBRARY_VERSION=$FINAL_LIBRARY_VERSION" >> "$GITHUB_ENV"
-          echo "GAME_THEORY_FINAL_LIBRARY=$FINAL_LIBRARY_VERSION"
+          echo "GAME_THEORY_V2_FINAL_LIBRARY=$FINAL_LIBRARY_VERSION"
 
-      - name: Independent content and preservation validation
+      - name: Independent v2 content and preservation validation
         run: |
           set -euo pipefail
-          EXPECTED_LIBRARY_VERSION="$FINAL_LIBRARY_VERSION" PRE_LIBRARY_JSON=/tmp/pre-game-theory-library.json \
-            python deploy/validate_game_theory.py _site
+          python deploy/qa_game_theory_v2.py _site "$FINAL_LIBRARY_VERSION"
           python deploy/qa_game_theory_second_pass.py
-          find _site/books -type f ! -path '*/game-theory/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-existing-books.sha256
-          diff -u /tmp/pre-existing-books.sha256 /tmp/post-existing-books.sha256
+          find _site/books -type f ! -path '_site/books/game-theory/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-other-books.sha256
+          sha256sum _site/app.js > /tmp/post-app.sha256
+          diff -u /tmp/pre-other-books.sha256 /tmp/post-other-books.sha256
+          diff -u /tmp/pre-app.sha256 /tmp/post-app.sha256
           node --check _site/app.js
           node --check _site/sw.js
 
-      - name: Verify tablet-facing asset paths exist
+      - name: Verify v2 tablet-facing assets
         run: |
           set -euo pipefail
           python - <<'PY'
-          import json
+          import json, os
           from pathlib import Path
           site=Path('_site')
+          lib=json.loads((site/'data/library.json').read_text(encoding='utf-8'))
           m=json.loads((site/'books/game-theory/manifest.json').read_text(encoding='utf-8'))
           q=json.loads((site/'books/game-theory/questions.json').read_text(encoding='utf-8'))
           s=json.loads((site/'books/game-theory/search.json').read_text(encoding='utf-8'))
+          assert lib['version']==os.environ['FINAL_LIBRARY_VERSION']
+          assert m['version']==q['version']=='2026.07.30-2'
           for ch in m['chapters']:
               p=site/'books/game-theory'/ch['file']
               assert p.is_file() and p.stat().st_size>700, ch
           figures=list((site/'assets/game-theory-svg').glob('*.svg'))
-          assert len(figures)==20, len(figures)
-          assert all(p.stat().st_size>300 for p in figures)
+          assert len(m['chapters'])==23
+          assert len(figures)==20 and all(p.stat().st_size>300 for p in figures)
           assert len(q['items'])==100
           assert len(s['entries'])==189
-          print('GAME_THEORY_TABLET_ASSET_PATHS_OK chapters=23 questions=100 search=189 figures=20')
+          print('GAME_THEORY_V2_TABLET_ASSETS_OK chapters=23 questions=100 search=189 figures=20')
           PY
