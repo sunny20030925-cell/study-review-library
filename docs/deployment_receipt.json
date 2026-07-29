@@ -70,8 +70,8 @@
   "macroeconomics_content_audit": "passed",
   "macroeconomics_numeric_recheck_count": 18,
   "macroeconomics_two_round_qa": "passed",
-  "source_commit": "87ed697ae0b38d3cd67cb119cad5f828559fa59e",
-  "workflow_run_id": "30421041310",
+  "source_commit": "161f2a4f8684f62919aded9c21640dda25d09172",
+  "workflow_run_id": "30435914365",
   "page_url": "https://sunny20030925-cell.github.io/study-review-library/",
-  "deployed_at": "2026-07-29T04:00:04.525883+00:00"
+  "deployed_at": "2026-07-29T08:32:45.514491+00:00"
 }
