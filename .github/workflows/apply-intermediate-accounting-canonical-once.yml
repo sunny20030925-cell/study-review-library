@@ -40,3 +40,5 @@ jobs:
           fi
           git commit -m "Integrate intermediate accounting into canonical deployment"
           git push origin HEAD:main
+
+# Triggered once through a reviewed PR merge; remove after successful deployment.
