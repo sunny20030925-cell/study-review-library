@@ -1,27 +1,32 @@
 # 《個體經濟學》狀態
 
-更新日期：2026-07-29
+更新日期：2026-07-30
 
-## 正式定位
+## 正式識別
 
 - Book ID：`microeconomics`
 - 正式內容版本：`2026.07.29-2`
-- 正式書庫版本：`2026.07.29-13`
-- 狀態：已部署。
-- 範圍文件：`docs/books/microeconomics/scope.md`
-- QA 報告：`docs/books/microeconomics/qa_report.md`
+- 正式書庫版本：`2026.07.30-9`
+- 目前 stage：`VP`
+- Task ID：`microeconomics:VP`
+- 下一階段：`PUB`
+- Published：workflow v2 前既有正式版本維持 `passed`。
+- 範圍：`docs/books/microeconomics/scope.md`
+- Internal QA：`docs/books/microeconomics/qa_report.md`
+- External Audit：`docs/books/microeconomics/external_audit.md`
 
-## 成品與 QA
+## Internal QA 證據
 
-- 正文 20 章、附錄 3 份、題庫 100 題、搜尋索引 154 筆、自製 SVG 20 張。
-- 初版 QA：第一輪 1321／1321、第二輪 87／87 通過。
-- 發布後獨立二次複核：1,616 項檢查通過；修正 16 個內容點，4 題題幹或詳解同步精確化，另重算 15 題量化題、重判 20 題高風險觀念題。
-- 閱讀進度相容性：新增獨立 book ID，不改既有教材章節、題目 ID、儲存鍵或錯題紀錄。
+- 正文 20 章、附錄 3 份、題庫 100 題、搜尋索引 154 筆、SVG 20 張。
+- 初版兩輪 QA 通過；發布後獨立二次複核 1,616 項，修正 16 個內容點、15 題量化重算、20 題高風險觀念重判。
 
-## 部署
+## External Audit
 
-- canonical workflow：`Deploy study library`
-- workflow run：`30442682452`
-- source commit：`00cf9286eb7bbe3b2d8e2b6165cc163fd64a4e72`
-- 正式書庫書籍數：10 本。
-- GitHub Pages 部署成功並已寫回 deployment receipt。
+- 結果：`passed`
+- 路由：Wolfram。
+- 抽查 consumer choice、intertemporal/risk、production/cost、market structure、welfare/externality/public goods 與成立條件。
+- 核心答案錯誤：0；需要升版：否；unresolved blocker：0。
+
+## 相容性
+
+所有既有 ID、題數、PWA、閱讀進度與錯題資料均未修改；正式 21 本 artifact 維持 `2026.07.30-9`。
