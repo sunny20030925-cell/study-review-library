@@ -1,0 +1,49 @@
+name: Integrate pending economics textbooks
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/integrate-pending-economics-books.yml
+      - deploy/integrate_macroeconomics_workflow.py
+      - deploy/finalize_macroeconomics_library.py
+      - deploy/validate_macroeconomics.py
+      - deploy/generate-macroeconomics.py.gz.b64.part00
+      - deploy/generate-macroeconomics.py.gz.b64.part01
+
+permissions:
+  contents: write
+
+jobs:
+  integrate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout latest main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Build the canonical nine-book workflow
+        run: |
+          python deploy/integrate_intermediate_accounting_workflow.py
+          cp deploy/generated-deploy-pages.intermediate-accounting.yml .github/workflows/deploy-pages.yml
+          python deploy/integrate_macroeconomics_workflow.py
+          ruby -e "require 'yaml'; YAML.load_file('.github/workflows/deploy-pages.yml'); puts 'YAML_OK'"
+          grep -F "Generate and independently validate intermediate accounting textbook" .github/workflows/deploy-pages.yml
+          grep -F "Generate and independently validate macroeconomics textbook" .github/workflows/deploy-pages.yml
+          grep -F "'intermediate_accounting_version': '2026.07.29-1'" .github/workflows/deploy-pages.yml
+          grep -F "'macroeconomics_version': '2026.07.29-1'" .github/workflows/deploy-pages.yml
+
+      - name: Commit canonical workflow and remove temporary gates
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add .github/workflows/deploy-pages.yml
+          git rm --ignore-unmatch .github/workflows/integrate-pending-economics-books.yml
+          git rm --ignore-unmatch .github/workflows/validate-macroeconomics-integration.yml
+          git rm --ignore-unmatch .github/workflows/stage-intermediate-accounting-workflow.yml
+          rm -f deploy/generated-deploy-pages.intermediate-accounting.yml
+          git commit -m "Integrate intermediate accounting and macroeconomics deployment"
+          git push origin HEAD:main
