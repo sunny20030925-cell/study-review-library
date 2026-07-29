@@ -100,6 +100,7 @@ jobs:
             FINAL_LIBRARY_VERSION="$(python deploy/integrate_civil_law_overview.py _site "$BEFORE")"
             EXPECTED_FINAL_BOOK_COUNT="$((BASE_BOOK_COUNT + 1))"
           fi
+          export FINAL_LIBRARY_VERSION EXPECTED_FINAL_BOOK_COUNT
           echo "FINAL_LIBRARY_VERSION=$FINAL_LIBRARY_VERSION" >> "$GITHUB_ENV"
           echo "EXPECTED_FINAL_BOOK_COUNT=$EXPECTED_FINAL_BOOK_COUNT" >> "$GITHUB_ENV"
           node --check _site/app.js
