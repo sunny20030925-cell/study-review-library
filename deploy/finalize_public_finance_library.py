@@ -9,11 +9,11 @@ from pathlib import Path
 BOOK_ID = 'public-finance'
 
 
-def next_library_version(version: str) -> str:
+def advance_library_version(version: str, steps: int = 1) -> str:
     match = re.fullmatch(r'(\d{4}\.\d{2}\.\d{2})-(\d+)', version)
     if not match:
         raise AssertionError(f'unexpected library version: {version}')
-    return f'{match.group(1)}-{int(match.group(2)) + 1}'
+    return f'{match.group(1)}-{int(match.group(2)) + steps}'
 
 
 def main(site_root: str, pre_library_path: str) -> None:
@@ -29,7 +29,10 @@ def main(site_root: str, pre_library_path: str) -> None:
     if post_ids != pre_ids + [BOOK_ID]:
         raise AssertionError(f'book order drift: before={pre_ids}, after={post_ids}')
 
-    final_version = next_library_version(pre['version'])
+    # The canonical pre-public-finance tail is still 2026.07.29-13.
+    # -14 was the already published public-finance v1 release; this post-publication
+    # content reaudit must publish a distinct cache/library version, so advance to -15.
+    final_version = advance_library_version(pre['version'], steps=2)
     post['version'] = final_version
     library_path.write_text(json.dumps(post, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
 
