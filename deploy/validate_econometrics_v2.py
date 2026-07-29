@@ -21,6 +21,10 @@ def visible_text(raw: str) -> str:
     return html.unescape(re.sub(r'\s+',' ',text)).strip()
 
 
+def has(text: str, token: str) -> bool:
+    return token.casefold() in text.casefold()
+
+
 def main(site_root: str) -> None:
     site=Path(site_root)
     root=site/'books'/BOOK
@@ -49,7 +53,7 @@ def main(site_root: str) -> None:
       'ch04':['partialling out','控制變數可以減少混淆，但不是「越多越好」','Adjusted R²','處置後才發生的變數'],
       'ch05':['omitted-variable bias','反向因果','robust SE 不是解法','兩者同號是向上偏'],
       'ch06':['p-value','長期覆蓋率','F 檢定','統計顯著自動等同經濟上重要'],
-      'ch07':['log-level','level-log','log-log','dummy variable trap','beta1+beta3'],
+      'ch07':['log-level','level-log','log-log','Dummy variable trap','beta1+beta3'],
       'ch08':['heteroskedasticity-robust standard errors','不改同一份 OLS 點估計','WLS','遺漏變數、反向因果'],
       'ch09':['Multicollinearity','high leverage','attenuation bias','測量誤差都往 0'],
       'ch10':['Linear Probability Model','百分點','p(1-p)','邊際效果會依當下 X 而變'],
@@ -66,7 +70,7 @@ def main(site_root: str) -> None:
     for cid,tokens in chapter_requirements.items():
         text=chapters[cid]
         for token in tokens:
-            C(token in text,f'{cid} concept: {token}')
+            C(has(text,token),f'{cid} concept: {token}')
 
     correction_pairs={
       'ch00':[('高 R²','不能'),('因果','識別假設')],
@@ -85,7 +89,7 @@ def main(site_root: str) -> None:
     for cid,pairs in correction_pairs.items():
         text=chapters[cid]
         for a,b in pairs:
-            C(a in text and b in text,f'{cid} correction pair: {a} / {b}')
+            C(has(text,a) and has(text,b),f'{cid} correction pair: {a} / {b}')
 
     expected_difficulties={'基礎':1,'標準':2,'綜合':1,'陷阱':1}
     for i in range(20):
@@ -137,7 +141,7 @@ def main(site_root: str) -> None:
         C(qid in qmap,f'answer gate exists {qid}')
         combined=qmap[qid]['answer']+' '+qmap[qid]['explanation']
         for token in tokens:
-            C(token in combined,f'{qid} answer gate: {token}')
+            C(has(combined,token),f'{qid} answer gate: {token}')
 
     by_chapter=Counter(e['chapterId'] for e in search)
     for i in range(20):
