@@ -136,25 +136,25 @@
 - 閱讀進度相容性：章節 ID、題目 ID 與題數未變；部署回條確認 `progress_storage_changed=false`。
 - 範圍文件：`docs/books/microeconomics/scope.md`
 - QA 報告：`docs/books/microeconomics/qa_report.md`
-- GitHub Pages 部署 run：`30436763469`。
-- Source commit：`fe6bf3107f499b045cea3f6c785d7e1dd75e72d5`。
+- GitHub Pages 部署 run：`30437328439`。
+- Source commit：`01dc8dde57baab9572fb019812e52a8402aa7670`。
 - 部署回條：`docs/deployment_receipt.json`。
 - 狀態：已部署。
 
 ### 中級會計學
 
 - Book ID：`intermediate-accounting`
-- 正式內容版本：`2026.07.29-1`
+- 正式內容版本：`2026.07.29-2`
 - 定位：一般大學中級會計學，銜接基礎會計，聚焦 IFRS／TIFRS 下的認列、衡量、表達、分錄與財務報導判斷。
-- 範圍：現值與攤銷、預期信用損失、存貨、不動產廠房設備、借款成本、無形資產、減損、投資性不動產、金融工具、公司債、負債準備、權益、每股盈餘、收入、租賃、所得稅、員工福利、會計變動、期後事項與現金流量。
-- 深度邊界：企業合併、合併報表、非控制權益、集團內沖銷、高級外幣換算與分公司會計不進入核心正文與核心題庫。
+- 範圍：現值與攤銷、ECL、存貨、PPE、借款成本、無形資產、減損、投資性不動產、金融工具、公司債、負債準備、權益、EPS、收入、租賃、所得稅、員工福利、會計變動、期後事項與現金流量。
 - 成品：22 章、3 附錄、110 題題庫、145 筆搜尋索引、22 張自製圖解。
-- QA：第一輪 135 項、獨立數值與公式重算 23 項、第二輪 485 項，全數通過；110／110 題逐題複核。
-- 閱讀進度相容性：新增獨立 Book ID，不變更既有教材章節、題目 ID、儲存鍵或錯題紀錄；部署回條確認 `progress_storage_changed=false`。
+- 初版 QA：第一輪 135 項、獨立數值與公式重算 23 項、第二輪 485 項。
+- 發布後獨立二次內容審計：修正 12 個內容節點／10 份章節與附錄，4 題題幹或詳解同步精確化；v2 獨立驗證 1,110 項、量化重算 28 項全數通過。
+- 閱讀進度相容性：章節 ID、題目 ID 與題數未變；部署回條確認 `progress_storage_changed=false`。
 - 範圍文件：`docs/books/intermediate-accounting/scope.md`
 - QA 報告：`docs/books/intermediate-accounting/qa_report.md`
-- GitHub Pages 最新重新驗證部署 run：`30416714192`。
-- Source commit：`b9fc932a362225cec17e716ee7f5f18203228497`。
+- GitHub Pages 部署 run：`30437328439`。
+- Source commit：`01dc8dde57baab9572fb019812e52a8402aa7670`。
 - 部署回條：`docs/deployment_receipt.json`。
 - 狀態：已部署。
 
@@ -169,8 +169,8 @@
 - 閱讀進度相容性：章節 ID、題目 ID 與題數均未變；部署回條確認 `progress_storage_changed=false`。
 - 範圍文件：`docs/books/macroeconomics/scope.md`
 - QA 報告：`docs/books/macroeconomics/qa_report.md`
-- GitHub Pages 部署 run：`30436763469`。
-- Source commit：`fe6bf3107f499b045cea3f6c785d7e1dd75e72d5`。
+- GitHub Pages 部署 run：`30437328439`。
+- Source commit：`01dc8dde57baab9572fb019812e52a8402aa7670`。
 - 部署回條：`docs/deployment_receipt.json`。
 - 狀態：已部署。
 
@@ -186,10 +186,10 @@
 8. 商事法法律文字驗證先移除 HTML 排版標記與空白，再核對條號、比例、期間、人數及禁止誤述；第 8 條明確禁止再出現「只針對公開發行股票之公司」的舊法誤述。
 9. 成本會計先套用發布後獨立二次內容審計修正，再驗證 19 章、3 附錄、95 題、150 筆搜尋索引、19 張 SVG，並執行 857 項獨立檢查與 44 項數值重算。
 10. 個體經濟學先通過初版兩輪 QA，再套用發布後獨立二次複核修正；額外驗證 20 章、3 附錄、100 題、154 筆搜尋索引、20 張 SVG、1,616 項二次檢查、15 題量化重算與 20 題高風險觀念重判。
-11. 中級會計學額外驗證 22 章、3 附錄、110 題、145 筆搜尋索引、22 張 SVG，並執行 135 項第一輪檢查、23 項獨立數值與公式重算及 485 項第二輪檢查。
+11. 中級會計學先完成初版 QA，再套用發布後獨立二次內容審計修正；額外驗證 22 章、3 附錄、110 題、145 筆搜尋索引、22 張 SVG、1,110 項 v2 獨立檢查與 28 項量化重算。
 12. JavaScript、service worker 與全部正式檢查通過後，才上傳 Pages artifact。
 13. Pages 部署成功後寫回 `docs/deployment_receipt.json`。
-14. 最新9本書成功部署 run：`30436763469`；書庫內容版本：`2026.07.29-12`。
+14. 最新9本書成功部署 run：`30437328439`；書庫內容版本：`2026.07.29-12`。
 15. 使用者不需要執行 Git、終端機、手動上傳或部署。
 
 ## 工作線狀態
@@ -200,7 +200,7 @@
 - `2026.07.29-1` 的第 8 條舊法誤用已在 `2026.07.29-2` 明確回修並保留版本歷史紀錄。
 - 成本會計學初版、發布後獨立二次內容審計、糾錯修正與新版 Pages 部署均已完成；章節 ID、題目 ID 與題數未變。
 - 個體經濟學初版、發布後獨立二次複核、糾錯修正與新版 Pages 部署均已完成；章節 ID、題目 ID 與題數未變。
-- 中級會計學初版內容、兩輪 QA、canonical integration 與正式 Pages 部署均已完成。
+- 中級會計學初版、發布後獨立二次內容審計、糾錯修正與新版 Pages 部署均已完成；章節 ID、題目 ID 與題數未變。
 - 商事法原先獨立部署工作流已退役；後續只保留 canonical `Deploy study library` 與正式修正層。
 - 後續新增科目不得建立會覆蓋現有書庫的平行 Pages 部署；應直接整合進 canonical `Deploy study library`。
 
