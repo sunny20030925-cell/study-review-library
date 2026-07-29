@@ -479,6 +479,8 @@ jobs:
           python /tmp/generate-microeconomics.py _site
           FINAL_LIBRARY_VERSION="$(python deploy/finalize_microeconomics_library.py _site /tmp/pre-micro-library.json)"
           EXPECTED_LIBRARY_VERSION="$FINAL_LIBRARY_VERSION" python deploy/qa_microeconomics.py _site
+          python deploy/patch_microeconomics_v2.py _site
+          python deploy/qa_microeconomics_v2.py _site
           node --check _site/app.js
           node --check _site/sw.js
           echo "MICRO_FINAL_LIBRARY_VERSION=$FINAL_LIBRARY_VERSION"
@@ -556,17 +558,20 @@ jobs:
               'cost_accounting_content_audit': 'passed',
               'cost_accounting_independent_check_count': 655,
               'cost_accounting_quantitative_recheck_count': 44,
-              'microeconomics_version': '2026.07.29-1',
+              'microeconomics_version': '2026.07.29-2',
               'microeconomics_chapter_count': 20,
               'microeconomics_appendix_count': 3,
               'microeconomics_question_count': 100,
               'microeconomics_search_count': 154,
               'microeconomics_figure_count': 20,
-              'microeconomics_content_audit': 'passed',
-              'microeconomics_round1_check_count': 1321,
-              'microeconomics_round2_check_count': 87,
+              'microeconomics_content_audit': 'passed-after-post-publication-reaudit',
+              'microeconomics_initial_round1_check_count': 1321,
+              'microeconomics_initial_round2_check_count': 87,
+              'microeconomics_post_publication_correction_count': 16,
+              'microeconomics_question_adjustment_count': 4,
+              'microeconomics_independent_check_count': 1616,
               'microeconomics_quantitative_recheck_count': 15,
-              'microeconomics_logic_recheck_count': 15,
+              'microeconomics_logic_recheck_count': 20,
               'intermediate_accounting_version': '2026.07.29-1',
               'intermediate_accounting_chapter_count': 22,
               'intermediate_accounting_appendix_count': 3,
@@ -605,7 +610,7 @@ jobs:
           ## 正式定位
           
           - Book ID：`microeconomics`
-          - 正式內容版本：`2026.07.29-1`
+          - 正式內容版本：`2026.07.29-2`
           - 正式書庫版本：`{final_version}`
           - 狀態：已部署。
           - 範圍文件：`docs/books/microeconomics/scope.md`
@@ -614,8 +619,8 @@ jobs:
           ## 成品與 QA
           
           - 正文 20 章、附錄 3 份、題庫 100 題、搜尋索引 154 筆、自製 SVG 20 張。
-          - 第一輪 QA：1321／1321 通過。
-          - 第二輪 QA：87／87 通過；100 題逐題複核，另獨立重算 15 題量化題與重判 15 題高風險觀念題。
+          - 初版 QA：第一輪 1321／1321、第二輪 87／87 通過。
+          - 發布後獨立二次複核：1,616 項檢查通過；修正 16 個內容點，4 題題幹或詳解同步精確化，另重算 15 題量化題、重判 20 題高風險觀念題。
           - 閱讀進度相容性：新增獨立 book ID，不改既有教材章節、題目 ID、儲存鍵或錯題紀錄。
           
           ## 部署
@@ -732,6 +737,42 @@ jobs:
                   '- 狀態：已部署。\n\n'
               )
               c = c.replace('## 部署流程\n', section + '## 部署流程\n', 1)
+          micro_section = (
+              '### 個體經濟學\n\n'
+              '- Book ID：`microeconomics`\n'
+              '- 正式內容版本：`2026.07.29-2`\n'
+              '- 定位：一般大學中級個體經濟學，從近零基礎銜接消費者對偶、Slutsky、生產與成本、競爭／獨占、賽局、一般均衡、福利與資訊不對稱。\n'
+              '- 成品：20 章、3 附錄、100 題題庫、154 筆搜尋索引、20 張自製圖解。\n'
+              '- 初版 QA：第一輪 1,321／1,321、第二輪 87／87。\n'
+              '- 發布後獨立二次複核：1,616 項檢查通過；修正 16 個內容點，4 題題幹或詳解同步精確化；15 題量化題獨立重算、20 題高風險觀念題獨立重判。\n'
+              '- 閱讀進度相容性：章節 ID、題目 ID 與題數未變；部署回條確認 `progress_storage_changed=false`。\n'
+              '- 範圍文件：`docs/books/microeconomics/scope.md`\n'
+              '- QA 報告：`docs/books/microeconomics/qa_report.md`\n'
+              f'- GitHub Pages 部署 run：`{os.environ["GITHUB_RUN_ID"]}`。\n'
+              f'- Source commit：`{os.environ["GITHUB_SHA"]}`。\n'
+              '- 部署回條：`docs/deployment_receipt.json`。\n'
+              '- 狀態：已部署。\n\n'
+          )
+          c, micro_section_count = re.subn(
+              r'(?ms)^### 個體經濟學\n.*?(?=^### |^## 部署流程)',
+              micro_section,
+              c,
+              count=1,
+          )
+          if micro_section_count != 1:
+              raise AssertionError('microeconomics checkpoint section not found')
+          old_flow = '10. 個體經濟學額外驗證 20 章、3 附錄、100 題、154 筆搜尋索引、20 張 SVG，並執行 1,321 項第一輪檢查、87 項第二輪內容 gate、15 題量化重算與 15 題高風險觀念重判。'
+          new_flow = '10. 個體經濟學先通過初版兩輪 QA，再套用發布後獨立二次複核修正；額外驗證 20 章、3 附錄、100 題、154 筆搜尋索引、20 張 SVG、1,616 項二次檢查、15 題量化重算與 20 題高風險觀念重判。'
+          if old_flow in c:
+              c = c.replace(old_flow, new_flow, 1)
+          elif new_flow not in c:
+              raise AssertionError('microeconomics deployment-flow line not found')
+          old_workline = '- 個體經濟學初版內容、兩輪 QA、canonical integration 與正式 Pages 部署均已完成。'
+          new_workline = '- 個體經濟學初版、發布後獨立二次複核、糾錯修正與新版 Pages 部署均已完成；章節 ID、題目 ID 與題數未變。'
+          if old_workline in c:
+              c = c.replace(old_workline, new_workline, 1)
+          elif new_workline not in c:
+              raise AssertionError('microeconomics workline status not found')
           cp.write_text(c, encoding='utf-8')
 
           rp = Path('README.md')
@@ -761,6 +802,18 @@ jobs:
               lines.insert(idx, macro)
               r = ''.join(lines)
           r = re.sub(r'五本書均由同一個 canonical GitHub Pages 工作流部署。', '全部正式教材均由同一個 canonical GitHub Pages 工作流部署。', r)
+          micro_v2_line = '- 《個體經濟學》：一般大學中級個體經濟學，20 章、3 附錄、100 題題庫、154 筆搜尋索引與 20 張圖解；發布後獨立二次複核版本 `2026.07.29-2`。'
+          r_lines = r.splitlines()
+          micro_indexes = [i for i, line in enumerate(r_lines) if line.startswith('- 《個體經濟學》：')]
+          if micro_indexes:
+              first = micro_indexes[0]
+              r_lines[first] = micro_v2_line
+              for i in reversed(micro_indexes[1:]):
+                  del r_lines[i]
+          else:
+              insert_at = max(i for i, line in enumerate(r_lines) if line.startswith('- 《')) + 1
+              r_lines.insert(insert_at, micro_v2_line)
+          r = '\n'.join(r_lines) + ('\n' if r.endswith('\n') else '')
           rp.write_text(r, encoding='utf-8')
           PY
           git config user.name github-actions[bot]
