@@ -7,31 +7,27 @@
 - Book ID：`investments`
 - 正式內容版本：`2026.07.30-1`
 - 正式書庫版本：`2026.07.30-9`
-- 狀態：已部署。
-- 範圍文件：`docs/books/investments/scope.md`
-- QA 報告：`docs/books/investments/qa_report.md`
+- 目前 stage：`VP`
+- Task ID：`investments:VP`
+- 下一階段：`PUB`
+- Published：workflow v2 前既有正式版本維持 `passed`。
+- 範圍：`docs/books/investments/scope.md`
+- Internal QA：`docs/books/investments/qa_report.md`
+- External Audit：`docs/books/investments/external_audit.md`
 
-## 成品與相容性
+## Internal QA 證據
 
-- 正文 22 章、附錄 3 份、題庫 110 題、搜尋索引 165 筆、自製 SVG 22 張。
-- 章節 ID `ch00`–`ch21`、110 個題目 ID、Book ID 與儲存鍵全部維持；既有閱讀進度與錯題紀錄相容。
-- 其餘教材逐檔 hash 在修正前後保持不變。
+- 正文 22 章、附錄 3 份、題庫 110 題、搜尋索引 165 筆、SVG 22 張。
+- 第一輪 QA：2,672／2,672；第二輪：139／139。
+- 45 項量化節點、20 項高風險概念重判；發布後 reaudit validator 730 項通過。
 
-## QA 與發布後第二次獨立內容審計
+## External Audit
 
-- 初版第一輪 QA：2,672／2,672。
-- 初版第二輪 QA：139／139；45 項量化節點重算、20 項高風險概念重判。
-- 2026-07-30 發布後第二次獨立審計：7 個修正區域、6 題詳解精確化；v2 reaudit validator 共 730 項通過。
-- 45 個數值題再次由原始數字獨立重算；未發現既有數值答案算術錯誤。
-- 修正重點：APT 零均值 factor surprise、DuPont 平均存量口徑、duration／convexity／immunization、forward cost-of-carry、ETF 主動／被動分類、外幣資產本幣報酬、Information Ratio。
-- ETF 分類以 2026-07-30 查核之臺灣證券交易所現行說明為校對基準；不把 ETF 與「指數股票型基金」無條件視為同義詞。
+- 結果：`passed`
+- 路由：Wolfram + Consensus。
+- 抽查 returns／portfolio risk、CAPM/APT、EMH/event study、behavioral finance、valuation、bonds/duration、derivatives、performance。
+- 核心答案錯誤：0；需要升版：否；unresolved blocker：0。
 
-## 正式發布證據
+## 相容性與部署
 
-- canonical workflow：`Deploy study library`
-- workflow run：`30494922034`
-- source commit：`d502e3db8be674c030c5b13db88f1b33dfdedb28`
-- Pages artifact：`8741187091`
-- Artifact digest：`sha256:576f046c2f6e98f1cab56ca7136042e1dfb66a4af1ad21e74552ce16b2db1eeb`
-- 正式書庫：21 本，版本 `2026.07.30-9`。
-- Pages deployment、artifact 下載後重驗與結構化 deployment receipt 均成功。
+Book ID、22 個章節 ID、110 個題目 ID、PWA 儲存鍵、閱讀進度與錯題紀錄均不變；正式 21 本 artifact 維持 `2026.07.30-9`。
