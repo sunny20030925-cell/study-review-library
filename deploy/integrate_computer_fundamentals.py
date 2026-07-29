@@ -5,7 +5,6 @@ import contextlib
 import hashlib
 import io
 import json
-import os
 import re
 import sys
 import tempfile
@@ -15,9 +14,6 @@ from generate_computer_fundamentals import BOOK, main as generate_book
 from finalize_computer_fundamentals_library import main as finalize_library
 from validate_computer_fundamentals_release import main as qa_round1
 from qa_computer_fundamentals_release import main as qa_round2
-
-EXPECTED_PREVIOUS_BOOK = 'money-banking'
-EXPECTED_EXISTING_BOOK_COUNT = 12
 
 
 def next_version(version: str) -> str:
@@ -59,8 +55,11 @@ def integrate(site_root: str, expected_before: str) -> str:
         raise AssertionError(f'computer fundamentals pre-version expected {expected_before}, got {pre["version"]}')
     if BOOK in pre_ids:
         raise AssertionError(f'{BOOK} already exists before integration')
-    if len(pre_ids) != EXPECTED_EXISTING_BOOK_COUNT or pre_ids[-1] != EXPECTED_PREVIOUS_BOOK:
-        raise AssertionError(f'computer fundamentals requires current 12-book money-banking tail, got {pre_ids}')
+
+    direct_twelve_book_tail = len(pre_ids) == 12 and pre_ids[-1] == 'money-banking'
+    serialized_advanced_tail = len(pre_ids) == 13 and pre_ids[-2:] == ['money-banking', 'advanced-statistics']
+    if not (direct_twelve_book_tail or serialized_advanced_tail):
+        raise AssertionError(f'computer fundamentals requires money-banking or serialized advanced-statistics tail, got {pre_ids}')
 
     expected_target = next_version(expected_before)
     before_hashes = book_hashes(site, pre_ids)
