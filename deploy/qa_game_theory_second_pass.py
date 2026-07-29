@@ -172,7 +172,7 @@ def main():
     for phrase in [
         '效率', '弱劣勢', '支撐集', '一般總和', '真正子賽局', '折現',
         '共同先驗', '私人價值', 'Bayes', '序列理性', 'off-path',
-        '誘因相容', '個別理性', '準線性', '不一定在 core',
+        '誘因相容', '個別理性', '準線性', '一般賽局不保證',
     ]:
         ck(phrase in corpus, f'missing caveat {phrase}')
 
