@@ -130,13 +130,15 @@
 - 定位：一般大學中級個體經濟學，從近零基礎銜接消費者對偶、Slutsky、生產與成本、競爭／獨占、賽局、一般均衡、福利與資訊不對稱。
 - 成品：20 章、3 附錄、100 題題庫、154 筆搜尋索引、20 張自製圖解。
 - QA：第一輪 1,321／1,321、第二輪 87／87；100 題逐題複核，15 題量化題獨立重算、15 題高風險觀念題獨立重判。
+- 閱讀進度相容性：新增獨立 Book ID，不變更其他書籍章節、題目 ID、儲存鍵或錯題紀錄；部署回條確認 `progress_storage_changed=false`。
 - 範圍文件：`docs/books/microeconomics/scope.md`
 - QA 報告：`docs/books/microeconomics/qa_report.md`
 - GitHub Pages 部署 run：`30410838216`。
 - Source commit：`c228e705a9abea17d0d8d7c3e2c0946d19a401a5`。
+- 部署回條：`docs/deployment_receipt.json`。
 - 狀態：已部署。
 
-    ## 部署流程
+## 部署流程
 
 1. GitHub Actions 下載固定 ID 的正式網站部署包。
 2. 先核對部署包 SHA-256，再用 Python ZIP 模組解開；使用者不需要在平板處理 ZIP。
@@ -147,10 +149,11 @@
 7. 商事法額外驗證 18 章、3 附錄、90 題、111 筆搜尋索引、18 張 SVG，以及公司法／證券交易法高風險法律要件與現行第 8 條要件。
 8. 商事法法律文字驗證先移除 HTML 排版標記與空白，再核對條號、比例、期間、人數及禁止誤述；第 8 條明確禁止再出現「只針對公開發行股票之公司」的舊法誤述。
 9. 成本會計額外驗證 19 章、3 附錄、95 題、146 筆搜尋索引、19 張 SVG，並執行 655 項獨立檢查與 44 項數值重算。
-10. JavaScript、service worker 與全部正式檢查通過後，才上傳 Pages artifact。
-11. Pages 部署成功後寫回 `docs/deployment_receipt.json`。
-12. 最新7本書成功部署 run：`30410838216`；書庫內容版本：`2026.07.29-8`。
-13. 使用者不需要執行 Git、終端機、手動上傳或部署。
+10. 個體經濟學額外驗證 20 章、3 附錄、100 題、154 筆搜尋索引、20 張 SVG，並執行 1,321 項第一輪檢查、87 項第二輪內容 gate、15 題量化重算與 15 題高風險觀念重判。
+11. JavaScript、service worker 與全部正式檢查通過後，才上傳 Pages artifact。
+12. Pages 部署成功後寫回 `docs/deployment_receipt.json`。
+13. 最新 7 本書成功部署 run：`30410838216`；書庫內容版本：`2026.07.29-8`。
+14. 使用者不需要執行 Git、終端機、手動上傳或部署。
 
 ## 工作線狀態
 
@@ -159,6 +162,7 @@
 - 商事法發布後獨立內容複核、現行法 follow-up 與新版部署已完成；其章節 ID、題目 ID 與題數均未變。
 - `2026.07.29-1` 的第 8 條舊法誤用已在 `2026.07.29-2` 明確回修並保留版本歷史紀錄。
 - 成本會計學初版內容、兩輪 QA、canonical integration 與正式 Pages 部署均已完成。
+- 個體經濟學初版內容、兩輪 QA、canonical integration 與正式 Pages 部署均已完成。
 - 商事法原先獨立部署工作流已退役；後續只保留 canonical `Deploy study library` 與正式修正層。
 - 後續新增科目不得建立會覆蓋現有書庫的平行 Pages 部署；應直接整合進 canonical `Deploy study library`。
 
