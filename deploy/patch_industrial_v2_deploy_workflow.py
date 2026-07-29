@@ -5,6 +5,7 @@ import re
 from pathlib import Path
 
 PATH = Path('.github/workflows/deploy-pages.yml')
+# This file is also an explicit trigger path for the one-shot v2 staging workflow.
 
 
 def replace_once(text: str, pattern: str, replacement: str, label: str) -> str:
