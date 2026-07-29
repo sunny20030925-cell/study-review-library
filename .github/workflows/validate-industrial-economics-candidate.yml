@@ -1,0 +1,115 @@
+name: Validate industrial economics candidate
+
+on:
+  pull_request:
+    paths:
+      - 'deploy/industrial_economics_*.py'
+      - 'deploy/generate_industrial_economics.py'
+      - 'deploy/integrate_industrial_economics.py'
+      - 'deploy/validate_industrial_economics.py'
+      - 'deploy/qa_industrial_economics.py'
+      - 'deploy/record_industrial_economics_deployment.py'
+      - 'docs/books/industrial-economics/**'
+      - '.github/workflows/validate-industrial-economics-candidate.yml'
+      - '.github/workflows/deploy-pages.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download verified formal Pages base
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          ARTIFACT_ID="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['pages_artifact_id'])")"
+          DIGEST="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['pages_artifact_digest'])")"
+          gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" > /tmp/base.zip
+          echo "${DIGEST#sha256:}  /tmp/base.zip" | sha256sum --check -
+          mkdir -p /tmp/base _site
+          unzip -q /tmp/base.zip -d /tmp/base
+          if [ -f /tmp/base/artifact.tar ]; then
+            tar -xf /tmp/base/artifact.tar -C _site
+          elif [ -f /tmp/base/artifact.tar.gz ]; then
+            tar -xzf /tmp/base/artifact.tar.gz -C _site
+          else
+            cp -a /tmp/base/. _site/
+          fi
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          receipt=json.load(open('docs/deployment_receipt.json'))
+          library=json.load(open('_site/data/library.json'))
+          ids=[b['id'] for b in library['books']]
+          assert library['version']==receipt['library_version']
+          assert len(ids)==receipt['book_count']
+          assert 'industrial-economics' not in ids
+          Path('/tmp/base_ids.json').write_text(json.dumps(ids))
+          print('FORMAL_BASE_OK',library['version'],len(ids))
+          PY
+
+      - name: Integrate and independently validate candidate
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            deploy/industrial_economics_content.py \
+            deploy/industrial_economics_questions.py \
+            deploy/generate_industrial_economics.py \
+            deploy/validate_industrial_economics.py \
+            deploy/qa_industrial_economics.py \
+            deploy/integrate_industrial_economics.py \
+            deploy/record_industrial_economics_deployment.py
+          BEFORE="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"
+          FINAL="$(PYTHONPATH=deploy python deploy/integrate_industrial_economics.py _site "$BEFORE")"
+          BEFORE="$BEFORE" FINAL="$FINAL" python - <<'PY'
+          import json,os,re
+          base=json.load(open('/tmp/base_ids.json'))
+          lib=json.load(open('_site/data/library.json'))
+          ids=[b['id'] for b in lib['books']]
+          assert ids==base+['industrial-economics']
+          assert len(ids)==len(base)+1
+          m=re.fullmatch(r'(\d{4}\.\d{2}\.\d{2})-(\d+)',os.environ['BEFORE'])
+          assert m
+          assert os.environ['FINAL']==f'{m.group(1)}-{int(m.group(2))+1}'==lib['version']
+          print('INDUSTRIAL_ECONOMICS_CANDIDATE_OK',lib['version'],len(ids),'preserved',len(base))
+          PY
+          node --check _site/app.js
+          node --check _site/sw.js
+
+      - name: Dry-run structured post-deploy recorder
+        env:
+          PAGES_ARTIFACT_ID: '9999999999'
+          PAGES_ARTIFACT_DIGEST: 'sha256:0000000000000000000000000000000000000000000000000000000000000000'
+          PAGES_ARTIFACT_SHA256: '0000000000000000000000000000000000000000000000000000000000000000'
+          DEPLOYED_PAGE_URL: 'https://example.invalid/study-review-library/'
+          INDUSTRIAL_QA1_CHECKS: '935'
+          INDUSTRIAL_QA2_CHECKS: '479'
+        run: |
+          set -euo pipefail
+          python deploy/record_industrial_economics_deployment.py _site
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          lib=json.load(open('_site/data/library.json'))
+          receipt=json.load(open('docs/deployment_receipt.json'))
+          assert receipt['library_version']==lib['version']
+          assert receipt['book_count']==len(lib['books'])
+          assert receipt['book_ids'][-1]=='industrial-economics'
+          assert receipt['industrial_economics_two_round_qa']=='passed'
+          assert receipt['post_deploy_record_step']=='passed-structured-recorder'
+          checkpoint=Path('docs/shared_checkpoint.md').read_text(encoding='utf-8')
+          assert f"- 正式書庫內容版本：`{lib['version']}`" in checkpoint
+          assert f"- 正式書籍數：{len(lib['books'])} 本。" in checkpoint
+          assert f"### {len(lib['books'])}. 產業經濟學" in checkpoint
+          assert '產業經濟學 23 份章節／附錄 HTML、100 題、150 搜尋、20 SVG' in checkpoint
+          assert 'canonical post-deploy recorder 已採結構化 receipt／Book ID 更新' in checkpoint
+          readme=Path('README.md').read_text(encoding='utf-8')
+          assert '《產業經濟學》' in readme
+          print('INDUSTRIAL_ECONOMICS_RECORDER_DRY_RUN_OK',lib['version'],len(lib['books']))
+          PY
