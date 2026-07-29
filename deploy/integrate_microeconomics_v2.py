@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import re
 import sys
 from pathlib import Path
 
@@ -10,6 +11,20 @@ def replace_once(text: str, old: str, new: str, label: str) -> str:
     if count != 1:
         raise AssertionError(f"{label}: expected exactly one match, got {count}")
     return text.replace(old, new, 1)
+
+
+def sub_once(text: str, pattern: str, repl, label: str, *, flags: int = 0) -> str:
+    updated, count = re.subn(pattern, repl, text, count=1, flags=flags)
+    if count != 1:
+        raise AssertionError(f"{label}: expected exactly one match, got {count}")
+    return updated
+
+
+def insert_before_last(text: str, marker: str, insertion: str, label: str) -> str:
+    pos = text.rfind(marker)
+    if pos < 0:
+        raise AssertionError(f"{label}: marker not found")
+    return text[:pos] + insertion + text[pos + len(marker):]
 
 
 def main(workflow_path: str) -> None:
@@ -55,26 +70,30 @@ def main(workflow_path: str) -> None:
 '''
     text = replace_once(text, old, new, "update deployment receipt metrics")
 
-    text = replace_once(
+    text = sub_once(
         text,
-        "- 正式內容版本：`2026.07.29-1`\n- 正式書庫版本：`{final_version}`",
-        "- 正式內容版本：`2026.07.29-2`\n- 正式書庫版本：`{final_version}`",
-        "update generated status version",
-    )
-    text = replace_once(
-        text,
-        "- 第一輪 QA：1321／1321 通過。\n- 第二輪 QA：87／87 通過；100 題逐題複核，另獨立重算 15 題量化題與重判 15 題高風險觀念題。",
-        "- 初版 QA：第一輪 1321／1321、第二輪 87／87 通過。\n- 發布後獨立二次複核：1,616 項檢查通過；修正 16 個內容點，4 題題幹或詳解同步精確化，另重算 15 題量化題、重判 20 題高風險觀念題。",
-        "update generated status QA summary",
+        r"(status = f'''# 《個體經濟學》狀態.*?- 正式內容版本：`)2026\.07\.29-1(`)",
+        r"\g<1>2026.07.29-2\g<2>",
+        "update generated microeconomics status version",
+        flags=re.S,
     )
 
-    marker = """          if '個體經濟學均已納入同一套正式書庫部署流程。' not in c:
-              c = c.replace('成本會計學均已納入同一套正式書庫部署流程。', '成本會計學、個體經濟學均已納入同一套正式書庫部署流程。')
-          cp.write_text(c, encoding='utf-8')
-"""
-    inject = '''          if '個體經濟學均已納入同一套正式書庫部署流程。' not in c:
-              c = c.replace('成本會計學均已納入同一套正式書庫部署流程。', '成本會計學、個體經濟學均已納入同一套正式書庫部署流程。')
-          micro_section = f''' + "'''" + '''### 個體經濟學
+    status_qa_pattern = (
+        r"(?m)^(\s*)- 第一輪 QA：1321／1321 通過。\n"
+        r"\1- 第二輪 QA：87／87 通過；100 題逐題複核，另獨立重算 15 題量化題與重判 15 題高風險觀念題。"
+    )
+
+    def status_qa_repl(match: re.Match[str]) -> str:
+        indent = match.group(1)
+        return (
+            f"{indent}- 初版 QA：第一輪 1321／1321、第二輪 87／87 通過。\n"
+            f"{indent}- 發布後獨立二次複核：1,616 項檢查通過；修正 16 個內容點，4 題題幹或詳解同步精確化，另重算 15 題量化題、重判 20 題高風險觀念題。"
+        )
+
+    text = sub_once(text, status_qa_pattern, status_qa_repl, "update generated microeconomics status QA summary")
+
+    cp_marker = "          cp.write_text(c, encoding='utf-8')\n"
+    cp_insertion = '''          micro_section = f''' + "'''" + '''### 個體經濟學
 
 - Book ID：`microeconomics`
 - 正式內容版本：`2026.07.29-2`
@@ -100,27 +119,23 @@ def main(workflow_path: str) -> None:
           if micro_section_count != 1:
               raise AssertionError('microeconomics checkpoint section not found')
           old_flow = '10. 個體經濟學額外驗證 20 章、3 附錄、100 題、154 筆搜尋索引、20 張 SVG，並執行 1,321 項第一輪檢查、87 項第二輪內容 gate、15 題量化重算與 15 題高風險觀念重判。'
-          if old_flow not in c:
+          new_flow = '10. 個體經濟學先通過初版兩輪 QA，再套用發布後獨立二次複核修正；額外驗證 20 章、3 附錄、100 題、154 筆搜尋索引、20 張 SVG、1,616 項二次檢查、15 題量化重算與 20 題高風險觀念重判。'
+          if old_flow in c:
+              c = c.replace(old_flow, new_flow, 1)
+          elif new_flow not in c:
               raise AssertionError('microeconomics deployment-flow line not found')
-          c = c.replace(
-              old_flow,
-              '10. 個體經濟學先通過初版兩輪 QA，再套用發布後獨立二次複核修正；額外驗證 20 章、3 附錄、100 題、154 筆搜尋索引、20 張 SVG、1,616 項二次檢查、15 題量化重算與 20 題高風險觀念重判。',
-              1,
-          )
           old_workline = '- 個體經濟學初版內容、兩輪 QA、canonical integration 與正式 Pages 部署均已完成。'
-          if old_workline not in c:
+          new_workline = '- 個體經濟學初版、發布後獨立二次複核、糾錯修正與新版 Pages 部署均已完成；章節 ID、題目 ID 與題數未變。'
+          if old_workline in c:
+              c = c.replace(old_workline, new_workline, 1)
+          elif new_workline not in c:
               raise AssertionError('microeconomics workline status not found')
-          c = c.replace(
-              old_workline,
-              '- 個體經濟學初版、發布後獨立二次複核、糾錯修正與新版 Pages 部署均已完成；章節 ID、題目 ID 與題數未變。',
-              1,
-          )
           cp.write_text(c, encoding='utf-8')
 '''
-    text = replace_once(text, marker, inject, "update shared checkpoint writeback")
+    text = insert_before_last(text, cp_marker, cp_insertion, "update shared checkpoint writeback")
 
-    marker = "          r = re.sub(r'五本書均由同一個 canonical GitHub Pages 工作流部署。', '全部正式教材均由同一個 canonical GitHub Pages 工作流部署。', r)\n"
-    inject = '''          micro_v2_line = '- 《個體經濟學》：一般大學中級個體經濟學，20 章、3 附錄、100 題題庫、154 筆搜尋索引與 20 張圖解；發布後獨立二次複核版本 `2026.07.29-2`。'
+    rp_marker = "          rp.write_text(r, encoding='utf-8')\n"
+    rp_insertion = '''          micro_v2_line = '- 《個體經濟學》：一般大學中級個體經濟學，20 章、3 附錄、100 題題庫、154 筆搜尋索引與 20 張圖解；發布後獨立二次複核版本 `2026.07.29-2`。'
           r_lines = r.splitlines()
           micro_indexes = [i for i, line in enumerate(r_lines) if line.startswith('- 《個體經濟學》：')]
           if micro_indexes:
@@ -132,9 +147,9 @@ def main(workflow_path: str) -> None:
               insert_at = max(i for i, line in enumerate(r_lines) if line.startswith('- 《')) + 1
               r_lines.insert(insert_at, micro_v2_line)
           r = '\\n'.join(r_lines) + ('\\n' if r.endswith('\\n') else '')
-          r = re.sub(r'五本書均由同一個 canonical GitHub Pages 工作流部署。', '全部正式教材均由同一個 canonical GitHub Pages 工作流部署。', r)
+          rp.write_text(r, encoding='utf-8')
 '''
-    text = replace_once(text, marker, inject, "update README writeback")
+    text = insert_before_last(text, rp_marker, rp_insertion, "update README writeback")
 
     path.write_text(text, encoding="utf-8")
     print("MICRO_V2_WORKFLOW_INTEGRATION_OK")
