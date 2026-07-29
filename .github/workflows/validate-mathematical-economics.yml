@@ -1,0 +1,78 @@
+name: Validate mathematical economics
+
+on:
+  pull_request:
+    paths:
+      - 'deploy/mathematical_economics_*.py'
+      - 'deploy/generate_mathematical_economics.py'
+      - 'deploy/integrate_mathematical_economics.py'
+      - 'deploy/qa_mathematical_economics.py'
+      - 'deploy/record_successful_deployment.py'
+      - 'deploy/finalize_macroeconomics_v2_library.py'
+      - 'deploy/qa_macroeconomics_v2.py'
+      - 'docs/books/mathematical-economics/**'
+      - '.github/workflows/validate-mathematical-economics.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compile sources
+        run: |
+          python -m py_compile \
+            deploy/mathematical_economics_content.py \
+            deploy/mathematical_economics_questions.py \
+            deploy/generate_mathematical_economics.py \
+            deploy/qa_mathematical_economics.py \
+            deploy/integrate_mathematical_economics.py \
+            deploy/record_successful_deployment.py \
+            deploy/finalize_macroeconomics_v2_library.py \
+            deploy/qa_macroeconomics_v2.py
+          python - <<'PY'
+          import sys
+          sys.path.insert(0, 'deploy')
+          from mathematical_economics_content import CHAPTERS
+          from mathematical_economics_questions import build_questions
+          assert len(CHAPTERS) == 20
+          assert len(build_questions()) == 100
+          assert all(len(c['definitions']) >= 4 for c in CHAPTERS)
+          assert all(len(c['formulas']) >= 3 for c in CHAPTERS)
+          print('SOURCE_COMPILE_OK chapters=20 questions=100')
+          PY
+
+      - name: Run synthetic thirteen-book integration and two-round QA
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          site=Path('/tmp/math-econ-site')
+          (site/'data').mkdir(parents=True)
+          ids=['calculus','accounting','economics','statistics','commercial-law','cost-accounting','microeconomics','intermediate-accounting','macroeconomics','international-economics','public-finance','money-banking']
+          books=[]
+          for bid in ids:
+              root=site/'books'/bid; root.mkdir(parents=True)
+              (root/'preserved.txt').write_text('preserve '+bid,encoding='utf-8')
+              books.append({'id':bid,'title':bid,'subtitle':'existing','cover':'書','accent':'#334155','status':'available'})
+          money=site/'books/money-banking'
+          (money/'manifest.json').write_text(json.dumps({'id':'money-banking','title':'貨幣銀行學','subtitle':'existing','version':'2026.07.29-2','cover':'貨','accent':'#0f766e','updatedAt':'2026-07-29','chapters':[],'features':{'reader':True,'quiz':True,'formula':True},'releaseNotes':[]},ensure_ascii=False),encoding='utf-8')
+          (money/'questions.json').write_text(json.dumps({'bookId':'money-banking','version':'2026.07.29-2','count':0,'items':[]},ensure_ascii=False),encoding='utf-8')
+          (site/'data/library.json').write_text(json.dumps({'version':'2026.07.29-17','books':books},ensure_ascii=False,indent=2),encoding='utf-8')
+          (site/'sw.js').write_text("const VERSION = 'study-library-2026.07.29-17';\nconst ASSETS = [\n  './books/money-banking/manifest.json',\n];\n",encoding='utf-8')
+          PY
+          PYTHONPATH=deploy python deploy/integrate_mathematical_economics.py /tmp/math-econ-site 2026.07.29-17
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          site=Path('/tmp/math-econ-site')
+          lib=json.loads((site/'data/library.json').read_text())
+          assert lib['version']=='2026.07.29-18'
+          assert len(lib['books'])==13 and lib['books'][-1]['id']=='mathematical-economics'
+          assert len(list((site/'assets/mathematical-economics-svg').glob('*.svg')))==20
+          assert '.github/workflows/deploy-pages.yml' in __import__('subprocess').check_output(['git','diff','--cached','--name-only'],text=True)
+          print('SYNTHETIC_INTEGRATION_OK books=13 library=2026.07.29-18')
+          PY
