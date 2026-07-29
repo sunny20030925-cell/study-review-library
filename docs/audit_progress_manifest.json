@@ -28,7 +28,6 @@
     "automatic_next": "external_audit_queue[0]"
   },
   "external_audit_queue": [
-    "mathematical-economics",
     "econometrics",
     "investments",
     "statistics",
@@ -47,9 +46,9 @@
     "computer-fundamentals",
     "calculus"
   ],
-  "external_audit_queue_count": 18,
-  "first_external_audit_target": "mathematical-economics",
-  "visual_polish_ready": ["advanced-statistics", "commercial-law", "civil-law-overview"],
+  "external_audit_queue_count": 17,
+  "first_external_audit_target": "econometrics",
+  "visual_polish_ready": ["advanced-statistics", "mathematical-economics", "commercial-law", "civil-law-overview"],
   "books": [
     {"book_id":"calculus","title":"大一微積分","content_version":"2026.07.27-3","current_stage":"EA","task_id":"calculus:EA","next_stage":"VP","legacy_published_before_workflow_v2":true,"stages":{"DR":"passed","IQ":"passed","EA":"pending","VP":"pending","PUB":"passed"},"external_audit":{"primary_route":["wolfram"]}},
     {"book_id":"accounting","title":"會計學","content_version":"2026.07.27-2","current_stage":"EA","task_id":"accounting:EA","next_stage":"VP","legacy_published_before_workflow_v2":true,"stages":{"DR":"passed","IQ":"passed","EA":"pending","VP":"pending","PUB":"passed"},"external_audit":{"primary_route":["official_accounting_standards","official_regulatory_guidance"],"secondary_route":["wolfram_for_calculation_only"]}},
@@ -71,7 +70,7 @@
     {"book_id":"econometrics","title":"計量經濟學","content_version":"2026.07.30-1","current_stage":"EA","task_id":"econometrics:EA","next_stage":"VP","legacy_published_before_workflow_v2":true,"stages":{"DR":"passed","IQ":"passed","EA":"pending","VP":"pending","PUB":"passed"},"external_audit":{"primary_route":["wolfram","consensus"],"secondary_route":["scite"]}},
     {"book_id":"industrial-economics","title":"產業經濟學","content_version":"2026.07.30-2","current_stage":"EA","task_id":"industrial-economics:EA","next_stage":"VP","legacy_published_before_workflow_v2":true,"stages":{"DR":"passed","IQ":"passed","EA":"pending","VP":"pending","PUB":"passed"},"external_audit":{"primary_route":["wolfram","consensus"],"secondary_route":["scite"]}},
     {"book_id":"industry-trade","title":"產業及貿易","content_version":"2026.07.29-1","current_stage":"EA","task_id":"industry-trade:EA","next_stage":"VP","legacy_published_before_workflow_v2":true,"stages":{"DR":"passed","IQ":"passed","EA":"pending","VP":"pending","PUB":"passed"},"external_audit":{"primary_route":["wolfram","consensus"],"secondary_route":["scite","official_primary_sources"]}},
-    {"book_id":"mathematical-economics","title":"數理經濟學","content_version":"2026.07.30-2","current_stage":"EA","task_id":"mathematical-economics:EA","next_stage":"VP","legacy_published_before_workflow_v2":true,"stages":{"DR":"passed","IQ":"passed","EA":"pending","VP":"pending","PUB":"passed"},"external_audit":{"primary_route":["wolfram"],"secondary_route":["consensus","scite"]}}
+    {"book_id":"mathematical-economics","title":"數理經濟學","content_version":"2026.07.30-2","current_stage":"VP","task_id":"mathematical-economics:VP","next_stage":"PUB","legacy_published_before_workflow_v2":true,"stages":{"DR":"passed","IQ":"passed","EA":"passed","VP":"pending","PUB":"passed"},"external_audit":{"primary_route":["wolfram"],"completed_at":"2026-07-30","record":"docs/books/mathematical-economics/external_audit.md","numeric_formula_nodes_independently_verified":23,"high_risk_logic_scope":["rank_and_linear_systems","eigen_invariant_span","chain_rule_and_differentials","implicit_function_jacobian","concavity_and_hessian","equality_constrained_soc","kkt_cq_and_complementarity","constrained_envelope","homogeneity_and_homotheticity","difference_and_differential_dynamics"],"core_answer_errors":0,"content_version_change_required":false,"unresolved_blockers":0}}
   ],
   "invariants": {
     "preserve_all_21_books": true,
