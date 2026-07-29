@@ -1,18 +1,18 @@
-deploy	Generate and independently validate macroeconomics textbook	﻿2026-07-29T02:53:08.7739778Z ##[group]Run cp _site/data/library.json /tmp/pre-macroeconomics-library.json
-deploy	Generate and independently validate macroeconomics textbook	2026-07-29T02:53:08.7740722Z ^[[36;1mcp _site/data/library.json /tmp/pre-macroeconomics-library.json^[[0m
-deploy	Generate and independently validate macroeconomics textbook	2026-07-29T02:53:08.7741759Z ^[[36;1mcat deploy/generate-macroeconomics.py.gz.b64.part* | tr -d '\n' | base64 --decode > /tmp/generate-macroeconomics.py.gz^[[0m
-deploy	Generate and independently validate macroeconomics textbook	2026-07-29T02:53:08.7742674Z ^[[36;1mecho '05259f866024c5e442207ae2e9d448f4511c33db3868f14d504424b103fb058e  /tmp/generate-macroeconomics.py.gz' | sha256sum --check -^[[0m
-deploy	Generate and independently validate macroeconomics textbook	2026-07-29T02:53:08.7743556Z ^[[36;1mgzip --decompress --stdout /tmp/generate-macroeconomics.py.gz > /tmp/generate-macroeconomics.py^[[0m
-deploy	Generate and independently validate macroeconomics textbook	2026-07-29T02:53:08.7744151Z ^[[36;1mpython -m py_compile /tmp/generate-macroeconomics.py^[[0m
-deploy	Generate and independently validate macroeconomics textbook	2026-07-29T02:53:08.7744548Z ^[[36;1mpython /tmp/generate-macroeconomics.py _site^[[0m
-deploy	Generate and independently validate macroeconomics textbook	2026-07-29T02:53:08.7745161Z ^[[36;1mFINAL_LIBRARY_VERSION="$(python deploy/finalize_macroeconomics_library.py _site /tmp/pre-macroeconomics-library.json)"^[[0m
-deploy	Generate and independently validate macroeconomics textbook	2026-07-29T02:53:08.7746133Z ^[[36;1mEXPECTED_LIBRARY_VERSION="$FINAL_LIBRARY_VERSION" PRE_LIBRARY_JSON=/tmp/pre-macroeconomics-library.json python deploy/validate_macroeconomics.py _site^[[0m
-deploy	Generate and independently validate macroeconomics textbook	2026-07-29T02:53:08.7746856Z ^[[36;1mnode --check _site/app.js^[[0m
-deploy	Generate and independently validate macroeconomics textbook	2026-07-29T02:53:08.7747117Z ^[[36;1mnode --check _site/sw.js^[[0m
-deploy	Generate and independently validate macroeconomics textbook	2026-07-29T02:53:08.7747477Z ^[[36;1mecho "MACROECONOMICS_FINAL_LIBRARY_VERSION=$FINAL_LIBRARY_VERSION"^[[0m
-deploy	Generate and independently validate macroeconomics textbook	2026-07-29T02:53:08.7790718Z shell: /usr/bin/bash -e {0}
-deploy	Generate and independently validate macroeconomics textbook	2026-07-29T02:53:08.7790973Z env:
-deploy	Generate and independently validate macroeconomics textbook	2026-07-29T02:53:08.7791162Z   GITHUB_PAGES: true
-deploy	Generate and independently validate macroeconomics textbook	2026-07-29T02:53:08.7791372Z ##[endgroup]
-deploy	Generate and independently validate macroeconomics textbook	2026-07-29T02:53:08.7881455Z base64: invalid input
-deploy	Generate and independently validate macroeconomics textbook	2026-07-29T02:53:08.7895043Z ##[error]Process completed with exit code 1.
+deploy	Generate and independently validate macroeconomics textbook	﻿2026-07-29T02:56:37.3727826Z ##[group]Run cp _site/data/library.json /tmp/pre-macroeconomics-library.json
+deploy	Generate and independently validate macroeconomics textbook	2026-07-29T02:56:37.3728441Z ^[[36;1mcp _site/data/library.json /tmp/pre-macroeconomics-library.json^[[0m
+deploy	Generate and independently validate macroeconomics textbook	2026-07-29T02:56:37.3729418Z ^[[36;1mcat deploy/generate-macroeconomics.py.gz.b64.part* | tr -d '\n' | base64 --decode > /tmp/generate-macroeconomics.py.gz^[[0m
+deploy	Generate and independently validate macroeconomics textbook	2026-07-29T02:56:37.3730317Z ^[[36;1mecho '05259f866024c5e442207ae2e9d448f4511c33db3868f14d504424b103fb058e  /tmp/generate-macroeconomics.py.gz' | sha256sum --check -^[[0m
+deploy	Generate and independently validate macroeconomics textbook	2026-07-29T02:56:37.3731178Z ^[[36;1mgzip --decompress --stdout /tmp/generate-macroeconomics.py.gz > /tmp/generate-macroeconomics.py^[[0m
+deploy	Generate and independently validate macroeconomics textbook	2026-07-29T02:56:37.3731761Z ^[[36;1mpython -m py_compile /tmp/generate-macroeconomics.py^[[0m
+deploy	Generate and independently validate macroeconomics textbook	2026-07-29T02:56:37.3732149Z ^[[36;1mpython /tmp/generate-macroeconomics.py _site^[[0m
+deploy	Generate and independently validate macroeconomics textbook	2026-07-29T02:56:37.3732748Z ^[[36;1mFINAL_LIBRARY_VERSION="$(python deploy/finalize_macroeconomics_library.py _site /tmp/pre-macroeconomics-library.json)"^[[0m
+deploy	Generate and independently validate macroeconomics textbook	2026-07-29T02:56:37.3733704Z ^[[36;1mEXPECTED_LIBRARY_VERSION="$FINAL_LIBRARY_VERSION" PRE_LIBRARY_JSON=/tmp/pre-macroeconomics-library.json python deploy/validate_macroeconomics.py _site^[[0m
+deploy	Generate and independently validate macroeconomics textbook	2026-07-29T02:56:37.3734431Z ^[[36;1mnode --check _site/app.js^[[0m
+deploy	Generate and independently validate macroeconomics textbook	2026-07-29T02:56:37.3735006Z ^[[36;1mnode --check _site/sw.js^[[0m
+deploy	Generate and independently validate macroeconomics textbook	2026-07-29T02:56:37.3735379Z ^[[36;1mecho "MACROECONOMICS_FINAL_LIBRARY_VERSION=$FINAL_LIBRARY_VERSION"^[[0m
+deploy	Generate and independently validate macroeconomics textbook	2026-07-29T02:56:37.3779417Z shell: /usr/bin/bash -e {0}
+deploy	Generate and independently validate macroeconomics textbook	2026-07-29T02:56:37.3779668Z env:
+deploy	Generate and independently validate macroeconomics textbook	2026-07-29T02:56:37.3779856Z   GITHUB_PAGES: true
+deploy	Generate and independently validate macroeconomics textbook	2026-07-29T02:56:37.3780104Z ##[endgroup]
+deploy	Generate and independently validate macroeconomics textbook	2026-07-29T02:56:37.3873537Z base64: invalid input
+deploy	Generate and independently validate macroeconomics textbook	2026-07-29T02:56:37.3888653Z ##[error]Process completed with exit code 1.
