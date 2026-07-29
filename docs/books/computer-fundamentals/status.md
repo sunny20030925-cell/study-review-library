@@ -28,7 +28,7 @@
 - PR workflow：`.github/workflows/validate-computer-fundamentals-candidate.yml`。
 - workflow 會從最新成功 Pages artifact 建立候選，不使用對話開始時的舊書庫副本。
 - 既有書籍在候選生成前後做逐檔 SHA-256，比對不一致即失敗。
-- 本 QA 分支只改變狀態字串以觸發正式 PR workflow，不修改候選教材內容。
+- 本 QA 分支只更新狀態文件以觸發正式 PR workflow，不修改候選教材內容；已在 workflow 進入 `main` 後再次同步一次。
 
 ## 發布規則
 
