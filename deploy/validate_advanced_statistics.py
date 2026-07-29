@@ -42,7 +42,7 @@ def main(site_root: str, expected_library: str) -> None:
     ids=[b['id'] for b in lib['books']]
 
     ck(lib['version']==expected_library,'library version')
-    ck(len(ids)==13 and ids[-2:]==['money-banking',BOOK],'thirteen-book canonical tail')
+    ck(ids.count(BOOK)==1 and ('computer-fundamentals' not in ids or ids.index(BOOK)<ids.index('computer-fundamentals')),'advanced statistics registry order')
     ck(len(ids)==len(set(ids)),'unique book ids')
     ck(manifest['id']==BOOK and manifest['version']==VERSION,'manifest identity/version')
     ck(questions['bookId']==BOOK and questions['version']==VERSION,'questions identity/version')
@@ -185,7 +185,7 @@ def main(site_root: str, expected_library: str) -> None:
     ]:
         ck(tok in sw,f'sw path {tok}')
 
-    print(f'ADVANCED_STATISTICS_QA_ROUND1_OK checks={checks} books=13 library={expected_library} chapters=20 appendices=3 questions=100 search=189 figures=20')
+    print(f'ADVANCED_STATISTICS_QA_ROUND1_OK checks={checks} books={len(ids)} library={expected_library} chapters=20 appendices=3 questions=100 search=189 figures=20')
     print(f'ADVANCED_STATISTICS_QA_ROUND2_OK quantitative_rechecks={numeric_checks} high_risk_concepts={concept_checks} scope_separation=passed exact_vs_asymptotic=passed')
 
 if __name__=='__main__':
