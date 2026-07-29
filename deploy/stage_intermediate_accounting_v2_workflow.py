@@ -74,7 +74,7 @@ def main(src: str, dst: str) -> None:
           )
           Path('docs/books/intermediate-accounting/status.md').write_text(ia_status, encoding='utf-8')
 """
-    text, count = ia_status_re.subn(ia_status_new, text, count=1)
+    text, count = ia_status_re.subn(lambda _match: ia_status_new, text, count=1)
     if count != 1:
         raise AssertionError(f'ia status block: expected 1, got {count}')
 
