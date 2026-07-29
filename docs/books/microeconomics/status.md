@@ -6,8 +6,8 @@
 
 - Book ID：`microeconomics`
 - 內容版本：`2026.07.29-1`
-- 書庫版本：於整合當下依最新正式書庫版本順延，不硬編號覆蓋其他同步教材工作線。
-- 狀態：預發布 QA 完成，待 canonical GitHub Pages 實際部署。
+- 書庫版本：於正式部署當下依最新正式書庫版本順延，不硬編號覆蓋其他同步教材工作線。
+- 狀態：預發布 QA 與 canonical workflow 整合完成，待 GitHub Pages 實際部署回條。
 - 範圍文件：`docs/books/microeconomics/scope.md`
 - QA 報告：`docs/books/microeconomics/qa_report.md`
 
@@ -22,11 +22,11 @@
 - 第二輪內容 gate：87／87 通過。
 - 100 題逐題重新閱讀與重判；另獨立重算 15 題量化題、重判 15 題高風險觀念題。
 - 已在目前正式六本書網站包上實際生成第七本測試站；`app.js`、`sw.js` 語法與 28 個代表性靜態路徑通過。
+- 已於 canonical `Deploy study library` 中加入個體經濟學生成、動態書庫版本順延與正式 QA gate；整合 commit 為 `7996c37093fc48ea62bdf1fd4ee4078882995d0b`。
 
 ## 待完成
 
-1. 在合併當下重新核對最新 `main`，把本書接在當時最後一個正式教材生成步驟之後。
-2. GitHub Pages 實際部署成功。
-3. 寫回 deployment receipt、正式 status、README 與 `docs/shared_checkpoint.md`。
+1. GitHub Pages 實際部署成功。
+2. 寫回 deployment receipt、正式 status、README 與 `docs/shared_checkpoint.md`。
 
 在 Pages 成功回條產生前，不標記為「已部署」。
