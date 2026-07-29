@@ -9,15 +9,16 @@
 - 固定入口：`https://sunny20030925-cell.github.io/study-review-library/`
 - 形式：平板直式 PWA 書庫，可持續加入新科目。
 - 使用者操作限制：只使用平板；不得要求終端機、Git、電腦檔案管理、手動部署或多檔案上傳操作。
-- 正式書庫內容版本：`2026.07.29-16`
-- 正式書籍數：11 本。
-- 最新正式 Pages run：`30452678302`。
-- 最新正式部署 source commit：`24bcf00d73dcb2e11b4d2dfbce14c5e99b5db85d`。
-- 最新 Pages artifact：`8724164394`。
-- Artifact digest：`sha256:282d2bdeec05a04427dd13a5c50aa1fcce172011fff4c1403fd563c4cfc1b201`。
-- Pages 狀態：Upload artifact 與 Deploy to GitHub Pages 均成功，2026-07-29T12:42:18.566584+00:00 回報成功。
-- 部署回條：`docs/deployment_receipt.json`；`status=success`、`book_count=11`、`library_version=2026.07.29-16`、`progress_storage_changed=false`。
-- 已知工程技債：最新 run 的最後 `Record successful deployment` 仍因舊 checkpoint 字串匹配器失敗，使 workflow overall conclusion 顯示 `failure-after-successful-pages-deploy`；教材產生、正式 QA、artifact upload 與 Pages deployment 均已先成功，正式 receipt 已依最新 artifact 與 deploy log 校正。下一本正式新教材發布前應修正 recorder。
+- 正式書庫內容版本：`2026.07.29-17`
+- 正式書籍數：12 本。
+- 最新正式 Pages run：`30460567595`。
+- 最新正式部署 source commit：`2a2fff311c76a6e05a8a93fee9f3d5daaa474574`。
+- 最新 Pages artifact：`8727395112`。
+- Artifact digest：`sha256:0d3dffa1e6b57d41f3ae8181d599f337b545d3f6ec92a0b677d65c7366104ba8`。
+- Pages 狀態：Upload artifact 與 Deploy to GitHub Pages 均成功；2026-07-29T14:23:09.128492+00:00 回報 success。
+- 部署回條：`docs/deployment_receipt.json`；`status=success`、`book_count=12`、`library_version=2026.07.29-17`、`progress_storage_changed=false`。
+- 實際下載正式 Pages artifact 後再次核對：12 本 registry、本書 23 份章節／附錄 HTML、100 題、150 搜尋、20 SVG 均存在；下載檔 SHA-256 與 GitHub artifact digest 完全一致。
+- workflow overall conclusion 仍為 `failure-after-successful-pages-deploy`：唯一失敗發生在 Pages 成功後的舊 repo 記錄器，原因為過時的 `microeconomics deployment-flow` 字串匹配；不影響已部署 artifact。正式 receipt、status、QA 與本 checkpoint 已依 workflow job 與下載 artifact 手動校正。
 
 ## 正式規格與讀取順序
 
@@ -30,12 +31,12 @@
 
 固定原則：
 
-- 科目本位：使用者的主修背景只決定程度、先備知識與可能範圍，不得主導其他科目的正文、案例與題型。
+- 科目本位：使用者背景只決定程度、先備知識與可能範圍，不得主導其他科目的正文、案例與題型。
 - 跨科內容只有在標準課程本來包含、理解不可或缺或使用者明確要求時才可進入；其他內容列為延伸。
-- 新科目先固定 scope，再製作內容；至少完成兩輪 QA 後才可進入正式整合。
+- 新科目先固定 scope，再製作內容；至少完成兩輪 QA 後才可正式整合。
 - 不同科目的內容製作／QA 可平行；共同 PWA 整合與 Pages 發布必須序列化。
-- 發布前必須重新讀最新 `main`、本 checkpoint、書庫 registry 與 deployment receipt，禁止拿舊 artifact 覆蓋較新的正式書庫。
-- 正式成功以 canonical 產生／驗證、Pages artifact、Pages deployment 與 deployment receipt 為準；merge 成功本身不等於已部署。
+- 發布前必須重新讀最新 `main`、本 checkpoint、registry 與 deployment receipt，禁止拿舊 artifact 覆蓋較新的正式書庫。
+- 正式成功以 canonical 產生／驗證、Pages artifact、Pages deployment 與 deployment receipt 為準；merge 本身不等於部署。
 - 既有章節 ID、題目 ID、儲存鍵與閱讀／錯題進度不得無故破壞。
 
 ## 正式已部署書籍
@@ -43,14 +44,14 @@
 ### 1. 大一微積分
 - Book ID：`calculus`
 - 正式內容版本：`2026.07.27-3`
-- 題庫 73 題；本版 QA 181／181 通過。
+- 題庫：73 題；本版 QA 181／181。
 - 狀態：已部署。
 
 ### 2. 會計學
 - Book ID：`accounting`
 - 正式內容版本：`2026.07.27-2`
 - 成品：14 章、3 附錄、70 題、111 搜尋、13 圖解。
-- 二次獨立複核修正 29 個內容點，70 題數值答案重算通過。
+- 二次獨立複核修正 29 個內容點；70 題數值答案重算通過。
 - 狀態：已部署。
 
 ### 3. 經濟學原理
@@ -85,14 +86,14 @@
 - Book ID：`microeconomics`
 - 正式內容版本：`2026.07.29-2`
 - 成品：20 章、3 附錄、100 題、154 搜尋、20 圖解。
-- 發布後二次複核 1,616 項，15 題量化重算、20 題高風險觀念重判。
+- 發布後二次複核 1,616 項；15 題量化重算、20 題高風險觀念重判。
 - 狀態：已部署。
 
 ### 8. 中級會計學
 - Book ID：`intermediate-accounting`
 - 正式內容版本：`2026.07.29-2`
 - 成品：22 章、3 附錄、110 題、145 搜尋、22 圖解。
-- 發布後二次內容審計 1,110 項，28 項量化重算。
+- 發布後二次內容審計 1,110 項；28 項量化重算。
 - 狀態：已部署。
 
 ### 9. 總體經濟學
@@ -105,26 +106,30 @@
 ### 10. 國際經濟學
 - Book ID：`international-economics`
 - 正式內容版本：`2026.07.29-2`
-- 定位：一般大學國際經濟學，分為國際貿易與國際金融／開放經濟兩大主線。
 - 成品：20 章、3 附錄、100 題、144 搜尋、20 圖解。
-- 初版 QA：696／696 與 1,383／1,383；17 題量化題重算。
-- 發布後第二次內容複核：修正 11 個內容節點，精確化 7 題；100 題全數重查，17 題量化題再由原始輸入重算，沒有數值答案需要更改。
-- v2 獨立 QA：1,656／1,656 通過。
-- 主要修正：H–O 定理群條件、獨占性競爭品種／廠商數、傾銷定義、關稅／出口補貼福利、BPM7 金融帳符號、CIP／PPP 條件、Marshall–Lerner／J 曲線、Bretton Woods 官方美元兌金範圍。
-- 正式部署 run：`30452678302`；Source commit：`24bcf00d73dcb2e11b4d2dfbce14c5e99b5db85d`。
-- 章節 ID、題目 ID、題數與儲存鍵不變，既有閱讀進度與錯題紀錄可沿用。
-- 文件：`docs/books/international-economics/scope.md`、`docs/books/international-economics/qa_report.md`、`docs/books/international-economics/status.md`
+- 初版 QA 696／696、1,383／1,383；v2 獨立 QA 1,656／1,656；17 題量化重算。
 - 狀態：已部署。
 
 ### 11. 財政學
 - Book ID：`public-finance`
 - 正式內容版本：`2026.07.29-2`
-- 定位：一般大學財政學／公共經濟學。
 - 成品：20 章、3 附錄、100 題、189 搜尋、20 圖解。
-- 發布後獨立內容審計：16 個修正／補強區域；2,386 項結構／內容 gate、174 項 v2 獨立 gate、38 項量化重算通過。
-- 最新正式 Pages run 同為 `30452678302`；財政學 v2 在同一序列中先完成，再由國際經濟學 v2 形成最終 `2026.07.29-16` artifact。
-- 章節 ID、題目 ID 與題數不變，既有閱讀進度與錯題紀錄可沿用。
-- 文件：`docs/books/public-finance/scope.md`、`docs/books/public-finance/qa_report.md`、`docs/books/public-finance/status.md`
+- 發布後獨立內容審計：16 個修正／補強區域；2,386 項結構／內容 gate、174 項 v2 gate、38 項量化重算通過。
+- 狀態：已部署。
+
+### 12. 貨幣銀行學
+- Book ID：`money-banking`
+- 正式內容版本：`2026.07.29-2`
+- 定位：一般大學貨幣銀行學／貨幣金融學；貨幣、利率、金融市場、銀行、中央銀行、貨幣政策、通膨與開放經濟金融。
+- 成品：20 章、3 附錄、100 題、150 搜尋、20 圖解。
+- 舊工作線損壞 generator 未使用；由可讀 fresh source 重新生成。
+- 第一輪 QA：963／963。
+- 第二輪：20 個量化節點重算＋10 個高風險概念重判，全數通過。
+- v2 獨立 QA：473／473；9 個章節二次複核修正、7 題詳解精確化。
+- 正式 artifact 終檢：本書 23 份章節／附錄 HTML、100 題、150 搜尋、20 SVG 全部存在。
+- 既有 11 本教材內容 hash 在整合前後完全一致，閱讀進度與錯題資料相容。
+- 正式 Pages run：`30460567595`；Source commit：`2a2fff311c76a6e05a8a93fee9f3d5daaa474574`。
+- 文件：`docs/books/money-banking/scope.md`、`docs/books/money-banking/qa_report.md`、`docs/books/money-banking/status.md`。
 - 狀態：已部署。
 
 ## Canonical 部署流程
@@ -135,25 +140,25 @@
 4. 各書內容／題庫／搜尋／SVG 與高風險公式／法律要件驗證通過後，再檢查 `app.js` 與 `sw.js`。
 5. 全部正式檢查通過後才上傳單一完整 Pages artifact。
 6. Pages deployment 成功後核對 artifact，再寫回 deployment receipt、各書 status／QA 與本 checkpoint。
-7. 最新正式書庫：11 本，`2026.07.29-16`；Pages run `30452678302`，artifact `8724164394`。
+7. 最新正式書庫：12 本，`2026.07.29-17`；Pages run `30460567595`，artifact `8727395112`。
 8. 使用者不需要執行 Git、終端機、手動上傳或部署。
 
 ## 多書並行／發布規則
 
 - 內容製作與 QA 可平行；發布依 `docs/concurrent_book_workflow.md` 序列化。
-- 每條準備發布的工作線都要在最後一刻重新同步最新 `main`，重新確認正式書籍清單與版本。
-- workflow concurrency 造成 cancelled 不視為內容失敗；不可用舊 SHA 覆蓋最新 main。
-- generator／artifact integrity gate 失敗必須先定位根因，不得關閉 gate 或盲目重跑。
-- canonical post-deploy recorder 目前仍依賴舊 checkpoint 標題／句子格式；下一本正式新教材發布前必須修正並驗證。
+- 每條準備發布的工作線都要在最後一刻重新同步最新 `main`，確認正式書籍清單與版本。
+- workflow concurrency 造成 cancelled 不視為內容失敗；不可用 cancelled run 當正式部署證據。
+- workflow overall failure 若發生在 Pages deployment 成功後，必須用 job steps、artifact digest、Pages 狀態與下載 artifact 交叉驗證，再以 `[skip ci]` 校正 receipt；不得因此盲目重跑已成功 Pages。
+- canonical post-deploy recorder 仍存在舊 checkpoint 句型相依；下一次正式發布前應改成依結構化 receipt／Book ID 更新，而非依歷史自然語句做硬字串比對。
 
 ## 下一個新科目流程
 
 1. 使用者只需指定科目，無須重貼歷史規格。
 2. 助理先讀 `AGENTS.md`、knowledge index、content authoring spec、concurrent workflow 與本 checkpoint。
-3. 先修正／驗證 canonical post-deploy recorder 的現行 checkpoint 相容性。
-4. 建立 `docs/books/<book-id>/scope.md` 與 `status.md`，固定科目邊界。
-5. 依標準本科課程製作教材、圖解、題庫、搜尋資料；必要時用可信官方／大學來源交叉核對。
-6. 完成兩輪獨立 QA，特別重算數值題並設高風險負面 gate。
+3. 在下一次正式發布前先修正／驗證 canonical post-deploy recorder，移除舊自然語句硬比對。
+4. 建立新科目的 `scope.md` 與 `status.md`，固定本科邊界。
+5. 依標準本科課程製作教材、圖解、題庫、搜尋資料；必要時以可信官方／大學來源交叉核對。
+6. 完成兩輪獨立 QA，重算數值題並設高風險負面 gate。
 7. 發布前重新同步最新 main；確認其他平行教材是否已先正式發布。
 8. 依 canonical workflow 加入同一 PWA；只有 Pages artifact／deployment 與 deployment receipt 均核實後才標記「已部署」。
 9. 同步更新該書 status、QA report、README、deployment receipt 與本 checkpoint，任務才算收尾。
