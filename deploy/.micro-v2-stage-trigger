@@ -1,1 +1,1 @@
-trigger YAML-valid audited microeconomics v2 staging
+retrigger deployed-artifact microeconomics v2 QA
