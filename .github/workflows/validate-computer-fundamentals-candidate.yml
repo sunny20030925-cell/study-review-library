@@ -5,10 +5,9 @@ on:
     paths:
       - 'deploy/computer_fundamentals_*.py'
       - 'deploy/generate_computer_fundamentals.py'
-      - 'deploy/patch_computer_fundamentals_v2.py'
-      - 'deploy/finalize_computer_fundamentals_v2_library.py'
-      - 'deploy/qa_computer_fundamentals_v2.py'
-      - 'deploy/apply_computer_fundamentals_v2.py'
+      - 'deploy/finalize_computer_fundamentals_library.py'
+      - 'deploy/validate_computer_fundamentals.py'
+      - 'deploy/qa_computer_fundamentals_independent.py'
       - 'docs/books/computer-fundamentals/**'
       - '.github/workflows/validate-computer-fundamentals-candidate.yml'
   workflow_dispatch:
@@ -24,7 +23,7 @@ jobs:
       - name: Checkout candidate
         uses: actions/checkout@v4
 
-      - name: Compile computer fundamentals audit sources
+      - name: Compile computer fundamentals sources
         run: |
           python -m py_compile \
             deploy/computer_fundamentals_content_a.py \
@@ -32,10 +31,9 @@ jobs:
             deploy/computer_fundamentals_questions_a.py \
             deploy/computer_fundamentals_questions_b.py \
             deploy/generate_computer_fundamentals.py \
-            deploy/patch_computer_fundamentals_v2.py \
-            deploy/finalize_computer_fundamentals_v2_library.py \
-            deploy/qa_computer_fundamentals_v2.py \
-            deploy/apply_computer_fundamentals_v2.py
+            deploy/finalize_computer_fundamentals_library.py \
+            deploy/validate_computer_fundamentals.py \
+            deploy/qa_computer_fundamentals_independent.py
 
       - name: Download latest deployed Pages artifact
         env:
@@ -58,55 +56,54 @@ jobs:
             cp -a /tmp/pages-artifact/. _site/
           fi
           test -f _site/data/library.json
-          test -f _site/books/computer-fundamentals/manifest.json
           test -f _site/sw.js
           test -f _site/app.js
 
-      - name: Apply second-audit correction layer
+      - name: Generate candidate on latest deployed library copy
         run: |
           set -euo pipefail
-          cp _site/data/library.json /tmp/pre-computer-fundamentals-v2-library.json
-          python - <<'PY'
-          import json
-          d=json.load(open('_site/data/library.json'))
-          json.dump([b['id'] for b in d['books']],open('/tmp/pre-book-ids.json','w'))
-          print('V2_BASE',d['version'],len(d['books']))
-          PY
-          BEFORE="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"
-          FINAL_LIBRARY_VERSION="$(python deploy/apply_computer_fundamentals_v2.py _site "$BEFORE")"
-          export FINAL_LIBRARY_VERSION
+          cp _site/data/library.json /tmp/pre-computer-fundamentals-library.json
+          find _site/books -type f ! -path '*/computer-fundamentals/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-existing-books.sha256
+          python deploy/generate_computer_fundamentals.py _site
+          FINAL_LIBRARY_VERSION="$(python deploy/finalize_computer_fundamentals_library.py _site /tmp/pre-computer-fundamentals-library.json)"
           echo "FINAL_LIBRARY_VERSION=$FINAL_LIBRARY_VERSION" >> "$GITHUB_ENV"
-          python deploy/qa_computer_fundamentals_v2.py _site "$FINAL_LIBRARY_VERSION"
+          echo "COMPUTER_FUNDAMENTALS_BASE_LIBRARY=$(python -c "import json;print(json.load(open('/tmp/pre-computer-fundamentals-library.json'))['version'])")"
+          echo "COMPUTER_FUNDAMENTALS_FINAL_LIBRARY=$FINAL_LIBRARY_VERSION"
+
+      - name: Round 1 structural and integration QA
+        run: |
+          set -euo pipefail
+          EXPECTED_LIBRARY_VERSION="$FINAL_LIBRARY_VERSION" PRE_LIBRARY_JSON=/tmp/pre-computer-fundamentals-library.json \
+            python deploy/validate_computer_fundamentals.py _site
+          find _site/books -type f ! -path '*/computer-fundamentals/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-existing-books.sha256
+          diff -u /tmp/pre-existing-books.sha256 /tmp/post-existing-books.sha256
           node --check _site/app.js
           node --check _site/sw.js
 
-      - name: Verify identity, progress compatibility, and tablet assets
+      - name: Round 2 independent content QA
+        run: |
+          set -euo pipefail
+          python deploy/qa_computer_fundamentals_independent.py _site
+
+      - name: Verify tablet-facing asset paths exist
         run: |
           set -euo pipefail
           python - <<'PY'
-          import json,os
+          import json
           from pathlib import Path
-          site=Path('_site')
-          library=json.load(open(site/'data/library.json'))
-          pre_ids=json.load(open('/tmp/pre-book-ids.json'))
-          ids=[b['id'] for b in library['books']]
-          assert ids==pre_ids, (pre_ids,ids)
-          assert library['version']==os.environ['FINAL_LIBRARY_VERSION']
-          root=site/'books/computer-fundamentals'
-          m=json.load(open(root/'manifest.json'))
-          q=json.load(open(root/'questions.json'))
-          s=json.load(open(root/'search.json'))
-          assert m['version']==q['version']=='2026.07.30-2'
-          assert len(m['chapters'])==23
-          assert q['count']==len(q['items'])==100
-          assert len({x['id'] for x in q['items']})==100
-          assert len(s['entries'])==150
+          site = Path('_site')
+          root = site/'books/computer-fundamentals'
+          m = json.loads((root/'manifest.json').read_text(encoding='utf-8'))
+          assert len(m['chapters']) == 23
           for ch in m['chapters']:
-              p=root/ch['file']
-              assert p.is_file() and p.stat().st_size>500, ch
-          figures=list((site/'assets/computer-fundamentals-svg').glob('*.svg'))
-          assert len(figures)==20
-          assert all(p.stat().st_size>300 for p in figures)
-          assert '章節 ID、題目 ID、Book ID、題數與進度儲存鍵均未變' in m['releaseNotes'][0]['progressImpact']
-          print('COMPUTER_FUNDAMENTALS_V2_TABLET_AND_IDENTITY_OK',library['version'],len(ids))
+              p = root/ch['file']
+              assert p.is_file() and p.stat().st_size > 700, ch
+          figures = list((site/'assets/computer-fundamentals-svg').glob('*.svg'))
+          assert len(figures) == 20
+          assert all(p.stat().st_size > 300 for p in figures)
+          q = json.loads((root/'questions.json').read_text(encoding='utf-8'))
+          s = json.loads((root/'search.json').read_text(encoding='utf-8'))
+          assert q['count'] == len(q['items']) == 100
+          assert len(s['entries']) == 150
+          print('COMPUTER_FUNDAMENTALS_TABLET_ASSET_PATHS_OK')
           PY
