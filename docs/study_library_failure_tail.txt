@@ -1,1 +1,120 @@
-
+deploy	Record successful deployment	2026-07-29T00:17:42.6368660Z ^[[36;1m    'cost_accounting_quantitative_recheck_count': 44,^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6369376Z ^[[36;1m    'microeconomics_version': '2026.07.29-1',^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6369781Z ^[[36;1m    'microeconomics_chapter_count': 20,^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6370158Z ^[[36;1m    'microeconomics_appendix_count': 3,^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6370587Z ^[[36;1m    'microeconomics_question_count': 100,^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6371082Z ^[[36;1m    'microeconomics_search_count': 154,^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6371507Z ^[[36;1m    'microeconomics_figure_count': 20,^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6371898Z ^[[36;1m    'microeconomics_content_audit': 'passed',^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6372356Z ^[[36;1m    'microeconomics_round1_check_count': 1321,^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6372770Z ^[[36;1m    'microeconomics_round2_check_count': 87,^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6373185Z ^[[36;1m    'microeconomics_quantitative_recheck_count': 15,^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6373788Z ^[[36;1m    'microeconomics_logic_recheck_count': 15,^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6374231Z ^[[36;1m    'source_commit': os.environ['GITHUB_SHA'],^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6374685Z ^[[36;1m    'workflow_run_id': os.environ['GITHUB_RUN_ID'],^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6375144Z ^[[36;1m    'page_url': os.environ.get('DEPLOYED_PAGE_URL', ''),^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6375605Z ^[[36;1m    'deployed_at': datetime.now(timezone.utc).isoformat(),^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6376107Z ^[[36;1m}^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6376632Z ^[[36;1mPath('docs/deployment_receipt.json').write_text(^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6377132Z ^[[36;1m    json.dumps(receipt, ensure_ascii=False, indent=2) + '\n',^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6377591Z ^[[36;1m    encoding='utf-8',^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6377969Z ^[[36;1m)^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6378280Z ^[[36;1m^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6378600Z ^[[36;1mfinal_version = receipt['library_version']^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6379003Z ^[[36;1mbook_count = receipt['book_count']^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6379369Z ^[[36;1mstatus = f'''# 《個體經濟學》狀態^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6379750Z ^[[36;1m^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6380081Z ^[[36;1m更新日期：2026-07-29^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6380387Z ^[[36;1m^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6380683Z ^[[36;1m## 正式定位^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6380959Z ^[[36;1m^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6381538Z ^[[36;1m- Book ID：`microeconomics`^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6381895Z ^[[36;1m- 正式內容版本：`2026.07.29-1`^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6382256Z ^[[36;1m- 正式書庫版本：`{final_version}`^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6382620Z ^[[36;1m- 狀態：已部署。^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6383015Z ^[[36;1m- 範圍文件：`docs/books/microeconomics/scope.md`^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6383469Z ^[[36;1m- QA 報告：`docs/books/microeconomics/qa_report.md`^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6383865Z ^[[36;1m^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6384140Z ^[[36;1m## 成品與 QA^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6384502Z ^[[36;1m^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6384856Z ^[[36;1m- 正文 20 章、附錄 3 份、題庫 100 題、搜尋索引 154 筆、自製 SVG 20 張。^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6385273Z ^[[36;1m- 第一輪 QA：1321／1321 通過。^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6385679Z ^[[36;1m- 第二輪 QA：87／87 通過；100 題逐題複核，另獨立重算 15 題量化題與重判 15 題高風險觀念題。^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6386119Z ^[[36;1m- 閱讀進度相容性：新增獨立 book ID，不改既有教材章節、題目 ID、儲存鍵或錯題紀錄。^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6386889Z ^[[36;1m^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6387167Z ^[[36;1m## 部署^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6387528Z ^[[36;1m^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6387862Z ^[[36;1m- canonical workflow：`Deploy study library`^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6388384Z ^[[36;1m- workflow run：`{os.environ['GITHUB_RUN_ID']}`^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6388868Z ^[[36;1m- source commit：`{os.environ['GITHUB_SHA']}`^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6389316Z ^[[36;1m- 正式書庫書籍數：{book_count} 本。^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6389709Z ^[[36;1m- GitHub Pages 部署成功並已寫回 deployment receipt。^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6390085Z ^[[36;1m'''^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6390530Z ^[[36;1mPath('docs/books/microeconomics/status.md').write_text(status, encoding='utf-8')^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6391028Z ^[[36;1m^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6391363Z ^[[36;1mcp = Path('docs/shared_checkpoint.md')^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6391751Z ^[[36;1mc = cp.read_text(encoding='utf-8')^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6392242Z ^[[36;1mc = re.sub(r'- 正式書庫內容版本：`[^`]+`', f'- 正式書庫內容版本：`{final_version}`', c, count=1)^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6392734Z ^[[36;1mc = re.sub(r'- 正式書籍數：\d+ 本。', f'- 正式書籍數：{book_count} 本。', c, count=1)^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6393305Z ^[[36;1mif '### 個體經濟學' not in c:^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6393691Z ^[[36;1m    section = f'''### 個體經濟學^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6394073Z ^[[36;1m^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6394366Z ^[[36;1m- Book ID：`microeconomics`^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6394691Z ^[[36;1m- 正式內容版本：`2026.07.29-1`^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6395232Z ^[[36;1m- 定位：一般大學中級個體經濟學，從近零基礎銜接消費者對偶、Slutsky、生產與成本、競爭／獨占、賽局、一般均衡、福利與資訊不對稱。^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6395696Z ^[[36;1m- 成品：20 章、3 附錄、100 題題庫、154 筆搜尋索引、20 張自製圖解。^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6396151Z ^[[36;1m- QA：第一輪 1,321／1,321、第二輪 87／87；100 題逐題複核，15 題量化題獨立重算、15 題高風險觀念題獨立重判。^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6396923Z ^[[36;1m- 範圍文件：`docs/books/microeconomics/scope.md`^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6397330Z ^[[36;1m- QA 報告：`docs/books/microeconomics/qa_report.md`^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6398372Z ^[[36;1m- GitHub Pages 部署 run：`{os.environ['GITHUB_RUN_ID']}`。^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6398952Z ^[[36;1m- Source commit：`{os.environ['GITHUB_SHA']}`。^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6399343Z ^[[36;1m- 狀態：已部署。^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6399662Z ^[[36;1m^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6399927Z ^[[36;1m    '''^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6400356Z ^[[36;1m    c = c.replace('## 部署流程\n', section + '## 部署流程\n', 1)^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6400929Z ^[[36;1mc = c.replace('同一個 canonical `Deploy study library` 工作流先完成既有五本書驗證，再生成並獨立驗證 `cost-accounting`，最終部署六本書。',^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6401633Z ^[[36;1m              '同一個 canonical `Deploy study library` 工作流先完成既有核心驗證，再依序生成並獨立驗證新增教材；最後只部署一份完整書庫 artifact。')^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6402197Z ^[[36;1mc = re.sub(r'(\d+\. )最新.*本書成功部署 run：`[^`]+`；書庫內容版本：`[^`]+`。',^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6402794Z ^[[36;1m           lambda m: f"{m.group(1)}最新{book_count}本書成功部署 run：`{os.environ['GITHUB_RUN_ID']}`；書庫內容版本：`{final_version}`。", c, count=1)^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6403382Z ^[[36;1mif '個體經濟學均已納入同一套正式書庫部署流程。' not in c:^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6403806Z ^[[36;1m    c = c.replace('成本會計學均已納入同一套正式書庫部署流程。', '成本會計學、個體經濟學均已納入同一套正式書庫部署流程。')^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6404290Z ^[[36;1mcp.write_text(c, encoding='utf-8')^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6404657Z ^[[36;1m^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6404965Z ^[[36;1mrp = Path('README.md')^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6405321Z ^[[36;1mr = rp.read_text(encoding='utf-8')^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6405739Z ^[[36;1mr = re.sub(r'目前內容版本：`[^`]+`', f'目前內容版本：`{final_version}`', r, count=1)^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6406436Z ^[[36;1mcost = '- 《成本會計學》：一般大學成本會計，19 章、3 附錄、95 題題庫、146 筆搜尋索引與 19 張圖解；內容版本 `2026.07.29-1`。\n'^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6407106Z ^[[36;1mmicro = '- 《個體經濟學》：一般大學中級個體經濟學，20 章、3 附錄、100 題題庫、154 筆搜尋索引與 20 張圖解；內容版本 `2026.07.29-1`。\n'^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6407567Z ^[[36;1mif cost not in r:^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6408097Z ^[[36;1m    r = r.replace('- 《商事法》：以公司法與證券交易法為核心，18 章、3 附錄、90 題題庫、111 筆搜尋索引與 18 張圖解；發布後獨立內容複核與公司法第 8 條現行法 follow-up 版本 `2026.07.29-2`。\n',^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6408730Z ^[[36;1m                  '- 《商事法》：以公司法與證券交易法為核心，18 章、3 附錄、90 題題庫、111 筆搜尋索引與 18 張圖解；發布後獨立內容複核與公司法第 8 條現行法 follow-up 版本 `2026.07.29-2`。\n' + cost)^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6409265Z ^[[36;1mif micro not in r:^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6409726Z ^[[36;1m    anchor = cost if cost in r else '- 《商事法》：'^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6410164Z ^[[36;1m    if anchor == cost:^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6410517Z ^[[36;1m        r = r.replace(cost, cost + micro, 1)^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6410852Z ^[[36;1m    else:^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6411421Z ^[[36;1m        lines=r.splitlines(True); idx=max(i for i,x in enumerate(lines) if x.startswith('- 《'))+1; lines.insert(idx,micro); r=''.join(lines)^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6412477Z ^[[36;1mr = re.sub(r'五本書均由同一個 canonical GitHub Pages 工作流部署。', '全部正式教材均由同一個 canonical GitHub Pages 工作流部署。', r)^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6413199Z ^[[36;1mrp.write_text(r, encoding='utf-8')^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6413546Z ^[[36;1mPY^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6413840Z ^[[36;1mgit config user.name github-actions[bot]^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6414377Z ^[[36;1mgit config user.email 41898282+github-actions[bot]@users.noreply.github.com^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6415061Z ^[[36;1mgit add docs/deployment_receipt.json README.md docs/shared_checkpoint.md docs/books/microeconomics/status.md^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6415728Z ^[[36;1mgit commit -m "Record successful study library deployment [skip ci]"^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6416192Z ^[[36;1mgit push origin HEAD:main^[[0m
+deploy	Record successful deployment	2026-07-29T00:17:42.6444320Z shell: /usr/bin/bash -e {0}
+deploy	Record successful deployment	2026-07-29T00:17:42.6444673Z env:
+deploy	Record successful deployment	2026-07-29T00:17:42.6445035Z   GITHUB_PAGES: true
+deploy	Record successful deployment	2026-07-29T00:17:42.6445650Z   DEPLOYED_PAGE_URL: https://sunny20030925-cell.github.io/study-review-library/
+deploy	Record successful deployment	2026-07-29T00:17:42.6446180Z ##[endgroup]
+deploy	Record successful deployment	2026-07-29T00:17:42.6905772Z [main 15c8712] Record successful study library deployment [skip ci]
+deploy	Record successful deployment	2026-07-29T00:17:42.6906560Z  4 files changed, 53 insertions(+), 33 deletions(-)
+deploy	Record successful deployment	2026-07-29T00:17:43.0944067Z To https://github.com/sunny20030925-cell/study-review-library
+deploy	Record successful deployment	2026-07-29T00:17:43.0952140Z  ! [rejected]        HEAD -> main (fetch first)
+deploy	Record successful deployment	2026-07-29T00:17:43.0952740Z error: failed to push some refs to 'https://github.com/sunny20030925-cell/study-review-library'
+deploy	Record successful deployment	2026-07-29T00:17:43.0953436Z hint: Updates were rejected because the remote contains work that you do not
+deploy	Record successful deployment	2026-07-29T00:17:43.0954175Z hint: have locally. This is usually caused by another repository pushing to
+deploy	Record successful deployment	2026-07-29T00:17:43.0954916Z hint: the same ref. If you want to integrate the remote changes, use
+deploy	Record successful deployment	2026-07-29T00:17:43.0955620Z hint: 'git pull' before pushing again.
+deploy	Record successful deployment	2026-07-29T00:17:43.0956654Z hint: See the 'Note about fast-forwards' in 'git push --help' for details.
+deploy	Record successful deployment	2026-07-29T00:17:43.0968597Z ##[error]Process completed with exit code 1.
