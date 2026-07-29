@@ -10,9 +10,11 @@ import sys
 import tempfile
 from pathlib import Path
 
-from generate_public_finance import main as generate_public_finance
+import generate_public_finance as generator
+import validate_public_finance as structural_validator
 from finalize_public_finance_library import main as finalize_public_finance
-from validate_public_finance import main as validate_public_finance
+from public_finance_v2_corrections import VERSION, build_v2, finalize_generated_metadata
+from qa_public_finance_v2 import main as qa_public_finance_v2
 
 BOOK = 'public-finance'
 EXPECTED_PREVIOUS_BOOK = 'international-economics'
@@ -61,9 +63,23 @@ def integrate(site_root: str, expected_before: str) -> str:
     pre_path = Path(tempfile.gettempdir()) / 'pre-public-finance-library.json'
     pre_path.write_text(json.dumps(pre, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
 
+    corrected_chapters, corrected_questions = build_v2(generator.CHAPTERS, generator.QUESTIONS)
+    # Keep the familiar shorthand explicitly visible after the exact discrete debt formula;
+    # the older structural validator also requires this canonical token.
+    debt_chapter = next(ch for ch in corrected_chapters if ch['id'] == 'ch19')
+    exact_note = debt_chapter['formulas'][1][1]
+    debt_chapter['formulas'][1] = (
+        r'\Delta b_t=\frac{r_t-g_t}{1+g_t}b_{t-1}-ps_t,\qquad \Delta b\approx(r-g)b-ps',
+        exact_note,
+    )
+    generator.CHAPTERS = corrected_chapters
+    generator.QUESTIONS = corrected_questions
+    generator.VERSION = VERSION
+
     buf = io.StringIO()
     with contextlib.redirect_stdout(buf):
-        generate_public_finance(str(site))
+        generator.main(str(site))
+        finalize_generated_metadata(str(site))
     emit_stderr(buf)
 
     buf = io.StringIO()
@@ -74,14 +90,22 @@ def integrate(site_root: str, expected_before: str) -> str:
 
     old_expected = os.environ.get('EXPECTED_LIBRARY_VERSION')
     old_pre = os.environ.get('PRE_LIBRARY_JSON')
+    old_structural_version = structural_validator.VERSION
     os.environ['EXPECTED_LIBRARY_VERSION'] = final
     os.environ['PRE_LIBRARY_JSON'] = str(pre_path)
+    structural_validator.VERSION = VERSION
     try:
         buf = io.StringIO()
         with contextlib.redirect_stdout(buf):
-            validate_public_finance(str(site))
+            structural_validator.main(str(site))
+        emit_stderr(buf)
+
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            qa_public_finance_v2(str(site), final)
         emit_stderr(buf)
     finally:
+        structural_validator.VERSION = old_structural_version
         if old_expected is None:
             os.environ.pop('EXPECTED_LIBRARY_VERSION', None)
         else:

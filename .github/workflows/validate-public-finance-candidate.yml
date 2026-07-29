@@ -8,6 +8,7 @@ on:
       - 'deploy/finalize_public_finance_library.py'
       - 'deploy/validate_public_finance.py'
       - 'deploy/integrate_public_finance.py'
+      - 'deploy/qa_public_finance_v2.py'
       - 'deploy/finalize_macroeconomics_v2_library.py'
       - 'deploy/qa_macroeconomics_v2.py'
       - 'docs/books/public-finance/**'
@@ -25,38 +26,32 @@ jobs:
       - name: Checkout candidate
         uses: actions/checkout@v4
 
-      - name: Compile public finance canonical tail
+      - name: Compile public finance v2 canonical tail
         run: |
           python -m py_compile \
             deploy/public_finance_content_a.py \
             deploy/public_finance_content_b.py \
             deploy/public_finance_questions_a.py \
             deploy/public_finance_questions_b.py \
+            deploy/public_finance_v2_corrections.py \
             deploy/generate_public_finance.py \
             deploy/finalize_public_finance_library.py \
             deploy/validate_public_finance.py \
+            deploy/qa_public_finance_v2.py \
             deploy/integrate_public_finance.py \
             deploy/finalize_macroeconomics_v2_library.py \
             deploy/qa_macroeconomics_v2.py
 
-      - name: Download newest Pages artifact actually produced on main
+      - name: Download canonical ten-book pre-public-finance artifact
         env:
           GH_TOKEN: ${{ github.token }}
+          BASE_DEPLOY_RUN: '30442682452'
         run: |
           set -euo pipefail
-          RUN_ID=''
-          ARTIFACT_ID=''
-          for candidate in $(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/deploy-pages.yml/runs?branch=main&per_page=10" --jq '.workflow_runs[].id'); do
-            artifact="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${candidate}/artifacts" --jq '.artifacts[] | select(.name == "github-pages") | .id' | head -n 1)"
-            if [ -n "$artifact" ]; then
-              RUN_ID="$candidate"
-              ARTIFACT_ID="$artifact"
-              break
-            fi
-          done
-          test -n "$RUN_ID"
+          ARTIFACT_ID="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${BASE_DEPLOY_RUN}/artifacts" --jq '.artifacts[] | select(.name == "github-pages") | .id' | head -n 1)"
           test -n "$ARTIFACT_ID"
-          echo "BASE_DEPLOY_RUN=$RUN_ID"
+          echo "BASE_DEPLOY_RUN=$BASE_DEPLOY_RUN"
+          echo "BASE_ARTIFACT_ID=$ARTIFACT_ID"
           gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" > /tmp/pages.zip
           mkdir /tmp/pages-artifact _site
           unzip -q /tmp/pages.zip -d /tmp/pages-artifact
@@ -77,11 +72,12 @@ jobs:
           ids=[b['id'] for b in lib['books']]
           assert len(ids)==10, ids
           assert ids[-2:]==['macroeconomics','international-economics'], ids
+          assert 'public-finance' not in ids, ids
           assert lib['version']=='2026.07.29-13', lib['version']
-          print(f"LATEST_DEPLOYED_BASE_OK books={len(ids)} library={lib['version']} tail={ids[-2:]}")
+          print(f"CANONICAL_PRE_PUBLIC_FINANCE_BASE_OK books={len(ids)} library={lib['version']} tail={ids[-2:]}")
           PY
 
-      - name: Run public finance canonical-tail preflight
+      - name: Run public finance v2 canonical-tail preflight
         run: |
           set -euo pipefail
           cp _site/data/library.json /tmp/pre-public-finance-library.json
@@ -91,11 +87,12 @@ jobs:
           echo "FINAL_LIBRARY_VERSION=$FINAL_LIBRARY_VERSION" >> "$GITHUB_ENV"
           echo "PUBLIC_FINANCE_BASE_LIBRARY=$BASE_LIBRARY_VERSION"
           echo "PUBLIC_FINANCE_FINAL_LIBRARY=$FINAL_LIBRARY_VERSION"
-          test "$FINAL_LIBRARY_VERSION" = '2026.07.29-14'
+          test "$FINAL_LIBRARY_VERSION" = '2026.07.29-15'
 
-      - name: Independent content, tail-order, and preservation validation
+      - name: Independent v2 content, tail-order, and preservation validation
         run: |
           set -euo pipefail
+          python deploy/qa_public_finance_v2.py _site "$FINAL_LIBRARY_VERSION"
           python deploy/qa_macroeconomics_v2.py _site "$FINAL_LIBRARY_VERSION"
           find _site/books -type f ! -path '*/public-finance/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-existing-books.sha256
           diff -u /tmp/pre-existing-books.sha256 /tmp/post-existing-books.sha256
@@ -107,10 +104,15 @@ jobs:
           site=Path('_site')
           lib=json.loads((site/'data/library.json').read_text(encoding='utf-8'))
           ids=[b['id'] for b in lib['books']]
-          assert lib['version']=='2026.07.29-14', lib['version']
+          pf=json.loads((site/'books/public-finance/manifest.json').read_text(encoding='utf-8'))
+          q=json.loads((site/'books/public-finance/questions.json').read_text(encoding='utf-8'))
+          assert lib['version']=='2026.07.29-15', lib['version']
           assert len(ids)==11, ids
           assert ids[-3:]==['macroeconomics','international-economics','public-finance'], ids
-          print(f"PUBLIC_FINANCE_CANONICAL_TAIL_OK books={len(ids)} library={lib['version']} tail={ids[-3:]}")
+          assert pf['version']=='2026.07.29-2', pf['version']
+          assert q['version']=='2026.07.29-2', q['version']
+          assert len(q['items'])==100
+          print(f"PUBLIC_FINANCE_V2_CANONICAL_TAIL_OK books={len(ids)} library={lib['version']} book={pf['version']} tail={ids[-3:]}")
           PY
 
       - name: Verify tablet-facing asset paths exist
@@ -127,5 +129,5 @@ jobs:
           for p in (site/'assets/public-finance-svg').glob('*.svg'):
               assert p.stat().st_size > 300, p
           assert len(list((site/'assets/public-finance-svg').glob('*.svg'))) == 20
-          print('PUBLIC_FINANCE_TABLET_ASSET_PATHS_OK')
+          print('PUBLIC_FINANCE_V2_TABLET_ASSET_PATHS_OK')
           PY
