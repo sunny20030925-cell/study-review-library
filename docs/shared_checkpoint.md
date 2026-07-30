@@ -12,10 +12,10 @@
 - 形式：平板直式 PWA 書庫。
 - 正式書庫內容版本：`2026.07.30-11`
 - 正式書籍數：**21 本**。
-- 最新成功正式 Pages run：`30531864083`
-- 最新成功正式部署 source commit：`2261c0f4e638bf516c4b79079a22a1900e5d14ad`
-- 最新成功 Pages artifact：`8755007481`
-- Artifact digest：`sha256:11f3b4ddf80f32e9232244839fcecef119acb6ff7b8037f731a8c4324ee82129`
+- 最新成功正式 Pages run：`30532630989`
+- 最新成功正式部署 source commit：`dd52ab5bfa1797678a2676de5abbc05a049a9d8b`
+- 最新成功 Pages artifact：`8755310972`
+- Artifact digest：`sha256:062536ac257ded6af087e020e293a12f95d181dffeadeed3d219f9f876df6781`
 - `docs/deployment_receipt.json`：`status=success`、`book_count=21`、`library_version=2026.07.30-11`、`progress_storage_changed=false`。
 
 ## 正式工作流
