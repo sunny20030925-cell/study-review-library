@@ -16,7 +16,7 @@
 - 最新成功正式部署 source commit：`d9f1d3695f78e327f733af742f56e4326bceaa41`
 - 最新成功 Pages artifact：`8750076767`
 - Artifact digest：`sha256:fb988b14e7208c29e123804057b8b60102a50e7d73ca8dc61d817e4593db872f`
-- `docs/deployment_receipt.json`：`status=success`、`book_count=21`、`library_version=2026.07.30-9`、`progress_storage_changed=false`。
+- `docs/deployment_receipt.json`：`status=success`、`book_count=21`、`library_version=2026.07.30-10`、`progress_storage_changed=false`。
 
 ## 正式工作流
 
@@ -49,15 +49,17 @@ Task ID：`<book-id>:<stage-code>`。
   - `commercial-law`、`civil-law-overview`：既有正式法源／判決複核證據遷移為 `passed_migrated`。
   - 其餘 19 本：依新制完成 risk-based External Audit，結果均 `passed`。
   - 本輪 External Audit 沒有發現需要教材升版的核心答案錯誤；所有逐書證據已寫入 `docs/books/<book-id>/external_audit.md`。
-- Visual Polish：**0／21 完成**；21 本目前均具備進入 VP 的前置條件。
-- Published：**21／21** 保持既有正式發布與 PWA 相容性。
+- Visual Polish：**1／21 完成**；`advanced-statistics` 已通過，剩餘 20 本在 queue。
+  - 《高等統計學》完成《高等統計推論路線圖》：Canva 保留可編輯來源，PWA 使用既有 `math-bridge.svg` 離線快取路徑，並在附錄 B 提供 standalone SVG 放大入口。
+  - 正式 Actions gate：1072 checks、20 numerical rechecks、`visual_polish=passed`；部署後 artifact 重驗通過。
+- Published：**21／21** 保持既有正式發布與 PWA 相容性；完成 VP 的書籍進入新制 `PUB` 完成狀態。
 
 External Audit 路由已實際依內容類型執行：數學／數值用 Wolfram；必要的研究方法與實證結論用 Consensus；法律／制度與會計採正式一次來源；沒有為普通基礎敘述無差別消耗外部額度。Scite 僅在需要判定重要論文 citation support／dispute context 時使用，本輪抽查沒有出現必須升級到 Scite 才能判斷的 blocker。
 
 ## 下一個正式任務
 
-- Task ID：`advanced-statistics:VP`
-- 書籍：《高等統計學》
+- Task ID：`mathematical-economics:VP`
+- 書籍：《數理經濟學》
 - Stage：Visual Polish
 - 原則：只處理高價值視覺資產，例如封面、章末重點、比較圖、流程圖、公式／考前速查表；不得把整本教材搬離目前 PWA 架構。
 - 新對話必須重新讀最新 `main` 與 `docs/audit_progress_manifest.json`；EA queue 已清空，因此由 `visual_polish_queue[0]` 自動判定下一個 VP 任務，不要求使用者記憶。

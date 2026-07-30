@@ -6,14 +6,15 @@
 
 - Book ID：`advanced-statistics`
 - 正式內容版本：`2026.07.30-1`
-- 正式書庫版本：`2026.07.30-9`
-- 發布狀態：已部署（workflow v2 建立前的既有正式發布）。
-- 目前工作階段：`VP`（Visual Polish）
-- 目前 Task ID：`advanced-statistics:VP`
-- 下一階段：`PUB`
+- 正式書庫版本：`2026.07.30-10`
+- 發布狀態：已部署。
+- 目前工作階段：`PUB`（Published）
+- 目前 Task ID：`advanced-statistics:PUB`
+- 下一階段：無；本書新制流程已完成。
 - 範圍文件：`docs/books/advanced-statistics/scope.md`
 - QA 報告：`docs/books/advanced-statistics/qa_report.md`
 - External Audit：`docs/books/advanced-statistics/external_audit.md`
+- Visual Polish：`docs/books/advanced-statistics/visual_polish.md`
 
 ## Internal QA
 
@@ -34,22 +35,36 @@
 - Consensus／Scite 本輪未使用：抽查內容沒有需要以實證研究或論文引用脈絡判斷的核心主張。
 - 核心答案錯誤：0；需要內容版本升級的修正：0；unresolved blocker：0。
 
+## Visual Polish
+
+- Task：`advanced-statistics:VP`
+- 狀態：`passed`
+- 日期：2026-07-30
+- 高價值資產：《高等統計推論路線圖》。
+- Canva 可編輯來源：design ID `DAHQ1ZXj2QA`；`https://www.canva.com/d/JJGioLQiGpjgePs`
+- PWA 正式資產：`assets/advanced-statistics-svg/math-bridge.svg`。
+- 使用位置：第 0 章既有解題地圖位置＋附錄 B；附錄 B 可點開 standalone SVG 放大閱讀。
+- 使用既有 service-worker cache 路徑，因此平板可閱讀、可放大並可離線載入；SVG 總數仍為 20。
+- GitHub Actions 正式 gate：1072 checks、20 numerical rechecks，`visual_polish=passed`；部署後 artifact 重驗亦通過。
+- 未修改題庫答案或正文核心內容；正式內容版本維持 `2026.07.30-1`。
+
 ## 相容性
 
 - chapter IDs `ch00`–`ch19` 不變。
 - 100 個 question IDs 與題數不變。
 - 閱讀進度、錯題紀錄與 progress storage 相容。
-- External Audit 未修改教材正文、題庫或 PWA 內容包；正式內容版本維持 `2026.07.30-1`。
+- Book ID、搜尋資料結構與 PWA 載體保持相容。
 
-## 既有正式部署
+## 最新正式部署
 
 - canonical workflow：`Deploy study library`
-- 成功正式 Pages run：`30494922034`
-- source commit：`d502e3db8be674c030c5b13db88f1b33dfdedb28`
-- Pages artifact：`8741187091`
-- Artifact digest：`sha256:576f046c2f6e98f1cab56ca7136042e1dfb66a4af1ad21e74552ce16b2db1eeb`
-- 正式書庫：21 本，版本 `2026.07.30-9`。
+- 成功正式 Pages run：`30519227208`
+- source commit：`d9f1d3695f78e327f733af742f56e4326bceaa41`
+- Pages artifact：`8750076767`
+- Artifact digest：`sha256:fb988b14e7208c29e123804057b8b60102a50e7d73ca8dc61d817e4593db872f`
+- Artifact download recheck：`passed`
+- 正式書庫：21 本，版本 `2026.07.30-10`。
 
 ## 下一步
 
-本書已具備進入 Visual Polish 的條件。Visual Polish 僅處理封面、章末重點、比較圖／流程圖、公式或考前速查表等高價值資產，不把教材搬離現有 PWA。
+本書 `DR → IQ → EA → VP → PUB` 新制流程已完成；全書庫下一個 Visual Polish 任務由 manifest queue 決定。
