@@ -3,7 +3,7 @@
   "updated_at": "2026-07-30",
   "repository": "sunny20030925-cell/study-review-library",
   "default_branch": "main",
-  "library_version": "2026.07.30-25",
+  "library_version": "2026.07.30-26",
   "book_count": 21,
   "workflow": {
     "stages": [
@@ -69,17 +69,15 @@
   "external_audit_completed_count": 21,
   "first_external_audit_target": null,
   "visual_polish_queue": [
-    "cost-accounting",
     "accounting",
     "economics",
     "computer-fundamentals",
     "calculus"
   ],
-  "visual_polish_queue_count": 5,
-  "visual_polish_completed_count": 16,
-  "first_visual_polish_target": "cost-accounting",
+  "visual_polish_queue_count": 4,
+  "visual_polish_completed_count": 17,
+  "first_visual_polish_target": "accounting",
   "visual_polish_ready": [
-    "cost-accounting",
     "accounting",
     "economics",
     "computer-fundamentals",
@@ -255,15 +253,15 @@
       "book_id": "cost-accounting",
       "title": "成本會計學",
       "content_version": "2026.07.29-2",
-      "current_stage": "VP",
-      "task_id": "cost-accounting:VP",
-      "next_stage": "PUB",
+      "current_stage": "PUB",
+      "task_id": "cost-accounting:PUB",
+      "next_stage": null,
       "legacy_published_before_workflow_v2": true,
       "stages": {
         "DR": "passed",
         "IQ": "passed",
         "EA": "passed",
-        "VP": "pending",
+        "VP": "passed",
         "PUB": "passed"
       },
       "external_audit": {
@@ -275,6 +273,22 @@
         "completed_at": "2026-07-30",
         "record": "docs/books/cost-accounting/external_audit.md",
         "core_answer_errors": 0,
+        "content_version_change_required": false,
+        "unresolved_blockers": 0
+      },
+      "visual_polish": {
+        "completed_at": "2026-07-30",
+        "record": "docs/books/cost-accounting/visual_polish.md",
+        "asset": "assets/cost-accounting-svg/cost-map.svg",
+        "canva_design_id": "DAHQ5Eq5yIA",
+        "canva_edit_url": "https://www.canva.com/d/PfgNzm2JtNHRzyX",
+        "workflow_run_id": "30580411658",
+        "pages_artifact_id": "8774373855",
+        "artifact_digest": "sha256:ef983bd8d9f343d2b02a8fc918b058de2a679f325ab7fc27cfa5b8f9f09b44e5",
+        "tablet_readable": true,
+        "zoomable": true,
+        "offline_cached": true,
+        "validator_checks": 144,
         "content_version_change_required": false,
         "unresolved_blockers": 0
       }
