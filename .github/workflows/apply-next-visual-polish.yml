@@ -93,7 +93,7 @@ jobs:
         if: steps.prepare.outputs.needs_vp == 'true'
         run: |
           set -euo pipefail
-          python -m py_compile "$APPLY_SCRIPT" "$QA_SCRIPT" deploy/record_study_library_deployment.py
+          python -m py_compile "$APPLY_SCRIPT" "$QA_SCRIPT" deploy/record_study_library_deployment.py deploy/close_visual_polish_control_plane.py
           find _site/books -type f ! -path "*/${TARGET}/*" -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-vp-other-books.sha256
           find _site/assets -type f ! -path "*/${TARGET}-svg/*" -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-vp-other-assets.sha256
           BEFORE="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"
@@ -169,10 +169,29 @@ jobs:
         run: |
           set -euo pipefail
           GITHUB_SHA="$VP_SOURCE_SHA" python deploy/record_study_library_deployment.py _site
+
+      - name: Finalize Visual Polish control plane
+        run: |
+          set -euo pipefail
+          python -m py_compile deploy/close_visual_polish_control_plane.py
+          PYTHONPATH=deploy python deploy/close_visual_polish_control_plane.py _site "$TARGET"
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add docs/deployment_receipt.json docs/shared_checkpoint.md
+          git add \
+            docs/deployment_receipt.json \
+            docs/shared_checkpoint.md \
+            docs/audit_progress_manifest.json \
+            "docs/books/${TARGET}/status.md" \
+            "docs/books/${TARGET}/visual_polish.md"
           if ! git diff --cached --quiet; then
-            git commit -m "Record ${TARGET} VP deployment [skip ci]"
+            git commit -m "Complete ${TARGET} Visual Polish [skip ci]"
             git push origin HEAD:main
           fi
+
+      - name: Close trigger issue
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          gh issue close "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --reason completed --comment "Visual Polish finished through verified Pages deployment and control-plane closure."
