@@ -70,7 +70,7 @@ Task ID：`<book-id>:<stage-code>`。
   - 《會計學》：《會計學交易調整報表與現金流判斷地圖》，沿用既有資產 cache path；VP validator **102 checks**，部署前及 artifact 重下載後各 PASS。
   - 《經濟學原理》：《經濟學原理衝擊曲線均衡福利與政策判斷地圖》，沿用既有資產 cache path；VP validator **84 checks**，部署前及 artifact 重下載後各 PASS。
   - 《計算機概論》：《計算機概論資料硬體作業系統網路程式與安全判斷地圖》，沿用既有資產 cache path；VP validator **92 checks**，部署前及 artifact 重下載後各 PASS。
-  - 《大一微積分》：《大一微積分極限導數積分級數與多變數判斷地圖》，沿用既有資產 cache path；VP validator **62 checks**，部署前及 artifact 重下載後各 PASS。
+  - 《大一微積分》：《大一微積分極限導數積分級數與多變數判斷地圖》，本輪新增專用 `assets/calculus-svg/calculus-map.svg`，並納入既有 service-worker offline cache；VP validator **62 checks**，部署前及 artifact 重下載後各 PASS。
 - Published：**21／21** 保持正式發布與 PWA 相容性；完成 VP 的 21 本已進入新制 `PUB` 完成狀態。
 
 External Audit 路由依內容類型執行：數學／數值用 Wolfram；必要研究方法與實證結論用 Consensus；法律／制度與會計採正式一次來源；Scite 僅在需要重要論文 citation support／dispute context 時使用。
