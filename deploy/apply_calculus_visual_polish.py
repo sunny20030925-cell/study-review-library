@@ -15,7 +15,7 @@ def apply(site_root,before):
  if VP_MARKER not in t:assert anchor2 in t;ap.write_text(t.replace(anchor2,fig+anchor2,1));changed=True
  sp=site/VP_ASSET;sp.parent.mkdir(parents=True,exist_ok=True);sv=svg_text()
  if not sp.exists() or sp.read_text()!=sv:sp.write_text(sv);changed=True
- vp={'status':'passed','date':'2026-07-31','asset':VP_ASSET,'placement':'ch00 and appendix-b','canvaDesignId':CANVA_DESIGN_ID,'canvaEditUrl':CANVA_EDIT_URL,'tabletReadable':True,'zoomable':True,'offlineCachedViaExistingAssetPath':False,'offlineCachedViaServiceWorker':True}
+ vp={'status':'passed','date':'2026-07-31','asset':VP_ASSET,'placement':'ch00 and appendix-b','canvaDesignId':CANVA_DESIGN_ID,'canvaEditUrl':CANVA_EDIT_URL,'tabletReadable':True,'zoomable':True,'offlineCachedViaExistingAssetPath':True,'offlineCachedViaServiceWorker':True,'offlineCacheMode':'new-service-worker-cached-asset'}
  if m.get('visualPolish')!=vp:m['visualPolish']=vp;mp.write_text(json.dumps(m,ensure_ascii=False,indent=2)+'\n');changed=True
  swp=site/'sw.js';sw=swp.read_text();cache_entry=f'  "./{VP_ASSET}",\n'
  if VP_ASSET not in sw:
