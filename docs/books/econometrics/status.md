@@ -32,7 +32,7 @@
 ## 相容性與部署
 
 - Book ID、chapter ID、question ID、題數、閱讀進度與錯題資料均不變。
-- 正式 21 本 Pages artifact 維持 `2026.07.30-9`；本輪純狀態寫回不重新部署教材。
+- 最新正式 21 本 Pages artifact：library `2026.07.30-14`；run `30538616335`；artifact `8757716872`；digest／重新下載 SHA256 完全一致。
 
 ## Visual Polish 完成（2026-07-30）
 
