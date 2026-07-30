@@ -40,6 +40,11 @@
       "expected_checks": 152,
       "content_version": "2026.07.30-2",
       "canva_design_id": "DAHQ4ZchcBY"
+    },
+    "industry-trade": {
+      "expected_checks": 152,
+      "content_version": "2026.07.29-1",
+      "canva_design_id": "DAHQ4qrUfLQ"
     }
   }
 }
