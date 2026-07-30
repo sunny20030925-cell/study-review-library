@@ -30,7 +30,7 @@
 
 ## 相容性與部署
 
-Book ID、22 個章節 ID、110 個題目 ID、PWA 儲存鍵、閱讀進度與錯題紀錄均不變；正式 21 本 artifact 維持 `2026.07.30-9`。
+Book ID、22 個章節 ID、110 個題目 ID、PWA 儲存鍵、閱讀進度與錯題紀錄均不變；正式 21 本 artifact 已更新為 `2026.07.30-15`，Pages artifact `8760756025`，重新下載 SHA256 與 digest 完全一致。
 
 ## Visual Polish 完成（2026-07-30）
 
