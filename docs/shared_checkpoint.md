@@ -17,7 +17,7 @@
 - 最新成功 Pages artifact：`8757716872`
 - Artifact digest：`sha256:3eb406b951a827c182c7e745479fa2a7b4c9647dcfc0fb6dcac05a7d09fe3df1`
 - Artifact re-download：PASS；下載 SHA256 與 digest 完全一致。
-- `docs/deployment_receipt.json`：`status=success`、`book_count=21`、`library_version=2026.07.30-13`、`progress_storage_changed=false`。
+- `docs/deployment_receipt.json`：`status=success`、`book_count=21`、`library_version=2026.07.30-14`、`progress_storage_changed=false`。
 
 ## 正式工作流
 
@@ -49,25 +49,26 @@ Task ID：`<book-id>:<stage-code>`。
 - External Audit：**21／21 已通過**；`external_audit_queue=[]`。
   - `commercial-law`、`civil-law-overview`：既有正式法源／判決複核證據遷移為 `passed_migrated`。
   - 其餘 19 本：依新制完成 risk-based External Audit，結果均 `passed`。
-- Visual Polish：**4／21 完成**；`advanced-statistics`、`mathematical-economics`、`commercial-law`、`civil-law-overview` 已通過，剩餘 17 本在 queue。
+- Visual Polish：**5／21 完成**；`commercial-law`、`advanced-statistics`、`civil-law-overview`、`econometrics`、`mathematical-economics` 已通過，剩餘 16 本在 queue。
   - 《高等統計學》：《高等統計推論路線圖》，沿用既有 `math-bridge.svg` cache path，附錄 B 可放大。
   - 《數理經濟學》：《最佳化與動態判斷地圖》，沿用既有 `kkt-inequality.svg` cache path，VP validator 40 checks。
   - 《商事法》：《商事法案例題雙軌判斷地圖》，沿用既有 `law-map.svg` cache path；VP validator 59 checks，部署前及 artifact 重下載後各 PASS。
   - 《民法概要》：《民法案例題請求權基礎地圖》，沿用既有 `civil-map.svg` cache path；現行民法第 125／179／184／767 條等高風險節點再次核對；VP validator **70 checks**，部署前及 artifact 重下載後各 PASS。
-- Published：**21／21** 保持正式發布與 PWA 相容性；完成 VP 的 4 本已進入新制 `PUB` 完成狀態。
+  - 《計量經濟學》：《計量經濟學因果識別方法選擇地圖》，沿用既有資產 cache path；VP validator **76 checks**，部署前及 artifact 重下載後各 PASS。
+- Published：**21／21** 保持正式發布與 PWA 相容性；完成 VP 的 5 本已進入新制 `PUB` 完成狀態。
 
 External Audit 路由依內容類型執行：數學／數值用 Wolfram；必要研究方法與實證結論用 Consensus；法律／制度與會計採正式一次來源；Scite 僅在需要重要論文 citation support／dispute context 時使用。
 
 ## 下一個正式任務
 
-- Task ID：`econometrics:VP`
-- 書籍：《計量經濟學》
+- Task ID：`investments:VP`
+- 書籍：《投資學》
 - Stage：Visual Polish
-- 原則：只處理真正有考前價值的高價值視覺資產；公式／推導與數值關係先以 Wolfram 路由複核，實證方法或研究結論需要時再使用 Consensus。
-- 新對話必須重新讀最新 `main` 與 `docs/audit_progress_manifest.json`；EA queue 已清空，因此由 `visual_polish_queue[0]` 自動判定下一個 VP 任務。
-
+- 原則：只處理真正有考前價值的高價值視覺資產；依該書正式 routing 與既有 QA／External Audit 證據先複核高風險內容。
+- EA queue 已清空，因此由 `visual_polish_queue[0]` 自動判定下一個 VP 任務。
 ## 基礎設施注意事項
 
+- Visual Polish 發布已統一由 owner-triggered `Apply next Visual Polish` 共用 runner 執行；完成 Canva 批准後可自動完成套用、QA、Pages、artifact 重驗、generic recorder 與 VP→PUB control-plane closure，不再為每本建立暫時 listener／closure PR。
 - 21 本 registry 的 `industry-trade` tail assertion 已改為相對順序 gate，允許其後存在 `mathematical-economics`。
 - 部署紀錄已由 workflow-v2 generic recorder 接管；不再以逐書 legacy recorder 重寫 shared checkpoint 或逐書 stage。
 - 最新共同 PWA／Pages artifact 已完成 upload、deploy、重新下載、digest 與 21 本結構驗證。
