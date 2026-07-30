@@ -3,7 +3,7 @@
   "updated_at": "2026-07-30",
   "repository": "sunny20030925-cell/study-review-library",
   "default_branch": "main",
-  "library_version": "2026.07.30-17",
+  "library_version": "2026.07.30-18",
   "book_count": 21,
   "workflow": {
     "stages": [
@@ -69,7 +69,6 @@
   "external_audit_completed_count": 21,
   "first_external_audit_target": null,
   "visual_polish_queue": [
-    "microeconomics",
     "macroeconomics",
     "international-economics",
     "industrial-economics",
@@ -83,11 +82,10 @@
     "computer-fundamentals",
     "calculus"
   ],
-  "visual_polish_queue_count": 13,
-  "visual_polish_completed_count": 8,
-  "first_visual_polish_target": "microeconomics",
+  "visual_polish_queue_count": 12,
+  "visual_polish_completed_count": 9,
+  "first_visual_polish_target": "macroeconomics",
   "visual_polish_ready": [
-    "microeconomics",
     "macroeconomics",
     "international-economics",
     "industrial-economics",
@@ -299,15 +297,15 @@
       "book_id": "microeconomics",
       "title": "個體經濟學",
       "content_version": "2026.07.29-2",
-      "current_stage": "VP",
-      "task_id": "microeconomics:VP",
-      "next_stage": "PUB",
+      "current_stage": "PUB",
+      "task_id": "microeconomics:PUB",
+      "next_stage": null,
       "legacy_published_before_workflow_v2": true,
       "stages": {
         "DR": "passed",
         "IQ": "passed",
         "EA": "passed",
-        "VP": "pending",
+        "VP": "passed",
         "PUB": "passed"
       },
       "external_audit": {
@@ -317,6 +315,22 @@
         "completed_at": "2026-07-30",
         "record": "docs/books/microeconomics/external_audit.md",
         "core_answer_errors": 0,
+        "content_version_change_required": false,
+        "unresolved_blockers": 0
+      },
+      "visual_polish": {
+        "completed_at": "2026-07-30",
+        "record": "docs/books/microeconomics/visual_polish.md",
+        "asset": "assets/microeconomics-svg/optimization-map.svg",
+        "canva_design_id": "DAHQ3ai5CFo",
+        "canva_edit_url": "https://www.canva.com/d/dd_p4tygf26PGuC",
+        "workflow_run_id": "30564075445",
+        "pages_artifact_id": "8768076544",
+        "artifact_digest": "sha256:68a3b3a234eb16c257e6a67a42363af083cfd04e010be98366c020eb094394bd",
+        "tablet_readable": true,
+        "zoomable": true,
+        "offline_cached": true,
+        "validator_checks": 112,
         "content_version_change_required": false,
         "unresolved_blockers": 0
       }
