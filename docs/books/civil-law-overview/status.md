@@ -6,11 +6,12 @@
 
 - Book ID：`civil-law-overview`
 - 正式內容版本：`2026.07.30-2`
-- 正式書庫版本：`2026.07.30-12`
+- 正式書庫版本：`2026.07.30-13`
 - 正式分支：`main`
-- 目前 stage：`VP`
-- Task ID：`civil-law-overview:VP`
-- 下一階段：`PUB`
+- 目前 stage：`PUB`
+- Task ID：`civil-law-overview:PUB`
+- 下一階段：無；本書新制流程已完成。
+- Published：`passed`。
 - 法規基準：2026-07-30 中華民國現行民法、相關施行法與必要憲法裁判。
 - 定位：一般大學民法概要，涵蓋總則、債、物權、親屬、繼承五編。
 
@@ -30,25 +31,32 @@
 - 補正第 1174 條拋棄繼承後書面通知義務；明確區分現行第 1223 條兄弟姊妹特留分與 2026-06-02 尚未生效的修正草案。
 - External Audit：既有正式法源／判決複核證據遷移為 `passed_migrated`。
 
-## Visual Polish 執行中（2026-07-30）
+## Visual Polish（2026-07-30）
 
 - Task：`civil-law-overview:VP`。
-- 已核准並正式儲存 Canva 高價值資產：《民法案例題請求權基礎地圖》。
+- 結果：`passed`。
+- 高價值資產：《民法案例題請求權基礎地圖》。
 - Canva design ID：`DAHQ2mt-Yds`；可編輯來源：`https://www.canva.com/d/3hxkdRsJsAWGQB-`。
-- VP 基礎設施 PR：#157；merge SHA `a443017371949e4033c6ba105ec820b7d6ad44fc`。
-- 預定正式資產：`assets/civil-law-overview-svg/civil-map.svg`；沿用既有 service-worker cache URL，SVG 總數維持 20。
-- 使用位置：第 0 章既有民法總覽位置＋附錄 B；附錄 B 提供 standalone SVG 放大入口。
-- 本地正式 artifact 模擬：library `2026.07.30-12 → 2026.07.30-13`；第二次套用維持 `-13`；VP validator `70 checks` PASS。
-- 20 章、3 附錄、100 題、150 搜尋、20 SVG 與所有 chapter／question IDs 均維持不變；所有非民法書籍與資產 hash 不變。
-- 高風險圖表法條已以現行法再次核對：第 125 條一般 15 年時效、第 179 條不當得利、第 184 條侵權、第 767 條所有權物上請求權。
-- 本節只是部署前中間節點；正式 follow-up Pages artifact 尚未產生，因此 **VP 仍為 pending，不得提前切換 PUB**。
+- PWA 正式資產：`assets/civil-law-overview-svg/civil-map.svg`。
+- 使用位置：第 0 章既有民法總覽位置＋附錄 B；附錄 B 可另開 standalone SVG 放大。
+- 沿用既有 service-worker cache URL；平板可閱讀、可放大、可離線；SVG 總數仍為 20。
+- 高風險圖表法條再次核對現行第 125、179、184、767 條；不改寫教材核心實體法律規則。
+- 正式 Actions：VP validator `70 checks`、`visual_polish=passed`，部署前與重新下載 artifact 後各通過一次。
+- 未修改正文核心答案或題庫；正式內容版本維持 `2026.07.30-2`。
+- Visual Polish 詳細證據：`docs/books/civil-law-overview/visual_polish.md`。
 
-## 正式入口
+## 最新正式部署
 
-- GitHub Pages：`https://sunny20030925-cell.github.io/study-review-library/`。
-- 最新正式書庫基底：21 本、library `2026.07.30-12`。
-- `progress_storage_changed=false`。
+- 正式入口：`https://sunny20030925-cell.github.io/study-review-library/`。
+- 修正後 canonical `Deploy study library` run：`30535904702`，success。
+- 正式 Visual Polish run：`30536727373`，success。
+- 正式部署 source commit：`8043f625dd93c3e2fbf1e118a81a214a6ae917e4`。
+- Pages artifact：`8756956130`。
+- Artifact digest：`sha256:b84acced62954c3afe1dadfddfdbc8bbe972dab843e38b2cc9e65554b2d9a92f`。
+- Artifact download recheck：`passed`；下載 SHA256 與 digest 完全一致。
+- 正式書庫：21 本，版本 `2026.07.30-13`。
+- 閱讀進度、錯題資料與 storage key 相容；`progress_storage_changed=false`。
 
 ## 下一步
 
-等待本次 main push 的 canonical `Deploy study library` 完成；其成功事件將由已存在於 `main` 的 `Apply civil law overview Visual Polish` workflow 接手。只有 follow-up artifact 上傳、Pages 部署、重新下載 digest 驗證與 70-check VP QA 全部通過後，才可正式記錄 `civil-law-overview:VP = passed` 並切換至 `civil-law-overview:PUB`。
+本書 `DR → IQ → EA → VP → PUB` 新制流程已完成；全書庫下一個 Visual Polish 任務由 `docs/audit_progress_manifest.json` 的 queue 決定。
