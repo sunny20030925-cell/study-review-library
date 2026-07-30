@@ -45,6 +45,11 @@
       "expected_checks": 152,
       "content_version": "2026.07.29-1",
       "canva_design_id": "DAHQ4qrUfLQ"
+    },
+    "public-finance": {
+      "expected_checks": 163,
+      "content_version": "2026.07.29-2",
+      "canva_design_id": "DAHQ4tQIk3M"
     }
   }
 }
