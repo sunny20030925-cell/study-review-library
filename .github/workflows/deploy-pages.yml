@@ -384,8 +384,10 @@ jobs:
           ids=[b['id'] for b in lib['books']]
           base=json.load(open('/tmp/base_ids.json'))
           assert lib['version']==os.environ['FINAL_LIBRARY_VERSION']
-          assert ids[-1]=='industry-trade' and ids.count('industry-trade')==1
+          assert ids.count('industry-trade')==1
           assert ids.count('industrial-economics')==1 and ids.index('industrial-economics') < ids.index('industry-trade')
+          if 'mathematical-economics' in ids:
+              assert ids.index('industry-trade') < ids.index('mathematical-economics')
           if 'industry-trade' not in base:
               assert ids==base+['industry-trade']
           else:
