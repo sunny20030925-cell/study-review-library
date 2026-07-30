@@ -12,10 +12,10 @@
 - 形式：平板直式 PWA 書庫。
 - 正式書庫內容版本：`2026.07.30-12`
 - 正式書籍數：**21 本**。
-- 最新成功正式 Pages run：`30532667241`（`Apply commercial law Visual Polish`）。
-- 正式部署 source commit：`dd52ab5bfa1797678a2676de5abbc05a049a9d8b`。
-- 最新成功 Pages artifact：`8755330612`。
-- Artifact digest：`sha256:202289641e0ae502fa0bd2bbd78f8938c4978c8a5ba04d850d5f8cb12dedac13`。
+- 最新成功正式 Pages run：`30535904702`
+- 正式部署 source commit：`8043f625dd93c3e2fbf1e118a81a214a6ae917e4`
+- 最新成功 Pages artifact：`8756627609`
+- Artifact digest：`sha256:dba0fc3050b44417aa95d472aa1d24e261e24a99bcc3be86f3e5604e6a65a0a0`
 - Artifact re-download：PASS；下載 SHA256 與 digest 完全一致。
 - `docs/deployment_receipt.json`：`status=success`、`book_count=21`、`library_version=2026.07.30-12`、`progress_storage_changed=false`。
 
@@ -68,8 +68,7 @@ External Audit 路由依內容類型執行：數學／數值用 Wolfram；必要
 ## 基礎設施注意事項
 
 - 21 本 registry 的 `industry-trade` tail assertion 已改為相對順序 gate，允許其後存在 `mathematical-economics`。
-- 部署紀錄由 workflow-v2 generic recorder 接管；不再以逐書 legacy recorder 重寫逐書 stage。
-- 商事法 VP 初次 follow-up 未留下 recorder；在 listener 已存在於 `main` 後以 control-plane-only PR #155 重新觸發 canonical deployment，之後 VP run `30532667241` 成功。此事件已留下完整 deployment evidence，不需再次重跑。
+- 部署紀錄已由 workflow-v2 generic recorder 接管；不再以逐書 legacy recorder 重寫 shared checkpoint 或逐書 stage。
 - 最新共同 PWA／Pages artifact 已完成 upload、deploy、重新下載、digest 與 21 本結構驗證。
 
 ## 不可破壞的正式邊界
