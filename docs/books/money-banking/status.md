@@ -29,7 +29,7 @@
 
 ## 相容性
 
-Book／chapter／question IDs、題數、PWA、閱讀進度與錯題資料均不變；正式 21 本 artifact 維持 `2026.07.30-9`。
+Book／chapter／question IDs、題數、PWA、閱讀進度與錯題資料均不變；正式 21 本 artifact 維持 `2026.07.30-24`。
 
 ## Visual Polish 完成（2026-07-30）
 
