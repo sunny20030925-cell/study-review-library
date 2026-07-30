@@ -3,7 +3,7 @@
   "updated_at": "2026-07-30",
   "repository": "sunny20030925-cell/study-review-library",
   "default_branch": "main",
-  "library_version": "2026.07.30-28",
+  "library_version": "2026.07.30-29",
   "book_count": 21,
   "workflow": {
     "stages": [
@@ -69,14 +69,12 @@
   "external_audit_completed_count": 21,
   "first_external_audit_target": null,
   "visual_polish_queue": [
-    "computer-fundamentals",
     "calculus"
   ],
-  "visual_polish_queue_count": 2,
-  "visual_polish_completed_count": 19,
-  "first_visual_polish_target": "computer-fundamentals",
+  "visual_polish_queue_count": 1,
+  "visual_polish_completed_count": 20,
+  "first_visual_polish_target": "calculus",
   "visual_polish_ready": [
-    "computer-fundamentals",
     "calculus"
   ],
   "books": [
@@ -626,15 +624,15 @@
       "book_id": "computer-fundamentals",
       "title": "計算機概論",
       "content_version": "2026.07.30-2",
-      "current_stage": "VP",
-      "task_id": "computer-fundamentals:VP",
-      "next_stage": "PUB",
+      "current_stage": "PUB",
+      "task_id": "computer-fundamentals:PUB",
+      "next_stage": null,
       "legacy_published_before_workflow_v2": true,
       "stages": {
         "DR": "passed",
         "IQ": "passed",
         "EA": "passed",
-        "VP": "pending",
+        "VP": "passed",
         "PUB": "passed"
       },
       "external_audit": {
@@ -645,6 +643,22 @@
         "completed_at": "2026-07-30",
         "record": "docs/books/computer-fundamentals/external_audit.md",
         "core_answer_errors": 0,
+        "content_version_change_required": false,
+        "unresolved_blockers": 0
+      },
+      "visual_polish": {
+        "completed_at": "2026-07-30",
+        "record": "docs/books/computer-fundamentals/visual_polish.md",
+        "asset": "assets/computer-fundamentals-svg/computing-map.svg",
+        "canva_design_id": "DAHQ5HKTq5M",
+        "canva_edit_url": "https://www.canva.com/d/pgWvtGBlDcRP0Nd",
+        "workflow_run_id": "30587597954",
+        "pages_artifact_id": "8777096042",
+        "artifact_digest": "sha256:400cff28cec915fbe4bd6dc6314fd86f4ea3b838b37990f88bb4646c1778a7ea",
+        "tablet_readable": true,
+        "zoomable": true,
+        "offline_cached": true,
+        "validator_checks": 92,
         "content_version_change_required": false,
         "unresolved_blockers": 0
       }
