@@ -66,9 +66,11 @@ External Audit 路由依內容類型執行：數學／數值用 Wolfram；必要
 - Stage：Visual Polish
 - 原則：只處理真正有考前價值的高價值視覺資產；依該書正式 routing 與既有 QA／External Audit 證據先複核高風險內容。
 - EA queue 已清空，因此由 `visual_polish_queue[0]` 自動判定下一個 VP 任務。
+
 ## 基礎設施注意事項
 
 - Visual Polish 發布已統一由 owner-triggered `Apply next Visual Polish` 共用 runner 執行；完成 Canva 批准後可自動完成套用、QA、Pages、artifact 重驗、generic recorder 與 VP→PUB control-plane closure，不再為每本建立暫時 listener／closure PR。
+- Issue 自動關閉仍由 ChatGPT／GitHub connector 在同一輪收尾處理，不需要使用者介入。
 - 21 本 registry 的 `industry-trade` tail assertion 已改為相對順序 gate，允許其後存在 `mathematical-economics`。
 - 部署紀錄已由 workflow-v2 generic recorder 接管；不再以逐書 legacy recorder 重寫 shared checkpoint 或逐書 stage。
 - 最新共同 PWA／Pages artifact 已完成 upload、deploy、重新下載、digest 與 21 本結構驗證。
