@@ -12,10 +12,10 @@
 - 形式：平板直式 PWA 書庫。
 - 正式書庫內容版本：`2026.07.30-11`
 - 正式書籍數：**21 本**。
-- 最新成功正式 Pages run：`30522409560`
-- 最新成功正式部署 source commit：`1df8962fb45211a3bce53c074361b53b687c9db6`
-- 最新成功 Pages artifact：`8751288765`
-- Artifact digest：`sha256:bd6934eb531c62ca35658ad95c5fe9d6bf44b5a4c64903d493e8fcf9fac5ee45`
+- 最新成功正式 Pages run：`30531864083`
+- 最新成功正式部署 source commit：`2261c0f4e638bf516c4b79079a22a1900e5d14ad`
+- 最新成功 Pages artifact：`8755007481`
+- Artifact digest：`sha256:11f3b4ddf80f32e9232244839fcecef119acb6ff7b8037f731a8c4324ee82129`
 - `docs/deployment_receipt.json`：`status=success`、`book_count=21`、`library_version=2026.07.30-11`、`progress_storage_changed=false`。
 
 ## 正式工作流
@@ -69,7 +69,6 @@ External Audit 路由已實際依內容類型執行：數學／數值用 Wolfram
 
 - 21 本 registry 的 `industry-trade` tail assertion 已改為相對順序 gate，允許其後存在 `mathematical-economics`。
 - 部署紀錄已由 workflow-v2 generic recorder 接管；不再以逐書 legacy recorder 重寫 shared checkpoint 或逐書 stage。
-- 《數理經濟學》VP 以 canonical `Deploy study library` 成功 artifact 為輸入，條件式 follow-up 僅在 VP 尚未套用時執行；完成後未來 canonical deploy 只會檢查並跳過。
 - 最新共同 PWA／Pages artifact 已完成 upload、deploy、重新下載、digest 與 21 本結構驗證。
 
 ## 不可破壞的正式邊界
