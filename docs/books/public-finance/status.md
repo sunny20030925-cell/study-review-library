@@ -6,11 +6,11 @@
 
 - Book ID：`public-finance`
 - 正式內容版本：`2026.07.29-2`
-- 正式書庫版本：`2026.07.30-9`
-- 目前 stage：`VP`
-- Task ID：`public-finance:VP`
-- 下一階段：`PUB`
-- Published：workflow v2 前既有正式版本維持 `passed`。
+- 正式書庫版本：`2026.07.30-23`
+- 目前 stage：`PUB`
+- Task ID：`public-finance:PUB`
+- 下一階段：無；本書新制流程已完成。
+- Published：`passed`。
 - Internal QA：`docs/books/public-finance/qa_report.md`
 - External Audit：`docs/books/public-finance/external_audit.md`
 
@@ -30,3 +30,17 @@
 ## 相容性
 
 章節／題目 ID、題數、PWA、閱讀進度與錯題資料均不變；正式 21 本 artifact 維持 `2026.07.30-9`。
+
+## Visual Polish 完成（2026-07-30）
+
+- Task：`public-finance:VP`；結果：`passed`。
+- 高價值資產：`財政學機制歸宿與福利判斷地圖`。
+- Canva design ID：`DAHQ4tQIk3M`；可編輯來源：`https://www.canva.com/d/APhMiW3N5hUN-R5`。
+- PWA 資產：`assets/public-finance-svg/public-finance-map.svg`；平板可閱讀、可放大、沿用既有離線 cache path。
+- 正式 run：`30573739506`；Pages artifact：`8771835026`。
+- Artifact digest：`sha256:bcdd932ff1fa098ee0eed8a7c6d04d2715e2c1ed893fcd306c292e73e1d48cd8`；重新下載 SHA256 完全一致。
+- VP validator：`163 checks`，正式部署前與 artifact 重下載後均 `visual_polish=passed`。
+- 正式內容版本未因純視覺整理升版；閱讀進度、錯題資料與 storage key 相容，`progress_storage_changed=false`。
+- 詳細證據：`docs/books/public-finance/visual_polish.md`。
+- 本書已切換至 `public-finance:PUB`。
+- 全書庫下一個 Visual Polish target：`money-banking`。

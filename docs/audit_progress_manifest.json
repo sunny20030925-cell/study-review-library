@@ -3,7 +3,7 @@
   "updated_at": "2026-07-30",
   "repository": "sunny20030925-cell/study-review-library",
   "default_branch": "main",
-  "library_version": "2026.07.30-22",
+  "library_version": "2026.07.30-23",
   "book_count": 21,
   "workflow": {
     "stages": [
@@ -69,7 +69,6 @@
   "external_audit_completed_count": 21,
   "first_external_audit_target": null,
   "visual_polish_queue": [
-    "public-finance",
     "money-banking",
     "intermediate-accounting",
     "cost-accounting",
@@ -78,11 +77,10 @@
     "computer-fundamentals",
     "calculus"
   ],
-  "visual_polish_queue_count": 8,
-  "visual_polish_completed_count": 13,
-  "first_visual_polish_target": "public-finance",
+  "visual_polish_queue_count": 7,
+  "visual_polish_completed_count": 14,
+  "first_visual_polish_target": "money-banking",
   "visual_polish_ready": [
-    "public-finance",
     "money-banking",
     "intermediate-accounting",
     "cost-accounting",
@@ -446,15 +444,15 @@
       "book_id": "public-finance",
       "title": "財政學",
       "content_version": "2026.07.29-2",
-      "current_stage": "VP",
-      "task_id": "public-finance:VP",
-      "next_stage": "PUB",
+      "current_stage": "PUB",
+      "task_id": "public-finance:PUB",
+      "next_stage": null,
       "legacy_published_before_workflow_v2": true,
       "stages": {
         "DR": "passed",
         "IQ": "passed",
         "EA": "passed",
-        "VP": "pending",
+        "VP": "passed",
         "PUB": "passed"
       },
       "external_audit": {
@@ -464,6 +462,22 @@
         "completed_at": "2026-07-30",
         "record": "docs/books/public-finance/external_audit.md",
         "core_answer_errors": 0,
+        "content_version_change_required": false,
+        "unresolved_blockers": 0
+      },
+      "visual_polish": {
+        "completed_at": "2026-07-30",
+        "record": "docs/books/public-finance/visual_polish.md",
+        "asset": "assets/public-finance-svg/public-finance-map.svg",
+        "canva_design_id": "DAHQ4tQIk3M",
+        "canva_edit_url": "https://www.canva.com/d/APhMiW3N5hUN-R5",
+        "workflow_run_id": "30573739506",
+        "pages_artifact_id": "8771835026",
+        "artifact_digest": "sha256:bcdd932ff1fa098ee0eed8a7c6d04d2715e2c1ed893fcd306c292e73e1d48cd8",
+        "tablet_readable": true,
+        "zoomable": true,
+        "offline_cached": true,
+        "validator_checks": 163,
         "content_version_change_required": false,
         "unresolved_blockers": 0
       }
