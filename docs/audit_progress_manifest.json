@@ -3,7 +3,7 @@
   "updated_at": "2026-07-30",
   "repository": "sunny20030925-cell/study-review-library",
   "default_branch": "main",
-  "library_version": "2026.07.30-10",
+  "library_version": "2026.07.30-11",
   "book_count": 21,
   "workflow": {
     "stages": ["DR", "IQ", "EA", "VP", "PUB"],
@@ -33,11 +33,11 @@
   "external_audit_queue_count": 0,
   "external_audit_completed_count": 21,
   "first_external_audit_target": null,
-  "visual_polish_queue": ["mathematical-economics","commercial-law","civil-law-overview","econometrics","investments","statistics","game-theory","microeconomics","macroeconomics","international-economics","industrial-economics","industry-trade","public-finance","money-banking","intermediate-accounting","cost-accounting","accounting","economics","computer-fundamentals","calculus"],
-  "visual_polish_queue_count": 20,
-  "visual_polish_completed_count": 1,
-  "first_visual_polish_target": "mathematical-economics",
-  "visual_polish_ready": ["mathematical-economics","commercial-law","civil-law-overview","econometrics","investments","statistics","game-theory","microeconomics","macroeconomics","international-economics","industrial-economics","industry-trade","public-finance","money-banking","intermediate-accounting","cost-accounting","accounting","economics","computer-fundamentals","calculus"],
+  "visual_polish_queue": ["commercial-law","civil-law-overview","econometrics","investments","statistics","game-theory","microeconomics","macroeconomics","international-economics","industrial-economics","industry-trade","public-finance","money-banking","intermediate-accounting","cost-accounting","accounting","economics","computer-fundamentals","calculus"],
+  "visual_polish_queue_count": 19,
+  "visual_polish_completed_count": 2,
+  "first_visual_polish_target": "commercial-law",
+  "visual_polish_ready": ["commercial-law","civil-law-overview","econometrics","investments","statistics","game-theory","microeconomics","macroeconomics","international-economics","industrial-economics","industry-trade","public-finance","money-banking","intermediate-accounting","cost-accounting","accounting","economics","computer-fundamentals","calculus"],
   "books": [
     {"book_id":"calculus","title":"大一微積分","content_version":"2026.07.27-3","current_stage":"VP","task_id":"calculus:VP","next_stage":"PUB","legacy_published_before_workflow_v2":true,"stages":{"DR":"passed","IQ":"passed","EA":"passed","VP":"pending","PUB":"passed"},"external_audit":{"primary_route":["wolfram"],"completed_at":"2026-07-30","record":"docs/books/calculus/external_audit.md","core_answer_errors":0,"content_version_change_required":false,"unresolved_blockers":0}},
     {"book_id":"accounting","title":"會計學","content_version":"2026.07.27-2","current_stage":"VP","task_id":"accounting:VP","next_stage":"PUB","legacy_published_before_workflow_v2":true,"stages":{"DR":"passed","IQ":"passed","EA":"passed","VP":"pending","PUB":"passed"},"external_audit":{"primary_route":["official_accounting_standards","official_regulatory_guidance","wolfram_for_calculation_only"],"completed_at":"2026-07-30","record":"docs/books/accounting/external_audit.md","core_answer_errors":0,"content_version_change_required":false,"unresolved_blockers":0}},
@@ -59,7 +59,7 @@
     {"book_id":"econometrics","title":"計量經濟學","content_version":"2026.07.30-1","current_stage":"VP","task_id":"econometrics:VP","next_stage":"PUB","legacy_published_before_workflow_v2":true,"stages":{"DR":"passed","IQ":"passed","EA":"passed","VP":"pending","PUB":"passed"},"external_audit":{"primary_route":["wolfram","consensus"],"completed_at":"2026-07-30","record":"docs/books/econometrics/external_audit.md","core_answer_errors":0,"content_version_change_required":false,"unresolved_blockers":0}},
     {"book_id":"industrial-economics","title":"產業經濟學","content_version":"2026.07.30-2","current_stage":"VP","task_id":"industrial-economics:VP","next_stage":"PUB","legacy_published_before_workflow_v2":true,"stages":{"DR":"passed","IQ":"passed","EA":"passed","VP":"pending","PUB":"passed"},"external_audit":{"primary_route":["wolfram","official_statutes"],"completed_at":"2026-07-30","record":"docs/books/industrial-economics/external_audit.md","core_answer_errors":0,"content_version_change_required":false,"unresolved_blockers":0}},
     {"book_id":"industry-trade","title":"產業及貿易","content_version":"2026.07.29-1","current_stage":"VP","task_id":"industry-trade:VP","next_stage":"PUB","legacy_published_before_workflow_v2":true,"stages":{"DR":"passed","IQ":"passed","EA":"passed","VP":"pending","PUB":"passed"},"external_audit":{"primary_route":["wolfram","consensus"],"completed_at":"2026-07-30","record":"docs/books/industry-trade/external_audit.md","core_answer_errors":0,"content_version_change_required":false,"unresolved_blockers":0}},
-    {"book_id":"mathematical-economics","title":"數理經濟學","content_version":"2026.07.30-2","current_stage":"VP","task_id":"mathematical-economics:VP","next_stage":"PUB","legacy_published_before_workflow_v2":true,"stages":{"DR":"passed","IQ":"passed","EA":"passed","VP":"pending","PUB":"passed"},"external_audit":{"primary_route":["wolfram"],"completed_at":"2026-07-30","record":"docs/books/mathematical-economics/external_audit.md","core_answer_errors":0,"content_version_change_required":false,"unresolved_blockers":0}}
+    {"book_id":"mathematical-economics","title":"數理經濟學","content_version":"2026.07.30-2","current_stage":"PUB","task_id":"mathematical-economics:PUB","next_stage":null,"legacy_published_before_workflow_v2":true,"stages":{"DR":"passed","IQ":"passed","EA":"passed","VP":"passed","PUB":"passed"},"external_audit":{"primary_route":["wolfram"],"completed_at":"2026-07-30","record":"docs/books/mathematical-economics/external_audit.md","core_answer_errors":0,"content_version_change_required":false,"unresolved_blockers":0},"visual_polish":{"completed_at":"2026-07-30","record":"docs/books/mathematical-economics/visual_polish.md","asset":"assets/mathematical-economics-svg/kkt-inequality.svg","canva_design_id":"DAHQ1nDIXJk","canva_edit_url":"https://www.canva.com/d/4onAJtenfeu_5_k","workflow_run_id":"30522409560","pages_artifact_id":"8751288765","artifact_digest":"sha256:bd6934eb531c62ca35658ad95c5fe9d6bf44b5a4c64903d493e8fcf9fac5ee45","tablet_readable":true,"zoomable":true,"offline_cached":true,"validator_checks":40,"base_qa_checks":855,"numeric_rechecks":23,"logic_gates":10,"content_version_change_required":false,"unresolved_blockers":0}}
   ],
   "invariants": {"preserve_all_21_books":true,"preserve_book_ids":true,"preserve_chapter_ids":true,"preserve_question_ids":true,"preserve_reading_progress":true,"preserve_wrong_answer_data":true,"preserve_pwa_compatibility":true,"external_audit_does_not_bulk_rewrite_books":true,"visual_polish_does_not_move_books_out_of_pwa":true}
 }
