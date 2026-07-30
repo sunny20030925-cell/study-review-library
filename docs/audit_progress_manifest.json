@@ -3,7 +3,7 @@
   "updated_at": "2026-07-30",
   "repository": "sunny20030925-cell/study-review-library",
   "default_branch": "main",
-  "library_version": "2026.07.30-27",
+  "library_version": "2026.07.30-28",
   "book_count": 21,
   "workflow": {
     "stages": [
@@ -69,15 +69,13 @@
   "external_audit_completed_count": 21,
   "first_external_audit_target": null,
   "visual_polish_queue": [
-    "economics",
     "computer-fundamentals",
     "calculus"
   ],
-  "visual_polish_queue_count": 3,
-  "visual_polish_completed_count": 18,
-  "first_visual_polish_target": "economics",
+  "visual_polish_queue_count": 2,
+  "visual_polish_completed_count": 19,
+  "first_visual_polish_target": "computer-fundamentals",
   "visual_polish_ready": [
-    "economics",
     "computer-fundamentals",
     "calculus"
   ],
@@ -156,15 +154,15 @@
       "book_id": "economics",
       "title": "經濟學原理",
       "content_version": "2026.07.27-2",
-      "current_stage": "VP",
-      "task_id": "economics:VP",
-      "next_stage": "PUB",
+      "current_stage": "PUB",
+      "task_id": "economics:PUB",
+      "next_stage": null,
       "legacy_published_before_workflow_v2": true,
       "stages": {
         "DR": "passed",
         "IQ": "passed",
         "EA": "passed",
-        "VP": "pending",
+        "VP": "passed",
         "PUB": "passed"
       },
       "external_audit": {
@@ -174,6 +172,22 @@
         "completed_at": "2026-07-30",
         "record": "docs/books/economics/external_audit.md",
         "core_answer_errors": 0,
+        "content_version_change_required": false,
+        "unresolved_blockers": 0
+      },
+      "visual_polish": {
+        "completed_at": "2026-07-30",
+        "record": "docs/books/economics/visual_polish.md",
+        "asset": "assets/economics-svg/ppf.svg",
+        "canva_design_id": "DAHQ5KUGsYE",
+        "canva_edit_url": "https://www.canva.com/d/MugMiO_8aGO0Myb",
+        "workflow_run_id": "30587535167",
+        "pages_artifact_id": "8777075509",
+        "artifact_digest": "sha256:7b1b17a635fbc393947b7f0c1c6ab05a6f54362a2c6b38e0ea39118d24664234",
+        "tablet_readable": true,
+        "zoomable": true,
+        "offline_cached": true,
+        "validator_checks": 84,
         "content_version_change_required": false,
         "unresolved_blockers": 0
       }
