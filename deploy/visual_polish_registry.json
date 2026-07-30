@@ -55,6 +55,11 @@
       "expected_checks": 160,
       "content_version": "2026.07.29-2",
       "canva_design_id": "DAHQ45LQcmg"
+    },
+    "intermediate-accounting": {
+      "expected_checks": 161,
+      "content_version": "2026.07.29-2",
+      "canva_design_id": "DAHQ41pBkpo"
     }
   }
 }
