@@ -3,7 +3,7 @@
   "updated_at": "2026-07-30",
   "repository": "sunny20030925-cell/study-review-library",
   "default_branch": "main",
-  "library_version": "2026.07.30-18",
+  "library_version": "2026.07.30-19",
   "book_count": 21,
   "workflow": {
     "stages": [
@@ -69,7 +69,6 @@
   "external_audit_completed_count": 21,
   "first_external_audit_target": null,
   "visual_polish_queue": [
-    "macroeconomics",
     "international-economics",
     "industrial-economics",
     "industry-trade",
@@ -82,11 +81,10 @@
     "computer-fundamentals",
     "calculus"
   ],
-  "visual_polish_queue_count": 12,
-  "visual_polish_completed_count": 9,
-  "first_visual_polish_target": "macroeconomics",
+  "visual_polish_queue_count": 11,
+  "visual_polish_completed_count": 10,
+  "first_visual_polish_target": "international-economics",
   "visual_polish_ready": [
-    "macroeconomics",
     "international-economics",
     "industrial-economics",
     "industry-trade",
@@ -367,15 +365,15 @@
       "book_id": "macroeconomics",
       "title": "總體經濟學",
       "content_version": "2026.07.29-2",
-      "current_stage": "VP",
-      "task_id": "macroeconomics:VP",
-      "next_stage": "PUB",
+      "current_stage": "PUB",
+      "task_id": "macroeconomics:PUB",
+      "next_stage": null,
       "legacy_published_before_workflow_v2": true,
       "stages": {
         "DR": "passed",
         "IQ": "passed",
         "EA": "passed",
-        "VP": "pending",
+        "VP": "passed",
         "PUB": "passed"
       },
       "external_audit": {
@@ -386,6 +384,22 @@
         "completed_at": "2026-07-30",
         "record": "docs/books/macroeconomics/external_audit.md",
         "core_answer_errors": 0,
+        "content_version_change_required": false,
+        "unresolved_blockers": 0
+      },
+      "visual_polish": {
+        "completed_at": "2026-07-30",
+        "record": "docs/books/macroeconomics/visual_polish.md",
+        "asset": "assets/macroeconomics-svg/macro-map.svg",
+        "canva_design_id": "DAHQ4eP1njs",
+        "canva_edit_url": "https://www.canva.com/d/1Mr3R5q87YNMNux",
+        "workflow_run_id": "30565088816",
+        "pages_artifact_id": "8768479929",
+        "artifact_digest": "sha256:cbf6c78477020bf8896d1e2a2a42a4a548853fed3e68fb1525bc9d7926523dd7",
+        "tablet_readable": true,
+        "zoomable": true,
+        "offline_cached": true,
+        "validator_checks": 116,
         "content_version_change_required": false,
         "unresolved_blockers": 0
       }
