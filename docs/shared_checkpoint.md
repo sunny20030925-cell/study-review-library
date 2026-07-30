@@ -12,10 +12,10 @@
 - 形式：平板直式 PWA 書庫。
 - 正式書庫內容版本：`2026.07.30-9`
 - 正式書籍數：**21 本**。
-- 最新成功正式 Pages run：`30494922034`
-- 最新成功正式部署 source commit：`d502e3db8be674c030c5b13db88f1b33dfdedb28`
-- 最新成功 Pages artifact：`8741187091`
-- Artifact digest：`sha256:576f046c2f6e98f1cab56ca7136042e1dfb66a4af1ad21e74552ce16b2db1eeb`
+- 最新成功正式 Pages run：`30518379329`
+- 最新成功正式部署 source commit：`96fb9b8f081033039a8fac731397d4746712d235`
+- 最新成功 Pages artifact：`8749764570`
+- Artifact digest：`sha256:ac6b2af87fe8547dd9625cca30665d5400b881197e0f7f9c89eec836e3a97a11`
 - `docs/deployment_receipt.json`：`status=success`、`book_count=21`、`library_version=2026.07.30-9`、`progress_storage_changed=false`。
 
 ## 正式工作流
@@ -64,9 +64,9 @@ External Audit 路由已實際依內容類型執行：數學／數值用 Wolfram
 
 ## 基礎設施注意事項
 
-- Workflow Upgrade 後曾暴露一個舊 deployment inline gate：仍假設 `industry-trade` 是 registry 最後一本；正式 21 本中其後已有 `mathematical-economics`。
-- 該失敗沒有形成新 Pages artifact，也沒有取代上述成功正式 artifact／deployment receipt。
-- 在下一次真正需要共同 PWA／Pages 發布前，應先修正這個過時的 tail assertion；External Audit 的狀態寫回不需重跑正式 Pages artifact。
+- 21 本 registry 的 `industry-trade` tail assertion 已改為相對順序 gate，允許其後存在 `mathematical-economics`。
+- 部署紀錄已由 workflow-v2 generic recorder 接管；不再以逐書 legacy recorder 重寫 shared checkpoint 或逐書 stage。
+- 最新共同 PWA／Pages artifact 已完成 upload、deploy、重新下載、digest 與 21 本結構驗證。
 
 ## 不可破壞的正式邊界
 
