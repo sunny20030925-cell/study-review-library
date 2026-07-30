@@ -3,7 +3,7 @@
   "updated_at": "2026-07-30",
   "repository": "sunny20030925-cell/study-review-library",
   "default_branch": "main",
-  "library_version": "2026.07.30-24",
+  "library_version": "2026.07.30-25",
   "book_count": 21,
   "workflow": {
     "stages": [
@@ -69,18 +69,16 @@
   "external_audit_completed_count": 21,
   "first_external_audit_target": null,
   "visual_polish_queue": [
-    "intermediate-accounting",
     "cost-accounting",
     "accounting",
     "economics",
     "computer-fundamentals",
     "calculus"
   ],
-  "visual_polish_queue_count": 6,
-  "visual_polish_completed_count": 15,
-  "first_visual_polish_target": "intermediate-accounting",
+  "visual_polish_queue_count": 5,
+  "visual_polish_completed_count": 16,
+  "first_visual_polish_target": "cost-accounting",
   "visual_polish_ready": [
-    "intermediate-accounting",
     "cost-accounting",
     "accounting",
     "economics",
@@ -327,15 +325,15 @@
       "book_id": "intermediate-accounting",
       "title": "中級會計學",
       "content_version": "2026.07.29-2",
-      "current_stage": "VP",
-      "task_id": "intermediate-accounting:VP",
-      "next_stage": "PUB",
+      "current_stage": "PUB",
+      "task_id": "intermediate-accounting:PUB",
+      "next_stage": null,
       "legacy_published_before_workflow_v2": true,
       "stages": {
         "DR": "passed",
         "IQ": "passed",
         "EA": "passed",
-        "VP": "pending",
+        "VP": "passed",
         "PUB": "passed"
       },
       "external_audit": {
@@ -347,6 +345,22 @@
         "completed_at": "2026-07-30",
         "record": "docs/books/intermediate-accounting/external_audit.md",
         "core_answer_errors": 0,
+        "content_version_change_required": false,
+        "unresolved_blockers": 0
+      },
+      "visual_polish": {
+        "completed_at": "2026-07-30",
+        "record": "docs/books/intermediate-accounting/visual_polish.md",
+        "asset": "assets/intermediate-accounting-svg/ch00.svg",
+        "canva_design_id": "DAHQ41pBkpo",
+        "canva_edit_url": "https://www.canva.com/d/RwAvCpLNxeqkcjn",
+        "workflow_run_id": "30577166991",
+        "pages_artifact_id": "8773152372",
+        "artifact_digest": "sha256:7542adb3551d8ac7a6b1bec3fd48f55151aa5b8686dc9bef32af984573465133",
+        "tablet_readable": true,
+        "zoomable": true,
+        "offline_cached": true,
+        "validator_checks": 161,
         "content_version_change_required": false,
         "unresolved_blockers": 0
       }
