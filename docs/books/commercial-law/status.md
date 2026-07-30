@@ -6,8 +6,12 @@
 
 - Book ID：`commercial-law`
 - 正式內容版本：`2026.07.29-2`
-- 正式書庫版本：`2026.07.30-11`
+- 正式書庫版本：`2026.07.30-12`
 - 正式分支：`main`
+- 目前 stage：`PUB`
+- Task ID：`commercial-law:PUB`
+- 下一階段：無；本書新制流程已完成。
+- Published：`passed`。
 - 法規基準：2026-07-29 複核之現行公司法、證券交易法與公開發行公司董事會議事辦法。
 
 ## 已固定範圍
@@ -18,7 +22,7 @@
 - 票據法、保險法、海商法不進入核心正文與核心題庫。
 - 成品：18 章、3 附錄、90 題、111 筆搜尋索引、18 張 SVG，整合既有平板 PWA。
 
-## 完成狀態
+## Internal QA／法律複核
 
 - 初版第一輪 QA：完成。
 - 初版第二輪獨立法律複核：完成。
@@ -27,23 +31,22 @@
 - 公司法第 8 條 follow-up：完成。`2026.07.29-1` 曾誤採舊法「公開發行股票之公司」限制；經最終查核現行公司法與修法沿革後，已由 `2026.07.29-2` 立即回修為現行一般規則。
 - 第 8 條獨立重新生成驗證：版本、18 章、3 附錄、90 題、每章 5 題、111 搜尋，以及現行法主體／實質執行／實質控制／不得限縮為公開發行公司等檢查全部通過。
 - QA 報告：`docs/books/commercial-law/qa_report.md`。
-- 正式入口：`https://sunny20030925-cell.github.io/study-review-library/`。
-- 部署回條：`docs/deployment_receipt.json`。
-- 閱讀進度：章節 ID、題目 ID 與題數未變，`progress_storage_changed=false`。
+- External Audit：既有正式法源／判決複核證據遷移為 `passed_migrated`。
 
-## Visual Polish 執行中（2026-07-30）
+## Visual Polish（2026-07-30）
 
 - Task：`commercial-law:VP`。
-- 已核准並正式儲存 Canva 高價值資產：《商事法案例題雙軌判斷地圖》。
+- 結果：`passed`。
+- 高價值資產：《商事法案例題雙軌判斷地圖》。
 - Canva design ID：`DAHQ2c1bRXE`；可編輯來源：`https://www.canva.com/d/tW8J87KlNJIiXkN`。
-- PWA 實作 PR：#154，merge SHA `2261c0f4e638bf516c4b79079a22a1900e5d14ad`。
-- 預定正式資產：`assets/commercial-law-svg/law-map.svg`；沿用既有 cache URL，SVG 總數維持 18。
-- 本地正式 artifact 模擬：library `2026.07.30-11 → 2026.07.30-12`；第二次套用維持 `-12`；VP validator `59 checks` PASS。
-- PR #154 合併後 canonical `Deploy study library` run `30531864083` 已成功；artifact `8755007481`、digest `sha256:11f3b4ddf80f32e9232244839fcecef119acb6ff7b8037f731a8c4324ee82129` 重下載驗證通過。
-- canonical artifact 仍為 VP 前基底 `2026.07.30-11`；`Apply commercial law Visual Polish` follow-up 尚未留下正式 deployment recorder，因此 **VP 尚不得標記 passed，也不得提前切換 PUB**。
-- 這段狀態只記錄正式部署中的中間節點；成功部署後會由 closure PR 改寫為最終 `PUB` 狀態。
+- PWA 正式資產：`assets/commercial-law-svg/law-map.svg`。
+- 使用位置：第 0 章既有法律地圖位置＋附錄 B；附錄 B 可另開 standalone SVG 放大。
+- 沿用既有 service-worker cache URL；平板可閱讀、可放大、可離線；SVG 總數仍為 18。
+- 正式 Actions：VP validator `59 checks`、`visual_polish=passed`，部署前與重新下載 artifact 後各通過一次。
+- 未修改正文核心答案或題庫；正式內容版本維持 `2026.07.29-2`。
+- Visual Polish 詳細證據：`docs/books/commercial-law/visual_polish.md`。
 
-## 主要修正
+## 主要歷史修正
 
 1. 公司法第 8 條第 3 項：現行法不限於公開發行公司；公司之非董事符合實質執行董事業務或實質控制並指揮董事等要件時，原則上與董事同負相應責任，並保留法定政府指揮例外。
 2. 補入已依證券交易法發行股票之公司董事會不得少於 5 人。
@@ -58,9 +61,18 @@
 11. 90 題全數重新複核；6 個題目 ID 依上述法律精確化同步調整，題目 ID 不變。
 12. 正式部署 gate 新增高風險法律要件、現行公司法第 8 條要件及禁止舊法誤述檢查。
 
-## 發布結果（既有內容版本）
+## 最新正式部署
 
-1. canonical `Deploy study library` 持續統一生成並驗證正式書庫。
-2. 商事法 `2026.07.29-2` 的 18 章、3 附錄、90 題、111 筆搜尋索引、18 張 SVG、版本 UI、搜尋、題庫與離線快取維持既有 gate。
-3. 部署回條記錄 `commercial_law_content_correction_count=13`、`commercial_law_question_adjustment_count=6`、`commercial_law_followup_correction_count=1`、`commercial_law_post_publication_reaudit=passed-after-current-law-followup`。
-4. Visual Polish 正式成功證據須另以 follow-up Pages artifact 與 `docs/books/commercial-law/visual_polish.md` 為準。
+- 正式入口：`https://sunny20030925-cell.github.io/study-review-library/`。
+- canonical `Deploy study library` run：`30532630989`，success。
+- Visual Polish run：`30532667241`，success。
+- 正式部署 source commit：`dd52ab5bfa1797678a2676de5abbc05a049a9d8b`。
+- Pages artifact：`8755330612`。
+- Artifact digest：`sha256:202289641e0ae502fa0bd2bbd78f8938c4978c8a5ba04d850d5f8cb12dedac13`。
+- Artifact download recheck：`passed`；下載 SHA256 與 digest 完全一致。
+- 正式書庫：21 本，版本 `2026.07.30-12`。
+- 閱讀進度、錯題資料與 storage key 相容；`progress_storage_changed=false`。
+
+## 下一步
+
+本書 `DR → IQ → EA → VP → PUB` 新制流程已完成；全書庫下一個 Visual Polish 任務由 `docs/audit_progress_manifest.json` 的 queue 決定。
