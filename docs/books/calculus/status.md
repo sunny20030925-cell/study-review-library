@@ -30,14 +30,14 @@
 
 ## 相容性
 
-章節／題目 ID、題數、PWA、閱讀進度與錯題資料均不變；正式 21 本 artifact 維持 `2026.07.30-9`。
+章節／題目 ID、題數、PWA、閱讀進度與錯題資料均不變；正式 21 本 artifact 現為 `2026.07.30-30`。
 
 ## Visual Polish 完成（2026-07-30）
 
 - Task：`calculus:VP`；結果：`passed`。
 - 高價值資產：`大一微積分極限導數積分級數與多變數判斷地圖`。
 - Canva design ID：`DAHQ5AiFZNo`；可編輯來源：`https://www.canva.com/d/J7WcMqzKE9zH_Cf`。
-- PWA 資產：`assets/calculus-svg/calculus-map.svg`；平板可閱讀、可放大、沿用既有離線 cache path。
+- PWA 資產：`assets/calculus-svg/calculus-map.svg`；平板可閱讀、可放大；本輪新增專用 SVG，並納入既有 service-worker 離線 cache。
 - 正式 run：`30587649125`；Pages artifact：`8777119969`。
 - Artifact digest：`sha256:79ac8ec575c1bd401c69d2933368fe4d3d89700f482c3097c17905cc771e912c`；重新下載 SHA256 完全一致。
 - VP validator：`62 checks`，正式部署前與 artifact 重下載後均 `visual_polish=passed`。
