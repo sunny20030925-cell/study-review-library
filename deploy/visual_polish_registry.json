@@ -15,6 +15,11 @@
       "expected_checks": 108,
       "content_version": "2026.07.29-2",
       "canva_design_id": "DAHQ3VXu1eY"
+    },
+    "game-theory": {
+      "expected_checks": 96,
+      "content_version": "2026.07.30-2",
+      "canva_design_id": "DAHQ3QeJvMk"
     }
   }
 }
