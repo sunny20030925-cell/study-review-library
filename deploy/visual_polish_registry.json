@@ -65,6 +65,11 @@
       "expected_checks": 144,
       "content_version": "2026.07.29-2",
       "canva_design_id": "DAHQ5Eq5yIA"
+    },
+    "accounting": {
+      "expected_checks": 102,
+      "content_version": "2026.07.27-2",
+      "canva_design_id": "DAHQ5G-UZ3g"
     }
   }
 }
