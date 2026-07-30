@@ -1,12 +1,12 @@
 # 《商事法》製作狀態
 
-更新日期：2026-07-29
+更新日期：2026-07-30
 
 ## 版本
 
 - Book ID：`commercial-law`
 - 正式內容版本：`2026.07.29-2`
-- 書庫內容版本：`2026.07.29-6`
+- 正式書庫版本：`2026.07.30-11`
 - 正式分支：`main`
 - 法規基準：2026-07-29 複核之現行公司法、證券交易法與公開發行公司董事會議事辦法。
 
@@ -27,13 +27,21 @@
 - 公司法第 8 條 follow-up：完成。`2026.07.29-1` 曾誤採舊法「公開發行股票之公司」限制；經最終查核現行公司法與修法沿革後，已由 `2026.07.29-2` 立即回修為現行一般規則。
 - 第 8 條獨立重新生成驗證：版本、18 章、3 附錄、90 題、每章 5 題、111 搜尋，以及現行法主體／實質執行／實質控制／不得限縮為公開發行公司等檢查全部通過。
 - QA 報告：`docs/books/commercial-law/qa_report.md`。
-- GitHub Pages：正式五本書部署成功。
-- Workflow run：`30395844928`。
-- Source commit：`5fbc342d9346f27969f128fac6d134cddae1c75c`。
 - 正式入口：`https://sunny20030925-cell.github.io/study-review-library/`。
 - 部署回條：`docs/deployment_receipt.json`。
 - 閱讀進度：章節 ID、題目 ID 與題數未變，`progress_storage_changed=false`。
-- 狀態：**發布後獨立複核、糾錯、現行法 follow-up 與重新部署均完成**。
+
+## Visual Polish 執行中（2026-07-30）
+
+- Task：`commercial-law:VP`。
+- 已核准並正式儲存 Canva 高價值資產：《商事法案例題雙軌判斷地圖》。
+- Canva design ID：`DAHQ2c1bRXE`；可編輯來源：`https://www.canva.com/d/tW8J87KlNJIiXkN`。
+- PWA 實作 PR：#154，merge SHA `2261c0f4e638bf516c4b79079a22a1900e5d14ad`。
+- 預定正式資產：`assets/commercial-law-svg/law-map.svg`；沿用既有 cache URL，SVG 總數維持 18。
+- 本地正式 artifact 模擬：library `2026.07.30-11 → 2026.07.30-12`；第二次套用維持 `-12`；VP validator `59 checks` PASS。
+- PR #154 合併後 canonical `Deploy study library` run `30531864083` 已成功；artifact `8755007481`、digest `sha256:11f3b4ddf80f32e9232244839fcecef119acb6ff7b8037f731a8c4324ee82129` 重下載驗證通過。
+- canonical artifact 仍為 VP 前基底 `2026.07.30-11`；`Apply commercial law Visual Polish` follow-up 尚未留下正式 deployment recorder，因此 **VP 尚不得標記 passed，也不得提前切換 PUB**。
+- 這段狀態只記錄正式部署中的中間節點；成功部署後會由 closure PR 改寫為最終 `PUB` 狀態。
 
 ## 主要修正
 
@@ -50,10 +58,9 @@
 11. 90 題全數重新複核；6 個題目 ID 依上述法律精確化同步調整，題目 ID 不變。
 12. 正式部署 gate 新增高風險法律要件、現行公司法第 8 條要件及禁止舊法誤述檢查。
 
-## 發布結果
+## 發布結果（既有內容版本）
 
-1. canonical `Deploy study library` 統一生成並驗證五本書。
-2. 微積分、會計學、經濟學、統計學既有正式內容未倒退；統計學 `2026.07.29-2` 完整保留。
-3. 商事法 `2026.07.29-2` 的 18 章、3 附錄、90 題、111 筆搜尋索引、18 張 SVG、版本 UI、搜尋、題庫與離線快取全部通過 gate。
-4. 部署回條記錄 `commercial_law_content_correction_count=13`、`commercial_law_question_adjustment_count=6`、`commercial_law_followup_correction_count=1`、`commercial_law_post_publication_reaudit=passed-after-current-law-followup`。
-5. Pages 部署成功後已寫回 `docs/deployment_receipt.json`。
+1. canonical `Deploy study library` 持續統一生成並驗證正式書庫。
+2. 商事法 `2026.07.29-2` 的 18 章、3 附錄、90 題、111 筆搜尋索引、18 張 SVG、版本 UI、搜尋、題庫與離線快取維持既有 gate。
+3. 部署回條記錄 `commercial_law_content_correction_count=13`、`commercial_law_question_adjustment_count=6`、`commercial_law_followup_correction_count=1`、`commercial_law_post_publication_reaudit=passed-after-current-law-followup`。
+4. Visual Polish 正式成功證據須另以 follow-up Pages artifact 與 `docs/books/commercial-law/visual_polish.md` 為準。
