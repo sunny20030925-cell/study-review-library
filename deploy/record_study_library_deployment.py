@@ -90,7 +90,7 @@ def main(site_root: str) -> None:
     checkpoint = replace_line(checkpoint, "正式書庫內容版本", f"`{library['version']}`")
     checkpoint = replace_line(checkpoint, "正式書籍數", f"**{len(ids)} 本**。")
     checkpoint = replace_line(checkpoint, "最新成功正式 Pages run", f"`{run_id}`")
-    checkpoint = replace_line(checkpoint, "最新成功正式部署 source commit", f"`{source_sha}`")
+    checkpoint = replace_line(checkpoint, "正式部署 source commit", f"`{source_sha}`")
     checkpoint = replace_line(checkpoint, "最新成功 Pages artifact", f"`{artifact_id}`")
     checkpoint = replace_line(checkpoint, "Artifact digest", f"`{digest}`")
     checkpoint = re.sub(
