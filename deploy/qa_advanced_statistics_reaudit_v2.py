@@ -86,6 +86,18 @@ def main(site_root: str, expected_library_version: str) -> None:
     ck(old_wrong not in html_by_id['ch14'], 'old completeness/sufficiency overclaim removed')
     ck('level α 只要求 size≤α' not in html_by_id['ch17'] or 'size≤α' in html_by_id['ch17'], 'level/size phrasing coherent')
 
+    vp = manifest.get('visualPolish', {})
+    ck(vp.get('status') == 'passed', 'visual polish manifest status')
+    ck(vp.get('asset') == 'assets/advanced-statistics-svg/math-bridge.svg', 'visual polish asset path')
+    ck(vp.get('tabletReadable') is True and vp.get('zoomable') is True, 'visual polish tablet readability')
+    ck(vp.get('offlineCachedViaExistingAssetPath') is True, 'visual polish offline cache declaration')
+    ck('data-vp-asset="advanced-statistics-inference-roadmap"' in html_by_id['appendix-b'], 'appendix-b visual polish marker')
+    vp_svg_path = site / 'assets/advanced-statistics-svg/math-bridge.svg'
+    ck(vp_svg_path.is_file(), 'visual polish SVG exists')
+    vp_svg = vp_svg_path.read_text(encoding='utf-8')
+    for token in ['高等統計推論路線圖', 'Exact', 'Asymptotic', 'CRLB', 'p-value', 'Gauss–Markov']:
+        ck(token in vp_svg, f'visual polish SVG token {token}')
+
     q = {x['id']: x for x in questions['items']}
     changed = {
         'ch03-q05': ('0.049152。', 'Negative Binomial'),
@@ -148,11 +160,12 @@ def main(site_root: str, expected_library_version: str) -> None:
     ck(f"study-library-{expected_library_version}" in sw, 'service worker version')
     ck('./books/advanced-statistics/manifest.json' in sw, 'advanced manifest cached')
     ck('./books/advanced-statistics/chapters/ch19.html' in sw, 'advanced final chapter cached')
+    ck('./assets/advanced-statistics-svg/math-bridge.svg' in sw, 'visual polish SVG remains offline cached')
 
     print(
         f'ADVANCED_STATISTICS_V2_QA_OK checks={checks} numerical_rechecks={numeric} '
         f'books={len(ids)} library={expected_library_version} corrections=10 question_adjustments=7 '
-        f'chapters=20 appendices=3 questions=100 search=189'
+        f'chapters=20 appendices=3 questions=100 search=189 visual_polish=passed'
     )
 
 
