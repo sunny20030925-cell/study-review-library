@@ -1,0 +1,178 @@
+name: Apply next Visual Polish
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+  actions: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  visual-polish:
+    if: ${{ github.actor == github.repository_owner && github.event.issue.title == 'Run next Visual Polish' }}
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - name: Resolve formal target and verified base
+        id: prepare
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TARGET="$(python -c "import json;print(json.load(open('docs/audit_progress_manifest.json'))['first_visual_polish_target'] or '')")"
+          test -n "$TARGET"
+          KEY="${TARGET//-/_}"
+          APPLY_SCRIPT="deploy/apply_${KEY}_visual_polish.py"
+          QA_SCRIPT="deploy/qa_${KEY}_visual_polish.py"
+          test -f "$APPLY_SCRIPT"
+          test -f "$QA_SCRIPT"
+          EXPECTED_CHECKS="$(TARGET="$TARGET" python - <<'PY'
+          import json,os
+          d=json.load(open('deploy/visual_polish_registry.json'))
+          print(d['targets'][os.environ['TARGET']]['expected_checks'])
+          PY
+          )"
+          test -n "$EXPECTED_CHECKS"
+
+          ARTIFACT_ID="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['pages_artifact_id'])")"
+          DIGEST="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['pages_artifact_digest'])")"
+          RECEIPT_VERSION="$(python -c "import json;print(json.load(open('docs/deployment_receipt.json'))['library_version'])")"
+          test -n "$ARTIFACT_ID" && test -n "$DIGEST" && test -n "$RECEIPT_VERSION"
+          gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" > /tmp/formal-base.zip
+          echo "${DIGEST#sha256:}  /tmp/formal-base.zip" | sha256sum --check -
+          rm -rf _site /tmp/formal-unpack
+          mkdir -p _site /tmp/formal-unpack
+          unzip -q /tmp/formal-base.zip -d /tmp/formal-unpack
+          if [ -f /tmp/formal-unpack/artifact.tar ]; then
+            tar -xf /tmp/formal-unpack/artifact.tar -C _site
+          elif [ -f /tmp/formal-unpack/artifact.tar.gz ]; then
+            tar -xzf /tmp/formal-unpack/artifact.tar.gz -C _site
+          else
+            cp -a /tmp/formal-unpack/. _site/
+          fi
+          TARGET="$TARGET" RECEIPT_VERSION="$RECEIPT_VERSION" python - <<'PY'
+          import json,os
+          from pathlib import Path
+          site=Path('_site')
+          lib=json.load(open(site/'data/library.json'))
+          ids=[b['id'] for b in lib['books']]
+          assert lib['version']==os.environ['RECEIPT_VERSION']
+          assert len(ids)==21 and len(ids)==len(set(ids)) and ids.count(os.environ['TARGET'])==1
+          m=json.load(open(site/'books'/os.environ['TARGET']/'manifest.json'))
+          needs=m.get('visualPolish',{}).get('status')!='passed'
+          Path('/tmp/needs-vp.txt').write_text('true' if needs else 'false')
+          print('VISUAL_POLISH_BASE_OK',os.environ['TARGET'],lib['version'],len(ids),'needs_vp='+str(needs).lower())
+          PY
+          echo "needs_vp=$(cat /tmp/needs-vp.txt)" >> "$GITHUB_OUTPUT"
+          echo "TARGET=$TARGET" >> "$GITHUB_ENV"
+          echo "KEY=$KEY" >> "$GITHUB_ENV"
+          echo "APPLY_SCRIPT=$APPLY_SCRIPT" >> "$GITHUB_ENV"
+          echo "QA_SCRIPT=$QA_SCRIPT" >> "$GITHUB_ENV"
+          echo "EXPECTED_CHECKS=$EXPECTED_CHECKS" >> "$GITHUB_ENV"
+          echo "BASE_LIBRARY_VERSION=$RECEIPT_VERSION" >> "$GITHUB_ENV"
+          echo "VP_SOURCE_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Apply and validate target Visual Polish
+        if: steps.prepare.outputs.needs_vp == 'true'
+        run: |
+          set -euo pipefail
+          python -m py_compile "$APPLY_SCRIPT" "$QA_SCRIPT" deploy/record_study_library_deployment.py
+          find _site/books -type f ! -path "*/${TARGET}/*" -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-vp-other-books.sha256
+          find _site/assets -type f ! -path "*/${TARGET}-svg/*" -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-vp-other-assets.sha256
+          BEFORE="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"
+          test "$BEFORE" = "$BASE_LIBRARY_VERSION"
+          FINAL_LIBRARY_VERSION="$(PYTHONPATH=deploy python "$APPLY_SCRIPT" _site "$BEFORE" | tail -n 1)"
+          test -n "$FINAL_LIBRARY_VERSION" && test "$FINAL_LIBRARY_VERSION" != "$BEFORE"
+          BEFORE="$BEFORE" AFTER="$FINAL_LIBRARY_VERSION" python - <<'PY'
+          import os,re
+          def key(v):
+              m=re.fullmatch(r'(\d{4})\.(\d{2})\.(\d{2})-(\d+)',v); assert m
+              return tuple(map(int,m.groups()))
+          b=key(os.environ['BEFORE']); a=key(os.environ['AFTER'])
+          assert a[:3]==b[:3] and a[3]==b[3]+1,(b,a)
+          PY
+          VP_QA_LINE="$(PYTHONPATH=deploy python "$QA_SCRIPT" _site "$FINAL_LIBRARY_VERSION" | tail -n 1)"
+          echo "$VP_QA_LINE"
+          VP_QA_CHECKS="$(printf '%s\n' "$VP_QA_LINE" | grep -oE 'checks=[0-9]+' | head -n 1 | cut -d= -f2)"
+          test "$VP_QA_CHECKS" = "$EXPECTED_CHECKS"
+          printf '%s\n' "$VP_QA_LINE" | grep -q 'visual_polish=passed'
+          find _site/books -type f ! -path "*/${TARGET}/*" -print0 | sort -z | xargs -0 sha256sum > /tmp/post-vp-other-books.sha256
+          find _site/assets -type f ! -path "*/${TARGET}-svg/*" -print0 | sort -z | xargs -0 sha256sum > /tmp/post-vp-other-assets.sha256
+          diff -u /tmp/pre-vp-other-books.sha256 /tmp/post-vp-other-books.sha256
+          diff -u /tmp/pre-vp-other-assets.sha256 /tmp/post-vp-other-assets.sha256
+          node --check _site/app.js
+          node --check _site/sw.js
+          echo "FINAL_LIBRARY_VERSION=$FINAL_LIBRARY_VERSION" >> "$GITHUB_ENV"
+          echo "VP_QA_CHECKS=$VP_QA_CHECKS" >> "$GITHUB_ENV"
+
+      - uses: actions/upload-pages-artifact@v3
+        if: steps.prepare.outputs.needs_vp == 'true'
+        with:
+          path: _site
+
+      - id: deployment
+        if: steps.prepare.outputs.needs_vp == 'true'
+        uses: actions/deploy-pages@v4
+
+      - name: Re-download and verify VP artifact
+        if: steps.prepare.outputs.needs_vp == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DEPLOYED_PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          set -euo pipefail
+          ARTIFACT_ID="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts" --jq '.artifacts[] | select(.name == "github-pages") | .id' | tail -n 1)"
+          DIGEST="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts" --jq '.artifacts[] | select(.name == "github-pages") | .digest' | tail -n 1)"
+          test -n "$ARTIFACT_ID" && test -n "$DIGEST"
+          gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" > /tmp/deployed-pages.zip
+          SHA="$(sha256sum /tmp/deployed-pages.zip | awk '{print $1}')"
+          test "$SHA" = "${DIGEST#sha256:}"
+          rm -rf /tmp/deployed-pages-artifact /tmp/deployed-site
+          mkdir -p /tmp/deployed-pages-artifact /tmp/deployed-site
+          unzip -q /tmp/deployed-pages.zip -d /tmp/deployed-pages-artifact
+          if [ -f /tmp/deployed-pages-artifact/artifact.tar ]; then
+            tar -xf /tmp/deployed-pages-artifact/artifact.tar -C /tmp/deployed-site
+          elif [ -f /tmp/deployed-pages-artifact/artifact.tar.gz ]; then
+            tar -xzf /tmp/deployed-pages-artifact/artifact.tar.gz -C /tmp/deployed-site
+          else
+            cp -a /tmp/deployed-pages-artifact/. /tmp/deployed-site/
+          fi
+          RECHECK_LINE="$(PYTHONPATH=deploy python "$QA_SCRIPT" /tmp/deployed-site "$FINAL_LIBRARY_VERSION" | tail -n 1)"
+          echo "$RECHECK_LINE"
+          RECHECKS="$(printf '%s\n' "$RECHECK_LINE" | grep -oE 'checks=[0-9]+' | head -n 1 | cut -d= -f2)"
+          test "$RECHECKS" = "$EXPECTED_CHECKS"
+          printf '%s\n' "$RECHECK_LINE" | grep -q 'visual_polish=passed'
+          echo "PAGES_ARTIFACT_ID=$ARTIFACT_ID" >> "$GITHUB_ENV"
+          echo "PAGES_ARTIFACT_DIGEST=$DIGEST" >> "$GITHUB_ENV"
+          echo "PAGES_ARTIFACT_SHA256=$SHA" >> "$GITHUB_ENV"
+          echo "DEPLOYED_PAGE_URL=$DEPLOYED_PAGE_URL" >> "$GITHUB_ENV"
+
+      - name: Record verified Visual Polish deployment
+        if: steps.prepare.outputs.needs_vp == 'true'
+        run: |
+          set -euo pipefail
+          GITHUB_SHA="$VP_SOURCE_SHA" python deploy/record_study_library_deployment.py _site
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add docs/deployment_receipt.json docs/shared_checkpoint.md
+          if ! git diff --cached --quiet; then
+            git commit -m "Record ${TARGET} VP deployment [skip ci]"
+            git push origin HEAD:main
+          fi
