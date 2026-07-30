@@ -3,7 +3,7 @@
   "updated_at": "2026-07-30",
   "repository": "sunny20030925-cell/study-review-library",
   "default_branch": "main",
-  "library_version": "2026.07.30-16",
+  "library_version": "2026.07.30-17",
   "book_count": 21,
   "workflow": {
     "stages": [
@@ -69,7 +69,6 @@
   "external_audit_completed_count": 21,
   "first_external_audit_target": null,
   "visual_polish_queue": [
-    "game-theory",
     "microeconomics",
     "macroeconomics",
     "international-economics",
@@ -84,11 +83,10 @@
     "computer-fundamentals",
     "calculus"
   ],
-  "visual_polish_queue_count": 14,
-  "visual_polish_completed_count": 7,
-  "first_visual_polish_target": "game-theory",
+  "visual_polish_queue_count": 13,
+  "visual_polish_completed_count": 8,
+  "first_visual_polish_target": "microeconomics",
   "visual_polish_ready": [
-    "game-theory",
     "microeconomics",
     "macroeconomics",
     "international-economics",
@@ -533,15 +531,15 @@
       "book_id": "game-theory",
       "title": "賽局理論及應用",
       "content_version": "2026.07.30-2",
-      "current_stage": "VP",
-      "task_id": "game-theory:VP",
-      "next_stage": "PUB",
+      "current_stage": "PUB",
+      "task_id": "game-theory:PUB",
+      "next_stage": null,
       "legacy_published_before_workflow_v2": true,
       "stages": {
         "DR": "passed",
         "IQ": "passed",
         "EA": "passed",
-        "VP": "pending",
+        "VP": "passed",
         "PUB": "passed"
       },
       "external_audit": {
@@ -551,6 +549,22 @@
         "completed_at": "2026-07-30",
         "record": "docs/books/game-theory/external_audit.md",
         "core_answer_errors": 0,
+        "content_version_change_required": false,
+        "unresolved_blockers": 0
+      },
+      "visual_polish": {
+        "completed_at": "2026-07-30",
+        "record": "docs/books/game-theory/visual_polish.md",
+        "asset": "assets/game-theory-svg/game-map.svg",
+        "canva_design_id": "DAHQ3QeJvMk",
+        "canva_edit_url": "https://www.canva.com/d/qZaqmF_yGFYibV5",
+        "workflow_run_id": "30548922518",
+        "pages_artifact_id": "8761921480",
+        "artifact_digest": "sha256:9a96e0540acaf41a219ac45e327443a14d1c1ff142f9e106d3ba0ba2ea06bb3a",
+        "tablet_readable": true,
+        "zoomable": true,
+        "offline_cached": true,
+        "validator_checks": 96,
         "content_version_change_required": false,
         "unresolved_blockers": 0
       }

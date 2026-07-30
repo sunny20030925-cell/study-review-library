@@ -6,11 +6,11 @@
 
 - Book ID：`game-theory`
 - 正式內容版本：`2026.07.30-2`
-- 正式書庫版本：`2026.07.30-9`
-- 目前 stage：`VP`
-- Task ID：`game-theory:VP`
-- 下一階段：`PUB`
-- Published：workflow v2 前既有正式版本維持 `passed`。
+- 正式書庫版本：`2026.07.30-17`
+- 目前 stage：`PUB`
+- Task ID：`game-theory:PUB`
+- 下一階段：無；本書新制流程已完成。
+- Published：`passed`。
 - Internal QA：`docs/books/game-theory/qa_report.md`、`docs/books/game-theory/v2_audit_report.md`
 - External Audit：`docs/books/game-theory/external_audit.md`
 
@@ -30,3 +30,17 @@
 ## 相容性
 
 Book／chapter／question IDs、題數、閱讀進度、錯題資料與 PWA 均不變；正式 21 本 artifact 維持 `2026.07.30-9`。
+
+## Visual Polish 完成（2026-07-30）
+
+- Task：`game-theory:VP`；結果：`passed`。
+- 高價值資產：`賽局理論資訊結構與均衡概念選擇地圖`。
+- Canva design ID：`DAHQ3QeJvMk`；可編輯來源：`https://www.canva.com/d/qZaqmF_yGFYibV5`。
+- PWA 資產：`assets/game-theory-svg/game-map.svg`；平板可閱讀、可放大、沿用既有離線 cache path。
+- 正式 run：`30548922518`；Pages artifact：`8761921480`。
+- Artifact digest：`sha256:9a96e0540acaf41a219ac45e327443a14d1c1ff142f9e106d3ba0ba2ea06bb3a`；重新下載 SHA256 完全一致。
+- VP validator：`96 checks`，正式部署前與 artifact 重下載後均 `visual_polish=passed`。
+- 正式內容版本未因純視覺整理升版；閱讀進度、錯題資料與 storage key 相容，`progress_storage_changed=false`。
+- 詳細證據：`docs/books/game-theory/visual_polish.md`。
+- 本書已切換至 `game-theory:PUB`。
+- 全書庫下一個 Visual Polish target：`microeconomics`。
