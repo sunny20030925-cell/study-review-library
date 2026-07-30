@@ -8,6 +8,7 @@ from pathlib import Path
 
 import generate_advanced_statistics as generator
 from advanced_statistics_v2_corrections import UPDATED_AT, VERSION, build_v2
+from apply_advanced_statistics_visual_polish import apply as apply_visual_polish
 
 BOOK = 'advanced-statistics'
 OLD_VERSION = '2026.07.29-1'
@@ -28,6 +29,22 @@ def next_library_version(current: str) -> str:
     return f'{date}-{serial + 1}'
 
 
+def write_library_and_sw(site: Path, lib_path: Path, library: dict, final_library_version: str) -> None:
+    library['version'] = final_library_version
+    lib_path.write_text(jdump(library), encoding='utf-8')
+    sw_path = site / 'sw.js'
+    sw = sw_path.read_text(encoding='utf-8')
+    sw, count = re.subn(
+        r"const VERSION = 'study-library-[^']+';",
+        f"const VERSION = 'study-library-{final_library_version}';",
+        sw,
+        count=1,
+    )
+    if count != 1:
+        raise AssertionError('service worker version marker not found')
+    sw_path.write_text(sw, encoding='utf-8')
+
+
 def main(site_root: str) -> str:
     site = Path(site_root)
     lib_path = site / 'data/library.json'
@@ -46,8 +63,14 @@ def main(site_root: str) -> str:
     manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
     questions_top = json.loads(questions_path.read_text(encoding='utf-8'))
     if manifest.get('version') == VERSION and questions_top.get('version') == VERSION:
-        print(library['version'])
-        return library['version']
+        vp_changed = apply_visual_polish(site_root)
+        if vp_changed:
+            final_library_version = next_library_version(library['version'])
+            write_library_and_sw(site, lib_path, library, final_library_version)
+        else:
+            final_library_version = library['version']
+        print(final_library_version)
+        return final_library_version
     if manifest.get('version') != OLD_VERSION or questions_top.get('version') != OLD_VERSION:
         raise AssertionError(
             f'unexpected advanced-statistics version: manifest={manifest.get("version")} questions={questions_top.get("version")}'
@@ -129,20 +152,11 @@ def main(site_root: str) -> str:
         if entry['id'] == BOOK and 'version' in entry:
             entry['version'] = VERSION
     final_library_version = next_library_version(library['version'])
-    library['version'] = final_library_version
-    lib_path.write_text(jdump(library), encoding='utf-8')
+    write_library_and_sw(site, lib_path, library, final_library_version)
 
-    sw_path = site / 'sw.js'
-    sw = sw_path.read_text(encoding='utf-8')
-    sw, count = re.subn(
-        r"const VERSION = 'study-library-[^']+';",
-        f"const VERSION = 'study-library-{final_library_version}';",
-        sw,
-        count=1,
-    )
-    if count != 1:
-        raise AssertionError('service worker version marker not found')
-    sw_path.write_text(sw, encoding='utf-8')
+    # If the base artifact was still v1, the same release can carry the v2
+    # correction and the first Visual Polish asset without a second library bump.
+    apply_visual_polish(site_root)
 
     print(final_library_version)
     return final_library_version
