@@ -70,6 +70,21 @@
       "expected_checks": 102,
       "content_version": "2026.07.27-2",
       "canva_design_id": "DAHQ5G-UZ3g"
+    },
+    "economics": {
+      "expected_checks": 84,
+      "content_version": "2026.07.27-2",
+      "canva_design_id": "DAHQ5KUGsYE"
+    },
+    "computer-fundamentals": {
+      "expected_checks": 92,
+      "content_version": "2026.07.30-2",
+      "canva_design_id": "DAHQ5HKTq5M"
+    },
+    "calculus": {
+      "expected_checks": 62,
+      "content_version": "2026.07.27-3",
+      "canva_design_id": "DAHQ5AiFZNo"
     }
   }
 }
