@@ -1,0 +1,175 @@
+name: Apply mathematical economics Visual Polish
+
+on:
+  workflow_run:
+    workflows: ["Deploy study library"]
+    types: [completed]
+
+permissions:
+  contents: write
+  actions: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  visual-polish:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - name: Load successful formal artifact and detect VP need
+        id: prepare
+        env:
+          GH_TOKEN: ${{ github.token }}
+          FORMAL_RUN_ID: ${{ github.event.workflow_run.id }}
+        run: |
+          set -euo pipefail
+          ARTIFACT_ID="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${FORMAL_RUN_ID}/artifacts" --jq '.artifacts[] | select(.name == "github-pages") | .id' | tail -n 1)"
+          DIGEST="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${FORMAL_RUN_ID}/artifacts" --jq '.artifacts[] | select(.name == "github-pages") | .digest' | tail -n 1)"
+          test -n "$ARTIFACT_ID"
+          test -n "$DIGEST"
+          gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" > /tmp/formal-base.zip
+          echo "${DIGEST#sha256:}  /tmp/formal-base.zip" | sha256sum --check -
+          rm -rf _site /tmp/formal-unpack
+          mkdir -p _site /tmp/formal-unpack
+          unzip -q /tmp/formal-base.zip -d /tmp/formal-unpack
+          if [ -f /tmp/formal-unpack/artifact.tar ]; then
+            tar -xf /tmp/formal-unpack/artifact.tar -C _site
+          elif [ -f /tmp/formal-unpack/artifact.tar.gz ]; then
+            tar -xzf /tmp/formal-unpack/artifact.tar.gz -C _site
+          else
+            cp -a /tmp/formal-unpack/. _site/
+          fi
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          site=Path('_site')
+          lib=json.load(open(site/'data/library.json'))
+          ids=[b['id'] for b in lib['books']]
+          assert len(ids)==21 and len(set(ids))==21
+          assert ids.count('mathematical-economics')==1
+          manifest=json.load(open(site/'books/mathematical-economics/manifest.json'))
+          assert manifest['version']=='2026.07.30-2'
+          needs=manifest.get('visualPolish',{}).get('status')!='passed'
+          Path('/tmp/needs-vp.txt').write_text('true' if needs else 'false')
+          print('MATH_ECON_VP_BASE',lib['version'],len(ids),'needs_vp='+str(needs).lower())
+          PY
+          echo "needs_vp=$(cat /tmp/needs-vp.txt)" >> "$GITHUB_OUTPUT"
+
+      - name: Apply and validate mathematical economics Visual Polish
+        if: steps.prepare.outputs.needs_vp == 'true'
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            deploy/apply_mathematical_economics_visual_polish.py \
+            deploy/qa_mathematical_economics_v2.py \
+            deploy/qa_mathematical_economics_visual_polish.py \
+            deploy/record_study_library_deployment.py
+          find _site/books -type f ! -path '*/mathematical-economics/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-math-vp-other-books.sha256
+          find _site/assets -type f ! -path '*/mathematical-economics-svg/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-math-vp-other-assets.sha256
+          BEFORE="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"
+          FINAL_LIBRARY_VERSION="$(PYTHONPATH=deploy python deploy/apply_mathematical_economics_visual_polish.py _site "$BEFORE" | tail -n 1)"
+          test -n "$FINAL_LIBRARY_VERSION"
+          test "$FINAL_LIBRARY_VERSION" != "$BEFORE"
+          QA_LINE="$(PYTHONPATH=deploy python deploy/qa_mathematical_economics_v2.py _site "$FINAL_LIBRARY_VERSION" | tail -n 1)"
+          echo "$QA_LINE"
+          printf '%s\n' "$QA_LINE" | grep -q 'checks=855'
+          printf '%s\n' "$QA_LINE" | grep -q 'quantitative_rechecks=23'
+          printf '%s\n' "$QA_LINE" | grep -q 'high_risk_logic_gates=10'
+          VP_QA_LINE="$(PYTHONPATH=deploy python deploy/qa_mathematical_economics_visual_polish.py _site "$FINAL_LIBRARY_VERSION" | tail -n 1)"
+          echo "$VP_QA_LINE"
+          VP_QA_CHECKS="$(printf '%s\n' "$VP_QA_LINE" | grep -oE 'checks=[0-9]+' | head -n 1 | cut -d= -f2)"
+          test "$VP_QA_CHECKS" -ge 40
+          find _site/books -type f ! -path '*/mathematical-economics/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-math-vp-other-books.sha256
+          find _site/assets -type f ! -path '*/mathematical-economics-svg/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-math-vp-other-assets.sha256
+          diff -u /tmp/pre-math-vp-other-books.sha256 /tmp/post-math-vp-other-books.sha256
+          diff -u /tmp/pre-math-vp-other-assets.sha256 /tmp/post-math-vp-other-assets.sha256
+          FINAL_LIBRARY_VERSION="$FINAL_LIBRARY_VERSION" python - <<'PY'
+          import json,os
+          from pathlib import Path
+          site=Path('_site')
+          lib=json.load(open(site/'data/library.json'))
+          ids=[b['id'] for b in lib['books']]
+          assert len(ids)==21 and len(set(ids))==21 and ids.count('mathematical-economics')==1
+          assert lib['version']==os.environ['FINAL_LIBRARY_VERSION']
+          root=site/'books/mathematical-economics'
+          m=json.load(open(root/'manifest.json')); q=json.load(open(root/'questions.json')); s=json.load(open(root/'search.json'))
+          assert m['version']==q['version']=='2026.07.30-2'
+          assert m.get('visualPolish',{}).get('status')=='passed'
+          assert len(m['chapters'])==23 and q['count']==100 and len(s['entries'])==150
+          assert len(list((site/'assets/mathematical-economics-svg').glob('*.svg')))==20
+          assert [x['id'] for x in q['items']]==[f'ch{i:02d}-q{j:02d}' for i in range(20) for j in range(1,6)]
+          print('MATHEMATICAL_ECONOMICS_VP_FORMAL_CANDIDATE_OK',lib['version'],len(ids))
+          PY
+          node --check _site/app.js
+          node --check _site/sw.js
+          echo "FINAL_LIBRARY_VERSION=$FINAL_LIBRARY_VERSION" >> "$GITHUB_ENV"
+          echo "MATH_ECON_VP_QA_CHECKS=$VP_QA_CHECKS" >> "$GITHUB_ENV"
+
+      - uses: actions/upload-pages-artifact@v3
+        if: steps.prepare.outputs.needs_vp == 'true'
+        with:
+          path: _site
+
+      - id: deployment
+        if: steps.prepare.outputs.needs_vp == 'true'
+        uses: actions/deploy-pages@v4
+
+      - name: Re-download and verify VP artifact
+        if: steps.prepare.outputs.needs_vp == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DEPLOYED_PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          set -euo pipefail
+          ARTIFACT_ID="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts" --jq '.artifacts[] | select(.name == "github-pages") | .id' | tail -n 1)"
+          DIGEST="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts" --jq '.artifacts[] | select(.name == "github-pages") | .digest' | tail -n 1)"
+          test -n "$ARTIFACT_ID"
+          test -n "$DIGEST"
+          gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" > /tmp/deployed-pages.zip
+          SHA="$(sha256sum /tmp/deployed-pages.zip | awk '{print $1}')"
+          test "$SHA" = "${DIGEST#sha256:}"
+          rm -rf /tmp/deployed-pages-artifact /tmp/deployed-site
+          mkdir -p /tmp/deployed-pages-artifact /tmp/deployed-site
+          unzip -q /tmp/deployed-pages.zip -d /tmp/deployed-pages-artifact
+          if [ -f /tmp/deployed-pages-artifact/artifact.tar ]; then
+            tar -xf /tmp/deployed-pages-artifact/artifact.tar -C /tmp/deployed-site
+          elif [ -f /tmp/deployed-pages-artifact/artifact.tar.gz ]; then
+            tar -xzf /tmp/deployed-pages-artifact/artifact.tar.gz -C /tmp/deployed-site
+          else
+            cp -a /tmp/deployed-pages-artifact/. /tmp/deployed-site/
+          fi
+          PYTHONPATH=deploy python deploy/qa_mathematical_economics_v2.py /tmp/deployed-site "$FINAL_LIBRARY_VERSION"
+          PYTHONPATH=deploy python deploy/qa_mathematical_economics_visual_polish.py /tmp/deployed-site "$FINAL_LIBRARY_VERSION"
+          echo "PAGES_ARTIFACT_ID=$ARTIFACT_ID" >> "$GITHUB_ENV"
+          echo "PAGES_ARTIFACT_DIGEST=$DIGEST" >> "$GITHUB_ENV"
+          echo "PAGES_ARTIFACT_SHA256=$SHA" >> "$GITHUB_ENV"
+          echo "DEPLOYED_PAGE_URL=$DEPLOYED_PAGE_URL" >> "$GITHUB_ENV"
+
+      - name: Record verified VP deployment
+        if: steps.prepare.outputs.needs_vp == 'true'
+        env:
+          FORMAL_SOURCE_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          set -euo pipefail
+          GITHUB_SHA="$FORMAL_SOURCE_SHA" python deploy/record_study_library_deployment.py _site
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add docs/deployment_receipt.json docs/shared_checkpoint.md
+          if ! git diff --cached --quiet; then
+            git commit -m "Record mathematical economics VP deployment [skip ci]"
+            git push origin HEAD:main
+          fi
