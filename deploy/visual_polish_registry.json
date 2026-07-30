@@ -1,19 +1,75 @@
 {
   "schema_version": 1,
   "targets": {
-    "econometrics": {"expected_checks": 76, "content_version": "2026.07.30-1", "canva_design_id": "DAHQ2ztIet0"},
-    "investments": {"expected_checks": 89, "content_version": "2026.07.30-1", "canva_design_id": "DAHQ22yayGI"},
-    "statistics": {"expected_checks": 108, "content_version": "2026.07.29-2", "canva_design_id": "DAHQ3VXu1eY"},
-    "game-theory": {"expected_checks": 96, "content_version": "2026.07.30-2", "canva_design_id": "DAHQ3QeJvMk"},
-    "microeconomics": {"expected_checks": 112, "content_version": "2026.07.29-2", "canva_design_id": "DAHQ3ai5CFo"},
-    "macroeconomics": {"expected_checks": 116, "content_version": "2026.07.29-2", "canva_design_id": "DAHQ4eP1njs"},
-    "international-economics": {"expected_checks": 137, "content_version": "2026.07.29-2", "canva_design_id": "DAHQ4X_5oYU"},
-    "industrial-economics": {"expected_checks": 152, "content_version": "2026.07.30-2", "canva_design_id": "DAHQ4ZchcBY"},
-    "industry-trade": {"expected_checks": 152, "content_version": "2026.07.29-1", "canva_design_id": "DAHQ4qrUfLQ"},
-    "public-finance": {"expected_checks": 163, "content_version": "2026.07.29-2", "canva_design_id": "DAHQ4tQIk3M"},
-    "money-banking": {"expected_checks": 160, "content_version": "2026.07.29-2", "canva_design_id": "DAHQ45LQcmg"},
-    "intermediate-accounting": {"expected_checks": 161, "content_version": "2026.07.29-2", "canva_design_id": "DAHQ41pBkpo"},
-    "cost-accounting": {"expected_checks": 144, "content_version": "2026.07.29-2", "canva_design_id": "DAHQ5Eq5yIA"},
-    "accounting": {"expected_checks": 102, "content_version": "2026.07.27-2", "canva_design_id": "DAHQ5G-UZ3g"}
+    "econometrics": {
+      "expected_checks": 76,
+      "content_version": "2026.07.30-1",
+      "canva_design_id": "DAHQ2ztIet0"
+    },
+    "investments": {
+      "expected_checks": 89,
+      "content_version": "2026.07.30-1",
+      "canva_design_id": "DAHQ22yayGI"
+    },
+    "statistics": {
+      "expected_checks": 108,
+      "content_version": "2026.07.29-2",
+      "canva_design_id": "DAHQ3VXu1eY"
+    },
+    "game-theory": {
+      "expected_checks": 96,
+      "content_version": "2026.07.30-2",
+      "canva_design_id": "DAHQ3QeJvMk"
+    },
+    "microeconomics": {
+      "expected_checks": 112,
+      "content_version": "2026.07.29-2",
+      "canva_design_id": "DAHQ3ai5CFo"
+    },
+    "macroeconomics": {
+      "expected_checks": 116,
+      "content_version": "2026.07.29-2",
+      "canva_design_id": "DAHQ4eP1njs"
+    },
+    "international-economics": {
+      "expected_checks": 137,
+      "content_version": "2026.07.29-2",
+      "canva_design_id": "DAHQ4X_5oYU"
+    },
+    "industrial-economics": {
+      "expected_checks": 152,
+      "content_version": "2026.07.30-2",
+      "canva_design_id": "DAHQ4ZchcBY"
+    },
+    "industry-trade": {
+      "expected_checks": 152,
+      "content_version": "2026.07.29-1",
+      "canva_design_id": "DAHQ4qrUfLQ"
+    },
+    "public-finance": {
+      "expected_checks": 163,
+      "content_version": "2026.07.29-2",
+      "canva_design_id": "DAHQ4tQIk3M"
+    },
+    "money-banking": {
+      "expected_checks": 160,
+      "content_version": "2026.07.29-2",
+      "canva_design_id": "DAHQ45LQcmg"
+    },
+    "intermediate-accounting": {
+      "expected_checks": 161,
+      "content_version": "2026.07.29-2",
+      "canva_design_id": "DAHQ41pBkpo"
+    },
+    "cost-accounting": {
+      "expected_checks": 144,
+      "content_version": "2026.07.29-2",
+      "canva_design_id": "DAHQ5Eq5yIA"
+    },
+    "accounting": {
+      "expected_checks": 102,
+      "content_version": "2026.07.27-2",
+      "canva_design_id": "DAHQ5G-UZ3g"
+    }
   }
 }
