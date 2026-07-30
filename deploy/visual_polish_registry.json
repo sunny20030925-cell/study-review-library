@@ -35,6 +35,11 @@
       "expected_checks": 137,
       "content_version": "2026.07.29-2",
       "canva_design_id": "DAHQ4X_5oYU"
+    },
+    "industrial-economics": {
+      "expected_checks": 152,
+      "content_version": "2026.07.30-2",
+      "canva_design_id": "DAHQ4ZchcBY"
     }
   }
 }
