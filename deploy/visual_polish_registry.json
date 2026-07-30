@@ -20,6 +20,11 @@
       "expected_checks": 96,
       "content_version": "2026.07.30-2",
       "canva_design_id": "DAHQ3QeJvMk"
+    },
+    "microeconomics": {
+      "expected_checks": 112,
+      "content_version": "2026.07.29-2",
+      "canva_design_id": "DAHQ3ai5CFo"
     }
   }
 }
