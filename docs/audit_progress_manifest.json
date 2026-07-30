@@ -3,7 +3,7 @@
   "updated_at": "2026-07-30",
   "repository": "sunny20030925-cell/study-review-library",
   "default_branch": "main",
-  "library_version": "2026.07.30-26",
+  "library_version": "2026.07.30-27",
   "book_count": 21,
   "workflow": {
     "stages": [
@@ -69,16 +69,14 @@
   "external_audit_completed_count": 21,
   "first_external_audit_target": null,
   "visual_polish_queue": [
-    "accounting",
     "economics",
     "computer-fundamentals",
     "calculus"
   ],
-  "visual_polish_queue_count": 4,
-  "visual_polish_completed_count": 17,
-  "first_visual_polish_target": "accounting",
+  "visual_polish_queue_count": 3,
+  "visual_polish_completed_count": 18,
+  "first_visual_polish_target": "economics",
   "visual_polish_ready": [
-    "accounting",
     "economics",
     "computer-fundamentals",
     "calculus"
@@ -114,15 +112,15 @@
       "book_id": "accounting",
       "title": "會計學",
       "content_version": "2026.07.27-2",
-      "current_stage": "VP",
-      "task_id": "accounting:VP",
-      "next_stage": "PUB",
+      "current_stage": "PUB",
+      "task_id": "accounting:PUB",
+      "next_stage": null,
       "legacy_published_before_workflow_v2": true,
       "stages": {
         "DR": "passed",
         "IQ": "passed",
         "EA": "passed",
-        "VP": "pending",
+        "VP": "passed",
         "PUB": "passed"
       },
       "external_audit": {
@@ -134,6 +132,22 @@
         "completed_at": "2026-07-30",
         "record": "docs/books/accounting/external_audit.md",
         "core_answer_errors": 0,
+        "content_version_change_required": false,
+        "unresolved_blockers": 0
+      },
+      "visual_polish": {
+        "completed_at": "2026-07-30",
+        "record": "docs/books/accounting/visual_polish.md",
+        "asset": "assets/accounting-svg/accounting-map.svg",
+        "canva_design_id": "DAHQ5G-UZ3g",
+        "canva_edit_url": "https://www.canva.com/d/__AMHur-jvd7l6c",
+        "workflow_run_id": "30580853942",
+        "pages_artifact_id": "8774541538",
+        "artifact_digest": "sha256:99de1677740e7b4693ff211756aad15a10ee853567198e55479fb70a8363e106",
+        "tablet_readable": true,
+        "zoomable": true,
+        "offline_cached": true,
+        "validator_checks": 102,
         "content_version_change_required": false,
         "unresolved_blockers": 0
       }
