@@ -3,7 +3,7 @@
   "updated_at": "2026-07-30",
   "repository": "sunny20030925-cell/study-review-library",
   "default_branch": "main",
-  "library_version": "2026.07.30-15",
+  "library_version": "2026.07.30-16",
   "book_count": 21,
   "workflow": {
     "stages": [
@@ -69,7 +69,6 @@
   "external_audit_completed_count": 21,
   "first_external_audit_target": null,
   "visual_polish_queue": [
-    "statistics",
     "game-theory",
     "microeconomics",
     "macroeconomics",
@@ -85,11 +84,10 @@
     "computer-fundamentals",
     "calculus"
   ],
-  "visual_polish_queue_count": 15,
-  "visual_polish_completed_count": 6,
-  "first_visual_polish_target": "statistics",
+  "visual_polish_queue_count": 14,
+  "visual_polish_completed_count": 7,
+  "first_visual_polish_target": "game-theory",
   "visual_polish_ready": [
-    "statistics",
     "game-theory",
     "microeconomics",
     "macroeconomics",
@@ -190,15 +188,15 @@
       "book_id": "statistics",
       "title": "統計學",
       "content_version": "2026.07.29-2",
-      "current_stage": "VP",
-      "task_id": "statistics:VP",
-      "next_stage": "PUB",
+      "current_stage": "PUB",
+      "task_id": "statistics:PUB",
+      "next_stage": null,
       "legacy_published_before_workflow_v2": true,
       "stages": {
         "DR": "passed",
         "IQ": "passed",
         "EA": "passed",
-        "VP": "pending",
+        "VP": "passed",
         "PUB": "passed"
       },
       "external_audit": {
@@ -208,6 +206,22 @@
         "completed_at": "2026-07-30",
         "record": "docs/books/statistics/external_audit.md",
         "core_answer_errors": 0,
+        "content_version_change_required": false,
+        "unresolved_blockers": 0
+      },
+      "visual_polish": {
+        "completed_at": "2026-07-30",
+        "record": "docs/books/statistics/visual_polish.md",
+        "asset": "assets/statistics-svg/data-process.svg",
+        "canva_design_id": "DAHQ3VXu1eY",
+        "canva_edit_url": "https://www.canva.com/d/U6gZwMg-Ro4Z3Lg",
+        "workflow_run_id": "30547172891",
+        "pages_artifact_id": "8761199558",
+        "artifact_digest": "sha256:0a6dabaadf0679e67f85e2a2146e978023d0bf0a18b1dd091e24c523c7f52dd7",
+        "tablet_readable": true,
+        "zoomable": true,
+        "offline_cached": true,
+        "validator_checks": 108,
         "content_version_change_required": false,
         "unresolved_blockers": 0
       }

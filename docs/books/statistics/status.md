@@ -6,11 +6,11 @@
 
 - Book ID：`statistics`
 - 正式內容版本：`2026.07.29-2`
-- 正式書庫版本：`2026.07.30-9`
-- 目前 stage：`VP`
-- Task ID：`statistics:VP`
-- 下一階段：`PUB`
-- Published：workflow v2 前既有正式版本維持 `passed`。
+- 正式書庫版本：`2026.07.30-16`
+- 目前 stage：`PUB`
+- Task ID：`statistics:PUB`
+- 下一階段：無；本書新制流程已完成。
+- Published：`passed`。
 - Internal QA：`docs/books/statistics/qa_report.md`
 - External Audit：`docs/books/statistics/external_audit.md`
 
@@ -30,3 +30,17 @@
 ## 相容性
 
 章節／題目 ID、題數、閱讀進度、錯題資料與 PWA storage 均不變；正式 21 本 artifact 維持 `2026.07.30-9`。
+
+## Visual Polish 完成（2026-07-30）
+
+- Task：`statistics:VP`；結果：`passed`。
+- 高價值資產：`統計學推論方法選擇地圖`。
+- Canva design ID：`DAHQ3VXu1eY`；可編輯來源：`https://www.canva.com/d/U6gZwMg-Ro4Z3Lg`。
+- PWA 資產：`assets/statistics-svg/data-process.svg`；平板可閱讀、可放大、沿用既有離線 cache path。
+- 正式 run：`30547172891`；Pages artifact：`8761199558`。
+- Artifact digest：`sha256:0a6dabaadf0679e67f85e2a2146e978023d0bf0a18b1dd091e24c523c7f52dd7`；重新下載 SHA256 完全一致。
+- VP validator：`108 checks`，正式部署前與 artifact 重下載後均 `visual_polish=passed`。
+- 正式內容版本未因純視覺整理升版；閱讀進度、錯題資料與 storage key 相容，`progress_storage_changed=false`。
+- 詳細證據：`docs/books/statistics/visual_polish.md`。
+- 本書已切換至 `statistics:PUB`。
+- 全書庫下一個 Visual Polish target：`game-theory`。
