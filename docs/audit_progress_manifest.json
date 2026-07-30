@@ -3,7 +3,7 @@
   "updated_at": "2026-07-30",
   "repository": "sunny20030925-cell/study-review-library",
   "default_branch": "main",
-  "library_version": "2026.07.30-21",
+  "library_version": "2026.07.30-22",
   "book_count": 21,
   "workflow": {
     "stages": [
@@ -69,7 +69,6 @@
   "external_audit_completed_count": 21,
   "first_external_audit_target": null,
   "visual_polish_queue": [
-    "industry-trade",
     "public-finance",
     "money-banking",
     "intermediate-accounting",
@@ -79,11 +78,10 @@
     "computer-fundamentals",
     "calculus"
   ],
-  "visual_polish_queue_count": 9,
-  "visual_polish_completed_count": 12,
-  "first_visual_polish_target": "industry-trade",
+  "visual_polish_queue_count": 8,
+  "visual_polish_completed_count": 13,
+  "first_visual_polish_target": "public-finance",
   "visual_polish_ready": [
-    "industry-trade",
     "public-finance",
     "money-banking",
     "intermediate-accounting",
@@ -785,15 +783,15 @@
       "book_id": "industry-trade",
       "title": "產業及貿易",
       "content_version": "2026.07.29-1",
-      "current_stage": "VP",
-      "task_id": "industry-trade:VP",
-      "next_stage": "PUB",
+      "current_stage": "PUB",
+      "task_id": "industry-trade:PUB",
+      "next_stage": null,
       "legacy_published_before_workflow_v2": true,
       "stages": {
         "DR": "passed",
         "IQ": "passed",
         "EA": "passed",
-        "VP": "pending",
+        "VP": "passed",
         "PUB": "passed"
       },
       "external_audit": {
@@ -804,6 +802,22 @@
         "completed_at": "2026-07-30",
         "record": "docs/books/industry-trade/external_audit.md",
         "core_answer_errors": 0,
+        "content_version_change_required": false,
+        "unresolved_blockers": 0
+      },
+      "visual_polish": {
+        "completed_at": "2026-07-30",
+        "record": "docs/books/industry-trade/visual_polish.md",
+        "asset": "assets/industry-trade-svg/ch00.svg",
+        "canva_design_id": "DAHQ4qrUfLQ",
+        "canva_edit_url": "https://www.canva.com/d/0BA4jmK8k64mjPs",
+        "workflow_run_id": "30570357985",
+        "pages_artifact_id": "8770517727",
+        "artifact_digest": "sha256:402ad42b8613feb7c3a7fe980166e8cb6018a8620cca57aba04b59a47f0b1851",
+        "tablet_readable": true,
+        "zoomable": true,
+        "offline_cached": true,
+        "validator_checks": 152,
         "content_version_change_required": false,
         "unresolved_blockers": 0
       }
