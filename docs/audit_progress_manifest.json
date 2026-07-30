@@ -3,7 +3,7 @@
   "updated_at": "2026-07-30",
   "repository": "sunny20030925-cell/study-review-library",
   "default_branch": "main",
-  "library_version": "2026.07.30-19",
+  "library_version": "2026.07.30-20",
   "book_count": 21,
   "workflow": {
     "stages": [
@@ -69,7 +69,6 @@
   "external_audit_completed_count": 21,
   "first_external_audit_target": null,
   "visual_polish_queue": [
-    "international-economics",
     "industrial-economics",
     "industry-trade",
     "public-finance",
@@ -81,11 +80,10 @@
     "computer-fundamentals",
     "calculus"
   ],
-  "visual_polish_queue_count": 11,
-  "visual_polish_completed_count": 10,
-  "first_visual_polish_target": "international-economics",
+  "visual_polish_queue_count": 10,
+  "visual_polish_completed_count": 11,
+  "first_visual_polish_target": "industrial-economics",
   "visual_polish_ready": [
-    "international-economics",
     "industrial-economics",
     "industry-trade",
     "public-finance",
@@ -408,15 +406,15 @@
       "book_id": "international-economics",
       "title": "國際經濟學",
       "content_version": "2026.07.29-2",
-      "current_stage": "VP",
-      "task_id": "international-economics:VP",
-      "next_stage": "PUB",
+      "current_stage": "PUB",
+      "task_id": "international-economics:PUB",
+      "next_stage": null,
       "legacy_published_before_workflow_v2": true,
       "stages": {
         "DR": "passed",
         "IQ": "passed",
         "EA": "passed",
-        "VP": "pending",
+        "VP": "passed",
         "PUB": "passed"
       },
       "external_audit": {
@@ -428,6 +426,22 @@
         "completed_at": "2026-07-30",
         "record": "docs/books/international-economics/external_audit.md",
         "core_answer_errors": 0,
+        "content_version_change_required": false,
+        "unresolved_blockers": 0
+      },
+      "visual_polish": {
+        "completed_at": "2026-07-30",
+        "record": "docs/books/international-economics/visual_polish.md",
+        "asset": "assets/international-economics-svg/international-map.svg",
+        "canva_design_id": "DAHQ4X_5oYU",
+        "canva_edit_url": "https://www.canva.com/d/Kn8KqUTKvQn_qh1",
+        "workflow_run_id": "30567646466",
+        "pages_artifact_id": "8769471948",
+        "artifact_digest": "sha256:e03c4f4d56b8b014635c45b33651a4f170c95a0a2548d1997d5c0614eb0c484a",
+        "tablet_readable": true,
+        "zoomable": true,
+        "offline_cached": true,
+        "validator_checks": 137,
         "content_version_change_required": false,
         "unresolved_blockers": 0
       }
