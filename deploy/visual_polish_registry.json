@@ -50,6 +50,11 @@
       "expected_checks": 163,
       "content_version": "2026.07.29-2",
       "canva_design_id": "DAHQ4tQIk3M"
+    },
+    "money-banking": {
+      "expected_checks": 160,
+      "content_version": "2026.07.29-2",
+      "canva_design_id": "DAHQ45LQcmg"
     }
   }
 }
