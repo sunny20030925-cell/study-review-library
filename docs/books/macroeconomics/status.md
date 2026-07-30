@@ -29,13 +29,13 @@
 
 ## 相容性
 
-章節／題目 ID、題數、PWA、閱讀進度與錯題資料均未變；正式 21 本 artifact 維持 `2026.07.30-9`。
+章節／題目 ID、題數、PWA、閱讀進度與錯題資料均未變；正式 21 本 artifact 為 `2026.07.30-19`。
 
 ## Visual Polish 完成（2026-07-30）
 
 - Task：`macroeconomics:VP`；結果：`passed`。
 - 高價值資產：`總體經濟學政策模型選擇與方向判斷地圖`。
-- Canva design ID：`DAHQ4eP1njs`；可編輯來源：`https://www.canva.com/d/1Mr3R5q87YNMNux`。
+- Canva design ID：`DAHQ4eP1njs`；可編輯來源：`https://www.canva.com/d/C13PcgfKv2g6pbS`。
 - PWA 資產：`assets/macroeconomics-svg/macro-map.svg`；平板可閱讀、可放大、沿用既有離線 cache path。
 - 正式 run：`30565088816`；Pages artifact：`8768479929`。
 - Artifact digest：`sha256:cbf6c78477020bf8896d1e2a2a42a4a548853fed3e68fb1525bc9d7926523dd7`；重新下載 SHA256 完全一致。
