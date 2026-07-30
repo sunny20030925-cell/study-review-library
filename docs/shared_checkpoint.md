@@ -10,12 +10,12 @@
 - 預設分支：`main`
 - 固定入口：`https://sunny20030925-cell.github.io/study-review-library/`
 - 形式：平板直式 PWA 書庫。
-- 正式書庫內容版本：`2026.07.30-13`
+- 正式書庫內容版本：`2026.07.30-14`
 - 正式書籍數：**21 本**。
-- 最新成功正式 Pages run：`30536727373`（《民法概要》Visual Polish）。
-- 正式部署 source commit：`8043f625dd93c3e2fbf1e118a81a214a6ae917e4`。
-- 最新成功 Pages artifact：`8756956130`。
-- Artifact digest：`sha256:b84acced62954c3afe1dadfddfdbc8bbe972dab843e38b2cc9e65554b2d9a92f`。
+- 最新成功正式 Pages run：`30538616335`
+- 正式部署 source commit：`b46770756b829751169bf6f5baecb2fef67eae61`
+- 最新成功 Pages artifact：`8757716872`
+- Artifact digest：`sha256:3eb406b951a827c182c7e745479fa2a7b4c9647dcfc0fb6dcac05a7d09fe3df1`
 - Artifact re-download：PASS；下載 SHA256 與 digest 完全一致。
 - `docs/deployment_receipt.json`：`status=success`、`book_count=21`、`library_version=2026.07.30-13`、`progress_storage_changed=false`。
 
@@ -69,8 +69,7 @@ External Audit 路由依內容類型執行：數學／數值用 Wolfram；必要
 ## 基礎設施注意事項
 
 - 21 本 registry 的 `industry-trade` tail assertion 已改為相對順序 gate，允許其後存在 `mathematical-economics`。
-- 部署紀錄由 workflow-v2 generic recorder 接管；shared-checkpoint source-commit label 已與 recorder 契約一致。
-- 《民法概要》原 `workflow_run` listener 未留下可驗證 success recorder，因此改用一次性 repo-owner Issue fallback 完成正式 `-13` 部署；closure 後兩個民法專用觸發 workflow 均移除，不再累積無用 listener。
+- 部署紀錄已由 workflow-v2 generic recorder 接管；不再以逐書 legacy recorder 重寫 shared checkpoint 或逐書 stage。
 - 最新共同 PWA／Pages artifact 已完成 upload、deploy、重新下載、digest 與 21 本結構驗證。
 
 ## 不可破壞的正式邊界
