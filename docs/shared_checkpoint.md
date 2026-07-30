@@ -10,12 +10,12 @@
 - 預設分支：`main`
 - 固定入口：`https://sunny20030925-cell.github.io/study-review-library/`
 - 形式：平板直式 PWA 書庫。
-- 正式書庫內容版本：`2026.07.30-9`
+- 正式書庫內容版本：`2026.07.30-10`
 - 正式書籍數：**21 本**。
-- 最新成功正式 Pages run：`30518379329`
-- 最新成功正式部署 source commit：`96fb9b8f081033039a8fac731397d4746712d235`
-- 最新成功 Pages artifact：`8749764570`
-- Artifact digest：`sha256:ac6b2af87fe8547dd9625cca30665d5400b881197e0f7f9c89eec836e3a97a11`
+- 最新成功正式 Pages run：`30519227208`
+- 最新成功正式部署 source commit：`d9f1d3695f78e327f733af742f56e4326bceaa41`
+- 最新成功 Pages artifact：`8750076767`
+- Artifact digest：`sha256:fb988b14e7208c29e123804057b8b60102a50e7d73ca8dc61d817e4593db872f`
 - `docs/deployment_receipt.json`：`status=success`、`book_count=21`、`library_version=2026.07.30-9`、`progress_storage_changed=false`。
 
 ## 正式工作流
