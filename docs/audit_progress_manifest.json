@@ -3,7 +3,7 @@
   "updated_at": "2026-07-30",
   "repository": "sunny20030925-cell/study-review-library",
   "default_branch": "main",
-  "library_version": "2026.07.30-29",
+  "library_version": "2026.07.30-30",
   "book_count": 21,
   "workflow": {
     "stages": [
@@ -68,29 +68,25 @@
   "external_audit_queue_count": 0,
   "external_audit_completed_count": 21,
   "first_external_audit_target": null,
-  "visual_polish_queue": [
-    "calculus"
-  ],
-  "visual_polish_queue_count": 1,
-  "visual_polish_completed_count": 20,
-  "first_visual_polish_target": "calculus",
-  "visual_polish_ready": [
-    "calculus"
-  ],
+  "visual_polish_queue": [],
+  "visual_polish_queue_count": 0,
+  "visual_polish_completed_count": 21,
+  "first_visual_polish_target": null,
+  "visual_polish_ready": [],
   "books": [
     {
       "book_id": "calculus",
       "title": "大一微積分",
       "content_version": "2026.07.27-3",
-      "current_stage": "VP",
-      "task_id": "calculus:VP",
-      "next_stage": "PUB",
+      "current_stage": "PUB",
+      "task_id": "calculus:PUB",
+      "next_stage": null,
       "legacy_published_before_workflow_v2": true,
       "stages": {
         "DR": "passed",
         "IQ": "passed",
         "EA": "passed",
-        "VP": "pending",
+        "VP": "passed",
         "PUB": "passed"
       },
       "external_audit": {
@@ -100,6 +96,22 @@
         "completed_at": "2026-07-30",
         "record": "docs/books/calculus/external_audit.md",
         "core_answer_errors": 0,
+        "content_version_change_required": false,
+        "unresolved_blockers": 0
+      },
+      "visual_polish": {
+        "completed_at": "2026-07-30",
+        "record": "docs/books/calculus/visual_polish.md",
+        "asset": "assets/calculus-svg/calculus-map.svg",
+        "canva_design_id": "DAHQ5AiFZNo",
+        "canva_edit_url": "https://www.canva.com/d/J7WcMqzKE9zH_Cf",
+        "workflow_run_id": "30587649125",
+        "pages_artifact_id": "8777119969",
+        "artifact_digest": "sha256:79ac8ec575c1bd401c69d2933368fe4d3d89700f482c3097c17905cc771e912c",
+        "tablet_readable": true,
+        "zoomable": true,
+        "offline_cached": true,
+        "validator_checks": 62,
         "content_version_change_required": false,
         "unresolved_blockers": 0
       }

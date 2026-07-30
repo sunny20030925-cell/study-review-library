@@ -6,11 +6,11 @@
 
 - Book ID：`calculus`
 - 正式內容版本：`2026.07.27-3`
-- 正式書庫版本：`2026.07.30-9`
-- 目前 stage：`VP`
-- Task ID：`calculus:VP`
-- 下一階段：`PUB`
-- Published：workflow v2 前既有正式版本維持 `passed`。
+- 正式書庫版本：`2026.07.30-30`
+- 目前 stage：`PUB`
+- Task ID：`calculus:PUB`
+- 下一階段：無；本書新制流程已完成。
+- Published：`passed`。
 - Internal QA：`docs/books/calculus/qa_report.md`
 - External Audit：`docs/books/calculus/external_audit.md`
 
@@ -31,3 +31,17 @@
 ## 相容性
 
 章節／題目 ID、題數、PWA、閱讀進度與錯題資料均不變；正式 21 本 artifact 維持 `2026.07.30-9`。
+
+## Visual Polish 完成（2026-07-30）
+
+- Task：`calculus:VP`；結果：`passed`。
+- 高價值資產：`大一微積分極限導數積分級數與多變數判斷地圖`。
+- Canva design ID：`DAHQ5AiFZNo`；可編輯來源：`https://www.canva.com/d/J7WcMqzKE9zH_Cf`。
+- PWA 資產：`assets/calculus-svg/calculus-map.svg`；平板可閱讀、可放大、沿用既有離線 cache path。
+- 正式 run：`30587649125`；Pages artifact：`8777119969`。
+- Artifact digest：`sha256:79ac8ec575c1bd401c69d2933368fe4d3d89700f482c3097c17905cc771e912c`；重新下載 SHA256 完全一致。
+- VP validator：`62 checks`，正式部署前與 artifact 重下載後均 `visual_polish=passed`。
+- 正式內容版本未因純視覺整理升版；閱讀進度、錯題資料與 storage key 相容，`progress_storage_changed=false`。
+- 詳細證據：`docs/books/calculus/visual_polish.md`。
+- 本書已切換至 `calculus:PUB`。
+- 全書庫 Visual Polish queue 已清空。

@@ -10,14 +10,14 @@
 - 預設分支：`main`
 - 固定入口：`https://sunny20030925-cell.github.io/study-review-library/`
 - 形式：平板直式 PWA 書庫。
-- 正式書庫內容版本：`2026.07.30-29`
+- 正式書庫內容版本：`2026.07.30-30`
 - 正式書籍數：**21 本**。
-- 最新成功正式 Pages run：`30587597954`
-- 正式部署 source commit：`24a920259e92966731993f0ffb909f1f112f8118`
-- 最新成功 Pages artifact：`8777096042`
-- Artifact digest：`sha256:400cff28cec915fbe4bd6dc6314fd86f4ea3b838b37990f88bb4646c1778a7ea`
+- 最新成功正式 Pages run：`30587649125`
+- 正式部署 source commit：`024df99e2a5a009fd27f4105bbc6b4245c464626`
+- 最新成功 Pages artifact：`8777119969`
+- Artifact digest：`sha256:79ac8ec575c1bd401c69d2933368fe4d3d89700f482c3097c17905cc771e912c`
 - Artifact re-download：PASS；下載 SHA256 與 digest 完全一致。
-- `docs/deployment_receipt.json`：`status=success`、`book_count=21`、`library_version=2026.07.30-29`、`progress_storage_changed=false`。
+- `docs/deployment_receipt.json`：`status=success`、`book_count=21`、`library_version=2026.07.30-30`、`progress_storage_changed=false`。
 
 ## 正式工作流
 
@@ -49,7 +49,7 @@ Task ID：`<book-id>:<stage-code>`。
 - External Audit：**21／21 已通過**；`external_audit_queue=[]`。
   - `commercial-law`、`civil-law-overview`：既有正式法源／判決複核證據遷移為 `passed_migrated`。
   - 其餘 19 本：依新制完成 risk-based External Audit，結果均 `passed`。
-- Visual Polish：**20／21 完成**；`accounting`、`economics`、`statistics`、`commercial-law`、`cost-accounting`、`microeconomics`、`intermediate-accounting`、`macroeconomics`、`international-economics`、`public-finance`、`money-banking`、`advanced-statistics`、`computer-fundamentals`、`game-theory`、`civil-law-overview`、`investments`、`econometrics`、`industrial-economics`、`industry-trade`、`mathematical-economics` 已通過，剩餘 1 本在 queue。
+- Visual Polish：**21／21 完成**；`calculus`、`accounting`、`economics`、`statistics`、`commercial-law`、`cost-accounting`、`microeconomics`、`intermediate-accounting`、`macroeconomics`、`international-economics`、`public-finance`、`money-banking`、`advanced-statistics`、`computer-fundamentals`、`game-theory`、`civil-law-overview`、`investments`、`econometrics`、`industrial-economics`、`industry-trade`、`mathematical-economics` 已通過，剩餘 0 本在 queue。
   - 《高等統計學》：《高等統計推論路線圖》，沿用既有 `math-bridge.svg` cache path，附錄 B 可放大。
   - 《數理經濟學》：《最佳化與動態判斷地圖》，沿用既有 `kkt-inequality.svg` cache path，VP validator 40 checks。
   - 《商事法》：《商事法案例題雙軌判斷地圖》，沿用既有 `law-map.svg` cache path；VP validator 59 checks，部署前及 artifact 重下載後各 PASS。
@@ -70,17 +70,14 @@ Task ID：`<book-id>:<stage-code>`。
   - 《會計學》：《會計學交易調整報表與現金流判斷地圖》，沿用既有資產 cache path；VP validator **102 checks**，部署前及 artifact 重下載後各 PASS。
   - 《經濟學原理》：《經濟學原理衝擊曲線均衡福利與政策判斷地圖》，沿用既有資產 cache path；VP validator **84 checks**，部署前及 artifact 重下載後各 PASS。
   - 《計算機概論》：《計算機概論資料硬體作業系統網路程式與安全判斷地圖》，沿用既有資產 cache path；VP validator **92 checks**，部署前及 artifact 重下載後各 PASS。
-- Published：**21／21** 保持正式發布與 PWA 相容性；完成 VP 的 20 本已進入新制 `PUB` 完成狀態。
+  - 《大一微積分》：《大一微積分極限導數積分級數與多變數判斷地圖》，沿用既有資產 cache path；VP validator **62 checks**，部署前及 artifact 重下載後各 PASS。
+- Published：**21／21** 保持正式發布與 PWA 相容性；完成 VP 的 21 本已進入新制 `PUB` 完成狀態。
 
 External Audit 路由依內容類型執行：數學／數值用 Wolfram；必要研究方法與實證結論用 Consensus；法律／制度與會計採正式一次來源；Scite 僅在需要重要論文 citation support／dispute context 時使用。
 
 ## 下一個正式任務
 
-- Task ID：`calculus:VP`
-- 書籍：《大一微積分》
-- Stage：Visual Polish
-- 原則：只處理真正有考前價值的高價值視覺資產；依該書正式 routing 與既有 QA／External Audit 證據先複核高風險內容。
-- EA queue 已清空，因此由 `visual_polish_queue[0]` 自動判定下一個 VP 任務。
+- Visual Polish queue 已清空；21 本均完成 VP。
 ## 基礎設施注意事項
 
 - Visual Polish 發布已統一由 owner-triggered `Apply next Visual Polish` 共用 runner 執行；完成 Canva 批准後可自動完成套用、QA、Pages、artifact 重驗、generic recorder 與 VP→PUB control-plane closure，不再為每本建立暫時 listener／closure PR。
