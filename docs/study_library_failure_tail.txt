@@ -1,68 +1,77 @@
-deploy	Integrate or validate industry and trade	﻿2026-07-29T22:29:10.4195423Z ##[group]Run set -euo pipefail
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4195711Z ^[[36;1mset -euo pipefail^[[0m
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4195906Z ^[[36;1mif python - <<'PY'^[[0m
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4196103Z ^[[36;1mimport json,sys^[[0m
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4196337Z ^[[36;1md=json.load(open('_site/data/library.json'))^[[0m
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4196682Z ^[[36;1msys.exit(0 if any(b['id']=='industry-trade' for b in d['books']) else 1)^[[0m
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4196973Z ^[[36;1mPY^[[0m
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4197129Z ^[[36;1mthen^[[0m
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4197491Z ^[[36;1m  FINAL_LIBRARY_VERSION="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"^[[0m
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4197879Z ^[[36;1melse^[[0m
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4198175Z ^[[36;1m  BEFORE="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"^[[0m
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4198702Z ^[[36;1m  FINAL_LIBRARY_VERSION="$(PYTHONPATH=deploy python deploy/integrate_industry_trade.py _site "$BEFORE")"^[[0m
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4199080Z ^[[36;1mfi^[[0m
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4199483Z ^[[36;1mEXPECTED_LIBRARY_VERSION="$FINAL_LIBRARY_VERSION" PYTHONPATH=deploy python deploy/validate_industry_trade.py _site^[[0m
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4199995Z ^[[36;1mPYTHONPATH=deploy python deploy/qa_industry_trade_independent.py _site^[[0m
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4200312Z ^[[36;1mexport FINAL_LIBRARY_VERSION^[[0m
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4200601Z ^[[36;1mecho "FINAL_LIBRARY_VERSION=$FINAL_LIBRARY_VERSION" >> "$GITHUB_ENV"^[[0m
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4200940Z ^[[36;1mecho "INDUSTRY_TRADE_QA1_CHECKS=1495" >> "$GITHUB_ENV"^[[0m
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4201244Z ^[[36;1mecho "INDUSTRY_TRADE_QA2_CHECKS=545" >> "$GITHUB_ENV"^[[0m
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4201503Z ^[[36;1mnode --check _site/app.js^[[0m
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4201708Z ^[[36;1mnode --check _site/sw.js^[[0m
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4202158Z ^[[36;1mpython - <<'PY'^[[0m
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4202409Z ^[[36;1mimport json,os^[[0m
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4202599Z ^[[36;1mfrom pathlib import Path^[[0m
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4202830Z ^[[36;1mlib=json.load(open('_site/data/library.json'))^[[0m
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4203095Z ^[[36;1mids=[b['id'] for b in lib['books']]^[[0m
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4203345Z ^[[36;1mbase=json.load(open('/tmp/base_ids.json'))^[[0m
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4203637Z ^[[36;1massert lib['version']==os.environ['FINAL_LIBRARY_VERSION']^[[0m
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4203979Z ^[[36;1massert ids[-1]=='industry-trade' and ids.count('industry-trade')==1^[[0m
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4204457Z ^[[36;1massert ids.count('industrial-economics')==1 and ids.index('industrial-economics') < ids.index('industry-trade')^[[0m
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4204869Z ^[[36;1mif 'industry-trade' not in base:^[[0m
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4205107Z ^[[36;1m    assert ids==base+['industry-trade']^[[0m
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4205327Z ^[[36;1melse:^[[0m
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4205747Z ^[[36;1m    assert ids==base^[[0m
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4205962Z ^[[36;1mroot=Path('_site/books/industry-trade')^[[0m
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4206270Z ^[[36;1massert len(json.load(open(root/'manifest.json'))['chapters'])==23^[[0m
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4206626Z ^[[36;1massert json.load(open(root/'questions.json'))['count']==100^[[0m
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4206966Z ^[[36;1massert len(json.load(open(root/'search.json'))['entries'])==160^[[0m
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4207343Z ^[[36;1massert len(list(Path('_site/assets/industry-trade-svg').glob('*.svg')))==20^[[0m
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4207691Z ^[[36;1mprint('FINAL_LIBRARY_READY',lib['version'],len(ids))^[[0m
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4207938Z ^[[36;1mPY^[[0m
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4246739Z shell: /usr/bin/bash -e {0}
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4246953Z env:
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4247116Z   GITHUB_PAGES: true
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4247315Z   FORMAL_BASE_SOURCE: deployment-receipt
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4247550Z   FORMAL_BASE_ARTIFACT_ID: 8741187091
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4247899Z   FORMAL_BASE_DIGEST: sha256:576f046c2f6e98f1cab56ca7136042e1dfb66a4af1ad21e74552ce16b2db1eeb
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4248258Z   ADVSTAT_REAUDIT_CHECKS: 1059
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4248458Z   ADVSTAT_NUMERIC_RECHECKS: 20
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4248654Z   ADVSTAT_LIBRARY_VERSION: 2026.07.30-9
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4248872Z   ECONOMETRICS_REAUDIT_CHECKS: 57
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4249250Z   ECON_LIBRARY_VERSION: 2026.07.30-9
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4249463Z   INDUSTRIAL_V2_QA1_CHECKS: 186
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4249656Z   INDUSTRIAL_V2_QA2_CHECKS: 481
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4249856Z   INDUSTRIAL_LIBRARY_VERSION: 2026.07.30-9
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4250083Z   GAME_THEORY_V2_ARTIFACT_CHECKS: 504
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4250292Z   GAME_THEORY_V2_SOURCE_CHECKS: 375
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4250501Z   GAME_THEORY_LIBRARY_VERSION: 2026.07.30-9
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4250721Z   INVESTMENTS_REAUDIT_CHECKS: 730
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4250919Z   INVESTMENTS_NUMERIC_RECHECKS: 45
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4251126Z   INVESTMENTS_LIBRARY_VERSION: 2026.07.30-9
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4251325Z ##[endgroup]
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.4922123Z INDUSTRY_TRADE_QA_ROUND1_OK checks=1493 books=21 chapters=20 appendices=3 questions=100 search=160 figures=20
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.5175989Z INDUSTRY_TRADE_QA_ROUND2_OK checks=545 questions_rechecked=100 quantitative_recomputed=20 high_risk_chapters=12
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.8157387Z Traceback (most recent call last):
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.8157799Z   File "<stdin>", line 7, in <module>
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.8158065Z AssertionError
-deploy	Integrate or validate industry and trade	2026-07-29T22:29:10.8289838Z ##[error]Process completed with exit code 1.
+deploy	Record successful deployment structurally	﻿2026-07-30T05:52:06.7405013Z ##[group]Run set -euo pipefail
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7405593Z ^[[36;1mset -euo pipefail^[[0m
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7406233Z ^[[36;1mpython deploy/record_advanced_statistics_v2_deployment.py _site^[[0m
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7407091Z ^[[36;1mpython deploy/record_econometrics_v2_deployment.py _site^[[0m
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7407950Z ^[[36;1mpython deploy/record_industrial_economics_v2_deployment.py _site^[[0m
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7408838Z ^[[36;1mpython deploy/record_industry_trade_deployment.py _site^[[0m
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7410005Z ^[[36;1mPYTHONPATH=deploy python deploy/record_game_theory_v2_deployment.py _site^[[0m
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7411035Z ^[[36;1mPYTHONPATH=deploy python deploy/record_investments_v2_deployment.py _site^[[0m
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7412046Z ^[[36;1mpython deploy/record_computer_fundamentals_v2_deployment.py _site^[[0m
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7413088Z ^[[36;1mPYTHONPATH=deploy python deploy/record_mathematical_economics_v2_deployment.py _site^[[0m
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7414016Z ^[[36;1mgit config user.name github-actions[bot]^[[0m
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7414891Z ^[[36;1mgit config user.email 41898282+github-actions[bot]@users.noreply.github.com^[[0m
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7415655Z ^[[36;1mgit add \^[[0m
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7416080Z ^[[36;1m  docs/deployment_receipt.json \^[[0m
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7416594Z ^[[36;1m  README.md \^[[0m
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7417027Z ^[[36;1m  docs/shared_checkpoint.md \^[[0m
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7417602Z ^[[36;1m  docs/books/advanced-statistics/status.md \^[[0m
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7418279Z ^[[36;1m  docs/books/advanced-statistics/qa_report.md \^[[0m
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7418910Z ^[[36;1m  docs/books/investments/status.md \^[[0m
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7419771Z ^[[36;1m  docs/books/investments/qa_report.md \^[[0m
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7420388Z ^[[36;1m  docs/books/industry-trade/status.md \^[[0m
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7420997Z ^[[36;1m  docs/books/industry-trade/qa_report.md \^[[0m
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7421588Z ^[[36;1m  docs/books/econometrics/status.md \^[[0m
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7422189Z ^[[36;1m  docs/books/econometrics/qa_report.md \^[[0m
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7422827Z ^[[36;1m  docs/books/industrial-economics/status.md \^[[0m
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7423538Z ^[[36;1m  docs/books/industrial-economics/qa_report.md \^[[0m
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7424256Z ^[[36;1m  docs/books/industrial-economics/v2_audit_report.md \^[[0m
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7424932Z ^[[36;1m  docs/books/game-theory/status.md \^[[0m
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7425530Z ^[[36;1m  docs/books/game-theory/v2_audit_report.md \^[[0m
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7426197Z ^[[36;1m  docs/books/computer-fundamentals/status.md \^[[0m
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7426880Z ^[[36;1m  docs/books/computer-fundamentals/qa_report.md \^[[0m
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7427570Z ^[[36;1m  docs/books/mathematical-economics/status.md \^[[0m
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7428270Z ^[[36;1m  docs/books/mathematical-economics/qa_report.md^[[0m
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7428902Z ^[[36;1mif ! git diff --cached --quiet; then^[[0m
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7429861Z ^[[36;1m  git commit -m "Record study library deployment [skip ci]"^[[0m
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7430554Z ^[[36;1m  git push origin HEAD:main^[[0m
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7431043Z ^[[36;1mfi^[[0m
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7489215Z shell: /usr/bin/bash -e {0}
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7489947Z env:
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7490306Z   GITHUB_PAGES: true
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7490708Z   FORMAL_BASE_SOURCE: deployment-receipt
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7491035Z   FORMAL_BASE_ARTIFACT_ID: 8741187091
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7491503Z   FORMAL_BASE_DIGEST: sha256:576f046c2f6e98f1cab56ca7136042e1dfb66a4af1ad21e74552ce16b2db1eeb
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7492190Z   ADVSTAT_REAUDIT_CHECKS: 1059
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7492449Z   ADVSTAT_NUMERIC_RECHECKS: 20
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7492697Z   ADVSTAT_LIBRARY_VERSION: 2026.07.30-9
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7492983Z   ECONOMETRICS_REAUDIT_CHECKS: 57
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7493239Z   ECON_LIBRARY_VERSION: 2026.07.30-9
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7493501Z   INDUSTRIAL_V2_QA1_CHECKS: 186
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7493743Z   INDUSTRIAL_V2_QA2_CHECKS: 481
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7493995Z   INDUSTRIAL_LIBRARY_VERSION: 2026.07.30-9
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7494285Z   GAME_THEORY_V2_ARTIFACT_CHECKS: 504
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7494723Z   GAME_THEORY_V2_SOURCE_CHECKS: 375
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7495034Z   GAME_THEORY_LIBRARY_VERSION: 2026.07.30-9
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7495312Z   INVESTMENTS_REAUDIT_CHECKS: 730
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7495570Z   INVESTMENTS_NUMERIC_RECHECKS: 45
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7495831Z   INVESTMENTS_LIBRARY_VERSION: 2026.07.30-9
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7496107Z   FINAL_LIBRARY_VERSION: 2026.07.30-9
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7496369Z   INDUSTRY_TRADE_QA1_CHECKS: 1495
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7496617Z   INDUSTRY_TRADE_QA2_CHECKS: 545
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7496879Z   COMPUTER_V2_QA_CHECKS: 128
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7497131Z   COMPUTER_V2_NUMERIC_RECHECKS: 36
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7497401Z   MATHEMATICAL_ECONOMICS_V2_QA_CHECKS: 855
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7497714Z   MATHEMATICAL_ECONOMICS_V2_NUMERIC_RECHECKS: 23
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7498031Z   MATHEMATICAL_ECONOMICS_V2_LOGIC_GATES: 10
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7498314Z   PAGES_ARTIFACT_ID: 8749559780
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7498746Z   PAGES_ARTIFACT_DIGEST: sha256:8059399471c45afcefa3060bf007297f43b61b4b3303b94266ad906fdeb9f002
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7499368Z   PAGES_ARTIFACT_SHA256: 8059399471c45afcefa3060bf007297f43b61b4b3303b94266ad906fdeb9f002
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7500273Z   DEPLOYED_PAGE_URL: https://sunny20030925-cell.github.io/study-review-library/
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.7500695Z ##[endgroup]
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.8562492Z Traceback (most recent call last):
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.8563740Z   File "/home/runner/work/study-review-library/study-review-library/deploy/record_advanced_statistics_v2_deployment.py", line 202, in <module>
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.8564960Z     main(sys.argv[1])
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.8565986Z   File "/home/runner/work/study-review-library/study-review-library/deploy/record_advanced_statistics_v2_deployment.py", line 187, in main
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.8567219Z     raise AssertionError('checkpoint advanced statistics section not found')
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.8568035Z AssertionError: checkpoint advanced statistics section not found
+deploy	Record successful deployment structurally	2026-07-30T05:52:06.8698012Z ##[error]Process completed with exit code 1.
