@@ -1,0 +1,115 @@
+name: Validate industry trade v2 reaudit
+
+on:
+  pull_request:
+    paths:
+      - 'deploy/patch_industry_trade_v2.py'
+      - 'deploy/qa_industry_trade_reaudit_v2.py'
+      - 'deploy/record_industry_trade_v2_deployment.py'
+      - '.github/workflows/validate-industry-trade-v2-reaudit.yml'
+      - '.github/workflows/deploy-pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compile v2 correction and audit helpers
+        run: |
+          python -m py_compile \
+            deploy/patch_industry_trade_v2.py \
+            deploy/qa_industry_trade_reaudit_v2.py \
+            deploy/record_industry_trade_v2_deployment.py
+
+      - name: Download current formal Pages artifact from main receipt
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh api "repos/${GITHUB_REPOSITORY}/contents/docs/deployment_receipt.json?ref=main" --jq '.content' | tr -d '\n' | base64 -d > /tmp/receipt.json
+          ARTIFACT_ID="$(python -c "import json;print(json.load(open('/tmp/receipt.json'))['pages_artifact_id'])")"
+          DIGEST="$(python -c "import json;print(json.load(open('/tmp/receipt.json'))['pages_artifact_digest'])")"
+          EXPECTED_VERSION="$(python -c "import json;print(json.load(open('/tmp/receipt.json'))['library_version'])")"
+          EXPECTED_COUNT="$(python -c "import json;print(json.load(open('/tmp/receipt.json'))['book_count'])")"
+          gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" > /tmp/formal.zip
+          echo "${DIGEST#sha256:}  /tmp/formal.zip" | sha256sum --check -
+          mkdir /tmp/unpack _site
+          unzip -q /tmp/formal.zip -d /tmp/unpack
+          if [ -f /tmp/unpack/artifact.tar ]; then
+            tar -xf /tmp/unpack/artifact.tar -C _site
+          elif [ -f /tmp/unpack/artifact.tar.gz ]; then
+            tar -xzf /tmp/unpack/artifact.tar.gz -C _site
+          else
+            cp -a /tmp/unpack/. _site/
+          fi
+          EXPECTED_VERSION="$EXPECTED_VERSION" EXPECTED_COUNT="$EXPECTED_COUNT" python - <<'PY'
+          import json,os
+          from pathlib import Path
+          site=Path('_site'); lib=json.load(open(site/'data/library.json'))
+          ids=[b['id'] for b in lib['books']]
+          assert lib['version']==os.environ['EXPECTED_VERSION']
+          assert len(ids)==int(os.environ['EXPECTED_COUNT'])
+          assert ids.count('industry-trade')==1
+          root=site/'books/industry-trade'
+          assert json.load(open(root/'manifest.json'))['version']=='2026.07.29-1'
+          assert json.load(open(root/'questions.json'))['version']=='2026.07.29-1'
+          Path('/tmp/base_ids.json').write_text(json.dumps(ids))
+          print('INDUSTRY_TRADE_V2_FORMAL_BASE_OK',lib['version'],len(ids))
+          PY
+
+      - name: Apply v2 corrections with all other books protected
+        run: |
+          set -euo pipefail
+          find _site/books -type f ! -path '*/industry-trade/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/pre-other-books.sha256
+          cp _site/books/industry-trade/manifest.json /tmp/pre-manifest.json
+          cp _site/books/industry-trade/questions.json /tmp/pre-questions.json
+          BEFORE="$(python -c "import json;print(json.load(open('_site/data/library.json'))['version'])")"
+          FINAL="$(python deploy/patch_industry_trade_v2.py _site)"
+          test -n "$FINAL"
+          echo "FINAL_LIBRARY_VERSION=$FINAL" >> "$GITHUB_ENV"
+          find _site/books -type f ! -path '*/industry-trade/*' -print0 | sort -z | xargs -0 sha256sum > /tmp/post-other-books.sha256
+          diff -u /tmp/pre-other-books.sha256 /tmp/post-other-books.sha256
+          FINAL="$FINAL" python - <<'PY'
+          import json,os
+          pre_m=json.load(open('/tmp/pre-manifest.json')); pre_q=json.load(open('/tmp/pre-questions.json'))
+          root='_site/books/industry-trade'
+          post_m=json.load(open(root+'/manifest.json')); post_q=json.load(open(root+'/questions.json'))
+          lib=json.load(open('_site/data/library.json')); base=json.load(open('/tmp/base_ids.json'))
+          assert [x['id'] for x in post_m['chapters']]==[x['id'] for x in pre_m['chapters']]
+          assert [x['id'] for x in post_q['items']]==[x['id'] for x in pre_q['items']]
+          assert len(post_q['items'])==len(pre_q['items'])==100
+          assert [b['id'] for b in lib['books']]==base
+          assert lib['version']==os.environ['FINAL']
+          print('INDUSTRY_TRADE_V2_IDS_AND_OTHER_BOOK_HASHES_PRESERVED')
+          PY
+
+      - name: Independent post-publication reaudit
+        run: |
+          set -euo pipefail
+          python deploy/qa_industry_trade_reaudit_v2.py _site "$FINAL_LIBRARY_VERSION" | tee /tmp/v2-reaudit.log
+          grep -q 'INDUSTRY_TRADE_V2_REAUDIT_OK' /tmp/v2-reaudit.log
+          grep -q 'questions=100' /tmp/v2-reaudit.log
+          grep -q 'q04_rewritten=20' /tmp/v2-reaudit.log
+          grep -q 'quantitative_recomputed=24' /tmp/v2-reaudit.log
+          node --check _site/app.js
+          node --check _site/sw.js
+
+      - name: Verify corrected tablet-facing content
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('_site/books/industry-trade')
+          m=json.load(open(root/'manifest.json')); q=json.load(open(root/'questions.json')); s=json.load(open(root/'search.json'))
+          assert m['version']==q['version']=='2026.07.30-1'
+          assert len(m['chapters'])==23 and q['count']==100 and len(s['entries'])==160
+          assert '。。' not in json.dumps(q,ensure_ascii=False)
+          print('INDUSTRY_TRADE_V2_TABLET_CONTENT_OK')
+          PY
